@@ -14,6 +14,10 @@ const modalUrl = document.getElementById('modal-url');
 const modalLightmode = document.getElementById('modal-lightmode');
 const modalSave = document.getElementById('modal-save');
 const modalCancel = document.getElementById('modal-cancel');
+const modalBookmarkColor = document.getElementById('modal-bookmark-color');
+const modalTextColor = document.getElementById('modal-text-color');
+const modalShowFavicon = document.getElementById('modal-show-favicon');
+const modalShowText = document.getElementById('modal-show-text');
 let editingIndex = null;
 
 function openModal(index) {
@@ -22,6 +26,10 @@ function openModal(index) {
     modalName.value = bookmarks[index].name;
     modalUrl.value = bookmarks[index].url;
     modalLightmode.checked = !!bookmarks[index].lightmode;
+    modalBookmarkColor.value = bookmarks[index].bookmarkColor || "#222222";
+    modalTextColor.value = bookmarks[index].textColor || "#ffffff"; // color por defecto texto
+    modalShowFavicon.checked = bookmarks[index].showFavicon ?? true;
+    modalShowText.checked = bookmarks[index].showText ?? true;
     editModal.style.display = 'flex';
 }
 
@@ -36,6 +44,10 @@ modalSave.addEventListener('click', () => {
     bookmarks[editingIndex].name = modalName.value;
     bookmarks[editingIndex].url = modalUrl.value;
     bookmarks[editingIndex].lightmode = modalLightmode.checked;
+    bookmarks[editingIndex].bookmarkColor = modalBookmarkColor.value; // guardar color
+    bookmarks[editingIndex].textColor = modalTextColor.value; // guardar color texto
+    bookmarks[editingIndex].showFavicon = modalShowFavicon.checked;
+    bookmarks[editingIndex].showText = modalShowText.checked;
     chrome.storage.local.set({ bookmarks });
     renderBookmarks();
     closeModal();
@@ -118,6 +130,8 @@ function renderBookmarks() {
         const div = document.createElement('div');
         div.className = 'bookmark';
         div.style.cursor = editMode ? "move" : "pointer";
+        div.style.backgroundColor = bookmark.bookmarkColor || "#222"; // color por defecto
+
 
         if (bookmark.x != null && bookmark.y != null) {
             div.style.left = bookmark.x + 'px';
@@ -143,8 +157,17 @@ function renderBookmarks() {
 
         const linkEl = div.querySelector('a');
         linkEl.style.cursor = editMode ? 'move' : 'pointer';
+        linkEl.style.color = bookmark.textColor || "#fff";
 
         const imgEl = div.querySelector("a img");
+        const spanEl = div.querySelector("a span");
+
+        // Favicon
+        imgEl.style.display = (bookmark.showFavicon ?? true) ? "inline-block" : "none";
+
+        // Texto
+        spanEl.style.display = (bookmark.showText ?? true) ? "inline-block" : "none";
+        
         getFavicon(bookmark.url).then(favicon => {
             imgEl.src = favicon;
             if (bookmark.lightmode) {
