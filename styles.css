@@ -85,7 +85,6 @@ h1 {
   background-color: #777;
 }
 
-
 /* Menú flotante oculto en la izquierda */
 #floating-menu {
   position: fixed;
@@ -201,7 +200,7 @@ h1 {
   background: rgba(0,0,0,0.7);
 }
 
-.bookmark button.edit { right: 30px; }
+.bookmark button.edit { right: 35px; }
 .bookmark button.delete { right: 5px; }
 
 /* Botón de agregar bookmark */
