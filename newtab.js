@@ -175,6 +175,7 @@ function renderBookmarks() {
         if (editMode) {
             let offsetX = 0, offsetY = 0;
             let dragging = false;
+            let highestZ = 1; // valor global para controlar capas
 
             div.addEventListener('pointerdown', (e) => {
                 e.preventDefault();
@@ -183,6 +184,10 @@ function renderBookmarks() {
                 offsetX = e.clientX - div.offsetLeft;
                 offsetY = e.clientY - div.offsetTop;
                 div.setPointerCapture(e.pointerId);
+
+                // Subir al frente
+                highestZ = 9999;
+                div.style.zIndex = highestZ;
             });
 
             div.addEventListener('pointermove', (e) => {
@@ -202,7 +207,7 @@ function renderBookmarks() {
                 } else {
                     div.style.opacity = "1";
                     div.style.border = "none";
-    }
+                }
             });
 
             div.addEventListener('pointerup', (e) => {
@@ -225,6 +230,8 @@ function renderBookmarks() {
                 // Reset visual
                 div.style.opacity = "1";
                 div.style.border = "none";
+                // Devolver a capa normal
+                div.style.zIndex = 1;
 
                 div.releasePointerCapture(e.pointerId);
             });
