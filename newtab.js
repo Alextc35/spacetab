@@ -33,6 +33,9 @@ function openModal(index) {
     modalTextColor.value = bookmarks[index].textColor || "#ffffff";
     modalShowFavicon.checked = bookmarks[index].showFavicon ?? true;
     modalShowText.checked = bookmarks[index].showText ?? true;
+
+    updateColorInputs();
+
     editModal.style.display = 'flex';
 }
 function closeModal() {
@@ -46,7 +49,6 @@ modalSave.addEventListener('click', () => {
     bookmarks[editingIndex].name = modalName.value;
     bookmarks[editingIndex].url = modalUrl.value;
     bookmarks[editingIndex].invertColors = modalInvertColors.checked;
-    bookmarks[editingIndex].bookmarkColor = modalBookmarkColor.value;
     bookmarks[editingIndex].bookmarkColor = modalNoBackground.checked ? "transparent" : modalBookmarkColor.value;
     bookmarks[editingIndex].textColor = modalTextColor.value;
     bookmarks[editingIndex].showFavicon = modalShowFavicon.checked;
@@ -124,6 +126,17 @@ function isDarkColor(hex) {
     const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
     return luminance < 64; // umbral: 64
 }
+
+function updateColorInputs() {
+    // Deshabilitar input de color de fondo si "Sin fondo" está marcado
+    modalBookmarkColor.disabled = modalNoBackground.checked;
+
+    // Deshabilitar input de color de texto si "Mostrar texto" está marcado
+    modalTextColor.disabled = !modalShowText.checked; // deshabilitado si no mostrar
+}
+
+modalNoBackground.addEventListener('change', updateColorInputs);
+modalShowText.addEventListener('change', updateColorInputs);
 
 // Alternar modo editar
 toggleButton.addEventListener('click', () => {
