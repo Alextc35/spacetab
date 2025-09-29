@@ -55,6 +55,21 @@ h1 {
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.checkbox-wrapper input {
+  margin-right: 6px; /* separa el checkbox del texto */
+  flex-shrink: 0;    /* evita que el checkbox se reduzca */
+}
+
+.checkbox-wrapper label {
+  cursor: pointer; /* solo el texto es clicable */
+}
+
 /* Inputs dentro del modal */
 #edit-modal .modal-content input {
   padding: 5px;

@@ -27,14 +27,23 @@
 
       <label><input type="checkbox" id="modal-lightmode">Invertir colores</label>
 
-      <label>Color del bookmark:</label>
-      <input type="color" id="modal-bookmark-color">
+      <div id="color-options">
+        <label>Color del bookmark:</label>
+        <input type="color" id="modal-bookmark-color">
 
-      <label>Color del texto:</label>
-      <input type="color" id="modal-text-color">
+        <label>Color del texto:</label>
+        <input type="color" id="modal-text-color">
+      </div>
 
-      <label><input type="checkbox" id="modal-show-favicon"> Mostrar favicon</label>
-      <label><input type="checkbox" id="modal-show-text"> Mostrar texto</label>
+      <div class="checkbox-wrapper">
+        <input type="checkbox" id="modal-show-favicon">
+        <label for="modal-show-favicon">Mostrar favicon</label>
+      </div>
+
+      <div class="checkbox-wrapper">
+        <input type="checkbox" id="modal-show-text">
+        <label for="modal-show-text">Mostrar texto</label>
+      </div>
 
       <div class="modal-buttons">
         <button id="modal-save" type="button">Guardar</button>
