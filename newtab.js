@@ -276,7 +276,15 @@ function renderBookmarks() {
         // Abrir link en modo normal
         div.addEventListener('click', (e) => {
             if (!editMode && !e.target.classList.contains('edit') && !e.target.classList.contains('delete')) {
-                window.location.href = bookmark.url;
+                e.preventDefault();
+
+                if (e.ctrlKey || e.metaKey || e.button === 1) {
+                    // ctrl+click, cmd+click o rueda del ratón → nueva pestaña
+                    window.open(bookmark.url, '_blank');
+                } else {
+                    // click normal → misma pestaña
+                    window.location.href = bookmark.url;
+                }
             }
         });
 
