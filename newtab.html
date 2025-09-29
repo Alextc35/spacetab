@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Spacetab</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Spacetab by @alextc35<br><span class="version">v. 0.0.1 - test developing</span></h1>
+  <div id="floating-menu">
+    <button id="toggle-mode" type="button">✎</button>
+    <button id="add-bookmark" type="button">➕</button>
+    <button id="settings" type="button">⚙️</button>
+  </div>
+  <div id="grid-overlay"></div>
+  <div id="bookmark-container"></div>
+
+  <!-- Modal de edición -->
+  <div id="edit-modal" style="display: none;">
+    <div class="modal-content">
+      <h2>Editar Favorito</h2>
+      <label>Nombre:</label>
+      <input type="text" id="modal-name">
+      <label>URL:</label>
+      <input type="text" id="modal-url">
+      <div class="modal-buttons">
+        <button id="modal-save" type="button">Guardar</button>
+        <button id="modal-cancel" type="button">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="newtab.js"></script>
+</body>
+</html>
