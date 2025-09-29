@@ -134,14 +134,14 @@ function renderBookmarks() {
         }
 
         div.innerHTML = `
-            <a href="${bookmark.url}" target="_blank">
+            <a href="${bookmark.url}">
                 <img src="" alt="${bookmark.name}">
                 <span>${bookmark.name}</span>
             </a>
             ${editMode ? '<button class="edit">✎</button><button class="delete">🗑</button>' : ''}
         `;
 
-        const imgEl = div.querySelector("img");
+        const imgEl = div.querySelector("a img");
         getFavicon(bookmark.url).then(favicon => {
             imgEl.src = favicon;
             if (bookmark.lightmode) {
