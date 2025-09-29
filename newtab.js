@@ -20,6 +20,7 @@ const modalShowFavicon = document.getElementById('modal-show-favicon');
 const modalShowText = document.getElementById('modal-show-text');
 let editingIndex = null;
 
+// Modal abrir/cerrar
 function openModal(index) {
     if (index == null || !bookmarks[index]) return;
     editingIndex = index;
@@ -27,12 +28,11 @@ function openModal(index) {
     modalUrl.value = bookmarks[index].url;
     modalLightmode.checked = !!bookmarks[index].lightmode;
     modalBookmarkColor.value = bookmarks[index].bookmarkColor || "#222222";
-    modalTextColor.value = bookmarks[index].textColor || "#ffffff"; // color por defecto texto
+    modalTextColor.value = bookmarks[index].textColor || "#ffffff";
     modalShowFavicon.checked = bookmarks[index].showFavicon ?? true;
     modalShowText.checked = bookmarks[index].showText ?? true;
     editModal.style.display = 'flex';
 }
-
 function closeModal() {
     editModal.style.display = 'none';
     editingIndex = null;
@@ -44,8 +44,8 @@ modalSave.addEventListener('click', () => {
     bookmarks[editingIndex].name = modalName.value;
     bookmarks[editingIndex].url = modalUrl.value;
     bookmarks[editingIndex].lightmode = modalLightmode.checked;
-    bookmarks[editingIndex].bookmarkColor = modalBookmarkColor.value; // guardar color
-    bookmarks[editingIndex].textColor = modalTextColor.value; // guardar color texto
+    bookmarks[editingIndex].bookmarkColor = modalBookmarkColor.value;
+    bookmarks[editingIndex].textColor = modalTextColor.value;
     bookmarks[editingIndex].showFavicon = modalShowFavicon.checked;
     bookmarks[editingIndex].showText = modalShowText.checked;
     chrome.storage.local.set({ bookmarks });
@@ -54,10 +54,7 @@ modalSave.addEventListener('click', () => {
 });
 modalCancel.addEventListener('click', closeModal);
 
-// Inicializar cuadrícula según modo
-gridOverlay.style.display = editMode ? 'block' : 'none';
-
-// Cargar favoritos guardados
+// Cargar bookmarks
 chrome.storage.local.get('bookmarks', (data) => {
     if (data.bookmarks) {
         bookmarks = data.bookmarks;
@@ -65,12 +62,12 @@ chrome.storage.local.get('bookmarks', (data) => {
     }
 });
 
-// Función para obtener favicon dinámicamente
+// Función para favicon
 function getFavicon(url) {
     try {
         const u = new URL(url);
         const extensions = ['.ico', '.png', '.jpg', '.jpeg', '.webp'];
-        const fallback = 'https://cdn-icons-png.flaticon.com/512/1828/1828843.png'; // fallback
+        const fallback = 'https://cdn-icons-png.flaticon.com/512/1828/1828843.png';
 
         return new Promise((resolve) => {
             let index = 0;
@@ -91,14 +88,9 @@ function getFavicon(url) {
                 const faviconUrl = `${u.origin}${path}${extensions[index]}`;
                 const img = new Image();
                 img.src = faviconUrl;
-
                 img.onload = () => resolve(faviconUrl);
-                img.onerror = () => {
-                    index++;
-                    tryNext();
-                };
+                img.onerror = () => { index++; tryNext(); };
             };
-
             tryNext();
         });
     } catch {
@@ -106,14 +98,21 @@ function getFavicon(url) {
     }
 }
 
-// Alineación a cuadrícula
+// Grid snapping
 function snapToGrid(x, y) {
-    const snappedX = Math.round(x / GRID_SIZE) * GRID_SIZE;
-    const snappedY = Math.round(y / GRID_SIZE) * GRID_SIZE;
-    return { x: snappedX, y: snappedY };
+    return { x: Math.round(x / GRID_SIZE) * GRID_SIZE, y: Math.round(y / GRID_SIZE) * GRID_SIZE };
 }
 
-// Alternar modos
+// Evitar superposición
+function isOverlapping(x, y, ignoreIndex = -1) {
+    return bookmarks.some((bm, i) => {
+        if (i === ignoreIndex) return false; // ignorar el bookmark que estamos moviendo
+        if (bm.x == null || bm.y == null) return false;
+        return Math.abs(bm.x - x) < GRID_SIZE && Math.abs(bm.y - y) < GRID_SIZE;
+    });
+}
+
+// Alternar modo editar
 toggleButton.addEventListener('click', () => {
     editMode = !editMode;
     toggleButton.textContent = editMode ? "🔒" : "✎";
@@ -121,6 +120,7 @@ toggleButton.addEventListener('click', () => {
     renderBookmarks();
 });
 
+// Render bookmarks
 function renderBookmarks() {
     container.innerHTML = '';
     const containerWidth = container.clientWidth;
@@ -130,20 +130,21 @@ function renderBookmarks() {
         const div = document.createElement('div');
         div.className = 'bookmark';
         div.style.cursor = editMode ? "move" : "pointer";
-        div.style.backgroundColor = bookmark.bookmarkColor || "#222"; // color por defecto
+        div.style.backgroundColor = bookmark.bookmarkColor || "#222";
+        div.style.color = bookmark.textColor || "#fff";
 
-
+        // Posición
         if (bookmark.x != null && bookmark.y != null) {
             div.style.left = bookmark.x + 'px';
             div.style.top = bookmark.y + 'px';
         } else {
-            const randX = Math.random() * (containerWidth - 120);
-            const randY = Math.random() * (containerHeight - 120);
-            const snapped = snapToGrid(randX, randY);
+            let x = containerWidth / 2, y = containerHeight / 2;
+            while (isOverlapping(x, y)) { x += GRID_SIZE; y += GRID_SIZE; }
+            const snapped = snapToGrid(x, y);
             div.style.left = snapped.x + 'px';
             div.style.top = snapped.y + 'px';
-            bookmarks[index].x = snapped.x;
-            bookmarks[index].y = snapped.y;
+            bookmark.x = snapped.x;
+            bookmark.y = snapped.y;
             chrome.storage.local.set({ bookmarks });
         }
 
@@ -156,25 +157,19 @@ function renderBookmarks() {
         `;
 
         const linkEl = div.querySelector('a');
-        linkEl.style.cursor = editMode ? 'move' : 'pointer';
-        linkEl.style.color = bookmark.textColor || "#fff";
-
         const imgEl = div.querySelector("a img");
         const spanEl = div.querySelector("a span");
 
-        // Favicon
-        imgEl.style.display = (bookmark.showFavicon ?? true) ? "inline-block" : "none";
+        linkEl.style.cursor = editMode ? 'move' : 'pointer';
+        linkEl.style.color = bookmark.textColor || "#fff";
 
-        // Texto
+        // Mostrar/ocultar favicon y texto
+        imgEl.style.display = (bookmark.showFavicon ?? true) ? "inline-block" : "none";
         spanEl.style.display = (bookmark.showText ?? true) ? "inline-block" : "none";
-        
+
         getFavicon(bookmark.url).then(favicon => {
             imgEl.src = favicon;
-            if (bookmark.lightmode) {
-                imgEl.style.filter = "invert(1)";
-            } else {
-                imgEl.style.filter = "";
-            }
+            imgEl.style.filter = bookmark.lightmode ? "invert(1)" : "";
         });
 
         if (editMode) {
@@ -198,27 +193,47 @@ function renderBookmarks() {
                 newTop = Math.max(0, Math.min(newTop, containerHeight - div.offsetHeight));
                 div.style.left = newLeft + 'px';
                 div.style.top = newTop + 'px';
+
+                // Feedback de superposición
+                const snapped = snapToGrid(newLeft, newTop);
+                if (isOverlapping(snapped.x, snapped.y, index)) {
+                    div.style.opacity = "0.5";          // visualmente “deshabilitado”
+                    div.style.border = "2px solid red"; // borde rojo de aviso
+                } else {
+                    div.style.opacity = "1";
+                    div.style.border = "none";
+    }
             });
 
             div.addEventListener('pointerup', (e) => {
                 if (!dragging) return;
                 dragging = false;
                 const snapped = snapToGrid(parseInt(div.style.left), parseInt(div.style.top));
-                div.style.left = snapped.x + 'px';
-                div.style.top = snapped.y + 'px';
-                bookmarks[index].x = snapped.x;
-                bookmarks[index].y = snapped.y;
-                chrome.storage.local.set({ bookmarks });
+                // Evitar superposición
+                if (!isOverlapping(snapped.x, snapped.y)) {
+                    div.style.left = snapped.x + 'px';
+                    div.style.top = snapped.y + 'px';
+                    bookmark.x = snapped.x;
+                    bookmark.y = snapped.y;
+                    chrome.storage.local.set({ bookmarks });
+                } else {
+                    // Volver al lugar anterior
+                    div.style.left = bookmark.x + 'px';
+                    div.style.top = bookmark.y + 'px';
+                }
+
+                // Reset visual
+                div.style.opacity = "1";
+                div.style.border = "none";
+
                 div.releasePointerCapture(e.pointerId);
             });
 
-            // Abrir modal para editar
             div.querySelector('.edit').addEventListener('click', (e) => {
                 e.stopPropagation();
                 openModal(index);
             });
 
-            // Eliminar
             div.querySelector('.delete').addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (confirm(`¿Eliminar ${bookmark.name}?`)) {
@@ -229,7 +244,7 @@ function renderBookmarks() {
             });
         }
 
-        // Abrir link en modo fijo
+        // Abrir link en modo normal
         div.addEventListener('click', (e) => {
             if (!editMode && !e.target.classList.contains('edit') && !e.target.classList.contains('delete')) {
                 window.location.href = bookmark.url;
@@ -249,7 +264,10 @@ addButton.addEventListener('click', () => {
 
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-    const snapped = snapToGrid(containerWidth / 2, containerHeight / 2);
+    let x = containerWidth / 2;
+    let y = containerHeight / 2;
+    while (isOverlapping(x, y)) { x += GRID_SIZE; y += GRID_SIZE; }
+    const snapped = snapToGrid(x, y);
 
     bookmarks.push({ name, url, x: snapped.x, y: snapped.y, lightmode: false });
     chrome.storage.local.set({ bookmarks });
