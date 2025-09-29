@@ -141,6 +141,9 @@ function renderBookmarks() {
             ${editMode ? '<button class="edit">✎</button><button class="delete">🗑</button>' : ''}
         `;
 
+        const linkEl = div.querySelector('a');
+        linkEl.style.cursor = editMode ? 'move' : 'pointer';
+
         const imgEl = div.querySelector("a img");
         getFavicon(bookmark.url).then(favicon => {
             imgEl.src = favicon;
@@ -156,6 +159,7 @@ function renderBookmarks() {
             let dragging = false;
 
             div.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
                 if (e.target.classList.contains('edit') || e.target.classList.contains('delete')) return;
                 dragging = true;
                 offsetX = e.clientX - div.offsetLeft;
