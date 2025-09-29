@@ -3,7 +3,7 @@ const addButton = document.getElementById('add-bookmark');
 const toggleButton = document.getElementById('toggle-mode');
 const gridOverlay = document.getElementById('grid-overlay');
 
-let editMode = true; // iniciar en modo edición
+let editMode = false; // iniciar en modo edición
 const GRID_SIZE = 140;
 let bookmarks = [];
 
