@@ -11,15 +11,17 @@ let bookmarks = [];
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
 const modalUrl = document.getElementById('modal-url');
+const modalLightmode = document.getElementById('modal-lightmode');
 const modalSave = document.getElementById('modal-save');
 const modalCancel = document.getElementById('modal-cancel');
 let editingIndex = null;
 
 function openModal(index) {
-    if (index == null || !bookmarks[index]) return; // seguridad
+    if (index == null || !bookmarks[index]) return;
     editingIndex = index;
     modalName.value = bookmarks[index].name;
     modalUrl.value = bookmarks[index].url;
+    modalLightmode.checked = !!bookmarks[index].lightmode;
     editModal.style.display = 'flex';
 }
 
@@ -33,6 +35,7 @@ modalSave.addEventListener('click', () => {
     if (editingIndex === null) return;
     bookmarks[editingIndex].name = modalName.value;
     bookmarks[editingIndex].url = modalUrl.value;
+    bookmarks[editingIndex].lightmode = modalLightmode.checked;
     chrome.storage.local.set({ bookmarks });
     renderBookmarks();
     closeModal();
@@ -55,7 +58,7 @@ function getFavicon(url) {
     try {
         const u = new URL(url);
         const extensions = ['.ico', '.png', '.jpg', '.jpeg', '.webp'];
-        const fallback = 'https://cdn-icons-png.flaticon.com/512/1828/1828843.png'; // indica que no se encontró favicon
+        const fallback = 'https://cdn-icons-png.flaticon.com/512/1828/1828843.png'; // fallback
 
         return new Promise((resolve) => {
             let index = 0;
@@ -131,7 +134,7 @@ function renderBookmarks() {
         }
 
         div.innerHTML = `
-            <img src="${bookmark.name}" alt="${bookmark.name}">
+            <img alt="${bookmark.name}">
             <span>${bookmark.name}</span>
             ${editMode ? '<button class="edit">✎</button><button class="delete">🗑</button>' : ''}
         `;
@@ -139,6 +142,11 @@ function renderBookmarks() {
         const imgEl = div.querySelector("img");
         getFavicon(bookmark.url).then(favicon => {
             imgEl.src = favicon;
+            if (bookmark.lightmode) {
+                imgEl.style.filter = "invert(1)";
+            } else {
+                imgEl.style.filter = "";
+            }
         });
 
         if (editMode) {
@@ -214,7 +222,7 @@ addButton.addEventListener('click', () => {
     const containerHeight = container.clientHeight;
     const snapped = snapToGrid(containerWidth / 2, containerHeight / 2);
 
-    bookmarks.push({ name, url, x: snapped.x, y: snapped.y });
+    bookmarks.push({ name, url, x: snapped.x, y: snapped.y, lightmode: false });
     chrome.storage.local.set({ bookmarks });
     renderBookmarks();
 });
