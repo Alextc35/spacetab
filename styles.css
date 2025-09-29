@@ -200,8 +200,8 @@ h1 {
   background: rgba(0,0,0,0.7);
 }
 
-.bookmark button.edit { right: 35px; }
-.bookmark button.delete { right: 5px; }
+.bookmark button.edit { right: 35px; font-size: 15px; }
+.bookmark button.delete { right: 5px; font-size: 15px; }
 
 /* Botón de agregar bookmark */
 button#add-bookmark {

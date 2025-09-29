@@ -112,6 +112,16 @@ function isOverlapping(x, y, ignoreIndex = -1) {
     });
 }
 
+// Función para detectar si un color hexadecimal es oscuro
+function isDarkColor(hex) {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0,2), 16);
+    const g = parseInt(hex.substring(2,4), 16);
+    const b = parseInt(hex.substring(4,6), 16);
+    const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
+    return luminance < 64; // umbral: 64
+}
+
 // Alternar modo editar
 toggleButton.addEventListener('click', () => {
     editMode = !editMode;
@@ -153,7 +163,16 @@ function renderBookmarks() {
                 <img src="" alt="${bookmark.name}">
                 <span>${bookmark.name}</span>
             </a>
-            ${editMode ? '<button class="edit">✎</button><button class="delete">🗑</button>' : ''}
+            ${editMode ? `
+                <button class="edit" style="
+                    background: ${isDarkColor(bookmark.bookmarkColor || '#222') ? '#fff' : '#222'};
+                    color: ${isDarkColor(bookmark.bookmarkColor || '#222') ? '#000' : '#fff'};
+                ">✎</button>
+                <button class="delete" style="
+                    background: ${isDarkColor(bookmark.bookmarkColor || '#222') ? '#fff' : '#222'};
+                    color: ${isDarkColor(bookmark.bookmarkColor || '#222') ? '#000' : '#fff'};
+                ">🗑</button>
+            ` : ''}
         `;
 
         const linkEl = div.querySelector('a');
