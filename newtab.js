@@ -15,6 +15,7 @@ const modalInvertColors = document.getElementById('modal-invert-colors');
 const modalSave = document.getElementById('modal-save');
 const modalCancel = document.getElementById('modal-cancel');
 const modalBookmarkColor = document.getElementById('modal-bookmark-color');
+const modalNoBackground = document.getElementById('modal-no-background');
 const modalTextColor = document.getElementById('modal-text-color');
 const modalShowFavicon = document.getElementById('modal-show-favicon');
 const modalShowText = document.getElementById('modal-show-text');
@@ -28,6 +29,7 @@ function openModal(index) {
     modalUrl.value = bookmarks[index].url;
     modalInvertColors.checked = !!bookmarks[index].invertColors;
     modalBookmarkColor.value = bookmarks[index].bookmarkColor || "#222222";
+    modalNoBackground.checked = bookmarks[index].bookmarkColor === "transparent";
     modalTextColor.value = bookmarks[index].textColor || "#ffffff";
     modalShowFavicon.checked = bookmarks[index].showFavicon ?? true;
     modalShowText.checked = bookmarks[index].showText ?? true;
@@ -45,6 +47,7 @@ modalSave.addEventListener('click', () => {
     bookmarks[editingIndex].url = modalUrl.value;
     bookmarks[editingIndex].invertColors = modalInvertColors.checked;
     bookmarks[editingIndex].bookmarkColor = modalBookmarkColor.value;
+    bookmarks[editingIndex].bookmarkColor = modalNoBackground.checked ? "transparent" : modalBookmarkColor.value;
     bookmarks[editingIndex].textColor = modalTextColor.value;
     bookmarks[editingIndex].showFavicon = modalShowFavicon.checked;
     bookmarks[editingIndex].showText = modalShowText.checked;
