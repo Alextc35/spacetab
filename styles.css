@@ -165,26 +165,26 @@ h1 {
 /* El enlace del bookmark */
 .bookmark a {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none; /* quita subrayado */
-  color: inherit; /* hereda color del contenedor */
+  justify-content: end;
+  align-items: end;
+  gap: 5px;
+  text-decoration: none;
+  color: white;
+  width: 100%;
+  height: 100%;
 }
 
-/* Icono del favicon */
-.bookmark a img {
-  width: 40px;
-  height: 40px;
-  margin-bottom: 5px;
-  border-radius: 5px;
-  display: block;
+.bookmark img {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
 }
 
-/* Texto del nombre */
-.bookmark a span {
-  word-break: break-word;
-  font-size: 0.9em;
-  text-align: center;
+.bookmark span {
+  font-size: 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Botones editar y eliminar dentro de cada bookmark */
