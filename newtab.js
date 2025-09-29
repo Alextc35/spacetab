@@ -143,6 +143,9 @@ function renderBookmarks() {
         div.style.backgroundColor = bookmark.bookmarkColor || "#222";
         div.style.color = bookmark.textColor || "#fff";
 
+        // Determinar si el fondo es oscuro desde el principio
+        const darkBg = isDarkColor(bookmark.bookmarkColor || '#222');
+
         // Posición
         if (bookmark.x != null && bookmark.y != null) {
             div.style.left = bookmark.x + 'px';
@@ -165,12 +168,12 @@ function renderBookmarks() {
             </a>
             ${editMode ? `
                 <button class="edit" style="
-                    background: ${isDarkColor(bookmark.bookmarkColor || '#222') ? '#fff' : '#222'};
-                    color: ${isDarkColor(bookmark.bookmarkColor || '#222') ? '#000' : '#fff'};
+                    background: ${darkBg ? '#fff' : '#222'};
+                    color: ${darkBg ? '#000' : '#fff'};
                 ">✎</button>
                 <button class="delete" style="
-                    background: ${isDarkColor(bookmark.bookmarkColor || '#222') ? '#fff' : '#222'};
-                    color: ${isDarkColor(bookmark.bookmarkColor || '#222') ? '#000' : '#fff'};
+                    background: ${darkBg ? '#fff' : '#222'};
+                    color: ${darkBg ? '#000' : '#fff'};
                 ">🗑</button>
             ` : ''}
         `;
@@ -295,7 +298,18 @@ addButton.addEventListener('click', () => {
     while (isOverlapping(x, y)) { x += GRID_SIZE; y += GRID_SIZE; }
     const snapped = snapToGrid(x, y);
 
-    bookmarks.push({ name, url, x: snapped.x, y: snapped.y, lightmode: false });
+    bookmarks.push({ 
+        name, 
+        url, 
+        x: snapped.x, 
+        y: snapped.y, 
+        lightmode: false,
+        bookmarkColor: "#cccccc",  // gris claro de fondo
+        textColor: isDarkColor("#cccccc") ? "#fff" : "#000", // en este caso negro
+        showFavicon: true,
+        showText: true
+    });
+
     chrome.storage.local.set({ bookmarks });
     renderBookmarks();
 });
