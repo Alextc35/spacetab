@@ -3,7 +3,7 @@ const addButton = document.getElementById('add-bookmark');
 const toggleButton = document.getElementById('toggle-mode');
 const gridOverlay = document.getElementById('grid-overlay');
 
-let editMode = false;
+let editMode = true; // iniciar en modo edición
 const GRID_SIZE = 140;
 let bookmarks = [];
 
@@ -11,7 +11,7 @@ let bookmarks = [];
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
 const modalUrl = document.getElementById('modal-url');
-const modalLightmode = document.getElementById('modal-lightmode');
+const modalInvertColors = document.getElementById('modal-invert-colors');
 const modalSave = document.getElementById('modal-save');
 const modalCancel = document.getElementById('modal-cancel');
 const modalBookmarkColor = document.getElementById('modal-bookmark-color');
@@ -26,7 +26,7 @@ function openModal(index) {
     editingIndex = index;
     modalName.value = bookmarks[index].name;
     modalUrl.value = bookmarks[index].url;
-    modalLightmode.checked = !!bookmarks[index].lightmode;
+    modalInvertColors.checked = !!bookmarks[index].invertColors;
     modalBookmarkColor.value = bookmarks[index].bookmarkColor || "#222222";
     modalTextColor.value = bookmarks[index].textColor || "#ffffff";
     modalShowFavicon.checked = bookmarks[index].showFavicon ?? true;
@@ -43,7 +43,7 @@ modalSave.addEventListener('click', () => {
     if (editingIndex === null) return;
     bookmarks[editingIndex].name = modalName.value;
     bookmarks[editingIndex].url = modalUrl.value;
-    bookmarks[editingIndex].lightmode = modalLightmode.checked;
+    bookmarks[editingIndex].invertColors = modalInvertColors.checked;
     bookmarks[editingIndex].bookmarkColor = modalBookmarkColor.value;
     bookmarks[editingIndex].textColor = modalTextColor.value;
     bookmarks[editingIndex].showFavicon = modalShowFavicon.checked;
@@ -191,7 +191,7 @@ function renderBookmarks() {
 
         getFavicon(bookmark.url).then(favicon => {
             imgEl.src = favicon;
-            imgEl.style.filter = bookmark.lightmode ? "invert(1)" : "";
+            imgEl.style.filter = bookmark.invertColors ? "invert(1)" : "";
         });
 
         if (editMode) {
@@ -303,7 +303,7 @@ addButton.addEventListener('click', () => {
         url, 
         x: snapped.x, 
         y: snapped.y, 
-        lightmode: false,
+        invertColors: false,
         bookmarkColor: "#cccccc",  // gris claro de fondo
         textColor: isDarkColor("#cccccc") ? "#fff" : "#000", // en este caso negro
         showFavicon: true,
