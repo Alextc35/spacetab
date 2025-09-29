@@ -134,8 +134,10 @@ function renderBookmarks() {
         }
 
         div.innerHTML = `
-            <img alt="${bookmark.name}">
-            <span>${bookmark.name}</span>
+            <a href="${bookmark.url}" target="_blank">
+                <img src="" alt="${bookmark.name}">
+                <span>${bookmark.name}</span>
+            </a>
             ${editMode ? '<button class="edit">✎</button><button class="delete">🗑</button>' : ''}
         `;
 
