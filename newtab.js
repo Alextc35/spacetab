@@ -364,7 +364,7 @@ function renderBookmarks() {
                         div.style.top = gridToPx(newGY) + 'px';
                         div.style.width = (gridToPx(newW) - 20) + 'px';
                         div.style.height = (gridToPx(newH) - 20) + 'px';
-                        div.style.border = "1px solid lime";
+                        div.style.border = "1px solid coral";
                     };
 
                     const onUp = () => {
