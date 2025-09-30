@@ -310,8 +310,8 @@ function renderBookmarks() {
                     chrome.storage.local.set({ bookmarks });
                 } else {
                     // revertir
-                    div.style.left = gridToPx(origGX) + 'px';
-                    div.style.top = gridToPx(origGY) + 'px';
+                    div.style.left = gridToPx(candidateGX) + 'px';
+                    div.style.top = gridToPx(candidateGY) + 'px';
                 }
                 div.style.opacity = "1";
                 div.style.border = "none";
@@ -386,16 +386,17 @@ function renderBookmarks() {
                     resizing = false;
                     document.removeEventListener('pointermove', onMove);
                     document.removeEventListener('pointerup', onUp);
-                    if (resizeValid) {
-                        bookmark.w = resizeCandidateW;
-                        bookmark.h = resizeCandidateH;
-                        chrome.storage.local.set({ bookmarks });
-                    } else {
-                        // revertir tamaño
-                        div.style.width = (gridToPx(origW) - 20) + 'px';
-                        div.style.height = (gridToPx(origH) - 20) + 'px';
-                    }
+
+                    // Guardar el último tamaño válido
+                    bookmark.w = resizeCandidateW;
+                    bookmark.h = resizeCandidateH;
+
+                    // Ajustar el div al tamaño guardado
+                    div.style.width = (gridToPx(bookmark.w) - 20) + 'px';
+                    div.style.height = (gridToPx(bookmark.h) - 20) + 'px';
+
                     div.style.border = 'none';
+                    chrome.storage.local.set({ bookmarks });
                 };
 
                 document.addEventListener('pointermove', onMove);
