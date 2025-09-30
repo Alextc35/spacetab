@@ -33,9 +33,7 @@ function openModal(index) {
     modalTextColor.value = bookmarks[index].textColor || "#ffffff";
     modalShowFavicon.checked = bookmarks[index].showFavicon ?? true;
     modalShowText.checked = bookmarks[index].showText ?? true;
-
     updateColorInputs();
-
     editModal.style.display = 'flex';
 }
 function closeModal() {
@@ -59,54 +57,25 @@ modalSave.addEventListener('click', () => {
 });
 modalCancel.addEventListener('click', closeModal);
 
-// Cargar bookmarks
-chrome.storage.local.get('bookmarks', (data) => {
-    if (data.bookmarks) {
-        bookmarks = data.bookmarks;
-        renderBookmarks();
-    }
-});
-
-// Función para favicon
-function getFavicon(url) {
-    try {
-        const u = new URL(url);
-        const extensions = ['.ico', '.png', '.jpg', '.jpeg', '.webp'];
-        const fallback = 'https://cdn-icons-png.flaticon.com/512/1828/1828843.png';
-
-        return new Promise((resolve) => {
-            let index = 0;
-            let usePublic = false;
-
-            const tryNext = () => {
-                if (index >= extensions.length) {
-                    if (!usePublic) {
-                        usePublic = true;
-                        index = 0;
-                    } else {
-                        resolve(fallback);
-                        return;
-                    }
-                }
-
-                const path = usePublic ? '/public/favicon' : '/favicon';
-                const faviconUrl = `${u.origin}${path}${extensions[index]}`;
-                const img = new Image();
-                img.src = faviconUrl;
-                img.onload = () => resolve(faviconUrl);
-                img.onerror = () => { index++; tryNext(); };
-            };
-            tryNext();
-        });
-    } catch {
-        return Promise.resolve('https://cdn-icons-png.flaticon.com/512/1828/1828843.png');
-    }
+// Función para detectar si un color hexadecimal es oscuro
+function isDarkColor(hex) {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0,2), 16);
+    const g = parseInt(hex.substring(2,4), 16);
+    const b = parseInt(hex.substring(4,6), 16);
+    const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
+    return luminance < 64; // umbral: 64
 }
 
-// Grid snapping
-function snapToGrid(x, y) {
-    return { x: Math.round(x / GRID_SIZE) * GRID_SIZE, y: Math.round(y / GRID_SIZE) * GRID_SIZE };
+function updateColorInputs() {
+    // Deshabilitar input de color de fondo si "Sin fondo" está marcado
+    modalBookmarkColor.disabled = modalNoBackground.checked;
+
+    // Deshabilitar input de color de texto si "Mostrar texto" está marcado
+    modalTextColor.disabled = !modalShowText.checked; // deshabilitado si no mostrar
 }
+modalNoBackground.addEventListener('change', updateColorInputs);
+modalShowText.addEventListener('change', updateColorInputs);
 
 /* ------------- Helpers de rejilla / colisión ------------- */
 function pxToGrid(px) {
@@ -142,35 +111,18 @@ function isAreaFree(gx, gy, w, h, ignoreIndex = -1) {
     return true;
 }
 
-/* Asegúrate al cargar de que cada bookmark tenga w,h (migración) */
-chrome.storage.local.get('bookmarks', (data) => {
-    if (data.bookmarks) {
-        bookmarks = data.bookmarks.map(b => ({ ...b, w: b.w || 1, h: b.h || 1 }));
-        renderBookmarks();
+// --- Obtener favicon ---
+function getFavicon(url) {
+    try {
+        const u = new URL(url);
+        const origin = u.origin; // solo el dominio principal
+        return `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(origin)}&size=64`;
+    } catch {
+        // fallback si la URL es inválida
+        return 'https://cdn-icons-png.flaticon.com/512/1828/1828843.png';
     }
-});
-/* ------------- Fin helpers ------------- */
-
-// Función para detectar si un color hexadecimal es oscuro
-function isDarkColor(hex) {
-    hex = hex.replace('#', '');
-    const r = parseInt(hex.substring(0,2), 16);
-    const g = parseInt(hex.substring(2,4), 16);
-    const b = parseInt(hex.substring(4,6), 16);
-    const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
-    return luminance < 64; // umbral: 64
 }
 
-function updateColorInputs() {
-    // Deshabilitar input de color de fondo si "Sin fondo" está marcado
-    modalBookmarkColor.disabled = modalNoBackground.checked;
-
-    // Deshabilitar input de color de texto si "Mostrar texto" está marcado
-    modalTextColor.disabled = !modalShowText.checked; // deshabilitado si no mostrar
-}
-
-modalNoBackground.addEventListener('change', updateColorInputs);
-modalShowText.addEventListener('change', updateColorInputs);
 
 // Alternar modo editar
 toggleButton.addEventListener('click', () => {
@@ -183,7 +135,6 @@ toggleButton.addEventListener('click', () => {
 // Render bookmarks
 function renderBookmarks() {
     container.innerHTML = '';
-    const containerRect = container.getBoundingClientRect();
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
 
@@ -204,18 +155,16 @@ function renderBookmarks() {
         // grid rect del bookmark
         const gx = pxToGrid(bookmark.x ?? 0);
         const gy = pxToGrid(bookmark.y ?? 0);
-        const w = bookmark.w;
-        const h = bookmark.h;
 
         // tamaño/pixel basado en rejilla
-        div.style.width = (gridToPx(w) - 20) + 'px';
-        div.style.height = (gridToPx(h) - 20) + 'px';
+        div.style.width = (gridToPx(bookmark.w) - 20) + 'px';
+        div.style.height = (gridToPx(bookmark.h) - 20) + 'px';
         div.style.left = gridToPx(gx) + 'px';
         div.style.top = gridToPx(gy) + 'px';
 
         div.innerHTML = `
             <a href="${bookmark.url}">
-                <img src="" alt="${bookmark.name}">
+                <img src="${getFavicon(bookmark.url)}" alt="${bookmark.name}" style="${bookmark.invertColors?'filter:invert(1);':''}">
                 <span>${bookmark.name}</span>
             </a>
             ${editMode ? `
@@ -236,15 +185,8 @@ function renderBookmarks() {
 
         linkEl.style.cursor = editMode ? 'move' : 'pointer';
         linkEl.style.color = bookmark.textColor || "#fff";
-
-        // Mostrar/ocultar favicon y texto
         imgEl.style.display = (bookmark.showFavicon ?? true) ? "inline-block" : "none";
         spanEl.style.display = (bookmark.showText ?? true) ? "inline-block" : "none";
-
-        getFavicon(bookmark.url).then(favicon => {
-            imgEl.src = favicon;
-            imgEl.style.filter = bookmark.invertColors ? "invert(1)" : "";
-        });
 
         if (editMode) {
             // --- Dragging ---
@@ -273,8 +215,8 @@ function renderBookmarks() {
                 let newLeftPx = e.clientX - pointerOffsetX;
                 let newTopPx = e.clientY - pointerOffsetY;
                 // Clamp por limites del contenedor teniendo en cuenta tamaño en px
-                const maxLeftPx = Math.max(0, containerWidth - gridToPx(w));
-                const maxTopPx = Math.max(0, containerHeight - gridToPx(h));
+                const maxLeftPx = Math.max(0, containerWidth - gridToPx(bookmark.w));
+                const maxTopPx = Math.max(0, containerHeight - gridToPx(bookmark.h));
                 newLeftPx = Math.max(0, Math.min(newLeftPx, maxLeftPx));
                 newTopPx = Math.max(0, Math.min(newTopPx, maxTopPx));
 
@@ -337,7 +279,7 @@ function renderBookmarks() {
             div.appendChild(resizer);
 
             let resizing = false;
-            let origW = w, origH = h, origGxForResize = gx, origGyForResize = gy;
+            let origW = bookmark.w, origH = bookmark.h, origGxForResize = gx, origGyForResize = gy;
             let resizeCandidateW = origW, resizeCandidateH = origH;
             let resizeValid = true;
 
@@ -345,8 +287,8 @@ function renderBookmarks() {
                 e.stopPropagation();
                 e.preventDefault();
                 resizing = true;
-                origW = w;
-                origH = h;
+                origW = bookmark.w;
+                origH = bookmark.h;
                 origGxForResize = pxToGrid(div.offsetLeft);
                 origGyForResize = pxToGrid(div.offsetTop);
                 // attach document handlers to be robust if cursor sale del div
@@ -408,7 +350,6 @@ function renderBookmarks() {
         div.addEventListener('click', (e) => {
             if (!editMode && !e.target.classList.contains('edit') && !e.target.classList.contains('delete')) {
                 e.preventDefault();
-
                 if (e.ctrlKey || e.metaKey || e.button === 1) {
                     // ctrl+click, cmd+click o rueda del ratón → nueva pestaña
                     window.open(bookmark.url, '_blank');
@@ -461,4 +402,11 @@ addButton.addEventListener('click', () => {
     chrome.storage.local.set({ bookmarks });
     renderBookmarks();
 });
-/* ------------- Fin addButton handler ------------- */
+
+// --- Cargar bookmarks al iniciar ---
+chrome.storage.local.get('bookmarks', (data) => {
+    bookmarks = Array.isArray(data.bookmarks)
+        ? data.bookmarks.map(b => ({ ...b, w: b.w || 1, h: b.h || 1 }))
+        : [];
+    renderBookmarks();
+});
