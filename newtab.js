@@ -284,16 +284,17 @@ function renderBookmarks() {
                 let resizing = false;
                 let origW, origH, origGX, origGY;
                 let resizeCandidateW, resizeCandidateH, resizeCandidateGX, resizeCandidateGY;
-                let resizeValid = true;
 
                 resizer.addEventListener('pointerdown', (e) => {
                     e.stopPropagation();
                     e.preventDefault();
                     resizing = true;
+
                     origW = bookmark.w;
                     origH = bookmark.h;
                     origGX = pxToGrid(div.offsetLeft);
                     origGY = pxToGrid(div.offsetTop);
+
                     resizeCandidateW = origW;
                     resizeCandidateH = origH;
                     resizeCandidateGX = origGX;
@@ -305,48 +306,61 @@ function renderBookmarks() {
                         const localX = ev.clientX - rect.left;
                         const localY = ev.clientY - rect.top;
 
-                        let newGX = origGX;
-                        let newGY = origGY;
-                        let newW = origW;
-                        let newH = origH;
+                        let newGX = origGX, newGY = origGY, newW = origW, newH = origH;
 
                         if (side === 'right') {
                             newW = Math.max(1, Math.ceil((localX - origGX * GRID_SIZE) / GRID_SIZE));
+                            // limitar solo crecimiento hacia la derecha
+                            while (!isAreaFree(origGX, origGY, newW, origH, index) && newW > 1) newW--;
                         } else if (side === 'bottom') {
                             newH = Math.max(1, Math.ceil((localY - origGY * GRID_SIZE) / GRID_SIZE));
+                            while (!isAreaFree(origGX, origGY, origW, newH, index) && newH > 1) newH--;
                         } else if (side === 'left') {
-                            newGX = Math.floor(localX / GRID_SIZE);
-                            newW = Math.max(1, origW + (origGX - newGX));
+                            let candidateGX = Math.floor(localX / GRID_SIZE);
+                            let deltaW = origGX - candidateGX;
+
+                            if (deltaW > 0) {
+                                // crecimiento hacia la izquierda → limitar por colisión
+                                while (!isAreaFree(origGX - deltaW, origGY, origW + deltaW, origH, index) && deltaW > 0) deltaW--;
+                            } else if (deltaW < 0) {
+                                // reducción hacia la derecha → siempre permitir
+                                deltaW = Math.max(deltaW, -(origW - 1));
+                            }
+
+                            newGX = origGX - deltaW;
+                            newW = origW + deltaW;
                         } else if (side === 'top') {
-                            newGY = Math.floor(localY / GRID_SIZE);
-                            newH = Math.max(1, origH + (origGY - newGY));
+                            let candidateGY = Math.floor(localY / GRID_SIZE);
+                            let deltaH = origGY - candidateGY;
+
+                            if (deltaH > 0) {
+                                // crecimiento hacia arriba → limitar por colisión
+                                while (!isAreaFree(origGX, origGY - deltaH, origW, origH + deltaH, index) && deltaH > 0) deltaH--;
+                            } else if (deltaH < 0) {
+                                // reducción hacia abajo → siempre permitir
+                                deltaH = Math.max(deltaH, -(origH - 1));
+                            }
+
+                            newGY = origGY - deltaH;
+                            newH = origH + deltaH;
                         }
 
                         // clamp al contenedor
-                        if (newGX < 0) newGX = 0;
-                        if (newGY < 0) newGY = 0;
-                        if (newGX + newW > Math.floor(containerWidth / GRID_SIZE)) {
-                            newW = Math.floor(containerWidth / GRID_SIZE) - newGX;
-                        }
-                        if (newGY + newH > Math.floor(containerHeight / GRID_SIZE)) {
-                            newH = Math.floor(containerHeight / GRID_SIZE) - newGY;
-                        }
+                        if (newGX < 0) { newW += newGX; newGX = 0; }
+                        if (newGY < 0) { newH += newGY; newGY = 0; }
+                        if (newGX + newW > Math.floor(containerWidth / GRID_SIZE)) newW = Math.floor(containerWidth / GRID_SIZE) - newGX;
+                        if (newGY + newH > Math.floor(containerHeight / GRID_SIZE)) newH = Math.floor(containerHeight / GRID_SIZE) - newGY;
 
-                        if (isAreaFree(newGX, newGY, newW, newH, index)) {
-                            resizeValid = true;
-                            resizeCandidateGX = newGX;
-                            resizeCandidateGY = newGY;
-                            resizeCandidateW = newW;
-                            resizeCandidateH = newH;
-                            div.style.left = gridToPx(newGX) + 'px';
-                            div.style.top = gridToPx(newGY) + 'px';
-                            div.style.width = gridToPx(newW) + 'px';
-                            div.style.height = gridToPx(newH) + 'px';
-                            div.style.border = "2px solid lime";
-                        } else {
-                            resizeValid = false;
-                            div.style.border = "2px solid red";
-                        }
+                        resizeCandidateGX = newGX;
+                        resizeCandidateGY = newGY;
+                        resizeCandidateW = newW;
+                        resizeCandidateH = newH;
+
+                        div.style.left = gridToPx(newGX) + 'px';
+                        div.style.top = gridToPx(newGY) + 'px';
+                        div.style.width = gridToPx(newW) + 'px';
+                        div.style.height = gridToPx(newH) + 'px';
+                        div.style.border = "2px solid lime";
                     };
 
                     const onUp = () => {
@@ -355,13 +369,11 @@ function renderBookmarks() {
                         document.removeEventListener('pointermove', onMove);
                         document.removeEventListener('pointerup', onUp);
 
-                        if (resizeValid) {
-                            bookmark.x = gridToPx(resizeCandidateGX);
-                            bookmark.y = gridToPx(resizeCandidateGY);
-                            bookmark.w = resizeCandidateW;
-                            bookmark.h = resizeCandidateH;
-                            chrome.storage.local.set({ bookmarks });
-                        }
+                        bookmark.x = gridToPx(resizeCandidateGX);
+                        bookmark.y = gridToPx(resizeCandidateGY);
+                        bookmark.w = resizeCandidateW;
+                        bookmark.h = resizeCandidateH;
+                        chrome.storage.local.set({ bookmarks });
                         div.style.border = 'none';
                         renderBookmarks();
                     };
