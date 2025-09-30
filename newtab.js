@@ -275,76 +275,100 @@ function renderBookmarks() {
                 }
             });
 
-            // --- Resizer (esquina inferior derecha) ---
-            const resizer = document.createElement('div');
-            resizer.className = 'resizer';
-            div.appendChild(resizer);
+            // --- Resizers en los 4 bordes ---
+            ['top', 'right', 'bottom', 'left'].forEach(side => {
+                const resizer = document.createElement('div');
+                resizer.className = `resizer ${side}`;
+                div.appendChild(resizer);
 
-            let resizing = false;
-            let origW = bookmark.w, origH = bookmark.h, origGxForResize = gx, origGyForResize = gy;
-            let resizeCandidateW = origW, resizeCandidateH = origH;
-            let resizeValid = true;
+                let resizing = false;
+                let origW, origH, origGX, origGY;
+                let resizeCandidateW, resizeCandidateH, resizeCandidateGX, resizeCandidateGY;
+                let resizeValid = true;
 
-            resizer.addEventListener('pointerdown', (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                resizing = true;
-                origW = bookmark.w;
-                origH = bookmark.h;
-                origGxForResize = pxToGrid(div.offsetLeft);
-                origGyForResize = pxToGrid(div.offsetTop);
-                // attach document handlers to be robust if cursor sale del div
-                const onMove = (ev) => {
-                    if (!resizing) return;
-                    const rect = container.getBoundingClientRect();
-                    // posición del puntero relativa al contenedor
-                    const localX = ev.clientX - rect.left;
-                    const localY = ev.clientY - rect.top;
-                    // calcular nuevo ancho/alto en celdas con el origen en origGxForResize/origGyForResize
-                    let newW = Math.max(1, Math.ceil((localX - origGxForResize * GRID_SIZE) / GRID_SIZE));
-                    let newH = Math.max(1, Math.ceil((localY - origGyForResize * GRID_SIZE) / GRID_SIZE));
-                    // clamp para no salirse del contenedor
-                    const maxW = Math.max(1, Math.floor((containerWidth - (origGxForResize * GRID_SIZE)) / GRID_SIZE));
-                    const maxH = Math.max(1, Math.floor((containerHeight - (origGyForResize * GRID_SIZE)) / GRID_SIZE));
-                    newW = Math.min(newW, maxW);
-                    newH = Math.min(newH, maxH);
+                resizer.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    resizing = true;
+                    origW = bookmark.w;
+                    origH = bookmark.h;
+                    origGX = pxToGrid(div.offsetLeft);
+                    origGY = pxToGrid(div.offsetTop);
+                    resizeCandidateW = origW;
+                    resizeCandidateH = origH;
+                    resizeCandidateGX = origGX;
+                    resizeCandidateGY = origGY;
 
-                    // comprobar si el area [origGxForResize, origGyForResize, newW, newH] está libre
-                    if (isAreaFree(origGxForResize, origGyForResize, newW, newH, index)) {
-                        resizeValid = true;
-                        resizeCandidateW = newW;
-                        resizeCandidateH = newH;
-                        bookmark.w = newW;
-                        bookmark.h = newH;
-                        div.style.width = (gridToPx(newW) - 20) + 'px';
-                        div.style.height = (gridToPx(newH) - 20) + 'px';
-                        div.style.border = "2px solid lime";
-                    } else {
-                        resizeValid = false;
-                        div.style.border = "2px solid red";
-                    }
-                };
+                    const onMove = (ev) => {
+                        if (!resizing) return;
+                        const rect = container.getBoundingClientRect();
+                        const localX = ev.clientX - rect.left;
+                        const localY = ev.clientY - rect.top;
 
-                const onUp = (ev) => {
-                    if (!resizing) return;
-                    resizing = false;
-                    document.removeEventListener('pointermove', onMove);
-                    document.removeEventListener('pointerup', onUp);
+                        let newGX = origGX;
+                        let newGY = origGY;
+                        let newW = origW;
+                        let newH = origH;
 
-                    // Guardar el último tamaño válido
-                    bookmark.w = resizeCandidateW;
-                    bookmark.h = resizeCandidateH;
+                        if (side === 'right') {
+                            newW = Math.max(1, Math.ceil((localX - origGX * GRID_SIZE) / GRID_SIZE));
+                        } else if (side === 'bottom') {
+                            newH = Math.max(1, Math.ceil((localY - origGY * GRID_SIZE) / GRID_SIZE));
+                        } else if (side === 'left') {
+                            newGX = Math.floor(localX / GRID_SIZE);
+                            newW = Math.max(1, origW + (origGX - newGX));
+                        } else if (side === 'top') {
+                            newGY = Math.floor(localY / GRID_SIZE);
+                            newH = Math.max(1, origH + (origGY - newGY));
+                        }
 
-                    // Ajustar el div al tamaño guardado
-                    div.style.width = (gridToPx(bookmark.w) - 20) + 'px';
-                    div.style.height = (gridToPx(bookmark.h) - 20) + 'px';
+                        // clamp al contenedor
+                        if (newGX < 0) newGX = 0;
+                        if (newGY < 0) newGY = 0;
+                        if (newGX + newW > Math.floor(containerWidth / GRID_SIZE)) {
+                            newW = Math.floor(containerWidth / GRID_SIZE) - newGX;
+                        }
+                        if (newGY + newH > Math.floor(containerHeight / GRID_SIZE)) {
+                            newH = Math.floor(containerHeight / GRID_SIZE) - newGY;
+                        }
 
-                    div.style.border = 'none';
-                    chrome.storage.local.set({ bookmarks });
-                };
+                        if (isAreaFree(newGX, newGY, newW, newH, index)) {
+                            resizeValid = true;
+                            resizeCandidateGX = newGX;
+                            resizeCandidateGY = newGY;
+                            resizeCandidateW = newW;
+                            resizeCandidateH = newH;
+                            div.style.left = gridToPx(newGX) + 'px';
+                            div.style.top = gridToPx(newGY) + 'px';
+                            div.style.width = gridToPx(newW) + 'px';
+                            div.style.height = gridToPx(newH) + 'px';
+                            div.style.border = "2px solid lime";
+                        } else {
+                            resizeValid = false;
+                            div.style.border = "2px solid red";
+                        }
+                    };
 
-                document.addEventListener('pointermove', onMove);
-                document.addEventListener('pointerup', onUp);
+                    const onUp = () => {
+                        if (!resizing) return;
+                        resizing = false;
+                        document.removeEventListener('pointermove', onMove);
+                        document.removeEventListener('pointerup', onUp);
+
+                        if (resizeValid) {
+                            bookmark.x = gridToPx(resizeCandidateGX);
+                            bookmark.y = gridToPx(resizeCandidateGY);
+                            bookmark.w = resizeCandidateW;
+                            bookmark.h = resizeCandidateH;
+                            chrome.storage.local.set({ bookmarks });
+                        }
+                        div.style.border = 'none';
+                        renderBookmarks();
+                    };
+
+                    document.addEventListener('pointermove', onMove);
+                    document.addEventListener('pointerup', onUp);
+                });
             });
         }
 
