@@ -164,7 +164,9 @@ function renderBookmarks() {
 
         div.innerHTML = `
             <a href="${bookmark.url}">
-                <img src="${getFavicon(bookmark.url)}" alt="${bookmark.name}" style="${bookmark.invertColors?'filter:invert(1);':''}">
+                <img src="${getFavicon(bookmark.url)}"
+                     alt="${bookmark.name}"
+                     style="${bookmark.invertColors?'filter:invert(1);':''}">
                 <span>${bookmark.name}</span>
             </a>
             ${editMode ? `
