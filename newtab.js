@@ -108,14 +108,48 @@ function snapToGrid(x, y) {
     return { x: Math.round(x / GRID_SIZE) * GRID_SIZE, y: Math.round(y / GRID_SIZE) * GRID_SIZE };
 }
 
-// Evitar superposición
-function isOverlapping(x, y, ignoreIndex = -1) {
-    return bookmarks.some((bm, i) => {
-        if (i === ignoreIndex) return false; // ignorar el bookmark que estamos moviendo
-        if (bm.x == null || bm.y == null) return false;
-        return Math.abs(bm.x - x) < GRID_SIZE && Math.abs(bm.y - y) < GRID_SIZE;
-    });
+/* ------------- Helpers de rejilla / colisión ------------- */
+function pxToGrid(px) {
+    return Math.round(px / GRID_SIZE);
 }
+function gridToPx(g) {
+    return g * GRID_SIZE;
+}
+function getGridRectFromBookmark(bm) {
+    const gx = pxToGrid(bm.x ?? 0);
+    const gy = pxToGrid(bm.y ?? 0);
+    const w = bm.w || 1;
+    const h = bm.h || 1;
+    return { gx, gy, w, h };
+}
+
+// Devuelve true si el área (gx,gy,w,h) está libre (no colisiona con otros)
+// ignoreIndex: índice del bookmark que estamos moviendo/redimensionando
+function isAreaFree(gx, gy, w, h, ignoreIndex = -1) {
+    for (let i = 0; i < bookmarks.length; i++) {
+        if (i === ignoreIndex) continue;
+        const bm = bookmarks[i];
+        if (bm.x == null || bm.y == null) continue;
+        const other = getGridRectFromBookmark(bm);
+        // Si NO se cumple ninguna de las condiciones de separación => hay intersección
+        const separated =
+            gx + w <= other.gx ||
+            other.gx + other.w <= gx ||
+            gy + h <= other.gy ||
+            other.gy + other.h <= gy;
+        if (!separated) return false;
+    }
+    return true;
+}
+
+/* Asegúrate al cargar de que cada bookmark tenga w,h (migración) */
+chrome.storage.local.get('bookmarks', (data) => {
+    if (data.bookmarks) {
+        bookmarks = data.bookmarks.map(b => ({ ...b, w: b.w || 1, h: b.h || 1 }));
+        renderBookmarks();
+    }
+});
+/* ------------- Fin helpers ------------- */
 
 // Función para detectar si un color hexadecimal es oscuro
 function isDarkColor(hex) {
@@ -149,10 +183,15 @@ toggleButton.addEventListener('click', () => {
 // Render bookmarks
 function renderBookmarks() {
     container.innerHTML = '';
+    const containerRect = container.getBoundingClientRect();
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
 
     bookmarks.forEach((bookmark, index) => {
+        // asegurar w/h por si faltan
+        bookmark.w = bookmark.w || 1;
+        bookmark.h = bookmark.h || 1;
+
         const div = document.createElement('div');
         div.className = 'bookmark';
         div.style.cursor = editMode ? "move" : "pointer";
@@ -162,20 +201,17 @@ function renderBookmarks() {
         // Determinar si el fondo es oscuro desde el principio
         const darkBg = isDarkColor(bookmark.bookmarkColor || '#222');
 
-        // Posición
-        if (bookmark.x != null && bookmark.y != null) {
-            div.style.left = bookmark.x + 'px';
-            div.style.top = bookmark.y + 'px';
-        } else {
-            let x = containerWidth / 2, y = containerHeight / 2;
-            while (isOverlapping(x, y)) { x += GRID_SIZE; y += GRID_SIZE; }
-            const snapped = snapToGrid(x, y);
-            div.style.left = snapped.x + 'px';
-            div.style.top = snapped.y + 'px';
-            bookmark.x = snapped.x;
-            bookmark.y = snapped.y;
-            chrome.storage.local.set({ bookmarks });
-        }
+        // grid rect del bookmark
+        const gx = pxToGrid(bookmark.x ?? 0);
+        const gy = pxToGrid(bookmark.y ?? 0);
+        const w = bookmark.w;
+        const h = bookmark.h;
+
+        // tamaño/pixel basado en rejilla
+        div.style.width = (gridToPx(w) - 20) + 'px';
+        div.style.height = (gridToPx(h) - 20) + 'px';
+        div.style.left = gridToPx(gx) + 'px';
+        div.style.top = gridToPx(gy) + 'px';
 
         div.innerHTML = `
             <a href="${bookmark.url}">
@@ -211,81 +247,159 @@ function renderBookmarks() {
         });
 
         if (editMode) {
-            let offsetX = 0, offsetY = 0;
+            // --- Dragging ---
             let dragging = false;
-            let highestZ = 1; // valor global para controlar capas
+            let origGX = gx, origGY = gy;
+            let candidateGX = origGX, candidateGY = origGY;
+            let pointerOffsetX = 0, pointerOffsetY = 0;
+            let candidateValid = true;
 
             div.addEventListener('pointerdown', (e) => {
-                e.preventDefault();
                 if (e.target.classList.contains('edit') || e.target.classList.contains('delete')) return;
+                e.preventDefault();
                 dragging = true;
-                offsetX = e.clientX - div.offsetLeft;
-                offsetY = e.clientY - div.offsetTop;
+                pointerOffsetX = e.clientX - div.offsetLeft;
+                pointerOffsetY = e.clientY - div.offsetTop;
+                origGX = pxToGrid(div.offsetLeft);
+                origGY = pxToGrid(div.offsetTop);
+                candidateGX = origGX;
+                candidateGY = origGY;
                 div.setPointerCapture(e.pointerId);
-
-                // Subir al frente
-                highestZ = 9999;
-                div.style.zIndex = highestZ;
+                div.style.zIndex = 9999;
             });
 
             div.addEventListener('pointermove', (e) => {
                 if (!dragging) return;
-                let newLeft = e.clientX - offsetX;
-                let newTop = e.clientY - offsetY;
-                newLeft = Math.max(0, Math.min(newLeft, containerWidth - div.offsetWidth));
-                newTop = Math.max(0, Math.min(newTop, containerHeight - div.offsetHeight));
-                div.style.left = newLeft + 'px';
-                div.style.top = newTop + 'px';
+                let newLeftPx = e.clientX - pointerOffsetX;
+                let newTopPx = e.clientY - pointerOffsetY;
+                // Clamp por limites del contenedor teniendo en cuenta tamaño en px
+                const maxLeftPx = Math.max(0, containerWidth - gridToPx(w));
+                const maxTopPx = Math.max(0, containerHeight - gridToPx(h));
+                newLeftPx = Math.max(0, Math.min(newLeftPx, maxLeftPx));
+                newTopPx = Math.max(0, Math.min(newTopPx, maxTopPx));
 
-                // Feedback de superposición
-                const snapped = snapToGrid(newLeft, newTop);
-                if (isOverlapping(snapped.x, snapped.y, index)) {
-                    div.style.opacity = "0.5";          // visualmente “deshabilitado”
-                    div.style.border = "2px solid red"; // borde rojo de aviso
-                } else {
+                const snappedGX = pxToGrid(newLeftPx);
+                const snappedGY = pxToGrid(newTopPx);
+                // 👇 usar siempre el tamaño actual del bookmark
+                const currentW = bookmark.w || 1;
+                const currentH = bookmark.h || 1;
+
+                // comprobar colisión (con width/height actuales)
+                if (isAreaFree(snappedGX, snappedGY, currentW, currentH, index)) {
+                    candidateValid = true;
+                    candidateGX = snappedGX;
+                    candidateGY = snappedGY;
+                    div.style.left = gridToPx(snappedGX) + 'px';
+                    div.style.top  = gridToPx(snappedGY) + 'px';
                     div.style.opacity = "1";
                     div.style.border = "none";
+                } else {
+                    candidateValid = false;
+                    div.style.opacity = "0.5";
+                    div.style.border = "2px solid red";
                 }
             });
 
             div.addEventListener('pointerup', (e) => {
                 if (!dragging) return;
                 dragging = false;
-                const snapped = snapToGrid(parseInt(div.style.left), parseInt(div.style.top));
-                // Evitar superposición
-                if (!isOverlapping(snapped.x, snapped.y)) {
-                    div.style.left = snapped.x + 'px';
-                    div.style.top = snapped.y + 'px';
-                    bookmark.x = snapped.x;
-                    bookmark.y = snapped.y;
+                div.releasePointerCapture(e.pointerId);
+                if (candidateValid) {
+                    bookmark.x = gridToPx(candidateGX);
+                    bookmark.y = gridToPx(candidateGY);
                     chrome.storage.local.set({ bookmarks });
                 } else {
-                    // Volver al lugar anterior
-                    div.style.left = bookmark.x + 'px';
-                    div.style.top = bookmark.y + 'px';
+                    // revertir
+                    div.style.left = gridToPx(origGX) + 'px';
+                    div.style.top = gridToPx(origGY) + 'px';
                 }
-
-                // Reset visual
                 div.style.opacity = "1";
                 div.style.border = "none";
-                // Devolver a capa normal
-                div.style.zIndex = 1;
-
-                div.releasePointerCapture(e.pointerId);
+                div.style.zIndex = 2;
             });
 
-            div.querySelector('.edit').addEventListener('click', (e) => {
-                e.stopPropagation();
-                openModal(index);
-            });
-
-            div.querySelector('.delete').addEventListener('click', (e) => {
+            // --- Edit / Delete ---
+            const editBtn = div.querySelector('.edit');
+            const delBtn = div.querySelector('.delete');
+            if (editBtn) editBtn.addEventListener('click', (e) => { e.stopPropagation(); openModal(index); });
+            if (delBtn) delBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (confirm(`¿Eliminar ${bookmark.name}?`)) {
                     bookmarks.splice(index, 1);
                     chrome.storage.local.set({ bookmarks });
                     renderBookmarks();
                 }
+            });
+
+            // --- Resizer (esquina inferior derecha) ---
+            const resizer = document.createElement('div');
+            resizer.className = 'resizer';
+            div.appendChild(resizer);
+
+            let resizing = false;
+            let origW = w, origH = h, origGxForResize = gx, origGyForResize = gy;
+            let resizeCandidateW = origW, resizeCandidateH = origH;
+            let resizeValid = true;
+
+            resizer.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                resizing = true;
+                origW = w;
+                origH = h;
+                origGxForResize = pxToGrid(div.offsetLeft);
+                origGyForResize = pxToGrid(div.offsetTop);
+                // attach document handlers to be robust if cursor sale del div
+                const onMove = (ev) => {
+                    if (!resizing) return;
+                    const rect = container.getBoundingClientRect();
+                    // posición del puntero relativa al contenedor
+                    const localX = ev.clientX - rect.left;
+                    const localY = ev.clientY - rect.top;
+                    // calcular nuevo ancho/alto en celdas con el origen en origGxForResize/origGyForResize
+                    let newW = Math.max(1, Math.ceil((localX - origGxForResize * GRID_SIZE) / GRID_SIZE));
+                    let newH = Math.max(1, Math.ceil((localY - origGyForResize * GRID_SIZE) / GRID_SIZE));
+                    // clamp para no salirse del contenedor
+                    const maxW = Math.max(1, Math.floor((containerWidth - (origGxForResize * GRID_SIZE)) / GRID_SIZE));
+                    const maxH = Math.max(1, Math.floor((containerHeight - (origGyForResize * GRID_SIZE)) / GRID_SIZE));
+                    newW = Math.min(newW, maxW);
+                    newH = Math.min(newH, maxH);
+
+                    // comprobar si el area [origGxForResize, origGyForResize, newW, newH] está libre
+                    if (isAreaFree(origGxForResize, origGyForResize, newW, newH, index)) {
+                        resizeValid = true;
+                        resizeCandidateW = newW;
+                        resizeCandidateH = newH;
+                        bookmark.w = newW;
+                        bookmark.h = newH;
+                        div.style.width = (gridToPx(newW) - 20) + 'px';
+                        div.style.height = (gridToPx(newH) - 20) + 'px';
+                        div.style.border = "2px solid lime";
+                    } else {
+                        resizeValid = false;
+                        div.style.border = "2px solid red";
+                    }
+                };
+
+                const onUp = (ev) => {
+                    if (!resizing) return;
+                    resizing = false;
+                    document.removeEventListener('pointermove', onMove);
+                    document.removeEventListener('pointerup', onUp);
+                    if (resizeValid) {
+                        bookmark.w = resizeCandidateW;
+                        bookmark.h = resizeCandidateH;
+                        chrome.storage.local.set({ bookmarks });
+                    } else {
+                        // revertir tamaño
+                        div.style.width = (gridToPx(origW) - 20) + 'px';
+                        div.style.height = (gridToPx(origH) - 20) + 'px';
+                    }
+                    div.style.border = 'none';
+                };
+
+                document.addEventListener('pointermove', onMove);
+                document.addEventListener('pointerup', onUp);
             });
         }
 
@@ -307,29 +421,38 @@ function renderBookmarks() {
         container.appendChild(div);
     });
 }
+/* ------------- Fin renderBookmarks ------------- */
 
-// Agregar bookmark en modo edición
+/* ------------- Actualizar handler addButton para usar grid y w/h ------------- */
 addButton.addEventListener('click', () => {
     const name = prompt("Nombre del favorito:");
     if (!name) return;
     const url = prompt("URL del favorito (incluye https://):");
     if (!url) return;
 
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-    let x = containerWidth / 2;
-    let y = containerHeight / 2;
-    while (isOverlapping(x, y)) { x += GRID_SIZE; y += GRID_SIZE; }
-    const snapped = snapToGrid(x, y);
+    const rect = container.getBoundingClientRect();
+    let gx = pxToGrid(rect.width / 2);
+    let gy = pxToGrid(rect.height / 2);
 
-    bookmarks.push({ 
-        name, 
-        url, 
-        x: snapped.x, 
-        y: snapped.y, 
+    // buscar celda libre (simple loop diagonal)
+    while (!isAreaFree(gx, gy, 1, 1)) {
+        gx++;
+        if (gx * GRID_SIZE > rect.width - GRID_SIZE) { gx = 0; gy++; }
+    }
+
+    const pxX = gridToPx(gx);
+    const pxY = gridToPx(gy);
+
+    bookmarks.push({
+        name,
+        url,
+        x: pxX,
+        y: pxY,
+        w: 1,
+        h: 1,
         invertColors: false,
-        bookmarkColor: "#cccccc",  // gris claro de fondo
-        textColor: isDarkColor("#cccccc") ? "#fff" : "#000", // en este caso negro
+        bookmarkColor: "#cccccc",
+        textColor: isDarkColor("#cccccc") ? "#fff" : "#000",
         showFavicon: true,
         showText: true
     });
@@ -337,3 +460,4 @@ addButton.addEventListener('click', () => {
     chrome.storage.local.set({ bookmarks });
     renderBookmarks();
 });
+/* ------------- Fin addButton handler ------------- */
