@@ -248,18 +248,22 @@ function renderBookmarks() {
                 if (!dragging) return;
                 dragging = false;
                 div.releasePointerCapture(e.pointerId);
-                if (candidateValid) {
-                    bookmark.x = gridToPx(candidateGX);
-                    bookmark.y = gridToPx(candidateGY);
-                    chrome.storage.local.set({ bookmarks });
-                } else {
-                    // revertir
-                    div.style.left = gridToPx(candidateGX) + 'px';
-                    div.style.top = gridToPx(candidateGY) + 'px';
-                }
-                div.style.opacity = "1";
-                div.style.border = "none";
-                div.style.zIndex = 2;
+
+                // Siempre guardar la posición más cercana válida
+                const snappedGX = pxToGrid(div.offsetLeft);
+                const snappedGY = pxToGrid(div.offsetTop);
+                let finalGX = snappedGX;
+                let finalGY = snappedGY;
+
+                // Ajustar si colisiona
+                while (!isAreaFree(finalGX, finalGY, bookmark.w, bookmark.h, index) && finalGX > 0) finalGX--;
+                while (!isAreaFree(finalGX, finalGY, bookmark.w, bookmark.h, index) && finalGY > 0) finalGY--;
+
+                bookmark.x = gridToPx(finalGX);
+                bookmark.y = gridToPx(finalGY);
+
+                chrome.storage.local.set({ bookmarks });
+                renderBookmarks();
             });
 
             // --- Edit / Delete ---
