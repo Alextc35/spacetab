@@ -75,6 +75,14 @@
           <h2>General</h2>
           <label for="grid-size">Tamaño de cuadrícula:</label>
           <input type="number" id="grid-size" min="60" max="200" value="140">
+          <h3>Fondo de la página</h3>
+          <div id="background-settings">
+            <label for="background-color">Color:</label>
+            <input type="color" id="background-color">
+            <label for="background-image">Imagen URL:</label>
+            <input type="text" id="background-image" placeholder="https://...">
+            <button id="reset-background" type="button">Restablecer</button>
+          </div>
         </div>
 
         <div class="tab-content" id="tab-lang" style="display:none;">
@@ -89,7 +97,7 @@
         <div class="tab-content" id="tab-info" style="display:none;">
           <h2>Información</h2>
           <p><strong>SpaceTab</strong></p>
-          <p>Versión: 0.4.1 - alfa</p>
+          <p>Versión: 0.4.2 - alfa</p>
           <p>Autor: @alextc35</p>
           <p>© 2025</p>
         </div>

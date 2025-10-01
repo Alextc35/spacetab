@@ -327,6 +327,7 @@ button#settings {
   max-width: 90%;
   min-height: 400px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  font-family: Arial, sans-serif;
 }
 
 /* Barra lateral de pestañas */
@@ -367,7 +368,7 @@ button#settings {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   color: #ddd;
 }
 
@@ -376,7 +377,7 @@ button#settings {
   color: #fff;
 }
 
-/* Inputs */
+/* Inputs y selects */
 .settings-panel input,
 .settings-panel select {
   background-color: #2c2c2c;
@@ -414,4 +415,55 @@ button#settings {
 
 .settings-buttons button:hover {
   background-color: #666;
+}
+
+/* ==== Fondo de la página ==== */
+#background-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+#background-settings .bg-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#background-settings label {
+  color: #fff;
+  font-size: 0.9em;
+  min-width: 60px;
+}
+
+#background-color {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#background-image {
+  flex: 1;
+  background-color: #2c2c2c;
+  border: 1px solid #555;
+  color: #fff;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+#reset-background {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  background: #555;
+  color: white;
+  cursor: pointer;
+}
+
+#reset-background:hover {
+  background: #777;
 }

@@ -513,3 +513,47 @@ chrome.storage.local.get('settings', (data) => {
     SETTINGS = data.settings;
   }
 });
+
+const bgColorInput = document.getElementById('background-color');
+const bgImageInput = document.getElementById('background-image');
+const resetBgBtn = document.getElementById('reset-background');
+
+// Cargar valores guardados
+chrome.storage.local.get(['bgColor', 'bgImage'], (data) => {
+  if (data.bgColor) bgColorInput.value = data.bgColor;
+  if (data.bgImage) bgImageInput.value = data.bgImage;
+  applyBackground(data.bgColor, data.bgImage);
+});
+
+function applyBackground(color, image) {
+  if (image) {
+    document.body.style.background = `url(${image}) no-repeat center center fixed`;
+    document.body.style.backgroundSize = 'cover';
+  } else if (color) {
+    document.body.style.background = color;
+  } else {
+    document.body.style.background = '#333';
+  }
+}
+
+// Cambios dinámicos
+bgColorInput.addEventListener('input', () => {
+  const color = bgColorInput.value;
+  chrome.storage.local.set({ bgColor: color, bgImage: '' });
+  bgImageInput.value = '';
+  applyBackground(color, '');
+});
+
+bgImageInput.addEventListener('change', () => {
+  const image = bgImageInput.value.trim();
+  chrome.storage.local.set({ bgImage: image });
+  applyBackground('', image);
+});
+
+// Reset fondo
+resetBgBtn.addEventListener('click', () => {
+  chrome.storage.local.set({ bgColor: '', bgImage: '' });
+  bgColorInput.value = '#333';
+  bgImageInput.value = '';
+  applyBackground('', '');
+});
