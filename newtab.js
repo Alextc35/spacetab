@@ -473,6 +473,14 @@ settingsBtn.addEventListener('click', () => {
   settingsModal.style.display = 'flex';
 });
 
+// Cerrar modal al hacer clic fuera del contenido
+settingsModal.addEventListener('click', (e) => {
+  // si el click fue directamente sobre el overlay y no dentro del modal-content
+  if (e.target === settingsModal) {
+    settingsModal.style.display = 'none';
+  }
+});
+
 // Cerrar modal
 settingsCancel.addEventListener('click', () => {
   settingsModal.style.display = 'none';
