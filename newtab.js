@@ -452,3 +452,56 @@ chrome.storage.local.get('bookmarks', (data) => {
         : [];
     renderBookmarks();
 });
+
+// Modal de Configuración
+const settingsBtn = document.getElementById('settings');
+const settingsModal = document.getElementById('settings-modal');
+const settingsSave = document.getElementById('settings-save');
+const settingsCancel = document.getElementById('settings-cancel');
+const gridSizeInput = document.getElementById('grid-size');
+const languageSelect = document.getElementById('language-select');
+
+let SETTINGS = {
+  gridSize: 140,
+  language: "es"
+};
+
+// Abrir modal
+settingsBtn.addEventListener('click', () => {
+  gridSizeInput.value = SETTINGS.gridSize;
+  languageSelect.value = SETTINGS.language || "es";
+  settingsModal.style.display = 'flex';
+});
+
+// Cerrar modal
+settingsCancel.addEventListener('click', () => {
+  settingsModal.style.display = 'none';
+});
+
+// Guardar cambios
+settingsSave.addEventListener('click', () => {
+  SETTINGS.gridSize = parseInt(gridSizeInput.value, 10) || 140;
+  SETTINGS.language = languageSelect.value;
+  settingsModal.style.display = 'none';
+  chrome.storage.local.set({ settings: SETTINGS });
+  // 🔄 aquí podrías forzar un rerender si cambia GRID_SIZE
+});
+
+// Tabs
+document.querySelectorAll("#settings-modal .tab-btn").forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll("#settings-modal .tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    document.querySelectorAll("#settings-modal .tab-content").forEach(tab => tab.style.display = "none");
+    const target = btn.dataset.tab;
+    document.getElementById(target).style.display = "block";
+  });
+});
+
+// Cargar settings guardados
+chrome.storage.local.get('settings', (data) => {
+  if (data.settings) {
+    SETTINGS = data.settings;
+  }
+});
