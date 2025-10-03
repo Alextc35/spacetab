@@ -194,9 +194,7 @@ function renderBookmarks() {
             // --- Dragging ---
             let dragging = false;
             let origGX = gx, origGY = gy;
-            let candidateGX = origGX, candidateGY = origGY;
             let pointerOffsetX = 0, pointerOffsetY = 0;
-            let candidateValid = true;
 
             div.addEventListener('pointerdown', (e) => {
                 if (e.target.classList.contains('edit') || e.target.classList.contains('delete')) return;
