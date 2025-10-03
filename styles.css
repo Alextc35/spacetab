@@ -425,6 +425,13 @@ button#settings {
   margin-top: 10px;
 }
 
+#background-settings input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #444;
+  border: 1px solid #666;
+}
+
 #background-settings .bg-option {
   display: flex;
   align-items: center;

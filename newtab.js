@@ -516,6 +516,18 @@ const bgColorInput = document.getElementById('background-color');
 const bgImageInput = document.getElementById('background-image');
 const resetBgBtn = document.getElementById('reset-background');
 
+// Función para actualizar estado del input color
+function updateColorState() {
+  if (bgImageInput.value.trim() !== "") {
+    bgColorInput.disabled = true;
+  } else {
+    bgColorInput.disabled = false;
+  }
+}
+
+// Monitorear cambios en el input de imagen
+bgImageInput.addEventListener("input", updateColorState);
+
 // Cargar valores guardados
 chrome.storage.local.get(['bgColor', 'bgImage'], (data) => {
   if (data.bgColor) bgColorInput.value = data.bgColor;
@@ -553,5 +565,6 @@ resetBgBtn.addEventListener('click', () => {
   chrome.storage.local.set({ bgColor: '', bgImage: '' });
   bgColorInput.value = '#333';
   bgImageInput.value = '';
+  bgColorInput.disabled = false;
   applyBackground('', '');
 });
