@@ -19,6 +19,8 @@ const modalNoBackground = document.getElementById('modal-no-background');
 const modalTextColor = document.getElementById('modal-text-color');
 const modalShowFavicon = document.getElementById('modal-show-favicon');
 const modalShowText = document.getElementById('modal-show-text');
+const modalBackgroundImage = document.getElementById("modal-background-image");
+modalBackgroundImage.addEventListener("input", updateColorInputs);
 let editingIndex = null;
 
 // Modal abrir/cerrar
@@ -33,6 +35,8 @@ function openModal(index) {
     modalTextColor.value = bookmarks[index].textColor || "#ffffff";
     modalShowFavicon.checked = bookmarks[index].showFavicon ?? true;
     modalShowText.checked = bookmarks[index].showText ?? true;
+    modalBackgroundImage.value = bookmarks[index].backgroundImageUrl || "";
+    modalBookmarkColor.disabled = !!bookmarks[index].backgroundImageUrl;
     updateColorInputs();
     editModal.style.display = 'flex';
 }
@@ -51,6 +55,7 @@ modalSave.addEventListener('click', () => {
     bookmarks[editingIndex].textColor = modalTextColor.value;
     bookmarks[editingIndex].showFavicon = modalShowFavicon.checked;
     bookmarks[editingIndex].showText = modalShowText.checked;
+    bookmarks[editingIndex].backgroundImageUrl = modalBackgroundImage.value.trim() || null;
     chrome.storage.local.set({ bookmarks });
     renderBookmarks();
     closeModal();
@@ -68,11 +73,22 @@ function isDarkColor(hex) {
 }
 
 function updateColorInputs() {
-    // Deshabilitar input de color de fondo si "Sin fondo" está marcado
-    modalBookmarkColor.disabled = modalNoBackground.checked;
+  const hasImage = modalBackgroundImage.value.trim() !== "";
+  const noBackground = modalNoBackground.checked;
 
-    // Deshabilitar input de color de texto si "Mostrar texto" está marcado
-    modalTextColor.disabled = !modalShowText.checked; // deshabilitado si no mostrar
+  // Si hay imagen → bloquear color y "sin fondo"
+  modalBookmarkColor.disabled = hasImage || noBackground;
+  modalNoBackground.disabled = hasImage;
+  modalTextColor.disabled = !modalShowText.checked;
+
+  // Visualmente indicar bloqueo
+  if (hasImage) {
+    modalBookmarkColor.style.opacity = "0.5";
+    modalNoBackground.parentElement.style.opacity = "0.5";
+  } else {
+    modalBookmarkColor.style.opacity = "1";
+    modalNoBackground.parentElement.style.opacity = "1";
+  }
 }
 modalNoBackground.addEventListener('change', updateColorInputs);
 modalShowText.addEventListener('change', updateColorInputs);
@@ -146,7 +162,16 @@ function renderBookmarks() {
         const div = document.createElement('div');
         div.className = 'bookmark';
         div.style.cursor = editMode ? "move" : "pointer";
-        div.style.backgroundColor = bookmark.bookmarkColor || "#222";
+        if (bookmark.backgroundImageUrl) {
+            div.style.backgroundImage = `url(${bookmark.backgroundImageUrl})`;
+            div.style.backgroundSize = "cover";       // escala sin deformar, recorta si es necesario
+            div.style.backgroundPosition = "center";  // siempre centrada
+            div.style.backgroundRepeat = "no-repeat"; // no se repite
+            div.style.backgroundColor = "transparent";
+        } else {
+            div.style.backgroundImage = "none";
+            div.style.backgroundColor = bookmark.bookmarkColor || "#222";
+        }
         div.style.color = bookmark.textColor || "#fff";
 
         // Determinar si el fondo es oscuro desde el principio

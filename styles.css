@@ -474,3 +474,26 @@ button#settings {
 #reset-background:hover {
   background: #777;
 }
+
+#color-options .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+#color-options #modal-background-image {
+  background-color: #2d2d2d;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 6px;
+  color: white;
+  font-size: 0.9em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#color-options #modal-background-image:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
