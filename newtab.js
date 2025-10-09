@@ -22,24 +22,87 @@ const modalShowText = document.getElementById('modal-show-text');
 const modalBackgroundImage = document.getElementById("modal-background-image");
 modalBackgroundImage.addEventListener("input", updateColorInputs);
 let editingIndex = null;
+const modalFaviconBackground = document.getElementById('modal-favicon-background');
+
+modalFaviconBackground.addEventListener('change', () => {
+    if (editingIndex === null) return;
+    const bookmark = bookmarks[editingIndex];
+
+    if (modalFaviconBackground.checked) {
+        // poner favicon como fondo
+        bookmark.backgroundImageUrl = getFavicon(bookmark.url);
+        bookmark.showFavicon = false;
+
+        // actualizar inputs visualmente
+        modalBackgroundImage.value = bookmark.backgroundImageUrl || '';
+        modalBookmarkColor.disabled = true;
+        modalNoBackground.checked = false;
+        modalNoBackground.disabled = true;
+    } else {
+        // desactivar favicon como fondo → dejarlo editable otra vez
+        bookmark.backgroundImageUrl = null;
+        modalBackgroundImage.value = '';
+        modalBookmarkColor.disabled = false;
+        modalNoBackground.disabled = false;
+    }
+
+    chrome.storage.local.set({ bookmarks });
+    renderBookmarks();
+    updateColorInputs(); // actualizar estado visual del modal
+});
+
+modalFaviconBackground.addEventListener('change', () => {
+    const checked = modalFaviconBackground.checked;
+
+    // Deshabilitar/activar inputs
+    modalBackgroundImage.disabled = checked;
+    modalBookmarkColor.disabled = checked || modalNoBackground.checked;
+    modalShowFavicon.disabled = checked;
+
+    if (checked) {
+        // Activado → usar favicon como fondo
+        modalBackgroundImage.value = ''; // limpiar URL
+        modalShowFavicon.checked = false; // ocultar favicon normal
+    }
+});
 
 // Modal abrir/cerrar
 function openModal(index) {
     if (index == null || !bookmarks[index]) return;
     editingIndex = index;
-    modalName.value = bookmarks[index].name;
-    modalUrl.value = bookmarks[index].url;
-    modalInvertColors.checked = !!bookmarks[index].invertColors;
-    modalBookmarkColor.value = bookmarks[index].bookmarkColor || "#222222";
-    modalNoBackground.checked = bookmarks[index].bookmarkColor === "transparent";
-    modalTextColor.value = bookmarks[index].textColor || "#ffffff";
-    modalShowFavicon.checked = bookmarks[index].showFavicon ?? true;
-    modalShowText.checked = bookmarks[index].showText ?? true;
-    modalBackgroundImage.value = bookmarks[index].backgroundImageUrl || "";
-    modalBookmarkColor.disabled = !!bookmarks[index].backgroundImageUrl;
+
+    const bookmark = bookmarks[index];
+
+    // Valores básicos
+    modalName.value = bookmark.name;
+    modalUrl.value = bookmark.url;
+    modalInvertColors.checked = !!bookmark.invertColors;
+    modalBookmarkColor.value = bookmark.bookmarkColor || "#222222";
+    modalNoBackground.checked = bookmark.bookmarkColor === "transparent";
+    modalTextColor.value = bookmark.textColor || "#ffffff";
+    modalShowFavicon.checked = bookmark.showFavicon ?? true;
+    modalShowText.checked = bookmark.showText ?? true;
+    modalBackgroundImage.value = bookmark.backgroundImageUrl || "";
+
+    // ⚡ Favicon como background
+    const isFaviconBg = bookmark.backgroundImageUrl === getFavicon(bookmark.url);
+    modalFaviconBackground.checked = isFaviconBg;
+
+    // Deshabilitar inputs si está activo favicon de fondo
+    modalBackgroundImage.disabled = isFaviconBg;
+    modalBookmarkColor.disabled = isFaviconBg || modalNoBackground.checked;
+    modalShowFavicon.disabled = isFaviconBg;
+
+    // Si está activo favicon de fondo, no mostrar favicon
+    if (isFaviconBg) modalShowFavicon.checked = false;
+
+    // Actualizar estados visuales del modal
     updateColorInputs();
+
+    // Abrir modal
     editModal.style.display = 'flex';
 }
+
 function closeModal() {
     editModal.style.display = 'none';
     editingIndex = null;
@@ -48,6 +111,7 @@ function closeModal() {
 // Guardar cambios del modal
 modalSave.addEventListener('click', () => {
     if (editingIndex === null) return;
+    const bookmark = bookmarks[editingIndex];
     bookmarks[editingIndex].name = modalName.value;
     bookmarks[editingIndex].url = modalUrl.value;
     bookmarks[editingIndex].invertColors = modalInvertColors.checked;
@@ -55,7 +119,13 @@ modalSave.addEventListener('click', () => {
     bookmarks[editingIndex].textColor = modalTextColor.value;
     bookmarks[editingIndex].showFavicon = modalShowFavicon.checked;
     bookmarks[editingIndex].showText = modalShowText.checked;
-    bookmarks[editingIndex].backgroundImageUrl = modalBackgroundImage.value.trim() || null;
+    if (modalFaviconBackground.checked) {
+        // ⚡ guardar el favicon como background
+        bookmark.backgroundImageUrl = getFavicon(bookmark.url);
+        bookmark.showFavicon = false;
+    } else {
+        bookmark.backgroundImageUrl = modalBackgroundImage.value.trim() || null;
+    }
     chrome.storage.local.set({ bookmarks });
     renderBookmarks();
     closeModal();
