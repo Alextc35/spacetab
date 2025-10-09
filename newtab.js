@@ -24,46 +24,25 @@ modalBackgroundImage.addEventListener("input", updateColorInputs);
 let editingIndex = null;
 const modalFaviconBackground = document.getElementById('modal-favicon-background');
 
-modalFaviconBackground.addEventListener('change', () => {
-    if (editingIndex === null) return;
-    const bookmark = bookmarks[editingIndex];
-
-    if (modalFaviconBackground.checked) {
-        // poner favicon como fondo
-        bookmark.backgroundImageUrl = getFavicon(bookmark.url);
-        bookmark.showFavicon = false;
-
-        // actualizar inputs visualmente
-        modalBackgroundImage.value = bookmark.backgroundImageUrl || '';
-        modalBookmarkColor.disabled = true;
-        modalNoBackground.checked = false;
-        modalNoBackground.disabled = true;
-    } else {
-        // desactivar favicon como fondo → dejarlo editable otra vez
-        bookmark.backgroundImageUrl = null;
-        modalBackgroundImage.value = '';
-        modalBookmarkColor.disabled = false;
-        modalNoBackground.disabled = false;
-    }
-
-    chrome.storage.local.set({ bookmarks });
-    renderBookmarks();
-    updateColorInputs(); // actualizar estado visual del modal
-});
-
+// ----------------------------------------------
+// handler único para el checkbox "Favicon como background"
+// ----------------------------------------------
 modalFaviconBackground.addEventListener('change', () => {
     const checked = modalFaviconBackground.checked;
 
-    // Deshabilitar/activar inputs
+    // Cuando está activo: no permitimos poner una URL de imagen, y desactivamos el checkbox "mostrar favicon (pequeño)"
     modalBackgroundImage.disabled = checked;
-    modalBookmarkColor.disabled = checked || modalNoBackground.checked;
     modalShowFavicon.disabled = checked;
 
     if (checked) {
-        // Activado → usar favicon como fondo
-        modalBackgroundImage.value = ''; // limpiar URL
-        modalShowFavicon.checked = false; // ocultar favicon normal
+        // Si activas este modo, el favicon pequeño no debe mostrarse ni estar checked
+        modalShowFavicon.checked = false;
+        // No tocar modalBookmarkColor ni modalNoBackground: queremos permitir color sólido o "sin fondo"
+        modalNoBackground.disabled = false;
     }
+
+    // Actualiza estados dependientes (color input, etc.)
+    updateColorInputs();
 });
 
 // Modal abrir/cerrar
@@ -74,8 +53,8 @@ function openModal(index) {
     const bookmark = bookmarks[index];
 
     // Valores básicos
-    modalName.value = bookmark.name;
-    modalUrl.value = bookmark.url;
+    modalName.value = bookmark.name || '';
+    modalUrl.value = bookmark.url || '';
     modalInvertColors.checked = !!bookmark.invertColors;
     modalBookmarkColor.value = bookmark.bookmarkColor || "#222222";
     modalNoBackground.checked = bookmark.bookmarkColor === "transparent";
@@ -84,24 +63,27 @@ function openModal(index) {
     modalShowText.checked = bookmark.showText ?? true;
     modalBackgroundImage.value = bookmark.backgroundImageUrl || "";
 
-    // ⚡ Favicon como background
-    const isFaviconBg = bookmark.backgroundImageUrl === getFavicon(bookmark.url);
-    modalFaviconBackground.checked = isFaviconBg;
+    // Modo "favicon grande centrado + color de fondo"
+    modalFaviconBackground.checked = !!bookmark.faviconBackground;
 
-    // Deshabilitar inputs si está activo favicon de fondo
-    modalBackgroundImage.disabled = isFaviconBg;
-    modalBookmarkColor.disabled = isFaviconBg || modalNoBackground.checked;
-    modalShowFavicon.disabled = isFaviconBg;
+    // Si está activo faviconBackground: deshabilitamos input de URL y el checkbox pequeño
+    modalBackgroundImage.disabled = modalFaviconBackground.checked;
+    modalShowFavicon.disabled = modalFaviconBackground.checked;
+    if (modalFaviconBackground.checked) {
+        // el favicon "pequeño" no debe aparecer ni estar marcado en este modo
+        modalShowFavicon.checked = false;
+    }
 
-    // Si está activo favicon de fondo, no mostrar favicon
-    if (isFaviconBg) modalShowFavicon.checked = false;
+    // El color del bookmark puede seguir cambiándose (permitido)
+    modalBookmarkColor.disabled = modalNoBackground.checked;
 
-    // Actualizar estados visuales del modal
+    // Actualiza estados (opacity, etc.)
     updateColorInputs();
 
-    // Abrir modal
+    // Mostrar modal
     editModal.style.display = 'flex';
 }
+
 
 function closeModal() {
     editModal.style.display = 'none';
@@ -112,24 +94,32 @@ function closeModal() {
 modalSave.addEventListener('click', () => {
     if (editingIndex === null) return;
     const bookmark = bookmarks[editingIndex];
-    bookmarks[editingIndex].name = modalName.value;
-    bookmarks[editingIndex].url = modalUrl.value;
-    bookmarks[editingIndex].invertColors = modalInvertColors.checked;
-    bookmarks[editingIndex].bookmarkColor = modalNoBackground.checked ? "transparent" : modalBookmarkColor.value;
-    bookmarks[editingIndex].textColor = modalTextColor.value;
-    bookmarks[editingIndex].showFavicon = modalShowFavicon.checked;
-    bookmarks[editingIndex].showText = modalShowText.checked;
+
+    // Guardar valores básicos
+    bookmark.name = modalName.value.trim();
+    bookmark.url = modalUrl.value.trim();
+    bookmark.invertColors = modalInvertColors.checked;
+    bookmark.bookmarkColor = modalNoBackground.checked ? "transparent" : modalBookmarkColor.value;
+    bookmark.textColor = modalTextColor.value;
+    bookmark.showText = modalShowText.checked;
+
     if (modalFaviconBackground.checked) {
-        // ⚡ guardar el favicon como background
-        bookmark.backgroundImageUrl = getFavicon(bookmark.url);
-        bookmark.showFavicon = false;
+        // Modo: favicon grande en el centro + color sólido de fondo (o transparente si se escogió)
+        bookmark.faviconBackground = true;
+        bookmark.backgroundImageUrl = null; // no usamos imagen de url en este modo
+        bookmark.showFavicon = false;        // ocultamos el favicon pequeño
     } else {
+        // Modo normal: guardar URL de fondo (si la hay) y valor de showFavicon
+        bookmark.faviconBackground = false;
         bookmark.backgroundImageUrl = modalBackgroundImage.value.trim() || null;
+        bookmark.showFavicon = modalShowFavicon.checked;
     }
+
     chrome.storage.local.set({ bookmarks });
     renderBookmarks();
     closeModal();
 });
+
 modalCancel.addEventListener('click', closeModal);
 
 // Función para detectar si un color hexadecimal es oscuro
@@ -219,6 +209,7 @@ toggleButton.addEventListener('click', () => {
 });
 
 // Render bookmarks
+// Render bookmarks
 function renderBookmarks() {
     container.innerHTML = '';
     const containerWidth = container.clientWidth;
@@ -232,61 +223,160 @@ function renderBookmarks() {
         const div = document.createElement('div');
         div.className = 'bookmark';
         div.style.cursor = editMode ? "move" : "pointer";
-        if (bookmark.backgroundImageUrl) {
+
+        // --- Fondo ---
+        if (bookmark.faviconBackground) {
+            // modo: favicon grande centrado + color sólido (sin imagen)
+            div.style.backgroundImage = "none";
+            div.style.backgroundColor = bookmark.bookmarkColor === "transparent"
+                ? "transparent"
+                : (bookmark.bookmarkColor || "#222");
+        } else if (bookmark.backgroundImageUrl) {
+            // imagen de fondo
             div.style.backgroundImage = `url(${bookmark.backgroundImageUrl})`;
-            div.style.backgroundSize = "cover";       // escala sin deformar, recorta si es necesario
-            div.style.backgroundPosition = "center";  // siempre centrada
-            div.style.backgroundRepeat = "no-repeat"; // no se repite
+            div.style.backgroundSize = "cover";
+            div.style.backgroundPosition = "center";
+            div.style.backgroundRepeat = "no-repeat";
             div.style.backgroundColor = "transparent";
         } else {
+            // color sólido
             div.style.backgroundImage = "none";
             div.style.backgroundColor = bookmark.bookmarkColor || "#222";
         }
-        div.style.color = bookmark.textColor || "#fff";
 
-        // Determinar si el fondo es oscuro desde el principio
+        div.style.color = bookmark.textColor || "#fff";
         const darkBg = isDarkColor(bookmark.bookmarkColor || '#222');
 
-        // grid rect del bookmark
+        // --- Posición / tamaño ---
         const gx = pxToGrid(bookmark.x ?? 0);
         const gy = pxToGrid(bookmark.y ?? 0);
-
-        // tamaño/pixel basado en rejilla
         div.style.width = (gridToPx(bookmark.w) - 20) + 'px';
         div.style.height = (gridToPx(bookmark.h) - 20) + 'px';
         div.style.left = gridToPx(gx) + 'px';
         div.style.top = gridToPx(gy) + 'px';
 
-        div.innerHTML = `
-            <a href="${bookmark.url}">
-                <img src="${getFavicon(bookmark.url)}"
-                     alt="${bookmark.name}"
-                     style="${bookmark.invertColors?'filter:invert(1);':''}">
-                <span>${bookmark.name}</span>
-            </a>
-            ${editMode ? `
-                <button class="edit" style="
-                    background: ${darkBg ? '#fff' : '#222'};
-                    color: ${darkBg ? '#000' : '#fff'};
-                ">✎</button>
-                <button class="delete" style="
-                    background: ${darkBg ? '#fff' : '#222'};
-                    color: ${darkBg ? '#000' : '#fff'};
-                ">🗑</button>
-            ` : ''}
-        `;
-
-        const linkEl = div.querySelector('a');
-        const imgEl = div.querySelector("a img");
-        const spanEl = div.querySelector("a span");
-
+        // --- Contenido interno ---
+        const linkEl = document.createElement('a');
+        linkEl.href = bookmark.url || '#';
+        linkEl.style.display = 'flex';
+        linkEl.style.flexDirection = 'column';
+        linkEl.style.justifyContent = 'center';
+        linkEl.style.alignItems = 'center';
+        linkEl.style.width = '100%';
+        linkEl.style.height = '100%';
+        linkEl.style.textDecoration = 'none';
+        linkEl.style.color = div.style.color;
         linkEl.style.cursor = editMode ? 'move' : 'pointer';
-        linkEl.style.color = bookmark.textColor || "#fff";
-        imgEl.style.display = (bookmark.showFavicon ?? true) ? "inline-block" : "none";
-        spanEl.style.display = (bookmark.showText ?? true) ? "inline-block" : "none";
 
+        if (bookmark.faviconBackground) {
+            // Favicon grande + color de fondo
+            const img = document.createElement('img');
+            img.src = getFavicon(bookmark.url);
+            img.alt = bookmark.name || '';
+            img.style.width = '60%';
+            img.style.height = '60%';
+            img.style.objectFit = 'contain';
+            img.style.display = 'block';
+            if (bookmark.invertColors) img.style.filter = 'invert(1)';
+            linkEl.appendChild(img);
+
+            if (bookmark.showText) {
+                const span = document.createElement('span');
+                span.textContent = bookmark.name || '';
+                span.style.marginTop = '6px';
+                span.style.whiteSpace = 'nowrap';
+                span.style.overflow = 'hidden';
+                span.style.textOverflow = 'ellipsis';
+                linkEl.appendChild(span);
+            }
+        } else {
+            // Modo normal
+            const infoBox = document.createElement('div');
+            infoBox.style.position = 'absolute';
+            infoBox.style.bottom = '6px';
+            infoBox.style.right = '8px';
+            infoBox.style.display = 'flex';
+            infoBox.style.alignItems = 'center';
+            infoBox.style.gap = '6px';
+            infoBox.style.background = 'transparent'; // sin fondo
+            infoBox.style.padding = '0';
+            infoBox.style.borderRadius = '0'; // sin bordes redondeados
+
+            if (bookmark.showFavicon ?? true) {
+                const img = document.createElement('img');
+                img.src = getFavicon(bookmark.url);
+                img.alt = bookmark.name || '';
+                img.style.width = '16px';
+                img.style.height = '16px';
+                if (bookmark.invertColors) img.style.filter = 'invert(1)';
+                infoBox.appendChild(img);
+            }
+
+            if (bookmark.showText ?? true) {
+                const span = document.createElement('span');
+                span.textContent = bookmark.name || '';
+                span.style.fontSize = '0.85em';
+                span.style.whiteSpace = 'nowrap';
+                span.style.overflow = 'hidden';
+                span.style.textOverflow = 'ellipsis';
+                span.style.color = bookmark.textColor || '#fff';
+                infoBox.appendChild(span);
+            }
+
+            linkEl.appendChild(infoBox);
+        }
+
+        div.appendChild(linkEl);
+
+        // --- Botones editar/eliminar ---
         if (editMode) {
-            // --- Dragging ---
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit';
+            editBtn.textContent = '✎';
+            editBtn.style.background = darkBg ? '#fff' : '#222';
+            editBtn.style.color = darkBg ? '#000' : '#fff';
+            editBtn.addEventListener('click', (e) => { e.stopPropagation(); openModal(index); });
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'delete';
+            delBtn.textContent = '🗑';
+            delBtn.style.background = darkBg ? '#fff' : '#222';
+            delBtn.style.color = darkBg ? '#000' : '#fff';
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm(`¿Eliminar ${bookmark.name}?`)) {
+                    bookmarks.splice(index, 1);
+                    chrome.storage.local.set({ bookmarks });
+                    renderBookmarks();
+                }
+            });
+
+            editBtn.style.position = 'absolute';
+            editBtn.style.top = '5px';
+            editBtn.style.right = '35px';
+            editBtn.style.width = '25px';
+            editBtn.style.height = '25px';
+            editBtn.style.borderRadius = '5px';
+            editBtn.style.border = 'none';
+            editBtn.style.cursor = 'pointer';
+
+            delBtn.style.position = 'absolute';
+            delBtn.style.top = '5px';
+            delBtn.style.right = '5px';
+            delBtn.style.width = '25px';
+            delBtn.style.height = '25px';
+            delBtn.style.borderRadius = '5px';
+            delBtn.style.border = 'none';
+            delBtn.style.cursor = 'pointer';
+
+            div.appendChild(editBtn);
+            div.appendChild(delBtn);
+        }
+
+        container.appendChild(div);
+
+        // --- Dragging ---
+        if (editMode) {
             let dragging = false;
             let origGX = gx, origGY = gy;
             let pointerOffsetX = 0, pointerOffsetY = 0;
@@ -299,8 +389,6 @@ function renderBookmarks() {
                 pointerOffsetY = e.clientY - div.offsetTop;
                 origGX = pxToGrid(div.offsetLeft);
                 origGY = pxToGrid(div.offsetTop);
-                candidateGX = origGX;
-                candidateGY = origGY;
                 div.setPointerCapture(e.pointerId);
                 div.style.zIndex = 9999;
             });
@@ -309,7 +397,7 @@ function renderBookmarks() {
                 if (!dragging) return;
                 let newLeftPx = e.clientX - pointerOffsetX;
                 let newTopPx = e.clientY - pointerOffsetY;
-                // Clamp por limites del contenedor teniendo en cuenta tamaño en px
+
                 const maxLeftPx = Math.max(0, containerWidth - gridToPx(bookmark.w));
                 const maxTopPx = Math.max(0, containerHeight - gridToPx(bookmark.h));
                 newLeftPx = Math.max(0, Math.min(newLeftPx, maxLeftPx));
@@ -317,21 +405,15 @@ function renderBookmarks() {
 
                 const snappedGX = pxToGrid(newLeftPx);
                 const snappedGY = pxToGrid(newTopPx);
-                // 👇 usar siempre el tamaño actual del bookmark
                 const currentW = bookmark.w || 1;
                 const currentH = bookmark.h || 1;
 
-                // comprobar colisión (con width/height actuales)
                 if (isAreaFree(snappedGX, snappedGY, currentW, currentH, index)) {
-                    candidateValid = true;
-                    candidateGX = snappedGX;
-                    candidateGY = snappedGY;
                     div.style.left = gridToPx(snappedGX) + 'px';
-                    div.style.top  = gridToPx(snappedGY) + 'px';
+                    div.style.top = gridToPx(snappedGY) + 'px';
                     div.style.opacity = "1";
                     div.style.border = "none";
                 } else {
-                    candidateValid = false;
                     div.style.opacity = "0.5";
                     div.style.border = "1px solid red";
                 }
@@ -342,37 +424,21 @@ function renderBookmarks() {
                 dragging = false;
                 div.releasePointerCapture(e.pointerId);
 
-                // Siempre guardar la posición más cercana válida
                 const snappedGX = pxToGrid(div.offsetLeft);
                 const snappedGY = pxToGrid(div.offsetTop);
                 let finalGX = snappedGX;
                 let finalGY = snappedGY;
 
-                // Ajustar si colisiona
                 while (!isAreaFree(finalGX, finalGY, bookmark.w, bookmark.h, index) && finalGX > 0) finalGX--;
                 while (!isAreaFree(finalGX, finalGY, bookmark.w, bookmark.h, index) && finalGY > 0) finalGY--;
 
                 bookmark.x = gridToPx(finalGX);
                 bookmark.y = gridToPx(finalGY);
-
                 chrome.storage.local.set({ bookmarks });
                 renderBookmarks();
             });
 
-            // --- Edit / Delete ---
-            const editBtn = div.querySelector('.edit');
-            const delBtn = div.querySelector('.delete');
-            if (editBtn) editBtn.addEventListener('click', (e) => { e.stopPropagation(); openModal(index); });
-            if (delBtn) delBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (confirm(`¿Eliminar ${bookmark.name}?`)) {
-                    bookmarks.splice(index, 1);
-                    chrome.storage.local.set({ bookmarks });
-                    renderBookmarks();
-                }
-            });
-
-            // --- Resizers en los 4 bordes ---
+            // --- Resizers ---
             ['top', 'right', 'bottom', 'left'].forEach(side => {
                 const resizer = document.createElement('div');
                 resizer.className = `resizer ${side}`;
@@ -392,11 +458,6 @@ function renderBookmarks() {
                     origGX = pxToGrid(div.offsetLeft);
                     origGY = pxToGrid(div.offsetTop);
 
-                    resizeCandidateW = origW;
-                    resizeCandidateH = origH;
-                    resizeCandidateGX = origGX;
-                    resizeCandidateGY = origGY;
-
                     const onMove = (ev) => {
                         if (!resizing) return;
                         const rect = container.getBoundingClientRect();
@@ -407,7 +468,6 @@ function renderBookmarks() {
 
                         if (side === 'right') {
                             newW = Math.max(1, Math.ceil((localX - origGX * GRID_SIZE) / GRID_SIZE));
-                            // limitar solo crecimiento hacia la derecha
                             while (!isAreaFree(origGX, origGY, newW, origH, index) && newW > 1) newW--;
                         } else if (side === 'bottom') {
                             newH = Math.max(1, Math.ceil((localY - origGY * GRID_SIZE) / GRID_SIZE));
@@ -415,38 +475,32 @@ function renderBookmarks() {
                         } else if (side === 'left') {
                             let candidateGX = Math.floor(localX / GRID_SIZE);
                             let deltaW = origGX - candidateGX;
-
                             if (deltaW > 0) {
-                                // crecimiento hacia la izquierda → limitar por colisión
                                 while (!isAreaFree(origGX - deltaW, origGY, origW + deltaW, origH, index) && deltaW > 0) deltaW--;
                             } else if (deltaW < 0) {
-                                // reducción hacia la derecha → siempre permitir
                                 deltaW = Math.max(deltaW, -(origW - 1));
                             }
-
                             newGX = origGX - deltaW;
                             newW = origW + deltaW;
                         } else if (side === 'top') {
                             let candidateGY = Math.floor(localY / GRID_SIZE);
                             let deltaH = origGY - candidateGY;
-
                             if (deltaH > 0) {
-                                // crecimiento hacia arriba → limitar por colisión
                                 while (!isAreaFree(origGX, origGY - deltaH, origW, origH + deltaH, index) && deltaH > 0) deltaH--;
                             } else if (deltaH < 0) {
-                                // reducción hacia abajo → siempre permitir
                                 deltaH = Math.max(deltaH, -(origH - 1));
                             }
-
                             newGY = origGY - deltaH;
                             newH = origH + deltaH;
                         }
 
-                        // clamp al contenedor
+                        // clamp
                         if (newGX < 0) { newW += newGX; newGX = 0; }
                         if (newGY < 0) { newH += newGY; newGY = 0; }
-                        if (newGX + newW > Math.floor(containerWidth / GRID_SIZE)) newW = Math.floor(containerWidth / GRID_SIZE) - newGX;
-                        if (newGY + newH > Math.floor(containerHeight / GRID_SIZE)) newH = Math.floor(containerHeight / GRID_SIZE) - newGY;
+                        if (newGX + newW > Math.floor(containerWidth / GRID_SIZE))
+                            newW = Math.floor(containerWidth / GRID_SIZE) - newGX;
+                        if (newGY + newH > Math.floor(containerHeight / GRID_SIZE))
+                            newH = Math.floor(containerHeight / GRID_SIZE) - newGY;
 
                         resizeCandidateGX = newGX;
                         resizeCandidateGY = newGY;
@@ -481,23 +535,20 @@ function renderBookmarks() {
             });
         }
 
-        // Abrir link en modo normal
+        // --- Click normal ---
         div.addEventListener('click', (e) => {
             if (!editMode && !e.target.classList.contains('edit') && !e.target.classList.contains('delete')) {
                 e.preventDefault();
                 if (e.ctrlKey || e.metaKey || e.button === 1) {
-                    // ctrl+click, cmd+click o rueda del ratón → nueva pestaña
                     window.open(bookmark.url, '_blank');
                 } else {
-                    // click normal → misma pestaña
                     window.location.href = bookmark.url;
                 }
             }
         });
-
-        container.appendChild(div);
     });
 }
+
 /* ------------- Fin renderBookmarks ------------- */
 
 /* ------------- Actualizar handler addButton para usar grid y w/h ------------- */
