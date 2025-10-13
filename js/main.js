@@ -1,6 +1,6 @@
 import { storage } from './core/storage.js';
 import { pxToGrid, gridToPx, isAreaFree } from './core/grid.js';
-import { getFavicon } from './core/utils.js';
+import { getFavicon, isDarkColor } from './core/utils.js';
 
 /* ======================= Variables globales ======================= */
 const container = document.getElementById('bookmark-container');
@@ -107,15 +107,6 @@ modalSave.addEventListener('click', async () => {
 modalCancel.addEventListener('click', closeModal);
 
 /* ---------- Helpers colores / inputs ---------- */
-function isDarkColor(hex) {
-    hex = hex.replace('#', '');
-    const r = parseInt(hex.substring(0,2), 16);
-    const g = parseInt(hex.substring(2,4), 16);
-    const b = parseInt(hex.substring(4,6), 16);
-    const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
-    return luminance < 64;
-}
-
 function updateColorInputs() {
     const hasImage = modalBackgroundImage.value.trim() !== "";
     const noBackground = modalNoBackground.checked;
