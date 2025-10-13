@@ -1,4 +1,5 @@
 import { storage } from './core/storage.js';
+import { pxToGrid, gridToPx, isAreaFree } from './core/grid.js';
 
 /* ======================= Variables globales ======================= */
 const container = document.getElementById('bookmark-container');
@@ -130,32 +131,6 @@ modalNoBackground.addEventListener('change', updateColorInputs);
 modalShowText.addEventListener('change', updateColorInputs);
 
 /* ======================= Helpers rejilla / colisiones ======================= */
-function pxToGrid(px) { return Math.round(px / GRID_SIZE); }
-function gridToPx(g) { return g * GRID_SIZE; }
-function getGridRectFromBookmark(bm) {
-    const gx = pxToGrid(bm.x ?? 0);
-    const gy = pxToGrid(bm.y ?? 0);
-    const w = bm.w || 1;
-    const h = bm.h || 1;
-    return { gx, gy, w, h };
-}
-
-function isAreaFree(gx, gy, w, h, ignoreIndex = -1) {
-    for (let i = 0; i < bookmarks.length; i++) {
-        if (i === ignoreIndex) continue;
-        const bm = bookmarks[i];
-        if (bm.x == null || bm.y == null) continue;
-        const other = getGridRectFromBookmark(bm);
-        const separated =
-            gx + w <= other.gx ||
-            other.gx + other.w <= gx ||
-            gy + h <= other.gy ||
-            other.gy + other.h <= gy;
-        if (!separated) return false;
-    }
-    return true;
-}
-
 function getFavicon(url) {
     try {
         const u = new URL(url);
@@ -371,7 +346,7 @@ function addDragAndResize(div, bookmark, index, containerWidth, containerHeight)
         const snappedGX = pxToGrid(newLeftPx);
         const snappedGY = pxToGrid(newTopPx);
 
-        if (isAreaFree(snappedGX, snappedGY, bookmark.w, bookmark.h, index)) {
+        if (isAreaFree(bookmarks, snappedGX, snappedGY, bookmark.w, bookmark.h, index)) {
             div.style.left = gridToPx(snappedGX) + 'px';
             div.style.top = gridToPx(snappedGY) + 'px';
             div.style.opacity = "1";
@@ -389,8 +364,8 @@ function addDragAndResize(div, bookmark, index, containerWidth, containerHeight)
 
         let snappedGX = pxToGrid(div.offsetLeft);
         let snappedGY = pxToGrid(div.offsetTop);
-        while (!isAreaFree(snappedGX, snappedGY, bookmark.w, bookmark.h, index) && snappedGX > 0) snappedGX--;
-        while (!isAreaFree(snappedGX, snappedGY, bookmark.w, bookmark.h, index) && snappedGY > 0) snappedGY--;
+        while (!isAreaFree(bookmarks, snappedGX, snappedGY, bookmark.w, bookmark.h, index) && snappedGX > 0) snappedGX--;
+        while (!isAreaFree(bookmarks, snappedGX, snappedGY, bookmark.w, bookmark.h, index) && snappedGY > 0) snappedGY--;
 
         bookmark.x = gridToPx(snappedGX);
         bookmark.y = gridToPx(snappedGY);
@@ -431,21 +406,21 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
         // Ajustes según lado
         if (side === 'right') {
             newW = Math.max(1, Math.ceil((localX - origGX * GRID_SIZE) / GRID_SIZE));
-            while (!isAreaFree(origGX, origGY, newW, origH, index) && newW > 1) newW--;
+            while (!isAreaFree(bookmarks, origGX, origGY, newW, origH, index) && newW > 1) newW--;
         } else if (side === 'bottom') {
             newH = Math.max(1, Math.ceil((localY - origGY * GRID_SIZE) / GRID_SIZE));
-            while (!isAreaFree(origGX, origGY, origW, newH, index) && newH > 1) newH--;
+            while (!isAreaFree(bookmarks, origGX, origGY, origW, newH, index) && newH > 1) newH--;
         } else if (side === 'left') {
             let candidateGX = Math.floor(localX / GRID_SIZE);
             let deltaW = origGX - candidateGX;
-            if (deltaW > 0) while (!isAreaFree(origGX - deltaW, origGY, origW + deltaW, origH, index) && deltaW > 0) deltaW--;
+            if (deltaW > 0) while (!isAreaFree(bookmarks, origGX - deltaW, origGY, origW + deltaW, origH, index) && deltaW > 0) deltaW--;
             else if (deltaW < 0) deltaW = Math.max(deltaW, -(origW - 1));
             newGX = origGX - deltaW;
             newW = origW + deltaW;
         } else if (side === 'top') {
             let candidateGY = Math.floor(localY / GRID_SIZE);
             let deltaH = origGY - candidateGY;
-            if (deltaH > 0) while (!isAreaFree(origGX, origGY - deltaH, origW, origH + deltaH, index) && deltaH > 0) deltaH--;
+            if (deltaH > 0) while (!isAreaFree(bookmarks, origGX, origGY - deltaH, origW, origH + deltaH, index) && deltaH > 0) deltaH--;
             else if (deltaH < 0) deltaH = Math.max(deltaH, -(origH - 1));
             newGY = origGY - deltaH;
             newH = origH + deltaH;
@@ -499,7 +474,7 @@ addButton.addEventListener('click', async () => {
     let gx = pxToGrid(rect.width / 2);
     let gy = pxToGrid(rect.height / 2);
 
-    while (!isAreaFree(gx, gy, 1, 1)) {
+    while (!isAreaFree(bookmarks, gx, gy, 1, 1)) {
         gx++;
         if (gx * GRID_SIZE > rect.width - GRID_SIZE) { gx = 0; gy++; }
     }
