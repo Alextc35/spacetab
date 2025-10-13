@@ -1,3 +1,5 @@
+import { storage } from './core/storage.js';
+
 /* ======================= Variables globales ======================= */
 const container = document.getElementById('bookmark-container');
 const addButton = document.getElementById('add-bookmark');
@@ -74,7 +76,7 @@ function closeModal() {
 }
 
 /* ---------- Guardar cambios modal ---------- */
-modalSave.addEventListener('click', () => {
+modalSave.addEventListener('click', async () => {
     if (editingIndex === null) return;
     const bookmark = bookmarks[editingIndex];
 
@@ -95,7 +97,7 @@ modalSave.addEventListener('click', () => {
         bookmark.showFavicon = modalShowFavicon.checked;
     }
 
-    chrome.storage.local.set({ bookmarks });
+    await storage.set({ bookmarks });
     renderBookmarks();
     closeModal();
 });
@@ -296,11 +298,11 @@ function renderBookmarks() {
             delBtn.style.color = darkBg ? '#000' : '#fff';
 
             editBtn.addEventListener('click', (e) => { e.stopPropagation(); openModal(index); });
-            delBtn.addEventListener('click', (e) => {
+            delBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 if (confirm(`¿Eliminar ${bookmark.name}?`)) {
                     bookmarks.splice(index, 1);
-                    chrome.storage.local.set({ bookmarks });
+                    await storage.set({ bookmarks });
                     renderBookmarks();
                 }
             });
@@ -380,7 +382,7 @@ function addDragAndResize(div, bookmark, index, containerWidth, containerHeight)
         }
     });
 
-    div.addEventListener('pointerup', (e) => {
+    div.addEventListener('pointerup', async (e) => {
         if (!dragging) return;
         dragging = false;
         div.releasePointerCapture(e.pointerId);
@@ -392,7 +394,7 @@ function addDragAndResize(div, bookmark, index, containerWidth, containerHeight)
 
         bookmark.x = gridToPx(snappedGX);
         bookmark.y = gridToPx(snappedGY);
-        chrome.storage.local.set({ bookmarks });
+        await storage.set({ bookmarks });
         renderBookmarks();
     });
 
@@ -467,7 +469,7 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
         div.style.border = "1px solid coral";
     };
 
-    const onUp = () => {
+    const onUp = async () => {
         if (!resizing) return;
         resizing = false;
         document.removeEventListener('pointermove', onMove);
@@ -477,7 +479,7 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
         bookmark.y = gridToPx(resizeCandidateGY);
         bookmark.w = resizeCandidateW;
         bookmark.h = resizeCandidateH;
-        chrome.storage.local.set({ bookmarks });
+        await storage.set({ bookmarks });
         div.style.border = 'none';
         renderBookmarks();
     };
@@ -487,7 +489,7 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
 }
 
 /* ======================= Añadir bookmark ======================= */
-addButton.addEventListener('click', () => {
+addButton.addEventListener('click', async () => {
     const name = prompt("Nombre del favorito:");
     if (!name) return;
     const url = prompt("URL del favorito (incluye https://):");
@@ -516,15 +518,16 @@ addButton.addEventListener('click', () => {
         showText: true
     });
 
-    chrome.storage.local.set({ bookmarks });
+    await storage.set({ bookmarks });
     renderBookmarks();
 });
 
 /* ======================= Cargar bookmarks inicial ======================= */
-chrome.storage.local.get('bookmarks', (data) => {
-    bookmarks = Array.isArray(data.bookmarks) ? data.bookmarks.map(b => ({ ...b, w: b.w || 1, h: b.h || 1 })) : [];
-    renderBookmarks();
-});
+const data = await storage.get('bookmarks');
+bookmarks = Array.isArray(data.bookmarks)
+    ? data.bookmarks.map(b => ({ ...b, w: b.w || 1, h: b.h || 1 }))
+    : [];
+renderBookmarks();
 
 /* ======================= Modal Configuración ======================= */
 const settingsBtn = document.getElementById('settings');

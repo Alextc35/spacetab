@@ -13,7 +13,7 @@
   },
   "web_accesible_resources": [
     {
-      "resources": ["js/*.js", "css/*.css"],
+      "resources": ["js/*.js", "js/core/*.js", "js/ui/*.js", "css/*.css"],
       "matches": ["<all_urls>"]
     }
   ]
