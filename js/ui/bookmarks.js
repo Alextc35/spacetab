@@ -4,8 +4,8 @@ import { getFavicon, isDarkColor } from '../core/utils.js';
 import { openModal } from './modal.js';
 
 export const container = document.getElementById('bookmark-container');
-let editMode = false;
 export const GRID_SIZE = 140;
+let editMode = false;
 
 // ======================= Render bookmarks =======================
 export function renderBookmarks() {
