@@ -77,12 +77,11 @@ function updateColorState() {
     bgColorInput.disabled = bgImageInput.value.trim() !== "";
 }
 
-bgImageInput.addEventListener("input", updateColorState);
-
 chrome.storage.local.get(['bgColor', 'bgImage'], (data) => {
     if (data.bgColor) bgColorInput.value = data.bgColor;
     if (data.bgImage) bgImageInput.value = data.bgImage;
     applyBackground(data.bgColor, data.bgImage);
+    updateColorState();
 });
 
 function applyBackground(color, image) {
