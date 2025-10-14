@@ -1,6 +1,7 @@
 import { storage } from './core/storage.js';
 import { pxToGrid, gridToPx, isAreaFree } from './core/grid.js';
 import { getFavicon, isDarkColor } from './core/utils.js';
+import { initModal, openModal } from './ui/modal.js';
 
 /* ======================= Variables globales ======================= */
 const container = document.getElementById('bookmark-container');
@@ -12,115 +13,7 @@ let editMode = false; // iniciar en modo edición
 const GRID_SIZE = 140;
 let bookmarks = [];
 
-/* ======================= Modal de edición ======================= */
-const editModal = document.getElementById('edit-modal');
-const modalName = document.getElementById('modal-name');
-const modalUrl = document.getElementById('modal-url');
-const modalInvertColors = document.getElementById('modal-invert-colors');
-const modalSave = document.getElementById('modal-save');
-const modalCancel = document.getElementById('modal-cancel');
-const modalBookmarkColor = document.getElementById('modal-bookmark-color');
-const modalNoBackground = document.getElementById('modal-no-background');
-const modalTextColor = document.getElementById('modal-text-color');
-const modalShowFavicon = document.getElementById('modal-show-favicon');
-const modalShowText = document.getElementById('modal-show-text');
-const modalBackgroundImage = document.getElementById("modal-background-image");
-const modalFaviconBackground = document.getElementById('modal-favicon-background');
-
-modalBackgroundImage.addEventListener("input", updateColorInputs);
-
-let editingIndex = null;
-
-/* ---------- Modal Favicon background handler ---------- */
-modalFaviconBackground.addEventListener('change', () => {
-    const checked = modalFaviconBackground.checked;
-    modalBackgroundImage.disabled = checked;
-    modalShowFavicon.disabled = checked;
-
-    if (checked) modalShowFavicon.checked = false;
-
-    updateColorInputs();
-});
-
-/* ---------- Abrir / cerrar modal ---------- */
-function openModal(index) {
-    if (index == null || !bookmarks[index]) return;
-    editingIndex = index;
-
-    const bookmark = bookmarks[index];
-
-    // Valores básicos
-    modalName.value = bookmark.name || '';
-    modalUrl.value = bookmark.url || '';
-    modalInvertColors.checked = !!bookmark.invertColors;
-    modalBookmarkColor.value = bookmark.bookmarkColor || "#222222";
-    modalNoBackground.checked = bookmark.bookmarkColor === "transparent";
-    modalTextColor.value = bookmark.textColor || "#ffffff";
-    modalShowFavicon.checked = bookmark.showFavicon ?? true;
-    modalShowText.checked = bookmark.showText ?? true;
-    modalBackgroundImage.value = bookmark.backgroundImageUrl || "";
-    modalFaviconBackground.checked = !!bookmark.faviconBackground;
-
-    // Ajustes de inputs según modo
-    modalBackgroundImage.disabled = modalFaviconBackground.checked;
-    modalShowFavicon.disabled = modalFaviconBackground.checked;
-    if (modalFaviconBackground.checked) modalShowFavicon.checked = false;
-    modalBookmarkColor.disabled = modalNoBackground.checked;
-
-    updateColorInputs();
-
-    editModal.style.display = 'flex';
-}
-
-function closeModal() {
-    editModal.style.display = 'none';
-    editingIndex = null;
-}
-
-/* ---------- Guardar cambios modal ---------- */
-modalSave.addEventListener('click', async () => {
-    if (editingIndex === null) return;
-    const bookmark = bookmarks[editingIndex];
-
-    bookmark.name = modalName.value.trim();
-    bookmark.url = modalUrl.value.trim();
-    bookmark.invertColors = modalInvertColors.checked;
-    bookmark.bookmarkColor = modalNoBackground.checked ? "transparent" : modalBookmarkColor.value;
-    bookmark.textColor = modalTextColor.value;
-    bookmark.showText = modalShowText.checked;
-
-    if (modalFaviconBackground.checked) {
-        bookmark.faviconBackground = true;
-        bookmark.backgroundImageUrl = null;
-        bookmark.showFavicon = false;
-    } else {
-        bookmark.faviconBackground = false;
-        bookmark.backgroundImageUrl = modalBackgroundImage.value.trim() || null;
-        bookmark.showFavicon = modalShowFavicon.checked;
-    }
-
-    await storage.set({ bookmarks });
-    renderBookmarks();
-    closeModal();
-});
-
-modalCancel.addEventListener('click', closeModal);
-
-/* ---------- Helpers colores / inputs ---------- */
-function updateColorInputs() {
-    const hasImage = modalBackgroundImage.value.trim() !== "";
-    const noBackground = modalNoBackground.checked;
-
-    modalBookmarkColor.disabled = hasImage || noBackground;
-    modalNoBackground.disabled = hasImage;
-    modalTextColor.disabled = !modalShowText.checked;
-
-    modalBookmarkColor.style.opacity = hasImage ? "0.5" : "1";
-    modalNoBackground.parentElement.style.opacity = hasImage ? "0.5" : "1";
-}
-
-modalNoBackground.addEventListener('change', updateColorInputs);
-modalShowText.addEventListener('change', updateColorInputs);
+initModal(bookmarks, renderBookmarks);
 
 /* ======================= Alternar modo edición ======================= */
 toggleButton.addEventListener('click', () => {
@@ -131,7 +24,7 @@ toggleButton.addEventListener('click', () => {
 });
 
 /* ======================= Render bookmarks ======================= */
-function renderBookmarks() {
+export function renderBookmarks() {
     container.innerHTML = '';
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
@@ -254,7 +147,7 @@ function renderBookmarks() {
             delBtn.style.background = darkBg ? '#fff' : '#222';
             delBtn.style.color = darkBg ? '#000' : '#fff';
 
-            editBtn.addEventListener('click', (e) => { e.stopPropagation(); openModal(index); });
+            editBtn.addEventListener('click', (e) => { e.stopPropagation(); openModal(bookmarks, index); });
             delBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 if (confirm(`¿Eliminar ${bookmark.name}?`)) {
