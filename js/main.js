@@ -2,6 +2,7 @@ import { loadBookmarks } from './core/bookmark.js';
 import { initModal } from './ui/modal.js';
 import { handleAddBookmark, renderBookmarks, setEditMode} from './ui/bookmarks.js';
 import { initSettingsModal } from './ui/settings.js';
+import { GRID_SIZE, language } from './core/config.js';
 
 /* ======================= Variables globales ======================= */
 const addButton = document.getElementById('add-bookmark');
@@ -9,8 +10,8 @@ const toggleButton = document.getElementById('toggle-mode');
 const gridOverlay = document.getElementById('grid-overlay');
 
 let SETTINGS = {
-    gridSize: 140,
-    language: 'es'
+    gridSize: GRID_SIZE,
+    language: language
 };
 
 await loadBookmarks();
@@ -18,6 +19,9 @@ initModal(renderBookmarks);
 renderBookmarks();
 
 initSettingsModal(SETTINGS);
+
+/* ======================= Añadir bookmark ======================= */
+addButton.addEventListener('click', handleAddBookmark);
 
 /* ======================= Alternar modo edición ======================= */
 toggleButton.addEventListener('click', () => {
@@ -27,6 +31,3 @@ toggleButton.addEventListener('click', () => {
     setEditMode(isEditing);
     renderBookmarks();
 });
-
-/* ======================= Añadir bookmark ======================= */
-addButton.addEventListener('click', handleAddBookmark);

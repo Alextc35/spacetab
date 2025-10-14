@@ -3,9 +3,9 @@ import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
 import { getFavicon, isDarkColor } from '../core/utils.js';
 import { openModal } from './modal.js';
 import { addDragAndResize } from './dragResize.js';
+import { GRID_SIZE } from '../core/config.js';
 
 export const container = document.getElementById('bookmark-container');
-export const GRID_SIZE = 140;
 let editMode = false;
 
 // ======================= Helpers de bookmark =======================

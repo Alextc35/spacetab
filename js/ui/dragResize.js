@@ -1,8 +1,9 @@
 // dragResize.js
 import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
 import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
-import { GRID_SIZE, renderBookmarks } from './bookmarks.js';
+import { renderBookmarks } from './bookmarks.js';
 import { container } from './bookmarks.js';
+import { GRID_SIZE } from '../core/config.js';
 
 /* ======================= Drag & Resize helpers ======================= */
 export function addDragAndResize(div, bookmark, index, containerWidth, containerHeight) {
