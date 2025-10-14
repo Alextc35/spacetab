@@ -1,4 +1,6 @@
 // ui/settings.js
+import { storage } from '../core/storage.js';
+
 export function initSettings(SETTINGS) {
     const settingsBtn = document.getElementById('settings');
     const settingsModal = document.getElementById('settings-modal');
@@ -39,11 +41,11 @@ export function initSettings(SETTINGS) {
 
     settingsCancel.addEventListener('click', () => { settingsModal.style.display = 'none'; });
 
-    settingsSave.addEventListener('click', () => {
+    settingsSave.addEventListener('click', async () => {
         SETTINGS.gridSize = parseInt(gridSizeInput.value, 10) || 140;
         SETTINGS.language = languageSelect.value;
         settingsModal.style.display = 'none';
-        chrome.storage.local.set({ settings: SETTINGS });
+        await storage.set({ settings: SETTINGS });
     });
 
     // Tabs
@@ -58,7 +60,7 @@ export function initSettings(SETTINGS) {
     });
 
     // Cargar valores guardados
-    chrome.storage.local.get(['settings', 'bgColor', 'bgImage'], (data) => {
+    storage.get(['settings', 'bgColor', 'bgImage']).then(data => {
         if (data.settings) Object.assign(SETTINGS, data.settings);
         if (data.bgColor) bgColorInput.value = data.bgColor;
         if (data.bgImage) bgImageInput.value = data.bgImage;
@@ -67,25 +69,24 @@ export function initSettings(SETTINGS) {
     });
 
     // Background dinámico
-    bgColorInput.addEventListener('input', () => {
+    bgColorInput.addEventListener('input', async () => {
         if (bgColorInput.disabled) return;
         const color = bgColorInput.value;
-        chrome.storage.local.set({ bgColor: color, bgImage: '' });
+        await storage.set({ bgColor: color, bgImage: '' });
         bgImageInput.value = '';
         applyBackground(color, '');
     });
 
-    bgImageInput.addEventListener('input', () => {
+    bgImageInput.addEventListener('input', async () => {
         const image = bgImageInput.value.trim();
-        chrome.storage.local.set({ bgImage: image });
-        if (image) bgColorInput.disabled = true;
-        else bgColorInput.disabled = false;
+        await storage.set({ bgImage: image });
+        bgColorInput.disabled = image !== '';
         applyBackground('', image);
     });
 
-    resetBgBtn.addEventListener('click', () => {
-        chrome.storage.local.set({ bgColor: '', bgImage: '' });
-        bgColorInput.value = '#333';
+    resetBgBtn.addEventListener('click', async () => {
+        await storage.set({ bgColor: '', bgImage: '' });
+        bgColorInput.value = '#333333';
         bgImageInput.value = '';
         bgColorInput.disabled = false;
         applyBackground('', '');

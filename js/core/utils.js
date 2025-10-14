@@ -19,3 +19,14 @@ export function isDarkColor(hex) {
     const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
     return luminance < 64;
 }
+
+// alterna el modo de edición
+export function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode) {
+    return function toggleEditMode() {
+        const isEditing = gridOverlay.style.display !== 'block';
+        toggleButton.textContent = isEditing ? "🔒" : "✎";
+        gridOverlay.style.display = isEditing ? 'block' : 'none';
+        setEditMode(isEditing);
+        renderBookmarks();
+    };
+}

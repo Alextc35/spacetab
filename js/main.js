@@ -1,3 +1,4 @@
+import { createToggleEditMode } from './core/utils.js';
 import { loadBookmarks } from './core/bookmark.js';
 import { initBookmarkModal } from './ui/modal.js';
 import { handleAddBookmark, renderBookmarks, setEditMode} from './ui/bookmarks.js';
@@ -14,18 +15,10 @@ async function initApp() {
     initSettings(SETTINGS);
     initBookmarkModal(renderBookmarks);
     renderBookmarks();
+
+    const toggleEdit = createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode);
+    addButton.addEventListener('click', handleAddBookmark);
+    toggleButton.addEventListener('click', toggleEdit);
 }
-
-/* ======================= Añadir bookmark ======================= */
-addButton.addEventListener('click', handleAddBookmark);
-
-/* ======================= Alternar modo edición ======================= */
-toggleButton.addEventListener('click', () => {
-    const isEditing = gridOverlay.style.display !== 'block';
-    toggleButton.textContent = isEditing ? "🔒" : "✎";
-    gridOverlay.style.display = isEditing ? 'block' : 'none';
-    setEditMode(isEditing);
-    renderBookmarks();
-});
 
 initApp();
