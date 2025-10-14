@@ -10,16 +10,18 @@ import {
 import { pxToGrid, gridToPx, isAreaFree } from './core/grid.js';
 import { getFavicon, isDarkColor } from './core/utils.js';
 import { initModal, openModal } from './ui/modal.js';
+import { renderBookmarks, setEditMode, container } from './ui/bookmarks.js';
 
 /* ======================= Variables globales ======================= */
-const container = document.getElementById('bookmark-container');
 const addButton = document.getElementById('add-bookmark');
 const toggleButton = document.getElementById('toggle-mode');
 const gridOverlay = document.getElementById('grid-overlay');
 
-let editMode = false; // iniciar en modo edición
 const GRID_SIZE = 140;
 
+let editMode = false;
+
+await loadBookmarks();
 initModal(renderBookmarks);
 
 /* ======================= Alternar modo edición ======================= */
@@ -27,183 +29,12 @@ toggleButton.addEventListener('click', () => {
     editMode = !editMode;
     toggleButton.textContent = editMode ? "🔒" : "✎";
     gridOverlay.style.display = editMode ? 'block' : 'none';
+    setEditMode(editMode);
     renderBookmarks();
 });
 
-/* ======================= Render bookmarks ======================= */
-export function renderBookmarks() {
-    const bookmarks = getBookmarks();
-    container.innerHTML = '';
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-
-    bookmarks.forEach((bookmark, index) => {
-        bookmark.w = bookmark.w || 1;
-        bookmark.h = bookmark.h || 1;
-
-        const div = document.createElement('div');
-        div.className = 'bookmark';
-        div.style.cursor = editMode ? "move" : "pointer";
-
-        // Fondo
-        if (bookmark.faviconBackground) {
-            div.style.backgroundImage = "none";
-            div.style.backgroundColor = bookmark.bookmarkColor === "transparent" ? "transparent" : (bookmark.bookmarkColor || "#222");
-        } else if (bookmark.backgroundImageUrl) {
-            div.style.backgroundImage = `url(${bookmark.backgroundImageUrl})`;
-            div.style.backgroundSize = "cover";
-            div.style.backgroundPosition = "center";
-            div.style.backgroundRepeat = "no-repeat";
-            div.style.backgroundColor = "transparent";
-        } else {
-            div.style.backgroundImage = "none";
-            div.style.backgroundColor = bookmark.bookmarkColor || "#222";
-        }
-
-        div.style.color = bookmark.textColor || "#fff";
-        const darkBg = isDarkColor(bookmark.bookmarkColor || '#222');
-
-        // Posición / tamaño
-        const gx = pxToGrid(bookmark.x ?? 0);
-        const gy = pxToGrid(bookmark.y ?? 0);
-        div.style.width = (gridToPx(bookmark.w) - 20) + 'px';
-        div.style.height = (gridToPx(bookmark.h) - 20) + 'px';
-        div.style.left = gridToPx(gx) + 'px';
-        div.style.top = gridToPx(gy) + 'px';
-
-        // Contenido interno
-        const linkEl = document.createElement('a');
-        linkEl.href = bookmark.url || '#';
-        linkEl.style.display = 'flex';
-        linkEl.style.flexDirection = 'column';
-        linkEl.style.justifyContent = 'center';
-        linkEl.style.alignItems = 'center';
-        linkEl.style.width = '100%';
-        linkEl.style.height = '100%';
-        linkEl.style.textDecoration = 'none';
-        linkEl.style.color = div.style.color;
-        linkEl.style.cursor = editMode ? 'move' : 'pointer';
-
-        if (bookmark.faviconBackground) {
-            const img = document.createElement('img');
-            img.src = getFavicon(bookmark.url);
-            img.alt = bookmark.name || '';
-            img.style.width = '60%';
-            img.style.height = '60%';
-            img.style.objectFit = 'contain';
-            if (bookmark.invertColors) img.style.filter = 'invert(1)';
-            linkEl.appendChild(img);
-
-            if (bookmark.showText) {
-                const span = document.createElement('span');
-                span.textContent = bookmark.name || '';
-                span.style.marginTop = '6px';
-                span.style.whiteSpace = 'nowrap';
-                span.style.overflow = 'hidden';
-                span.style.textOverflow = 'ellipsis';
-                linkEl.appendChild(span);
-            }
-        } else {
-            const infoBox = document.createElement('div');
-            infoBox.style.position = 'absolute';
-            infoBox.style.bottom = '6px';
-            infoBox.style.right = '8px';
-            infoBox.style.display = 'flex';
-            infoBox.style.alignItems = 'center';
-            infoBox.style.gap = '6px';
-            infoBox.style.background = 'transparent';
-            infoBox.style.padding = '0';
-            infoBox.style.borderRadius = '0';
-
-            if (bookmark.showFavicon ?? true) {
-                const img = document.createElement('img');
-                img.src = getFavicon(bookmark.url);
-                img.alt = bookmark.name || '';
-                img.style.width = '16px';
-                img.style.height = '16px';
-                if (bookmark.invertColors) img.style.filter = 'invert(1)';
-                infoBox.appendChild(img);
-            }
-
-            if (bookmark.showText ?? true) {
-                const span = document.createElement('span');
-                span.textContent = bookmark.name || '';
-                span.style.fontSize = '0.85em';
-                span.style.whiteSpace = 'nowrap';
-                span.style.overflow = 'hidden';
-                span.style.textOverflow = 'ellipsis';
-                span.style.color = bookmark.textColor || '#fff';
-                infoBox.appendChild(span);
-            }
-
-            linkEl.appendChild(infoBox);
-        }
-
-        div.appendChild(linkEl);
-
-        /* ---------- Botones editar / eliminar ---------- */
-        if (editMode) {
-            const editBtn = document.createElement('button');
-            const delBtn = document.createElement('button');
-
-            editBtn.className = 'edit';
-            delBtn.className = 'delete';
-            editBtn.textContent = '✎';
-            delBtn.textContent = '🗑';
-            editBtn.style.background = darkBg ? '#fff' : '#222';
-            editBtn.style.color = darkBg ? '#000' : '#fff';
-            delBtn.style.background = darkBg ? '#fff' : '#222';
-            delBtn.style.color = darkBg ? '#000' : '#fff';
-
-            editBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                openModal(bookmarks, index);
-            });
-
-            delBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                if (confirm(`¿Eliminar ${bookmark.name}?`)) {
-                    await deleteBookmark(index);
-                    renderBookmarks();
-                }
-            });
-
-            // Estilos posición botones
-            editBtn.style.position = delBtn.style.position = 'absolute';
-            editBtn.style.top = delBtn.style.top = '5px';
-            editBtn.style.width = delBtn.style.width = '25px';
-            editBtn.style.height = delBtn.style.height = '25px';
-            editBtn.style.borderRadius = delBtn.style.borderRadius = '5px';
-            editBtn.style.border = delBtn.style.border = 'none';
-            editBtn.style.cursor = delBtn.style.cursor = 'pointer';
-
-            editBtn.style.right = '35px';
-            delBtn.style.right = '5px';
-
-            div.appendChild(editBtn);
-            div.appendChild(delBtn);
-        }
-
-        container.appendChild(div);
-
-        /* ---------- Dragging y Resizing ---------- */
-        if (editMode) {
-            addDragAndResize(div, bookmark, index, containerWidth, containerHeight);
-        }
-
-        /* ---------- Click normal ---------- */
-        div.addEventListener('click', (e) => {
-            if (!editMode && !e.target.classList.contains('edit') && !e.target.classList.contains('delete')) {
-                e.preventDefault();
-                if (e.ctrlKey || e.metaKey || e.button === 1) window.open(bookmark.url, '_blank');
-                else window.location.href = bookmark.url;
-            }
-        });
-    });
-}
-
 /* ======================= Drag & Resize helpers ======================= */
-function addDragAndResize(div, bookmark, index, containerWidth, containerHeight) {
+export function addDragAndResize(div, bookmark, index, containerWidth, containerHeight) {
     let dragging = false;
     let origGX = pxToGrid(bookmark.x ?? 0), origGY = pxToGrid(bookmark.y ?? 0);
     let pointerOffsetX = 0, pointerOffsetY = 0;
