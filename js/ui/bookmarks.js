@@ -1,4 +1,4 @@
-import { getBookmarks, deleteBookmark, saveBookmarks } from '../core/bookmark.js';
+import { createBookmark, addBookmark, getBookmarks, deleteBookmark, saveBookmarks } from '../core/bookmark.js';
 import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
 import { getFavicon, isDarkColor } from '../core/utils.js';
 import { openModal } from './modal.js';
@@ -6,6 +6,28 @@ import { openModal } from './modal.js';
 export const container = document.getElementById('bookmark-container');
 export const GRID_SIZE = 140;
 let editMode = false;
+
+// ======================= Helpers de bookmark =======================
+export async function handleAddBookmark() {
+    const bookmarks = getBookmarks();
+    const name = prompt("Nombre del favorito:");
+    if (!name) return;
+    const url = prompt("URL del favorito (incluye https://):");
+    if (!url) return;
+
+    const rect = container.getBoundingClientRect();
+    let gx = pxToGrid(rect.width / 2);
+    let gy = pxToGrid(rect.height / 2);
+
+    while (!isAreaFree(bookmarks, gx, gy, 1, 1)) {
+        gx++;
+        if (gx * GRID_SIZE > rect.width - GRID_SIZE) { gx = 0; gy++; }
+    }
+
+    const newBookmark = createBookmark({ name, url, x: gridToPx(gx), y: gridToPx(gy), w: 1, h: 1 });
+    await addBookmark(newBookmark);
+    renderBookmarks();
+}
 
 // ======================= Render bookmarks =======================
 export function renderBookmarks() {

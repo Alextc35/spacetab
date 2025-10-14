@@ -1,7 +1,6 @@
-import { loadBookmarks, getBookmarks, addBookmark, createBookmark } from './core/bookmark.js';
-import { pxToGrid, gridToPx, isAreaFree } from './core/grid.js';
+import { loadBookmarks } from './core/bookmark.js';
 import { initModal } from './ui/modal.js';
-import { renderBookmarks, setEditMode, container, GRID_SIZE} from './ui/bookmarks.js';
+import { handleAddBookmark, renderBookmarks, setEditMode} from './ui/bookmarks.js';
 
 /* ======================= Variables globales ======================= */
 const addButton = document.getElementById('add-bookmark');
@@ -22,34 +21,7 @@ toggleButton.addEventListener('click', () => {
 });
 
 /* ======================= Añadir bookmark ======================= */
-addButton.addEventListener('click', async () => {
-    const bookmarks = getBookmarks();
-    const name = prompt("Nombre del favorito:");
-    if (!name) return;
-    const url = prompt("URL del favorito (incluye https://):");
-    if (!url) return;
-
-    const rect = container.getBoundingClientRect();
-    let gx = pxToGrid(rect.width / 2);
-    let gy = pxToGrid(rect.height / 2);
-
-    while (!isAreaFree(bookmarks, gx, gy, 1, 1)) {
-        gx++;
-        if (gx * GRID_SIZE > rect.width - GRID_SIZE) { gx = 0; gy++; }
-    }
-
-    const newBookmark = createBookmark({
-        name,
-        url,
-        x: gridToPx(gx),
-        y: gridToPx(gy),
-        w: 1,
-        h: 1
-    });
-
-    await addBookmark(newBookmark);
-    renderBookmarks();
-});
+addButton.addEventListener('click', handleAddBookmark);
 
 /* ======================= Modal Configuración ======================= */
 const settingsBtn = document.getElementById('settings');
