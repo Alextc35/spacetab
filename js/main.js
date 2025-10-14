@@ -2,17 +2,12 @@ import { loadBookmarks } from './core/bookmark.js';
 import { initModal } from './ui/modal.js';
 import { handleAddBookmark, renderBookmarks, setEditMode} from './ui/bookmarks.js';
 import { initSettingsModal } from './ui/settings.js';
-import { GRID_SIZE, language } from './core/config.js';
+import { SETTINGS } from './core/config.js';
 
 /* ======================= Variables globales ======================= */
 const addButton = document.getElementById('add-bookmark');
 const toggleButton = document.getElementById('toggle-mode');
 const gridOverlay = document.getElementById('grid-overlay');
-
-let SETTINGS = {
-    gridSize: GRID_SIZE,
-    language: language
-};
 
 await loadBookmarks();
 initModal(renderBookmarks);
