@@ -48,7 +48,7 @@ modalFaviconBackground.addEventListener('change', () => {
 });
 
 /* ======================= API del modal ======================= */
-export function initModal(onRender) {
+export function initBookmarkModal(onRender) {
     bookmarks = getBookmarks();
     renderBookmarks = onRender;
 }

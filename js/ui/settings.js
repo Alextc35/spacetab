@@ -1,5 +1,5 @@
 // ui/settings.js
-export function initSettingsModal(SETTINGS) {
+export function initSettings(SETTINGS) {
     const settingsBtn = document.getElementById('settings');
     const settingsModal = document.getElementById('settings-modal');
     const settingsSave = document.getElementById('settings-save');

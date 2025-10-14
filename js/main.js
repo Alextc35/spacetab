@@ -1,7 +1,7 @@
 import { loadBookmarks } from './core/bookmark.js';
-import { initModal } from './ui/modal.js';
+import { initBookmarkModal } from './ui/modal.js';
 import { handleAddBookmark, renderBookmarks, setEditMode} from './ui/bookmarks.js';
-import { initSettingsModal } from './ui/settings.js';
+import { initSettings } from './ui/settings.js';
 import { SETTINGS } from './core/config.js';
 
 /* ======================= Variables globales ======================= */
@@ -9,11 +9,12 @@ const addButton = document.getElementById('add-bookmark');
 const toggleButton = document.getElementById('toggle-mode');
 const gridOverlay = document.getElementById('grid-overlay');
 
-await loadBookmarks();
-initModal(renderBookmarks);
-renderBookmarks();
-
-initSettingsModal(SETTINGS);
+async function initApp() {
+    await loadBookmarks();
+    initSettings(SETTINGS);
+    initBookmarkModal(renderBookmarks);
+    renderBookmarks();
+}
 
 /* ======================= Añadir bookmark ======================= */
 addButton.addEventListener('click', handleAddBookmark);
@@ -26,3 +27,5 @@ toggleButton.addEventListener('click', () => {
     setEditMode(isEditing);
     renderBookmarks();
 });
+
+initApp();
