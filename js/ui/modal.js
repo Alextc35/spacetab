@@ -92,8 +92,6 @@ function closeModal() {
 /* ---------- Guardar cambios modal ---------- */
 modalSave.addEventListener('click', async () => {
     if (editingIndex === null) return;
-    console.log('editingIndex:', editingIndex);
-    console.log('bookmarks:', bookmarks);
 
     const bookmark = bookmarks[editingIndex];
 
