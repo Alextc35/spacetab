@@ -1,4 +1,12 @@
-import { storage } from './core/storage.js';
+import {
+  loadBookmarks,
+  getBookmarks,
+  addBookmark,
+  deleteBookmark,
+  updateBookmark,
+  saveBookmarks,
+  createBookmark
+} from './core/bookmark.js';
 import { pxToGrid, gridToPx, isAreaFree } from './core/grid.js';
 import { getFavicon, isDarkColor } from './core/utils.js';
 import { initModal, openModal } from './ui/modal.js';
@@ -11,9 +19,8 @@ const gridOverlay = document.getElementById('grid-overlay');
 
 let editMode = false; // iniciar en modo edición
 const GRID_SIZE = 140;
-let bookmarks = [];
 
-initModal(bookmarks, renderBookmarks);
+initModal(renderBookmarks);
 
 /* ======================= Alternar modo edición ======================= */
 toggleButton.addEventListener('click', () => {
@@ -25,6 +32,7 @@ toggleButton.addEventListener('click', () => {
 
 /* ======================= Render bookmarks ======================= */
 export function renderBookmarks() {
+    const bookmarks = getBookmarks();
     container.innerHTML = '';
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
@@ -147,12 +155,15 @@ export function renderBookmarks() {
             delBtn.style.background = darkBg ? '#fff' : '#222';
             delBtn.style.color = darkBg ? '#000' : '#fff';
 
-            editBtn.addEventListener('click', (e) => { e.stopPropagation(); openModal(bookmarks, index); });
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openModal(bookmarks, index);
+            });
+
             delBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 if (confirm(`¿Eliminar ${bookmark.name}?`)) {
-                    bookmarks.splice(index, 1);
-                    await storage.set({ bookmarks });
+                    await deleteBookmark(index);
                     renderBookmarks();
                 }
             });
@@ -196,6 +207,7 @@ function addDragAndResize(div, bookmark, index, containerWidth, containerHeight)
     let dragging = false;
     let origGX = pxToGrid(bookmark.x ?? 0), origGY = pxToGrid(bookmark.y ?? 0);
     let pointerOffsetX = 0, pointerOffsetY = 0;
+    const bookmarks = getBookmarks();
 
     // ---------- Drag ----------
     div.addEventListener('pointerdown', (e) => {
@@ -244,7 +256,7 @@ function addDragAndResize(div, bookmark, index, containerWidth, containerHeight)
 
         bookmark.x = gridToPx(snappedGX);
         bookmark.y = gridToPx(snappedGY);
-        await storage.set({ bookmarks });
+        await saveBookmarks();
         renderBookmarks();
     });
 
@@ -269,6 +281,7 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
     const origGX = pxToGrid(div.offsetLeft), origGY = pxToGrid(div.offsetTop);
     let resizeCandidateGX = origGX, resizeCandidateGY = origGY;
     let resizeCandidateW = origW, resizeCandidateH = origH;
+    const bookmarks = getBookmarks();
 
     const onMove = (ev) => {
         if (!resizing) return;
@@ -329,7 +342,7 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
         bookmark.y = gridToPx(resizeCandidateGY);
         bookmark.w = resizeCandidateW;
         bookmark.h = resizeCandidateH;
-        await storage.set({ bookmarks });
+        await saveBookmarks();
         div.style.border = 'none';
         renderBookmarks();
     };
@@ -340,6 +353,7 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
 
 /* ======================= Añadir bookmark ======================= */
 addButton.addEventListener('click', async () => {
+    const bookmarks = getBookmarks();
     const name = prompt("Nombre del favorito:");
     if (!name) return;
     const url = prompt("URL del favorito (incluye https://):");
@@ -354,29 +368,20 @@ addButton.addEventListener('click', async () => {
         if (gx * GRID_SIZE > rect.width - GRID_SIZE) { gx = 0; gy++; }
     }
 
-    bookmarks.push({
+    const newBookmark = createBookmark({
         name,
         url,
         x: gridToPx(gx),
         y: gridToPx(gy),
         w: 1,
-        h: 1,
-        invertColors: false,
-        bookmarkColor: "#cccccc",
-        textColor: isDarkColor("#cccccc") ? "#fff" : "#000",
-        showFavicon: true,
-        showText: true
+        h: 1
     });
 
-    await storage.set({ bookmarks });
+    await addBookmark(newBookmark);
     renderBookmarks();
 });
 
-/* ======================= Cargar bookmarks inicial ======================= */
-const data = await storage.get('bookmarks');
-bookmarks = Array.isArray(data.bookmarks)
-    ? data.bookmarks.map(b => ({ ...b, w: b.w || 1, h: b.h || 1 }))
-    : [];
+await loadBookmarks();
 renderBookmarks();
 
 /* ======================= Modal Configuración ======================= */

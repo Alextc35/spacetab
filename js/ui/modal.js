@@ -1,5 +1,6 @@
 // modal.js
 import { storage } from '../core/storage.js';
+import { getBookmarks } from '../core/bookmark.js';
 
 /* ======================= Modal de edición ======================= */
 const editModal = document.getElementById('edit-modal');
@@ -47,8 +48,8 @@ modalFaviconBackground.addEventListener('change', () => {
 });
 
 /* ======================= API del modal ======================= */
-export function initModal(externalBookmarks, onRender) {
-    bookmarks = externalBookmarks;
+export function initModal(onRender) {
+    bookmarks = getBookmarks();
     renderBookmarks = onRender;
 }
 
