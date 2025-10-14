@@ -25,13 +25,14 @@ let renderBookmarks = () => {};
 function updateColorInputs() {
     const hasImage = modalBackgroundImage.value.trim() !== "";
     const noBackground = modalNoBackground.checked;
+    const faviconBg = modalFaviconBackground.checked;
 
     modalBookmarkColor.disabled = hasImage || noBackground;
-    modalNoBackground.disabled = hasImage;
+    modalNoBackground.disabled = hasImage && !faviconBg;
     modalTextColor.disabled = !modalShowText.checked;
 
     modalBookmarkColor.style.opacity = hasImage ? "0.5" : "1";
-    modalNoBackground.parentElement.style.opacity = hasImage ? "0.5" : "1";
+    modalNoBackground.parentElement.style.opacity = (hasImage && !faviconBg) ? "0.5" : "1";
 }
 
 modalBackgroundImage.addEventListener("input", updateColorInputs);
@@ -43,7 +44,11 @@ modalFaviconBackground.addEventListener('change', () => {
     const checked = modalFaviconBackground.checked;
     modalBackgroundImage.disabled = checked;
     modalShowFavicon.disabled = checked;
-    if (checked) modalShowFavicon.checked = false;
+    if (checked) {
+        modalShowFavicon.checked = false;
+        modalNoBackground.checked = true;
+    }
+
     updateColorInputs();
 });
 
