@@ -223,6 +223,10 @@ function createFavicon(bookmark) {
     isInternal = urlObj.hostname.endsWith('.internal') || urlObj.hostname.endsWith('.local');
     if (!isInternal) {
       img.src = `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(urlObj.origin)}&size=64`;
+      img.onerror = () => {
+        img.onerror = null;
+        img.src = generateInitialsCanvas(bookmark.name);
+      };
     }
   } catch {
     img.src = 'https://cdn-icons-png.flaticon.com/512/1828/1828843.png';
