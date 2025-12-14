@@ -17,12 +17,18 @@ export async function handleAddBookmark() {
     if (!url) return;
 
     const rect = container.getBoundingClientRect();
-    let gx = pxToGrid(rect.width / 2);
-    let gy = pxToGrid(rect.height / 2);
+    let gx = 0;
+    let gy = 0;
+
+    const maxGy = pxToGrid(rect.height - GRID_SIZE);
 
     while (!isAreaFree(bookmarks, gx, gy, 1, 1)) {
-        gx++;
-        if (gx * GRID_SIZE > rect.width - GRID_SIZE) { gx = 0; gy++; }
+        gy++;
+
+        if (gy > maxGy) {
+            gy = 0;
+            gx++;
+        }
     }
 
     const newBookmark = createBookmark({ name, url, x: gridToPx(gx), y: gridToPx(gy), w: 1, h: 1 });
