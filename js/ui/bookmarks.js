@@ -137,8 +137,8 @@ function applyBookmarkStyle(div, bookmark) {
       div.classList.remove('invert-bg-image');
     }
   } else {
-  div.classList.remove('has-bg-image', 'invert-bg-image');
-  div.style.removeProperty('--bookmark-bg-image');
+    div.classList.remove('has-bg-image', 'invert-bg-image');
+    div.style.removeProperty('--bookmark-bg-image');
   }
 
   // colores
