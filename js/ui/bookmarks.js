@@ -128,12 +128,17 @@ function applyBookmarkStyle(div, bookmark) {
   // fondo por imagen
   if (bookmark.backgroundImageUrl && !bookmark.faviconBackground) {
     div.classList.add('has-bg-image');
-    div.style.setProperty(
-      '--bookmark-bg-image',
-      `url(${bookmark.backgroundImageUrl})`
-    );
+    div.style.setProperty('--bookmark-bg-image', `url(${bookmark.backgroundImageUrl})`);
+
+    // Clase extra si quieres invertir solo la imagen
+    if (bookmark.invertColorBg) {
+      div.classList.add('invert-bg-image');
+    } else {
+      div.classList.remove('invert-bg-image');
+    }
   } else {
-    div.style.removeProperty('--bookmark-bg-image');
+  div.classList.remove('has-bg-image', 'invert-bg-image');
+  div.style.removeProperty('--bookmark-bg-image');
   }
 
   // colores
