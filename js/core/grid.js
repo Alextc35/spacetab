@@ -21,7 +21,7 @@ export function getGridRectFromBookmark(bm) {
 }
 
 // comprueba si un área está libre dentro del conjunto de bookmarks
-export function isAreaFree(bookmarks, gx, gy, w, h, ignoreIndex = -1) {
+export function isAreaFree(bookmarks, gx, gy, w = 1, h = 1, ignoreIndex = -1) {
   for (let i = 0; i < bookmarks.length; i++) {
     if (i === ignoreIndex) continue;
     const bm = bookmarks[i];

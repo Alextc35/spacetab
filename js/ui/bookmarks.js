@@ -1,42 +1,76 @@
-import { createBookmark, addBookmark, getBookmarks, deleteBookmark, saveBookmarks } from '../core/bookmark.js';
+// js/ui/bookmarks.js
+
+// ======================= Módulo de gestión de bookmarks =======================
+import { createBookmark, addBookmark, getBookmarks, deleteBookmark } from '../core/bookmark.js';
 import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
 import { getFavicon, isDarkColor } from '../core/utils.js';
-import { openModal } from './modal.js';
+import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { GRID_SIZE } from '../core/config.js';
 
-export const container = document.getElementById('bookmark-container');
-let editMode = false;
+// ======================= Variables globales =======================
+export const container = document.getElementById('bookmark-container'); // Contenedor de bookmarks
+let editMode = false; // Modo edición (drag, resize, editar, borrar)
 
-// ======================= Creación del bookmark =======================
+/**
+ * Añade un nuevo bookmark al grid.
+ *
+ * La función solicita al usuario el nombre y la URL del bookmark,
+ * calcula el tamaño del contenedor y busca la primera posición libre
+ * en la cuadrícula siguiendo un orden por columnas:
+ *  - rellena primero el eje Y (de arriba hacia abajo)
+ *  - cuando no queda espacio, pasa a la siguiente columna en el eje X
+ *
+ * Una vez encontrada una posición válida, crea el bookmark con
+ * tamaño 1x1 por defecto, lo guarda en el storage y vuelve a renderizar
+ * todos los bookmarks para reflejar el cambio en pantalla.
+ */
 export async function handleAddBookmark() {
     const bookmarks = getBookmarks();
+
+    // TODO: Mejorar UI para añadir bookmark (formulario en modal)
     const name = prompt("Nombre del favorito:");
     if (!name) return;
     const url = prompt("URL del favorito (incluye https://):");
     if (!url) return;
 
     const rect = container.getBoundingClientRect();
-    let gx = 0;
-    let gy = 0;
-
     const maxGy = pxToGrid(rect.height - GRID_SIZE);
 
-    while (!isAreaFree(bookmarks, gx, gy, 1, 1)) {
+    let gx = 0;
+    let gy = 0;
+    while (!isAreaFree(bookmarks, gx, gy)) {
         gy++;
-
         if (gy > maxGy) {
             gy = 0;
             gx++;
         }
     }
 
-    const newBookmark = createBookmark({ name, url, x: gridToPx(gx), y: gridToPx(gy), w: 1, h: 1 });
+    const newBookmark = createBookmark({ name, url, x: gridToPx(gx), y: gridToPx(gy)});
     await addBookmark(newBookmark);
+    
     renderBookmarks();
 }
 
-// ======================= Render bookmarks =======================
+/**
+ * Renderiza todos los bookmarks en el contenedor principal.
+ *
+ * La función:
+ * - Obtiene la lista actual de bookmarks desde el storage
+ * - Limpia el contenedor para evitar duplicados
+ * - Recorre cada bookmark y:
+ *   - asegura valores mínimos de tamaño (w, h)
+ *   - crea el elemento DOM correspondiente
+ *   - aplica estilos visuales (fondo, colores, inversión, etc.)
+ *   - calcula y asigna su posición y tamaño en la cuadrícula
+ *   - inserta el contenido interno (favicon, texto)
+ *   - añade botones de edición y drag/resize si el modo edición está activo
+ *   - gestiona el comportamiento de click (abrir enlace o editar)
+ *
+ * El resultado es una representación visual sincronizada del estado
+ * actual de los bookmarks en pantalla.
+ */
 export function renderBookmarks() {
     const bookmarks = getBookmarks();
     container.innerHTML = '';
@@ -51,10 +85,8 @@ export function renderBookmarks() {
         div.className = 'bookmark';
         div.style.cursor = editMode ? 'move' : 'pointer';
 
-        // Fondo y color
         applyBookmarkStyle(div, bookmark);
 
-        // Posición y tamaño
         const gx = pxToGrid(bookmark.x ?? 0);
         const gy = pxToGrid(bookmark.y ?? 0);
         div.style.width = (gridToPx(bookmark.w) - 20) + 'px';
@@ -62,17 +94,14 @@ export function renderBookmarks() {
         div.style.left = gridToPx(gx) + 'px';
         div.style.top = gridToPx(gy) + 'px';
 
-        // Contenido interno
         const linkEl = createBookmarkContent(bookmark);
         div.appendChild(linkEl);
 
-        // Botones de edición si estamos en modo edit
-        if (editMode) addEditButtons(div, bookmark, index);
+        if (editMode) {
+            addEditButtons(div, bookmark, index);
+            addDragAndResize(div, bookmark, index, containerWidth, containerHeight);
+        }
 
-        // Drag & Resize
-        if (editMode) addDragAndResize(div, bookmark, index, containerWidth, containerHeight);
-
-        // Click normal
         div.addEventListener('click', (e) => {
             if (!editMode && !e.target.classList.contains('edit') && !e.target.classList.contains('delete')) {
                 if (e.ctrlKey || e.metaKey || e.button === 1) window.open(bookmark.url, '_blank');
@@ -106,23 +135,15 @@ function applyBookmarkStyle(div, bookmark) {
 function createBookmarkContent(bookmark) {
     const linkEl = document.createElement('a');
     linkEl.href = bookmark.url || '#';
-    linkEl.style.display = 'flex';
-    linkEl.style.flexDirection = 'column';
-    linkEl.style.justifyContent = 'center';
-    linkEl.style.alignItems = 'center';
-    linkEl.style.width = '100%';
-    linkEl.style.height = '100%';
-    linkEl.style.textDecoration = 'none';
+    linkEl.classList.add('bookmark-link');
     linkEl.style.color = bookmark.textColor || '#fff';
-    linkEl.style.cursor = editMode ? 'move' : 'pointer';
+    if (editMode) linkEl.classList.add('is-editing');
 
     if (bookmark.faviconBackground) {
         const img = document.createElement('img');
         img.src = getFavicon(bookmark.url);
         img.alt = bookmark.name || '';
-        img.style.width = '60%';
-        img.style.height = '60%';
-        img.style.objectFit = 'contain';
+        img.className = 'bookmark-favicon';
         if (bookmark.invertColorIcon) img.style.filter = 'invert(1)';
         linkEl.appendChild(img);
 
@@ -189,13 +210,13 @@ function addEditButtons(div, bookmark, index) {
 
     editBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        openModal(bookmarks, index); // modal seguirá en UI
+        openModal(bookmarks, index);
     });
 
     delBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
         if (confirm(`¿Eliminar ${bookmark.name}?`)) {
-            await deleteBookmark(index); // core se encarga de borrar
+            await deleteBookmark(index);
             renderBookmarks();
         }
     });

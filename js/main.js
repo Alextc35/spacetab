@@ -1,6 +1,6 @@
 import { createToggleEditMode } from './core/utils.js';
 import { loadBookmarks } from './core/bookmark.js';
-import { initBookmarkModal } from './ui/modal.js';
+import { initBookmarkModal } from './ui/bookmarksEditModal.js';
 import { handleAddBookmark, renderBookmarks, setEditMode} from './ui/bookmarks.js';
 import { initSettings } from './ui/settings.js';
 import { SETTINGS } from './core/config.js';
