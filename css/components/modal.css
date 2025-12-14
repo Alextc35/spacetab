@@ -16,3 +16,40 @@
   padding: 20px;
   color: white;
 }
+
+#settings-modal .settings-content {
+  display: flex;
+  overflow: hidden;
+  width: 600px;
+  max-width: 90%;
+  min-height: 400px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+#edit-modal .modal-content input {
+  padding: 5px;
+  border-radius: 5px;
+  border: none;
+  background-color: #333;
+  color: white;
+  transition: all 0.3s ease-in-out;
+}
+
+#edit-modal .modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+#edit-modal .modal-buttons button {
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #555;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+#edit-modal .modal-buttons button:hover {
+  background-color: #777;
+}

@@ -1,0 +1,39 @@
+.bookmark .resizer {
+  position: absolute;
+  background: rgba(255,255,255,0.8);
+  border-radius: 3px;
+}
+
+.resizer.top,
+.resizer.bottom {
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 6px;
+  cursor: ns-resize;
+}
+
+.resizer.left,
+.resizer.right {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 20px;
+  cursor: ew-resize;
+}
+
+.resizer.top {
+  top: -4px;
+}
+
+.resizer.bottom {
+  bottom: -4px;
+}
+
+.resizer.left {
+  left: -4px;
+}
+
+.resizer.right {
+  right: -4px;
+}

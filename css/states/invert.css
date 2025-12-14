@@ -1,0 +1,7 @@
+.bookmark.invert-bg {
+  filter: invert(1);
+}
+
+.bookmark.invert-bg > a {
+  filter: invert(1);
+}

@@ -1,0 +1,166 @@
+/* Barra lateral de pestañas */
+.settings-tabs {
+  display: flex;
+  flex-direction: column;
+  background-color: #2a2a2a;
+  padding: 10px;
+  min-width: 150px;
+}
+
+.settings-tabs .tab-btn {
+  background: none;
+  color: #bbb;
+  padding: 12px 10px;
+  text-align: left;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 8px;
+}
+
+.settings-tabs .tab-btn:hover {
+  background-color: #444;
+  color: #fff;
+}
+
+.settings-tabs .tab-btn.active {
+  background-color: #555;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Panel derecho con contenido */
+.settings-panel {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  color: #ddd;
+}
+
+.settings-panel h2 {
+  margin-top: 0;
+  color: #fff;
+}
+
+/* Inputs y selects */
+.settings-panel input,
+.settings-panel select {
+  background-color: #2c2c2c;
+  border: 1px solid #555;
+  border-radius: 6px;
+  color: #fff;
+  padding: 6px;
+  margin-top: 5px;
+  width: 100%;
+}
+
+.settings-panel input:focus,
+.settings-panel select:focus {
+  border-color: #888;
+  outline: none;
+}
+
+/* Botones de acción */
+.settings-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.settings-buttons button {
+  background-color: #444;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.settings-buttons button:hover {
+  background-color: #666;
+}
+
+/* ==== Fondo de la página ==== */
+#background-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+#background-settings input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #444;
+  border: 1px solid #666;
+}
+
+#background-settings .bg-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#background-settings label {
+  color: #fff;
+  font-size: 0.9em;
+  min-width: 60px;
+}
+
+/* Background options */
+
+#background-color {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#background-image {
+  flex: 1;
+  background-color: #2c2c2c;
+  border: 1px solid #555;
+  color: #fff;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+#reset-background {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  background: #555;
+  color: white;
+  cursor: pointer;
+}
+
+#reset-background:hover {
+  background: #777;
+}
+
+#color-options .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+#color-options #modal-background-image {
+  background-color: #2d2d2d;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 6px;
+  color: white;
+  font-size: 0.9em;
+  width: 100%;
+}
+
+#color-options #modal-background-image:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
