@@ -17,46 +17,54 @@
   <!-- Modal de edición -->
   <div id="edit-modal" style="display: none;">
     <div class="modal-content">
+
       <h2>Editar Favorito</h2>
+
+      <h3>General</h3>
+
       <label for="modal-name">Nombre:</label>
       <input type="text" id="modal-name">
 
       <label for="modal-url">URL:</label>
       <input type="text" id="modal-url">
 
-      <div id="color-options">
-        <div class="checkbox-wrapper">
-          <input type="checkbox" id="modal-favicon-background">
-          <label for="modal-favicon-background">Favicon como background</label>
-        </div>
+      <h3>Background</h3>
 
-        <label for="modal-bookmark-color">Color del bookmark:</label>
-        <input type="color" id="modal-bookmark-color">
+      <label for="modal-background-image">Imagen de fondo (URL):</label>
+      <input type="text" id="modal-background-image" placeholder="https://...">
 
-        <div class="checkbox-wrapper">
-          <input type="checkbox" id="modal-no-background">
-          <label for="modal-no-background">Sin fondo</label>
-        </div>
-
-        <div class="input-group">
-          <label for="modal-background-image">Imagen de fondo (URL):</label>
-          <input type="text" id="modal-background-image" placeholder="https://...">
-        </div>
-
-        <div class="checkbox-wrapper">
-          <input type="checkbox" id="modal-invert-color-bg">
-          <label for="modal-invert-color-bg">Invertir colores</label>
-        </div>
-
-        <label for="modal-text-color">Color del texto:</label>
-        <input type="color" id="modal-text-color">
+      <div class="checkbox-wrapper">
+        <input type="checkbox" id="modal-favicon-background">
+        <label for="modal-favicon-background">Favicon como background</label>
       </div>
 
+      <div class="checkbox-wrapper">
+        <input type="checkbox" id="modal-invert-color-bg">
+        <label for="modal-invert-color-bg">Invertir colores</label>
+      </div>
+
+      <div class="checkbox-wrapper">
+        <input type="checkbox" id="modal-no-background">
+        <label for="modal-no-background">Sin fondo</label>
+      </div>
+
+      <div class="color-options">
+        <label for="modal-bookmark-color">Color del bookmark:</label>
+        <input type="color" id="modal-bookmark-color">
+      </div>
+
+      <h3>Texto</h3>
       <div class="checkbox-wrapper">
         <input type="checkbox" id="modal-show-text">
         <label for="modal-show-text">Mostrar texto</label>
       </div>
+      
+      <div class="color-options">
+        <label for="modal-text-color">Color del texto:</label>
+        <input type="color" id="modal-text-color">
+      </div>
 
+      <h3>Icono</h3>
       <div class="checkbox-wrapper">
         <input type="checkbox" id="modal-show-favicon">
         <label for="modal-show-favicon">Mostrar favicon</label>

@@ -22,6 +22,28 @@ let bookmarks = [];
 let editingIndex = null;
 let renderBookmarks = () => {};
 
+function updateInvertBgState() {
+    const disabled = modalFaviconBackground.checked;
+
+    modalInvertColorBg.disabled = disabled;
+    modalInvertColorBg.parentElement.style.opacity = disabled ? '0.5' : '1';
+
+    if (disabled) {
+        modalInvertColorBg.checked = false;
+    }
+}
+
+function updateFaviconBgState() {
+    const hasImage = modalBackgroundImage.value.trim() !== "";
+
+    modalFaviconBackground.disabled = hasImage;
+    modalFaviconBackground.parentElement.style.opacity = hasImage ? '0.5' : '1';
+
+    if (hasImage) {
+        modalFaviconBackground.checked = false;
+    }
+}
+
 /* ---------- Helpers colores / inputs ---------- */
 function updateColorInputs() {
     const hasImage = modalBackgroundImage.value.trim() !== "";
@@ -36,7 +58,10 @@ function updateColorInputs() {
     modalNoBackground.parentElement.style.opacity = (hasImage && !faviconBg) ? "0.5" : "1";
 }
 
-modalBackgroundImage.addEventListener("input", updateColorInputs);
+modalBackgroundImage.addEventListener("input", () => {
+    updateColorInputs();
+    updateFaviconBgState();
+});
 modalNoBackground.addEventListener('change', updateColorInputs);
 modalShowText.addEventListener('change', updateColorInputs);
 
@@ -51,6 +76,7 @@ modalFaviconBackground.addEventListener('change', () => {
     }
 
     updateColorInputs();
+    updateInvertBgState();
 });
 
 /* ======================= API del modal ======================= */
@@ -89,6 +115,8 @@ export function openModal(currentBookmarks, index) {
     updateColorInputs();
 
     editModal.style.setProperty('display', 'flex', 'important');
+    updateInvertBgState();
+    updateFaviconBgState();
 }
 
 function closeModal() {
@@ -114,6 +142,7 @@ modalSave.addEventListener('click', async () => {
         bookmark.faviconBackground = true;
         bookmark.backgroundImageUrl = null;
         bookmark.showFavicon = false;
+        bookmark.invertColorBg = false;
     } else {
         bookmark.faviconBackground = false;
         bookmark.backgroundImageUrl = modalBackgroundImage.value.trim() || null;
