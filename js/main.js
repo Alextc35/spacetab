@@ -1,4 +1,3 @@
-import { createToggleEditMode } from './core/utils.js';
 import { loadBookmarks } from './core/bookmark.js';
 import { initBookmarkModal } from './ui/bookmarksEditModal.js';
 import { handleAddBookmark, renderBookmarks, setEditMode} from './ui/bookmarks.js';
@@ -22,6 +21,16 @@ async function initApp() {
     initBookmarkModal(renderBookmarks);
     renderBookmarks();
     initControls();
+}
+
+function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode) {
+    return function toggleEditMode() {
+        const isEditing = gridOverlay.style.display !== 'block';
+        toggleButton.textContent = isEditing ? "🔒" : "✎";
+        gridOverlay.style.display = isEditing ? 'block' : 'none';
+        setEditMode(isEditing);
+        renderBookmarks();
+    };
 }
 
 initApp();
