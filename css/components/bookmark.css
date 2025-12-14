@@ -1,0 +1,18 @@
+/* Estilos de cada bookmark */
+.bookmark {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  padding: 5px;
+  margin: 5px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+
+  background: var(--bg-bookmark);
+  border-radius: var(--radius-md);
+  z-index: var(--z-bookmark);
+}

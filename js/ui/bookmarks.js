@@ -89,8 +89,8 @@ export function renderBookmarks() {
 
         const gx = pxToGrid(bookmark.x ?? 0);
         const gy = pxToGrid(bookmark.y ?? 0);
-        div.style.width = (gridToPx(bookmark.w) - 20) + 'px';
-        div.style.height = (gridToPx(bookmark.h) - 20) + 'px';
+        div.style.width = (gridToPx(bookmark.w) - 10) + 'px';
+        div.style.height = (gridToPx(bookmark.h) - 10) + 'px';
         div.style.left = gridToPx(gx) + 'px';
         div.style.top = gridToPx(gy) + 'px';
 

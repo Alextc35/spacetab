@@ -1,0 +1,18 @@
+#edit-modal,
+#settings-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--z-modal);
+}
+
+.modal-content,
+.settings-content {
+  background: var(--bg-modal);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  color: white;
+}

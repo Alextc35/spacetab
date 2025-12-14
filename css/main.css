@@ -1,14 +1,13 @@
-/* Estilos generales del body */
-body {
-  margin: 0;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  background: #333 no-repeat center center fixed;
-  background-size: cover;
-  font-family: Arial, sans-serif;
-  color: white;
-}
+@import './base/reset.css';
+@import './base/variables.css';
+@import './base/base.css';
+
+@import './layout/container.css';
+@import './layout/grid.css';
+
+@import './components/bookmark.css';
+@import './components/bookmark-link.css';
+@import './components/buttons.css';
 
 .bookmark .resizer {
   position: absolute;
@@ -143,80 +142,46 @@ input:disabled {
   background-color: #777;
 }
 
-/* Menú flotante oculto en la izquierda */
 #floating-menu {
   position: fixed;
   top: 50%;
-  left: -30px; /* escondido fuera de pantalla */
+  left: -30px;
   transform: translateY(-50%);
+
+  width: 40px;
+  max-height: 40px;
+  overflow: hidden;
+
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: left 0.3s ease;
+
+  transition:
+    left 0.3s ease,
+    max-height 0.3s ease;
+
   z-index: 10;
 }
 
 #floating-menu:hover {
-  left: -10px; /* se muestra al pasar el mouse */
+  left: -10px;
+  max-height: 300px;
 }
 
 #floating-menu button {
+  background: rgba(0, 0, 0, 0.6);
   width: 40px;
   height: 40px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  font-size: 1.2em;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-  transition: background 0.2s;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 #floating-menu button:hover {
-  background: rgba(255,255,255,0.3);
-}
-
-/* Contenedor de los bookmarks */
-#bookmark-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* Overlay de cuadrícula */
-#grid-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* no interfiere con drag & drop */
-    display: none; /* se muestra solo en modo edición */
-    background-color: rgba(0,0,0,0.1); /* capa ligera para que contraste */
-    background-image:
-        linear-gradient(to right, rgba(255,255,255,0.5) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,0.5) 1px, transparent 1px);
-    background-size: 140px 140px; /* GRID_SIZE */
-    z-index: 1; /* debajo de los bookmarks */
-}
-
-/* Estilos de cada bookmark */
-.bookmark {
-  width: 120px;
-  height: 120px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  flex-direction: column;
-  background: rgba(0,0,0,0.5);
-  border-radius: 10px;
-  margin: 5px;
-  padding: 5px;
-  position: absolute; /* flotan libremente */
-  z-index: 2; /* encima del overlay */
+  background: rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* El enlace del bookmark */
@@ -225,104 +190,14 @@ input:disabled {
   justify-content: end;
   align-items: end;
   gap: 5px;
-  text-decoration: none;
   color: white;
   width: 100%;
   height: 100%;
 }
 
-.bookmark-link {
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    text-decoration: none;
-}
-
 .bookmark.is-editing .bookmark-link,
 .bookmark-link.is-editing {
   cursor: move;
-}
-
-.bookmark-favicon {
-    width: 60%;
-    height: 60%;
-    object-fit: contain;
-}
-
-.bookmark span {
-  font-size: 1em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Botones editar y eliminar dentro de cada bookmark */
-.bookmark button {
-  position: absolute;
-  top: 5px;
-  width: 25px;
-  height: 25px;
-  border: none;
-  border-radius: 5px;
-  font-size: 0.8em;
-  cursor: pointer;
-  color: white;
-  background: rgba(0,0,0,0.7);
-}
-
-.bookmark button.edit { right: 35px; font-size: 15px; }
-.bookmark button.delete { right: 5px; font-size: 15px; }
-
-/* Botón de agregar bookmark */
-button#add-bookmark {
-  margin-bottom: 5px;
-  font-size: 1.2em;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  background: rgba(255,255,255,0.3);
-  color: white;
-  text-shadow: 1px 1px 3px black;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Botón de alternar modo (editar/fijo) */
-button#toggle-mode {
-  margin-bottom: 5px;
-  font-size: 1.2em;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  background: rgba(255,255,255,0.3);
-  color: white;
-  text-shadow: 1px 1px 2px black;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Botón de ajustes */
-button#settings {
-  margin-bottom: 5px;
-  font-size: 1.2em;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  background: rgba(255,255,255,0.3);
-  color: white;
-  text-shadow: 1px 1px 2px black;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /* ==== Modal de Configuración ==== */
@@ -363,7 +238,6 @@ button#settings {
 
 .settings-tabs .tab-btn {
   background: none;
-  border: none;
   color: #bbb;
   padding: 12px 10px;
   text-align: left;
@@ -428,7 +302,6 @@ button#settings {
 .settings-buttons button {
   background-color: #444;
   color: #fff;
-  border: none;
   padding: 8px 14px;
   border-radius: 6px;
   cursor: pointer;
@@ -512,7 +385,6 @@ button#settings {
   color: white;
   font-size: 0.9em;
   width: 100%;
-  box-sizing: border-box;
 }
 
 #color-options #modal-background-image:disabled {

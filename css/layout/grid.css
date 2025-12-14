@@ -1,0 +1,13 @@
+/* Overlay de cuadrícula */
+#grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+  background-color: rgba(0,0,0,0.1);
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.5) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  z-index: var(--z-grid);
+}

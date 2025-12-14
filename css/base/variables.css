@@ -1,0 +1,16 @@
+:root {
+  --bg-main: #333;
+  --bg-bookmark: rgba(0,0,0,0.5);
+  --bg-modal: #222;
+
+  --text-main: #fff;
+
+  --radius-sm: 5px;
+  --radius-md: 10px;
+
+  --z-grid: 1;
+  --z-bookmark: 2;
+  --z-modal: 1000;
+
+  --grid-size: 140px;
+}

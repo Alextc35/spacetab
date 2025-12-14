@@ -1,0 +1,31 @@
+/* Botones editar y eliminar dentro de cada bookmark */
+.bookmark button {
+  position: absolute;
+  top: 5px;
+  width: 25px;
+  height: 25px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8em;
+  background: rgba(0,0,0,0.7);
+  color: white;
+}
+
+.bookmark button.edit {
+  right: 35px;
+}
+
+.bookmark button.delete {
+  right: 5px;
+}
+
+/* botones generales */
+button#add-bookmark,
+button#toggle-mode,
+button#settings {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.25);
+  color: white;
+}

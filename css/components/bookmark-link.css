@@ -1,0 +1,24 @@
+.bookmark-link {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+}
+
+.bookmark-favicon {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+}
+
+.bookmark span {
+  font-size: 1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
