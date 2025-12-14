@@ -8,7 +8,7 @@ import { GRID_SIZE } from '../core/config.js';
 export const container = document.getElementById('bookmark-container');
 let editMode = false;
 
-// ======================= Helpers de bookmark =======================
+// ======================= Creación del bookmark =======================
 export async function handleAddBookmark() {
     const bookmarks = getBookmarks();
     const name = prompt("Nombre del favorito:");
