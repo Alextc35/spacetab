@@ -94,6 +94,7 @@ function applyBookmarkStyle(div, bookmark) {
         div.style.backgroundColor = bookmark.bookmarkColor || '#222';
     }
     div.style.color = bookmark.textColor || '#fff';
+    div.classList.toggle('invert-bg', bookmark.invertColorBg);
 }
 
 function createBookmarkContent(bookmark) {
@@ -116,7 +117,7 @@ function createBookmarkContent(bookmark) {
         img.style.width = '60%';
         img.style.height = '60%';
         img.style.objectFit = 'contain';
-        if (bookmark.invertColors) img.style.filter = 'invert(1)';
+        if (bookmark.invertColorIcon) img.style.filter = 'invert(1)';
         linkEl.appendChild(img);
 
         if (bookmark.showText) {
@@ -146,7 +147,7 @@ function createBookmarkContent(bookmark) {
             img.alt = bookmark.name || '';
             img.style.width = '16px';
             img.style.height = '16px';
-            if (bookmark.invertColors) img.style.filter = 'invert(1)';
+            if (bookmark.invertColorIcon) img.style.filter = 'invert(1)';
             infoBox.appendChild(img);
         }
 

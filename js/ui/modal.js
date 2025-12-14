@@ -6,7 +6,8 @@ import { getBookmarks } from '../core/bookmark.js';
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
 const modalUrl = document.getElementById('modal-url');
-const modalInvertColors = document.getElementById('modal-invert-colors');
+const modalInvertColorIcon = document.getElementById('modal-invert-color-icon');
+const modalInvertColorBg = document.getElementById('modal-invert-color-bg');
 const modalSave = document.getElementById('modal-save');
 const modalCancel = document.getElementById('modal-cancel');
 const modalBookmarkColor = document.getElementById('modal-bookmark-color');
@@ -69,7 +70,8 @@ export function openModal(currentBookmarks, index) {
     // Valores básicos
     modalName.value = bookmark.name || '';
     modalUrl.value = bookmark.url || '';
-    modalInvertColors.checked = !!bookmark.invertColors;
+    modalInvertColorIcon.checked = !!bookmark.invertColorIcon;
+    modalInvertColorBg.checked = !!bookmark.invertColorBg;
     modalBookmarkColor.value = bookmark.bookmarkColor || "#222222";
     modalNoBackground.checked = bookmark.bookmarkColor === "transparent";
     modalTextColor.value = bookmark.textColor || "#ffffff";
@@ -102,7 +104,8 @@ modalSave.addEventListener('click', async () => {
 
     bookmark.name = modalName.value.trim();
     bookmark.url = modalUrl.value.trim();
-    bookmark.invertColors = modalInvertColors.checked;
+    bookmark.invertColorIcon = modalInvertColorIcon.checked;
+    bookmark.invertColorBg = modalInvertColorBg.checked;
     bookmark.bookmarkColor = modalNoBackground.checked ? "transparent" : modalBookmarkColor.value;
     bookmark.textColor = modalTextColor.value;
     bookmark.showText = modalShowText.checked;
