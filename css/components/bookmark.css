@@ -1,8 +1,10 @@
 /* Estilos de cada bookmark */
 .bookmark {
   position: absolute;
-  width: 120px;
-  height: 120px;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  height: var(--h);
   padding: 5px;
   margin: 5px;
 
@@ -12,7 +14,30 @@
   text-align: center;
   flex-direction: column;
 
-  background: var(--bg-bookmark);
+  background-color: var(--bookmark-bg, #222);
   border-radius: var(--radius-md);
   z-index: var(--z-bookmark);
+}
+
+/* fondo por imagen */
+.bookmark.has-bg-image {
+  background-color: transparent;
+  background-image: var(--bookmark-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* cuando el favicon es el fondo */
+.bookmark.is-favicon-bg {
+  background-image: none;
+}
+
+/* inversión */
+.bookmark.invert-bg {
+  filter: invert(1);
+}
+
+.bookmark.invert-bg > a {
+  filter: invert(1);
 }

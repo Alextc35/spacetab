@@ -83,16 +83,16 @@ export function renderBookmarks() {
 
         const div = document.createElement('div');
         div.className = 'bookmark';
-        div.style.cursor = editMode ? 'move' : 'pointer';
+        div.classList.toggle('is-editing', editMode);
 
         applyBookmarkStyle(div, bookmark);
 
         const gx = pxToGrid(bookmark.x ?? 0);
         const gy = pxToGrid(bookmark.y ?? 0);
-        div.style.width = (gridToPx(bookmark.w) - 10) + 'px';
-        div.style.height = (gridToPx(bookmark.h) - 10) + 'px';
-        div.style.left = gridToPx(gx) + 'px';
-        div.style.top = gridToPx(gy) + 'px';
+        div.style.setProperty('--x', gridToPx(gx) + 'px');
+        div.style.setProperty('--y', gridToPx(gy) + 'px');
+        div.style.setProperty('--w', gridToPx(bookmark.w) - 10 + 'px');
+        div.style.setProperty('--h', gridToPx(bookmark.h) - 10 + 'px');
 
         const linkEl = createBookmarkContent(bookmark);
         div.appendChild(linkEl);
@@ -115,21 +115,43 @@ export function renderBookmarks() {
 
 // ======================= Helpers visuales =======================
 function applyBookmarkStyle(div, bookmark) {
-    if (bookmark.faviconBackground) {
-        div.style.backgroundImage = 'none';
-        div.style.backgroundColor = bookmark.bookmarkColor === 'transparent' ? 'transparent' : (bookmark.bookmarkColor || '#222');
-    } else if (bookmark.backgroundImageUrl) {
-        div.style.backgroundImage = `url(${bookmark.backgroundImageUrl})`;
-        div.style.backgroundSize = 'cover';
-        div.style.backgroundPosition = 'center';
-        div.style.backgroundRepeat = 'no-repeat';
-        div.style.backgroundColor = 'transparent';
-    } else {
-        div.style.backgroundImage = 'none';
-        div.style.backgroundColor = bookmark.bookmarkColor || '#222';
-    }
-    div.style.color = bookmark.textColor || '#fff';
-    div.classList.toggle('invert-bg', bookmark.invertColorBg);
+  // reset de estados
+  div.classList.remove(
+    'is-favicon-bg',
+    'has-bg-image'
+  );
+
+  // fondo por favicon
+  if (bookmark.faviconBackground) {
+    div.classList.add('is-favicon-bg');
+  }
+
+  // fondo por imagen
+  if (bookmark.backgroundImageUrl && !bookmark.faviconBackground) {
+    div.classList.add('has-bg-image');
+    div.style.setProperty(
+      '--bookmark-bg-image',
+      `url(${bookmark.backgroundImageUrl})`
+    );
+  } else {
+    div.style.removeProperty('--bookmark-bg-image');
+  }
+
+  // colores
+  div.style.setProperty(
+    '--bookmark-bg',
+    bookmark.bookmarkColor === 'transparent'
+      ? 'transparent'
+      : (bookmark.bookmarkColor || '#222')
+  );
+
+  div.style.setProperty(
+    '--bookmark-text',
+    bookmark.textColor || '#fff'
+  );
+
+  // inversión
+  div.classList.toggle('invert-bg', bookmark.invertColorBg);
 }
 
 function createBookmarkContent(bookmark) {
@@ -140,8 +162,7 @@ function createBookmarkContent(bookmark) {
     if (editMode) linkEl.classList.add('is-editing');
 
     if (bookmark.faviconBackground) {
-        const img = document.createElement('img');
-        img.src = getFavicon(bookmark.url);
+        const img = createFavicon(bookmark);
         img.alt = bookmark.name || '';
         img.className = 'bookmark-favicon';
         if (bookmark.invertColorIcon) img.style.filter = 'invert(1)';
@@ -169,8 +190,7 @@ function createBookmarkContent(bookmark) {
         infoBox.style.borderRadius = '0';
 
         if (bookmark.showFavicon ?? true) {
-            const img = document.createElement('img');
-            img.src = getFavicon(bookmark.url);
+            const img = createFavicon(bookmark);
             img.alt = bookmark.name || '';
             img.style.width = '16px';
             img.style.height = '16px';
@@ -193,6 +213,37 @@ function createBookmarkContent(bookmark) {
 
     return linkEl;
 }
+
+export function createFavicon(bookmark) {
+  const img = document.createElement('img');
+  img.className = 'bookmark-favicon';
+
+  // Detectar dominios internos o privados
+  const urlObj = new URL(bookmark.url);
+  const internalDomain = urlObj.hostname.endsWith('.internal') || urlObj.hostname.endsWith('.local');
+  
+  if (internalDomain) {
+    // Fallback directo con canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#555';
+    ctx.fillRect(0, 0, 64, 64);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 32px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const initials = (bookmark.name || '?').slice(0, 2).toUpperCase();
+    ctx.fillText(initials, 32, 32);
+    img.src = canvas.toDataURL();
+  } else {
+    img.src = getFavicon(bookmark.url);
+  }
+
+  return img;
+}
+
 
 function addEditButtons(div, bookmark, index) {
     const darkBg = isDarkColor(bookmark.bookmarkColor || '#222');
