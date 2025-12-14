@@ -3,7 +3,7 @@
 // ======================= Módulo de gestión de bookmarks =======================
 import { createBookmark, addBookmark, getBookmarks, deleteBookmark } from '../core/bookmark.js';
 import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
-import { getFavicon, isDarkColor } from '../core/utils.js';
+import { isDarkColor } from '../core/utils.js';
 import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { GRID_SIZE } from '../core/config.js';
@@ -164,7 +164,6 @@ function createBookmarkContent(bookmark) {
     if (bookmark.faviconBackground) {
         const img = createFavicon(bookmark);
         img.alt = bookmark.name || '';
-        img.className = 'bookmark-favicon';
         if (bookmark.invertColorIcon) img.style.filter = 'invert(1)';
         linkEl.appendChild(img);
 
@@ -214,36 +213,47 @@ function createBookmarkContent(bookmark) {
     return linkEl;
 }
 
-export function createFavicon(bookmark) {
+function createFavicon(bookmark) {
   const img = document.createElement('img');
   img.className = 'bookmark-favicon';
 
-  // Detectar dominios internos o privados
-  const urlObj = new URL(bookmark.url);
-  const internalDomain = urlObj.hostname.endsWith('.internal') || urlObj.hostname.endsWith('.local');
-  
-  if (internalDomain) {
-    // Fallback directo con canvas
-    const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#555';
-    ctx.fillRect(0, 0, 64, 64);
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 32px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const initials = (bookmark.name || '?').slice(0, 2).toUpperCase();
-    ctx.fillText(initials, 32, 32);
-    img.src = canvas.toDataURL();
-  } else {
-    img.src = getFavicon(bookmark.url);
+  let isInternal = false;
+  try {
+    const urlObj = new URL(bookmark.url);
+    isInternal = urlObj.hostname.endsWith('.internal') || urlObj.hostname.endsWith('.local');
+    if (!isInternal) {
+      img.src = `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(urlObj.origin)}&size=64`;
+    }
+  } catch {
+    img.src = 'https://cdn-icons-png.flaticon.com/512/1828/1828843.png';
+  }
+
+  if (isInternal) {
+    img.src = generateInitialsCanvas(bookmark.name);
   }
 
   return img;
 }
 
+// Genera un canvas con las iniciales del nombre
+function generateInitialsCanvas(name) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#555';
+  ctx.fillRect(0, 0, 64, 64);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 32px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const initials = (name || '?').slice(0, 2).toUpperCase();
+  ctx.fillText(initials, 32, 32);
+
+  return canvas.toDataURL();
+}
 
 function addEditButtons(div, bookmark, index) {
     const darkBg = isDarkColor(bookmark.bookmarkColor || '#222');
