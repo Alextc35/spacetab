@@ -121,7 +121,8 @@ function applyBookmarkStyle(div, bookmark) {
   // reset de estados
   div.classList.remove(
     'is-favicon-bg',
-    'has-bg-image'
+    'has-bg-image',
+    'invert-bg-image'
   );
 
   // fondo por favicon
@@ -159,7 +160,7 @@ function applyBookmarkStyle(div, bookmark) {
   );
 
   // inversión
-  div.classList.toggle('invert-bg', bookmark.invertColorBg);
+  div.classList.toggle('invert-bg-image', bookmark.invertColorBg);
 }
 
 function createBookmarkContent(bookmark) {
@@ -168,7 +169,7 @@ function createBookmarkContent(bookmark) {
   linkEl.className = 'bookmark-link';
   linkEl.style.color = bookmark.textColor || '#fff';
 
-  if (editMode) linkEl.classList.add('is-editing');
+  linkEl.classList.toggle('is-editing', editMode);
 
   // Caso: favicon como fondo
   if (bookmark.faviconBackground) {
