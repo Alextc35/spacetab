@@ -10,6 +10,11 @@
   cursor: pointer;
 }
 
+.bookmark.is-editing,
+.bookmark-link.is-editing {
+  cursor: move;
+}
+
 .bookmark-favicon {
   width: 60%;
   height: 60%;

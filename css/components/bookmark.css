@@ -61,10 +61,6 @@
   border-radius: inherit;
 }
 
-.bookmark.is-editing {
-  cursor: move;
-}
-
 /* Drag activo */
 .bookmark.is-editing.is-dragging {
   outline: 2px dashed orange;
