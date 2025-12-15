@@ -19,6 +19,15 @@
   z-index: var(--z-bookmark);
 }
 
+.bookmark a:not(.bookmark-link) {
+  justify-content: end;
+  align-items: end;
+  gap: 5px;
+  color: white;
+  width: 100%;
+  height: 100%;
+}
+
 /* fondo por imagen */
 .bookmark.has-bg-image {
   background-color: transparent;
@@ -50,30 +59,4 @@
   filter: invert(1);
   z-index: 0; /* detrás del contenido */
   border-radius: inherit;
-}
-
-.bookmark.has-bg-image > * {
-  position: relative; /* para que el contenido esté encima del pseudo-elemento */
-  z-index: 1;
-}
-
-.bookmark-info {
-  position: absolute;
-  bottom: 6px;
-  right: 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.bookmark-info img {
-  width: 16px;
-  height: 16px;
-}
-
-.bookmark-info span {
-  font-size: 0.85em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
