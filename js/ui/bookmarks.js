@@ -158,9 +158,6 @@ function applyBookmarkStyle(div, bookmark) {
     '--bookmark-text',
     bookmark.textColor || '#fff'
   );
-
-  // inversión
-  div.classList.toggle('invert-bg-image', bookmark.invertColorBg);
 }
 
 function createBookmarkContent(bookmark) {
