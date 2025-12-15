@@ -15,5 +15,4 @@
 @import './components/checkbox.css';
 
 @import './states/edit-mode.css';
-@import './states/invert.css';
 @import './states/disabled.css';
