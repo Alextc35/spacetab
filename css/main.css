@@ -14,5 +14,4 @@
 @import './components/settings.css';
 @import './components/checkbox.css';
 
-@import './states/edit-mode.css';
 @import './states/disabled.css';

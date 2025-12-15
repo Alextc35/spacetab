@@ -164,7 +164,6 @@ function createBookmarkContent(bookmark) {
   const linkEl = document.createElement('a');
   linkEl.href = bookmark.url || '#';
   linkEl.className = 'bookmark-link';
-  linkEl.style.color = bookmark.textColor || '#fff';
 
   linkEl.classList.toggle('is-editing', editMode);
 
@@ -212,7 +211,6 @@ function createSmallIcon(bookmark) {
 function createTextSpan(bookmark) {
   const span = document.createElement('span');
   span.textContent = bookmark.name || '';
-  span.style.color = bookmark.textColor || '#fff';
   return span;
 }
 
