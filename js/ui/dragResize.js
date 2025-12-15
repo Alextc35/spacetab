@@ -15,18 +15,24 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
     // ---------- Drag ----------
     div.addEventListener('pointerdown', (e) => {
         if (e.target.classList.contains('edit') || e.target.classList.contains('delete')) return;
+
         e.preventDefault();
         dragging = true;
+
+        div.classList.add('is-dragging');
+
         pointerOffsetX = e.clientX - div.offsetLeft;
         pointerOffsetY = e.clientY - div.offsetTop;
         origGX = pxToGrid(div.offsetLeft);
         origGY = pxToGrid(div.offsetTop);
+
         div.setPointerCapture(e.pointerId);
         div.style.zIndex = 9999;
     });
 
     div.addEventListener('pointermove', (e) => {
         if (!dragging) return;
+
         let newLeftPx = e.clientX - pointerOffsetX;
         let newTopPx = e.clientY - pointerOffsetY;
 
@@ -39,26 +45,29 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
         if (isAreaFree(bookmarks, snappedGX, snappedGY, bookmark.w, bookmark.h, index)) {
             div.style.left = gridToPx(snappedGX) + 'px';
             div.style.top = gridToPx(snappedGY) + 'px';
-            div.style.opacity = "1";
-            div.style.border = "none";
+            div.classList.remove('is-invalid');
         } else {
-            div.style.opacity = "0.5";
-            div.style.border = "1px solid red";
+            div.classList.add('is-invalid');
         }
     });
 
     div.addEventListener('pointerup', async (e) => {
         if (!dragging) return;
+
         dragging = false;
+        div.classList.remove('is-dragging', 'is-invalid');
         div.releasePointerCapture(e.pointerId);
+        div.style.zIndex = '';
 
         let snappedGX = pxToGrid(div.offsetLeft);
         let snappedGY = pxToGrid(div.offsetTop);
+
         while (!isAreaFree(bookmarks, snappedGX, snappedGY, bookmark.w, bookmark.h, index) && snappedGX > 0) snappedGX--;
         while (!isAreaFree(bookmarks, snappedGX, snappedGY, bookmark.w, bookmark.h, index) && snappedGY > 0) snappedGY--;
 
         bookmark.x = gridToPx(snappedGX);
         bookmark.y = gridToPx(snappedGY);
+
         await saveBookmarks();
         renderBookmarks();
     });
@@ -80,6 +89,7 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
 /* ---------- Handler de resize ---------- */
 function handleResize(e, div, bookmark, index, side, containerWidth, containerHeight) {
     let resizing = true;
+    div.classList.add('is-resizing');
     const origW = bookmark.w, origH = bookmark.h;
     const origGX = pxToGrid(div.offsetLeft), origGY = pxToGrid(div.offsetTop);
     let resizeCandidateGX = origGX, resizeCandidateGY = origGY;
@@ -130,23 +140,25 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
 
         div.style.left = gridToPx(newGX) + 'px';
         div.style.top = gridToPx(newGY) + 'px';
-        div.style.width = (gridToPx(newW) - 20) + 'px';
-        div.style.height = (gridToPx(newH) - 20) + 'px';
-        div.style.border = "1px solid coral";
+        div.style.width = (gridToPx(newW) - 10) + 'px';
+        div.style.height = (gridToPx(newH) - 10) + 'px';
     };
 
     const onUp = async () => {
         if (!resizing) return;
         resizing = false;
+
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
+
+        div.classList.remove('is-resizing');
 
         bookmark.x = gridToPx(resizeCandidateGX);
         bookmark.y = gridToPx(resizeCandidateGY);
         bookmark.w = resizeCandidateW;
         bookmark.h = resizeCandidateH;
+
         await saveBookmarks();
-        div.style.border = 'none';
         renderBookmarks();
     };
 

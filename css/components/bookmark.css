@@ -60,3 +60,24 @@
   z-index: 0; /* detrás del contenido */
   border-radius: inherit;
 }
+
+/* Drag activo */
+.bookmark.is-editing.is-dragging {
+  outline: 2px dashed orange;
+  outline-offset: -2px;
+  box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.35);
+  cursor: grabbing;
+}
+
+/* Drag en zona inválida */
+.bookmark.is-editing.is-dragging.is-invalid {
+  outline-color: red;
+  box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.4);
+  opacity: 0.5;
+}
+
+/* Resize activo */
+.bookmark.is-editing.is-resizing {
+  outline: 2px solid coral;
+  outline-offset: -2px;
+}
