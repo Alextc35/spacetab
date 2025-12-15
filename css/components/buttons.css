@@ -29,3 +29,37 @@ button#settings {
   background: rgba(255,255,255,0.25);
   color: white;
 }
+
+.bookmark-btn {
+  position: absolute;
+  top: 5px;
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.bookmark-btn.edit {
+  right: 35px;
+}
+
+.bookmark-btn.delete {
+  right: 5px;
+}
+
+.bookmark-btn.is-dark {
+  background: #fff;
+  color: #000;
+}
+
+.bookmark-btn.is-light {
+  background: #222;
+  color: #fff;
+}
+
+/* Hover sutil */
+.bookmark-btn:hover {
+  filter: brightness(1.1);
+}

@@ -264,46 +264,36 @@ function generateInitialsCanvas(name) {
   return canvas.toDataURL();
 }
 
-function addEditButtons(div, bookmark, index) {
-    const darkBg = isDarkColor(bookmark.bookmarkColor || '#222');
-    const bookmarks = getBookmarks();
-    const editBtn = document.createElement('button');
-    const delBtn = document.createElement('button');
-    editBtn.className = 'edit';
-    delBtn.className = 'delete';
-    editBtn.textContent = '✎';
-    delBtn.textContent = '🗑';
-    editBtn.style.background = darkBg ? '#fff' : '#222';
-    editBtn.style.color = darkBg ? '#000' : '#fff';
-    delBtn.style.background = darkBg ? '#fff' : '#222';
-    delBtn.style.color = darkBg ? '#000' : '#fff';
+function addEditButtons(container, bookmark, index) {
+  const bookmarks = getBookmarks();
+  const isDark = isDarkColor(bookmark.bookmarkColor || '#222');
+  const themeClass = isDark ? 'is-dark' : 'is-light';
 
-    editBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openModal(bookmarks, index);
-    });
+  const editBtn = createButton('✎', 'edit', themeClass, () => {
+    openModal(bookmarks, index);
+  });
 
-    delBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (confirm(`¿Eliminar ${bookmark.name}?`)) {
-            await deleteBookmark(index);
-            renderBookmarks();
-        }
-    });
+  const delBtn = createButton('🗑', 'delete', themeClass, async () => {
+    if (confirm(`¿Eliminar ${bookmark.name}?`)) {
+      await deleteBookmark(index);
+      renderBookmarks();
+    }
+  });
 
-    [editBtn, delBtn].forEach(btn => {
-        btn.style.position = 'absolute';
-        btn.style.top = '5px';
-        btn.style.width = '25px';
-        btn.style.height = '25px';
-        btn.style.borderRadius = '5px';
-        btn.style.border = 'none';
-        btn.style.cursor = 'pointer';
-    });
-    editBtn.style.right = '35px';
-    delBtn.style.right = '5px';
-    div.appendChild(editBtn);
-    div.appendChild(delBtn);
+  container.append(editBtn, delBtn);
+}
+
+function createButton(text, type, themeClass, onClick) {
+  const btn = document.createElement('button');
+  btn.className = `bookmark-btn ${type} ${themeClass}`;
+  btn.textContent = text;
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    onClick();
+  });
+
+  return btn;
 }
 
 function isDarkColor(hex) {
