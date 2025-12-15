@@ -262,7 +262,7 @@ function generateInitialsCanvas(name) {
 
 function addEditButtons(container, bookmark, index) {
   const bookmarks = getBookmarks();
-  const isDark = isDarkColor(bookmark.bookmarkColor || '#222');
+  const isDark = isVisuallyDark(bookmark);
   const themeClass = isDark ? 'is-dark' : 'is-light';
 
   const editBtn = createButton('✎', 'edit', themeClass, () => {
@@ -292,11 +292,29 @@ function createButton(text, type, themeClass, onClick) {
   return btn;
 }
 
-function isDarkColor(hex) {
-    hex = hex.replace('#', '');
-    const r = parseInt(hex.substring(0,2), 16);
-    const g = parseInt(hex.substring(2,4), 16);
-    const b = parseInt(hex.substring(4,6), 16);
-    const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
-    return luminance < 64;
+function isVisuallyDark(bookmark) {
+  let dark = isDarkColor(bookmark.bookmarkColor);
+
+  if (bookmark.backgroundImageUrl) {
+    dark = true;
+  }
+
+  if (bookmark.invertColorBg) {
+    dark = !dark;
+  }
+
+  return dark;
+}
+
+function isDarkColor(color) {
+  if (!color || color === 'transparent') return true;
+  if (!color.startsWith('#')) return true;
+
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.slice(0,2), 16);
+  const g = parseInt(hex.slice(2,4), 16);
+  const b = parseInt(hex.slice(4,6), 16);
+
+  const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
+  return luminance < 64;
 }
