@@ -11,6 +11,10 @@ import { GRID_SIZE } from '../core/config.js';
 export const container = document.getElementById('bookmark-container'); // Contenedor de bookmarks
 let editMode = false; // Modo edición (drag, resize, editar, borrar)
 
+export function setEditMode(value) {
+    editMode = value;
+}
+
 /**
  * Añade un nuevo bookmark al grid.
  *
@@ -159,62 +163,59 @@ function applyBookmarkStyle(div, bookmark) {
 }
 
 function createBookmarkContent(bookmark) {
-    const linkEl = document.createElement('a');
-    linkEl.href = bookmark.url || '#';
-    linkEl.classList.add('bookmark-link');
-    linkEl.style.color = bookmark.textColor || '#fff';
-    if (editMode) linkEl.classList.add('is-editing');
+  const linkEl = document.createElement('a');
+  linkEl.href = bookmark.url || '#';
+  linkEl.className = 'bookmark-link';
+  linkEl.style.color = bookmark.textColor || '#fff';
 
-    if (bookmark.faviconBackground) {
-        const img = createFavicon(bookmark);
-        img.alt = bookmark.name || '';
-        if (bookmark.invertColorIcon) img.style.filter = 'invert(1)';
-        linkEl.appendChild(img);
+  if (editMode) linkEl.classList.add('is-editing');
 
-        if (bookmark.showText) {
-            const span = document.createElement('span');
-            span.textContent = bookmark.name || '';
-            span.style.marginTop = '6px';
-            span.style.whiteSpace = 'nowrap';
-            span.style.overflow = 'hidden';
-            span.style.textOverflow = 'ellipsis';
-            linkEl.appendChild(span);
-        }
-    } else {
-        const infoBox = document.createElement('div');
-        infoBox.style.position = 'absolute';
-        infoBox.style.bottom = '6px';
-        infoBox.style.right = '8px';
-        infoBox.style.display = 'flex';
-        infoBox.style.alignItems = 'center';
-        infoBox.style.gap = '6px';
-        infoBox.style.background = 'transparent';
-        infoBox.style.padding = '0';
-        infoBox.style.borderRadius = '0';
-
-        if (bookmark.showFavicon ?? true) {
-            const img = createFavicon(bookmark);
-            img.alt = bookmark.name || '';
-            img.style.width = '16px';
-            img.style.height = '16px';
-            if (bookmark.invertColorIcon) img.style.filter = 'invert(1)';
-            infoBox.appendChild(img);
-        }
-
-        if (bookmark.showText ?? true) {
-            const span = document.createElement('span');
-            span.textContent = bookmark.name || '';
-            span.style.fontSize = '0.85em';
-            span.style.whiteSpace = 'nowrap';
-            span.style.overflow = 'hidden';
-            span.style.textOverflow = 'ellipsis';
-            span.style.color = bookmark.textColor || '#fff';
-            infoBox.appendChild(span);
-        }
-        linkEl.appendChild(infoBox);
+  // Caso: favicon como fondo
+  if (bookmark.faviconBackground) {
+    appendMainIcon(linkEl, bookmark);
+    if (bookmark.showText) {
+      linkEl.appendChild(createTextSpan(bookmark));
     }
-
     return linkEl;
+  }
+
+  // Caso normal (info abajo a la derecha)
+  const infoBox = document.createElement('div');
+  infoBox.className = 'bookmark-info';
+
+  if (bookmark.showFavicon ?? true) {
+    infoBox.appendChild(createSmallIcon(bookmark));
+  }
+
+  if (bookmark.showText ?? true) {
+    infoBox.appendChild(createTextSpan(bookmark));
+  }
+
+  linkEl.appendChild(infoBox);
+  return linkEl;
+}
+
+function appendMainIcon(container, bookmark) {
+  const img = createFavicon(bookmark);
+  img.alt = bookmark.name || '';
+  if (bookmark.invertColorIcon) img.style.filter = 'invert(1)';
+  container.appendChild(img);
+}
+
+function createSmallIcon(bookmark) {
+  const img = createFavicon(bookmark);
+  img.alt = bookmark.name || '';
+  img.style.width = '16px';
+  img.style.height = '16px';
+  if (bookmark.invertColorIcon) img.style.filter = 'invert(1)';
+  return img;
+}
+
+function createTextSpan(bookmark) {
+  const span = document.createElement('span');
+  span.textContent = bookmark.name || '';
+  span.style.color = bookmark.textColor || '#fff';
+  return span;
 }
 
 function createFavicon(bookmark) {
@@ -312,8 +313,4 @@ function isDarkColor(hex) {
     const b = parseInt(hex.substring(4,6), 16);
     const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
     return luminance < 64;
-}
-
-export function setEditMode(value) {
-    editMode = value;
 }

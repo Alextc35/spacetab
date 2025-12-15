@@ -56,3 +56,24 @@
   position: relative; /* para que el contenido esté encima del pseudo-elemento */
   z-index: 1;
 }
+
+.bookmark-info {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bookmark-info img {
+  width: 16px;
+  height: 16px;
+}
+
+.bookmark-info span {
+  font-size: 0.85em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
