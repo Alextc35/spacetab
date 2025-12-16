@@ -9,11 +9,12 @@ export function gridToPx(g) {
 
 // obtiene el rectángulo de cuadrícula de un bookmark
 export function getGridRectFromBookmark(bm) {
-  const gx = pxToGrid(bm.x ?? 0);
-  const gy = pxToGrid(bm.y ?? 0);
-  const w = bm.w || 1;
-  const h = bm.h || 1;
-  return { gx, gy, w, h };
+  return {
+    gx: bm.gx ?? 0,
+    gy: bm.gy ?? 0,
+    w: bm.w || 1,
+    h: bm.h || 1
+  };
 }
 
 // comprueba si un área está libre dentro del conjunto de bookmarks
@@ -21,7 +22,7 @@ export function isAreaFree(bookmarks, gx, gy, w = 1, h = 1, ignoreIndex = -1) {
   for (let i = 0; i < bookmarks.length; i++) {
     if (i === ignoreIndex) continue;
     const bm = bookmarks[i];
-    if (bm.x == null || bm.y == null) continue;
+    if (bm.gx == null || bm.gy == null) continue;
 
     const other = getGridRectFromBookmark(bm);
     const separated =
@@ -35,10 +36,9 @@ export function isAreaFree(bookmarks, gx, gy, w = 1, h = 1, ignoreIndex = -1) {
 }
 
 function getGridSize() {
-  return parseInt(
+  const size = parseInt(
     getComputedStyle(document.documentElement)
       .getPropertyValue('--grid-size')
   );
-
-  return size || 140;
+  return isNaN(size) ? 140 : size;
 }

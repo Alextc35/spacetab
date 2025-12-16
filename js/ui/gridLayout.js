@@ -17,3 +17,17 @@ export function updateGridSize() {
     gridSize + 'px'
   );
 }
+
+export function getMaxVisibleRows() {
+  const container = document.getElementById('bookmark-container');
+  if (!container) return 0;
+
+  const gridSize = parseInt(
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--grid-size')
+  );
+
+  const usableHeight = container.clientHeight;
+
+  return Math.floor(usableHeight / gridSize);
+}

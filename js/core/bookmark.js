@@ -50,12 +50,12 @@ export async function deleteBookmark(index) {
 }
 
 /* ======================= Utilidad ======================= */
-export function createBookmark({ name, url, x, y, w = 1, h = 1 }) {
+export function createBookmark({ name, url, gx = 0, gy = 0, w = 1, h = 1 }) {
   return {
     name,
     url,
-    x,
-    y,
+    gx,
+    gy,
     w,
     h,
     invertColorBg: false,

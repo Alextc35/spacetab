@@ -1,11 +1,10 @@
 import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
 import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
-import { GRID_SIZE, PADDING } from '../core/config.js';
+import { PADDING } from '../core/config.js';
 import { renderBookmarks, container } from './bookmarks.js';
 
 export function addDragAndResize(div, bookmark, index, containerWidth, containerHeight) {
     let dragging = false;
-    let origGX = pxToGrid(bookmark.x ?? 0), origGY = pxToGrid(bookmark.y ?? 0);
     let pointerOffsetX = 0, pointerOffsetY = 0;
     const bookmarks = getBookmarks();
 
@@ -14,13 +13,10 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
 
         e.preventDefault();
         dragging = true;
-
         div.classList.add('is-dragging');
 
         pointerOffsetX = e.clientX - div.offsetLeft;
         pointerOffsetY = e.clientY - div.offsetTop;
-        origGX = pxToGrid(div.offsetLeft);
-        origGY = pxToGrid(div.offsetTop);
 
         div.setPointerCapture(e.pointerId);
         div.style.zIndex = 9999;
@@ -60,8 +56,8 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
         while (!isAreaFree(bookmarks, snappedGX, snappedGY, bookmark.w, bookmark.h, index) && snappedGX > 0) snappedGX--;
         while (!isAreaFree(bookmarks, snappedGX, snappedGY, bookmark.w, bookmark.h, index) && snappedGY > 0) snappedGY--;
 
-        bookmark.x = gridToPx(snappedGX);
-        bookmark.y = gridToPx(snappedGY);
+        bookmark.gx = snappedGX;
+        bookmark.gy = snappedGY;
 
         await saveBookmarks();
         renderBookmarks();
@@ -83,11 +79,17 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
 function handleResize(e, div, bookmark, index, side, containerWidth, containerHeight) {
     let resizing = true;
     div.classList.add('is-resizing');
-    const origW = bookmark.w, origH = bookmark.h;
-    const origGX = pxToGrid(div.offsetLeft), origGY = pxToGrid(div.offsetTop);
-    let resizeCandidateGX = origGX, resizeCandidateGY = origGY;
-    let resizeCandidateW = origW, resizeCandidateH = origH;
+
+    const origGX = bookmark.gx;
+    const origGY = bookmark.gy;
+    const origW = bookmark.w;
+    const origH = bookmark.h;
     const bookmarks = getBookmarks();
+
+    let resizeCandidateGX = origGX;
+    let resizeCandidateGY = origGY;
+    let resizeCandidateW = origW;
+    let resizeCandidateH = origH;
 
     const onMove = (ev) => {
         if (!resizing) return;
@@ -98,31 +100,30 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
         let newGX = origGX, newGY = origGY, newW = origW, newH = origH;
 
         if (side === 'right') {
-            newW = Math.max(1, Math.ceil((localX - origGX * GRID_SIZE) / GRID_SIZE));
+            newW = Math.max(1, pxToGrid(localX) - origGX);
             while (!isAreaFree(bookmarks, origGX, origGY, newW, origH, index) && newW > 1) newW--;
         } else if (side === 'bottom') {
-            newH = Math.max(1, Math.ceil((localY - origGY * GRID_SIZE) / GRID_SIZE));
+            newH = Math.max(1, pxToGrid(localY) - origGY);
             while (!isAreaFree(bookmarks, origGX, origGY, origW, newH, index) && newH > 1) newH--;
         } else if (side === 'left') {
-            let candidateGX = Math.floor(localX / GRID_SIZE);
-            let deltaW = origGX - candidateGX;
+            let deltaW = origGX - pxToGrid(localX);
             if (deltaW > 0) while (!isAreaFree(bookmarks, origGX - deltaW, origGY, origW + deltaW, origH, index) && deltaW > 0) deltaW--;
             else if (deltaW < 0) deltaW = Math.max(deltaW, -(origW - 1));
             newGX = origGX - deltaW;
             newW = origW + deltaW;
         } else if (side === 'top') {
-            let candidateGY = Math.floor(localY / GRID_SIZE);
-            let deltaH = origGY - candidateGY;
+            let deltaH = origGY - pxToGrid(localY);
             if (deltaH > 0) while (!isAreaFree(bookmarks, origGX, origGY - deltaH, origW, origH + deltaH, index) && deltaH > 0) deltaH--;
             else if (deltaH < 0) deltaH = Math.max(deltaH, -(origH - 1));
             newGY = origGY - deltaH;
             newH = origH + deltaH;
         }
 
+        // ajustes contenedor
         if (newGX < 0) { newW += newGX; newGX = 0; }
         if (newGY < 0) { newH += newGY; newGY = 0; }
-        if (newGX + newW > Math.floor(containerWidth / GRID_SIZE)) newW = Math.floor(containerWidth / GRID_SIZE) - newGX;
-        if (newGY + newH > Math.floor(containerHeight / GRID_SIZE)) newH = Math.floor(containerHeight / GRID_SIZE) - newGY;
+        if (gridToPx(newGX + newW) > containerWidth) newW = pxToGrid(containerWidth) - newGX;
+        if (gridToPx(newGY + newH) > containerHeight) newH = pxToGrid(containerHeight) - newGY;
 
         resizeCandidateGX = newGX;
         resizeCandidateGY = newGY;
@@ -143,8 +144,8 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
 
         div.classList.remove('is-resizing');
 
-        bookmark.x = gridToPx(resizeCandidateGX);
-        bookmark.y = gridToPx(resizeCandidateGY);
+        bookmark.gx = resizeCandidateGX;
+        bookmark.gy = resizeCandidateGY;
         bookmark.w = resizeCandidateW;
         bookmark.h = resizeCandidateH;
 

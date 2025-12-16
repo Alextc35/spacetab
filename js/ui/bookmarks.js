@@ -3,7 +3,7 @@ import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
 import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { PADDING } from '../core/config.js';
-import { updateGridSize } from './gridLayout.js';
+import { updateGridSize, getMaxVisibleRows } from './gridLayout.js';
 
 export const container = document.getElementById('bookmark-container');
 let editMode = false;
@@ -21,20 +21,19 @@ export async function handleAddBookmark() {
   const url = prompt("URL del favorito (incluye https://):");
   if (!url) return;
 
-  const rect = container.getBoundingClientRect();
-  const maxGy = pxToGrid(rect.height) - 1;
+  const maxRows = getMaxVisibleRows() - 1;
 
   let gx = 0;
   let gy = 0;
   while (!isAreaFree(bookmarks, gx, gy)) {
     gy++;
-    if (gy > maxGy) {
+    if (gy > maxRows) {
         gy = 0;
         gx++;
     }
   }
 
-  const newBookmark = createBookmark({ name, url, x: gridToPx(gx), y: gridToPx(gy)});
+  const newBookmark = createBookmark({ name, url, gx, gy });
   await addBookmark(newBookmark);
   
   renderBookmarks();
@@ -58,8 +57,8 @@ export function renderBookmarks() {
 
     applyBookmarkStyle(div, bookmark);
 
-    const gx = pxToGrid(bookmark.x ?? 0);
-    const gy = pxToGrid(bookmark.y ?? 0);
+    const gx = bookmark.gx ?? 0;
+    const gy = bookmark.gy ?? 0;
     div.style.setProperty('--x', gridToPx(gx) + 'px');
     div.style.setProperty('--y', gridToPx(gy) + 'px');
     div.style.setProperty('--w', (gridToPx(bookmark.w) - PADDING) + 'px');
