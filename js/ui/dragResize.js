@@ -3,7 +3,7 @@ import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
 import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
 import { renderBookmarks } from './bookmarks.js';
 import { container } from './bookmarks.js';
-import { GRID_SIZE } from '../core/config.js';
+import { GRID_SIZE, PADDING } from '../core/config.js';
 
 /* ======================= Drag & Resize helpers ======================= */
 export function addDragAndResize(div, bookmark, index, containerWidth, containerHeight) {
@@ -140,8 +140,8 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
 
         div.style.left = gridToPx(newGX) + 'px';
         div.style.top = gridToPx(newGY) + 'px';
-        div.style.width = (gridToPx(newW) - 10) + 'px';
-        div.style.height = (gridToPx(newH) - 10) + 'px';
+        div.style.width = (gridToPx(newW) - PADDING) + 'px';
+        div.style.height = (gridToPx(newH) - PADDING) + 'px';
     };
 
     const onUp = async () => {

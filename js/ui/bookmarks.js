@@ -2,7 +2,7 @@ import { createBookmark, addBookmark, getBookmarks, deleteBookmark } from '../co
 import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
 import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
-import { GRID_SIZE } from '../core/config.js';
+import { GRID_SIZE, PADDING } from '../core/config.js';
 
 export const container = document.getElementById('bookmark-container');
 let editMode = false;
@@ -59,8 +59,8 @@ export function renderBookmarks() {
     const gy = pxToGrid(bookmark.y ?? 0);
     div.style.setProperty('--x', gridToPx(gx) + 'px');
     div.style.setProperty('--y', gridToPx(gy) + 'px');
-    div.style.setProperty('--w', gridToPx(bookmark.w) - 10 + 'px');
-    div.style.setProperty('--h', gridToPx(bookmark.h) - 10 + 'px');
+    div.style.setProperty('--w', (gridToPx(bookmark.w) - PADDING) + 'px');
+    div.style.setProperty('--h', (gridToPx(bookmark.h) - PADDING) + 'px');
 
     const linkEl = createBookmarkContent(bookmark);
     div.appendChild(linkEl);
