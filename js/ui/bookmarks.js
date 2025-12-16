@@ -2,7 +2,8 @@ import { createBookmark, addBookmark, getBookmarks, deleteBookmark } from '../co
 import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
 import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
-import { GRID_SIZE, PADDING } from '../core/config.js';
+import { PADDING } from '../core/config.js';
+import { updateGridSize } from './gridLayout.js';
 
 export const container = document.getElementById('bookmark-container');
 let editMode = false;
@@ -21,7 +22,7 @@ export async function handleAddBookmark() {
   if (!url) return;
 
   const rect = container.getBoundingClientRect();
-  const maxGy = pxToGrid(rect.height - GRID_SIZE);
+  const maxGy = pxToGrid(rect.height) - 1;
 
   let gx = 0;
   let gy = 0;
@@ -40,6 +41,8 @@ export async function handleAddBookmark() {
 }
 
 export function renderBookmarks() {
+  updateGridSize();
+
   const bookmarks = getBookmarks();
   container.innerHTML = '';
   const containerWidth = container.clientWidth;

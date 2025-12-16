@@ -8,6 +8,7 @@ import { SETTINGS } from './core/config.js';
 const addButton = document.getElementById('add-bookmark');
 const toggleButton = document.getElementById('toggle-mode');
 const gridOverlay = document.getElementById('grid-overlay');
+let resizeTimeout;
 
 function initControls() {
     const toggleEdit = createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode);
@@ -34,3 +35,11 @@ function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEdi
 }
 
 initApp();
+
+window.addEventListener('resize', () => {
+  // debounce para no recalcular 200 veces
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    renderBookmarks();
+  }, 100);
+});

@@ -1,14 +1,10 @@
-// core/grid.js
-import { GRID_SIZE } from './config.js';
-
-// convierte píxeles a unidades de cuadrícula
 export function pxToGrid(px) {
-  return Math.round(px / GRID_SIZE);
+  return Math.round(px / getGridSize());
 }
 
 // convierte unidades de cuadrícula a píxeles
 export function gridToPx(g) {
-  return g * GRID_SIZE;
+  return g * getGridSize();
 }
 
 // obtiene el rectángulo de cuadrícula de un bookmark
@@ -36,4 +32,13 @@ export function isAreaFree(bookmarks, gx, gy, w = 1, h = 1, ignoreIndex = -1) {
     if (!separated) return false;
   }
   return true;
+}
+
+function getGridSize() {
+  return parseInt(
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--grid-size')
+  );
+
+  return size || 140;
 }
