@@ -1,18 +1,15 @@
-// dragResize.js
 import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
 import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
 import { renderBookmarks } from './bookmarks.js';
 import { container } from './bookmarks.js';
 import { GRID_SIZE, PADDING } from '../core/config.js';
 
-/* ======================= Drag & Resize helpers ======================= */
 export function addDragAndResize(div, bookmark, index, containerWidth, containerHeight) {
     let dragging = false;
     let origGX = pxToGrid(bookmark.x ?? 0), origGY = pxToGrid(bookmark.y ?? 0);
     let pointerOffsetX = 0, pointerOffsetY = 0;
     const bookmarks = getBookmarks();
 
-    // ---------- Drag ----------
     div.addEventListener('pointerdown', (e) => {
         if (e.target.classList.contains('edit') || e.target.classList.contains('delete')) return;
 
@@ -72,7 +69,6 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
         renderBookmarks();
     });
 
-    // ---------- Resizers ----------
     ['top', 'right', 'bottom', 'left'].forEach(side => {
         const resizer = document.createElement('div');
         resizer.className = `resizer ${side}`;
@@ -86,7 +82,6 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
     });
 }
 
-/* ---------- Handler de resize ---------- */
 function handleResize(e, div, bookmark, index, side, containerWidth, containerHeight) {
     let resizing = true;
     div.classList.add('is-resizing');
@@ -104,7 +99,6 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
 
         let newGX = origGX, newGY = origGY, newW = origW, newH = origH;
 
-        // Ajustes según lado
         if (side === 'right') {
             newW = Math.max(1, Math.ceil((localX - origGX * GRID_SIZE) / GRID_SIZE));
             while (!isAreaFree(bookmarks, origGX, origGY, newW, origH, index) && newW > 1) newW--;
@@ -127,7 +121,6 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
             newH = origH + deltaH;
         }
 
-        // Clamp
         if (newGX < 0) { newW += newGX; newGX = 0; }
         if (newGY < 0) { newH += newGY; newGY = 0; }
         if (newGX + newW > Math.floor(containerWidth / GRID_SIZE)) newW = Math.floor(containerWidth / GRID_SIZE) - newGX;
