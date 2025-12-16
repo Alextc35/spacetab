@@ -158,6 +158,6 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
 }
 
 function applyPosition(div, gx, gy) {
-  div.style.left = gridToPx(gx) + 'px';
-  div.style.top = gridToPx(gy) + 'px';
+    div.style.left = gridToPx(gx) + 'px';
+    div.style.top = gridToPx(gy) + 'px';
 }
