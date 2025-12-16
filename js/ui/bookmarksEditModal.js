@@ -1,5 +1,4 @@
-import { saveBookmarks } from '../core/bookmark.js';
-import { getBookmarks } from '../core/bookmark.js';
+import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
 
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
