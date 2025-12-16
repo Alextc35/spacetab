@@ -1,141 +1,101 @@
-// js/ui/bookmarks.js
-
-// ======================= Módulo de gestión de bookmarks =======================
 import { createBookmark, addBookmark, getBookmarks, deleteBookmark } from '../core/bookmark.js';
 import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
 import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { GRID_SIZE } from '../core/config.js';
 
-// ======================= Variables globales =======================
-export const container = document.getElementById('bookmark-container'); // Contenedor de bookmarks
-let editMode = false; // Modo edición (drag, resize, editar, borrar)
+export const container = document.getElementById('bookmark-container');
+let editMode = false;
 
 export function setEditMode(value) {
-    editMode = value;
+  editMode = value;
 }
 
-/**
- * Añade un nuevo bookmark al grid.
- *
- * La función solicita al usuario el nombre y la URL del bookmark,
- * calcula el tamaño del contenedor y busca la primera posición libre
- * en la cuadrícula siguiendo un orden por columnas:
- *  - rellena primero el eje Y (de arriba hacia abajo)
- *  - cuando no queda espacio, pasa a la siguiente columna en el eje X
- *
- * Una vez encontrada una posición válida, crea el bookmark con
- * tamaño 1x1 por defecto, lo guarda en el storage y vuelve a renderizar
- * todos los bookmarks para reflejar el cambio en pantalla.
- */
 export async function handleAddBookmark() {
-    const bookmarks = getBookmarks();
+  const bookmarks = getBookmarks();
 
-    // TODO: Mejorar UI para añadir bookmark (formulario en modal)
-    const name = prompt("Nombre del favorito:");
-    if (!name) return;
-    const url = prompt("URL del favorito (incluye https://):");
-    if (!url) return;
+  // TODO: Mejorar UI para añadir bookmark (formulario en modal)
+  const name = prompt("Nombre del favorito:");
+  if (!name) return;
+  const url = prompt("URL del favorito (incluye https://):");
+  if (!url) return;
 
-    const rect = container.getBoundingClientRect();
-    const maxGy = pxToGrid(rect.height - GRID_SIZE);
+  const rect = container.getBoundingClientRect();
+  const maxGy = pxToGrid(rect.height - GRID_SIZE);
 
-    let gx = 0;
-    let gy = 0;
-    while (!isAreaFree(bookmarks, gx, gy)) {
-        gy++;
-        if (gy > maxGy) {
-            gy = 0;
-            gx++;
-        }
+  let gx = 0;
+  let gy = 0;
+  while (!isAreaFree(bookmarks, gx, gy)) {
+    gy++;
+    if (gy > maxGy) {
+        gy = 0;
+        gx++;
+    }
+  }
+
+  const newBookmark = createBookmark({ name, url, x: gridToPx(gx), y: gridToPx(gy)});
+  await addBookmark(newBookmark);
+  
+  renderBookmarks();
+}
+
+export function renderBookmarks() {
+  const bookmarks = getBookmarks();
+  container.innerHTML = '';
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+
+  bookmarks.forEach((bookmark, index) => {
+    bookmark.w ||= 1;
+    bookmark.h ||= 1;
+
+    const div = document.createElement('div');
+    div.className = 'bookmark';
+    div.classList.toggle('is-editing', editMode);
+
+    applyBookmarkStyle(div, bookmark);
+
+    const gx = pxToGrid(bookmark.x ?? 0);
+    const gy = pxToGrid(bookmark.y ?? 0);
+    div.style.setProperty('--x', gridToPx(gx) + 'px');
+    div.style.setProperty('--y', gridToPx(gy) + 'px');
+    div.style.setProperty('--w', gridToPx(bookmark.w) - 10 + 'px');
+    div.style.setProperty('--h', gridToPx(bookmark.h) - 10 + 'px');
+
+    const linkEl = createBookmarkContent(bookmark);
+    div.appendChild(linkEl);
+
+    if (editMode) {
+      addEditButtons(div, bookmark, index);
+      addDragAndResize(div, bookmark, index, containerWidth, containerHeight);
     }
 
-    const newBookmark = createBookmark({ name, url, x: gridToPx(gx), y: gridToPx(gy)});
-    await addBookmark(newBookmark);
-    
-    renderBookmarks();
-}
-
-/**
- * Renderiza todos los bookmarks en el contenedor principal.
- *
- * La función:
- * - Obtiene la lista actual de bookmarks desde el storage
- * - Limpia el contenedor para evitar duplicados
- * - Recorre cada bookmark y:
- *   - asegura valores mínimos de tamaño (w, h)
- *   - crea el elemento DOM correspondiente
- *   - aplica estilos visuales (fondo, colores, inversión, etc.)
- *   - calcula y asigna su posición y tamaño en la cuadrícula
- *   - inserta el contenido interno (favicon, texto)
- *   - añade botones de edición y drag/resize si el modo edición está activo
- *   - gestiona el comportamiento de click (abrir enlace o editar)
- *
- * El resultado es una representación visual sincronizada del estado
- * actual de los bookmarks en pantalla.
- */
-export function renderBookmarks() {
-    const bookmarks = getBookmarks();
-    container.innerHTML = '';
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-
-    bookmarks.forEach((bookmark, index) => {
-        bookmark.w ||= 1;
-        bookmark.h ||= 1;
-
-        const div = document.createElement('div');
-        div.className = 'bookmark';
-        div.classList.toggle('is-editing', editMode);
-
-        applyBookmarkStyle(div, bookmark);
-
-        const gx = pxToGrid(bookmark.x ?? 0);
-        const gy = pxToGrid(bookmark.y ?? 0);
-        div.style.setProperty('--x', gridToPx(gx) + 'px');
-        div.style.setProperty('--y', gridToPx(gy) + 'px');
-        div.style.setProperty('--w', gridToPx(bookmark.w) - 10 + 'px');
-        div.style.setProperty('--h', gridToPx(bookmark.h) - 10 + 'px');
-
-        const linkEl = createBookmarkContent(bookmark);
-        div.appendChild(linkEl);
-
-        if (editMode) {
-            addEditButtons(div, bookmark, index);
-            addDragAndResize(div, bookmark, index, containerWidth, containerHeight);
-        }
-
-        div.addEventListener('click', (e) => {
-            if (!editMode && !e.target.classList.contains('edit') && !e.target.classList.contains('delete')) {
-                if (e.ctrlKey || e.metaKey || e.button === 1) window.open(bookmark.url, '_blank');
-                else window.location.href = bookmark.url;
-            }
-        });
-
-        container.appendChild(div);
+    div.addEventListener('click', (e) => {
+      if (!editMode && !e.target.classList.contains('edit') && !e.target.classList.contains('delete')) {
+        if (e.ctrlKey || e.metaKey || e.button === 1) window.open(bookmark.url, '_blank');
+        else window.location.href = bookmark.url;
+      }
     });
+
+    container.appendChild(div);
+  });
 }
 
-// ======================= Helpers visuales =======================
 function applyBookmarkStyle(div, bookmark) {
-  // reset de estados
   div.classList.remove(
     'is-favicon-bg',
     'has-bg-image',
     'invert-bg-image'
   );
 
-  // fondo por favicon
   if (bookmark.faviconBackground) {
     div.classList.add('is-favicon-bg');
   }
 
-  // fondo por imagen
   if (bookmark.backgroundImageUrl && !bookmark.faviconBackground) {
     div.classList.add('has-bg-image');
     div.style.setProperty('--bookmark-bg-image', `url(${bookmark.backgroundImageUrl})`);
 
-    // Clase extra si quieres invertir solo la imagen
     if (bookmark.invertColorBg) {
       div.classList.add('invert-bg-image');
     } else {
@@ -146,7 +106,6 @@ function applyBookmarkStyle(div, bookmark) {
     div.style.removeProperty('--bookmark-bg-image');
   }
 
-  // colores
   div.style.setProperty(
     '--bookmark-bg',
     bookmark.bookmarkColor === 'transparent'
@@ -167,7 +126,6 @@ function createBookmarkContent(bookmark) {
 
   linkEl.classList.toggle('is-editing', editMode);
 
-  // Caso: favicon como fondo
   if (bookmark.faviconBackground) {
     appendMainIcon(linkEl, bookmark);
     if (bookmark.showText) {
@@ -176,7 +134,6 @@ function createBookmarkContent(bookmark) {
     return linkEl;
   }
 
-  // Caso normal (info abajo a la derecha)
   const infoBox = document.createElement('div');
   infoBox.className = 'bookmark-info';
 
@@ -240,7 +197,6 @@ function createFavicon(bookmark) {
   return img;
 }
 
-// Genera un canvas con las iniciales del nombre
 function generateInitialsCanvas(name) {
   const canvas = document.createElement('canvas');
   canvas.width = 64;
