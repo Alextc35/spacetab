@@ -1,8 +1,6 @@
-// modal.js
-import { storage } from '../core/storage.js';
+import { saveBookmarks } from '../core/bookmark.js';
 import { getBookmarks } from '../core/bookmark.js';
 
-/* ======================= Modal de edición ======================= */
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
 const modalUrl = document.getElementById('modal-url');
@@ -44,7 +42,6 @@ function updateFaviconBgState() {
     }
 }
 
-/* ---------- Helpers colores / inputs ---------- */
 function updateColorInputs() {
     const hasImage = modalBackgroundImage.value.trim() !== "";
     const noBackground = modalNoBackground.checked;
@@ -65,7 +62,6 @@ modalBackgroundImage.addEventListener("input", () => {
 modalNoBackground.addEventListener('change', updateColorInputs);
 modalShowText.addEventListener('change', updateColorInputs);
 
-/* ---------- Modal Favicon background handler ---------- */
 modalFaviconBackground.addEventListener('change', () => {
     const checked = modalFaviconBackground.checked;
     modalBackgroundImage.disabled = checked;
@@ -79,13 +75,11 @@ modalFaviconBackground.addEventListener('change', () => {
     updateInvertBgState();
 });
 
-/* ======================= API del modal ======================= */
 export function initBookmarkModal(onRender) {
     bookmarks = getBookmarks();
     renderBookmarks = onRender;
 }
 
-/* ---------- Abrir / cerrar modal ---------- */
 export function openModal(currentBookmarks, index) {
     bookmarks = currentBookmarks;
     if (index == null || !bookmarks[index]) return;
@@ -93,20 +87,18 @@ export function openModal(currentBookmarks, index) {
 
     const bookmark = bookmarks[index];
 
-    // Valores básicos
     modalName.value = bookmark.name || '';
     modalUrl.value = bookmark.url || '';
     modalInvertColorIcon.checked = !!bookmark.invertColorIcon;
     modalInvertColorBg.checked = !!bookmark.invertColorBg;
     modalBookmarkColor.value = bookmark.bookmarkColor || "#222222";
-    modalNoBackground.checked = bookmark.bookmarkColor === "transparent";
+    modalNoBackground.checked = !bookmark.bookmarkColor || bookmark.bookmarkColor === "transparent";
     modalTextColor.value = bookmark.textColor || "#ffffff";
     modalShowFavicon.checked = bookmark.showFavicon ?? true;
     modalShowText.checked = bookmark.showText ?? true;
     modalBackgroundImage.value = bookmark.backgroundImageUrl || "";
     modalFaviconBackground.checked = !!bookmark.faviconBackground;
 
-    // Ajustes de inputs según modo
     modalBackgroundImage.disabled = modalFaviconBackground.checked;
     modalShowFavicon.disabled = modalFaviconBackground.checked;
     if (modalFaviconBackground.checked) modalShowFavicon.checked = false;
@@ -124,7 +116,6 @@ function closeModal() {
     editingIndex = null;
 }
 
-/* ---------- Guardar cambios modal ---------- */
 modalSave.addEventListener('click', async () => {
     if (editingIndex === null) return;
 
@@ -149,7 +140,7 @@ modalSave.addEventListener('click', async () => {
         bookmark.showFavicon = modalShowFavicon.checked;
     }
 
-    await storage.set({ bookmarks });
+    await saveBookmarks(bookmarks);
     renderBookmarks();
     closeModal();
 });
