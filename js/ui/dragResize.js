@@ -40,8 +40,7 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
         const snappedGY = pxToGrid(newTopPx);
 
         if (isAreaFree(bookmarks, snappedGX, snappedGY, bookmark.w, bookmark.h, index)) {
-            div.style.left = gridToPx(snappedGX) + 'px';
-            div.style.top = gridToPx(snappedGY) + 'px';
+            applyPosition(div, snappedGX, snappedGY);
             div.classList.remove('is-invalid');
         } else {
             div.classList.add('is-invalid');
@@ -131,8 +130,7 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
         resizeCandidateW = newW;
         resizeCandidateH = newH;
 
-        div.style.left = gridToPx(newGX) + 'px';
-        div.style.top = gridToPx(newGY) + 'px';
+        applyPosition(div, newGX, newGY);
         div.style.width = (gridToPx(newW) - PADDING) + 'px';
         div.style.height = (gridToPx(newH) - PADDING) + 'px';
     };
@@ -157,4 +155,9 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
 
     document.addEventListener('pointermove', onMove);
     document.addEventListener('pointerup', onUp);
+}
+
+function applyPosition(div, gx, gy) {
+  div.style.left = gridToPx(gx) + 'px';
+  div.style.top = gridToPx(gy) + 'px';
 }
