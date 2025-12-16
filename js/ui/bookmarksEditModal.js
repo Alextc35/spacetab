@@ -19,6 +19,42 @@ let bookmarks = [];
 let editingIndex = null;
 let renderBookmarks = () => {};
 
+export function initBookmarkModal(onRender) {
+    bookmarks = getBookmarks();
+    renderBookmarks = onRender;
+}
+
+export function openModal(currentBookmarks, index) {
+    bookmarks = currentBookmarks;
+    if (index == null || !bookmarks[index]) return;
+    editingIndex = index;
+
+    const bookmark = bookmarks[index];
+
+    modalName.value = bookmark.name || '';
+    modalUrl.value = bookmark.url || '';
+    modalInvertColorIcon.checked = !!bookmark.invertColorIcon;
+    modalInvertColorBg.checked = !!bookmark.invertColorBg;
+    modalBookmarkColor.value = bookmark.bookmarkColor || "#222222";
+    modalNoBackground.checked = !bookmark.bookmarkColor || bookmark.bookmarkColor === "transparent";
+    modalTextColor.value = bookmark.textColor || "#ffffff";
+    modalShowFavicon.checked = bookmark.showFavicon ?? true;
+    modalShowText.checked = bookmark.showText ?? true;
+    modalBackgroundImage.value = bookmark.backgroundImageUrl || "";
+    modalFaviconBackground.checked = !!bookmark.faviconBackground;
+
+    modalBackgroundImage.disabled = modalFaviconBackground.checked;
+    modalShowFavicon.disabled = modalFaviconBackground.checked;
+    if (modalFaviconBackground.checked) modalShowFavicon.checked = false;
+    modalBookmarkColor.disabled = modalNoBackground.checked;
+
+    updateColorInputs();
+
+    editModal.style.setProperty('display', 'flex', 'important');
+    updateInvertBgState();
+    updateFaviconBgState();
+}
+
 function updateInvertBgState() {
     const disabled = modalFaviconBackground.checked;
 
@@ -73,42 +109,6 @@ modalFaviconBackground.addEventListener('change', () => {
     updateColorInputs();
     updateInvertBgState();
 });
-
-export function initBookmarkModal(onRender) {
-    bookmarks = getBookmarks();
-    renderBookmarks = onRender;
-}
-
-export function openModal(currentBookmarks, index) {
-    bookmarks = currentBookmarks;
-    if (index == null || !bookmarks[index]) return;
-    editingIndex = index;
-
-    const bookmark = bookmarks[index];
-
-    modalName.value = bookmark.name || '';
-    modalUrl.value = bookmark.url || '';
-    modalInvertColorIcon.checked = !!bookmark.invertColorIcon;
-    modalInvertColorBg.checked = !!bookmark.invertColorBg;
-    modalBookmarkColor.value = bookmark.bookmarkColor || "#222222";
-    modalNoBackground.checked = !bookmark.bookmarkColor || bookmark.bookmarkColor === "transparent";
-    modalTextColor.value = bookmark.textColor || "#ffffff";
-    modalShowFavicon.checked = bookmark.showFavicon ?? true;
-    modalShowText.checked = bookmark.showText ?? true;
-    modalBackgroundImage.value = bookmark.backgroundImageUrl || "";
-    modalFaviconBackground.checked = !!bookmark.faviconBackground;
-
-    modalBackgroundImage.disabled = modalFaviconBackground.checked;
-    modalShowFavicon.disabled = modalFaviconBackground.checked;
-    if (modalFaviconBackground.checked) modalShowFavicon.checked = false;
-    modalBookmarkColor.disabled = modalNoBackground.checked;
-
-    updateColorInputs();
-
-    editModal.style.setProperty('display', 'flex', 'important');
-    updateInvertBgState();
-    updateFaviconBgState();
-}
 
 function closeModal() {
     editModal.style.display = 'none';
