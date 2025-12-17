@@ -54,6 +54,12 @@ export function initAddBookmarkModal() {
     });
 }
 
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.style.display === 'flex') {
+    hideAddModal();
+  }
+});
+
 export function showAddModal() {
     nameInput.value = '';
     urlInput.value = '';

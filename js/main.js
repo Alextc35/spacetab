@@ -26,6 +26,21 @@ async function initApp() {
     initControls();
 }
 
+document.addEventListener('keydown', (e) => {
+  // solo Enter
+  if (e.key !== 'Enter') return;
+
+  // no si estás escribiendo en un input
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  // no si estás en modo edición
+  if (document.getElementById('grid-overlay').style.display === 'block') return;
+
+  e.preventDefault();
+  showAddModal();
+});
+
 function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode) {
     return function toggleEditMode() {
         const isEditing = gridOverlay.style.display !== 'block';
