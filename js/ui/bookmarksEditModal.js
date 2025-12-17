@@ -99,15 +99,16 @@ modalShowText.addEventListener('change', updateColorInputs);
 
 modalFaviconBackground.addEventListener('change', () => {
     const checked = modalFaviconBackground.checked;
+
     modalBackgroundImage.disabled = checked;
     modalShowFavicon.disabled = checked;
+
     if (checked) {
         modalShowFavicon.checked = false;
-        modalNoBackground.checked = true;
     }
 
-    updateColorInputs();
     updateInvertBgState();
+    updateColorInputs();
 });
 
 function closeModal() {
@@ -127,12 +128,14 @@ modalSave.addEventListener('click', async () => {
     bookmark.noBackground = modalNoBackground.checked;
     bookmark.textColor = modalTextColor.value;
     bookmark.showText = modalShowText.checked;
+    bookmark.bookmarkColor = modalBookmarkColor.value;
 
     if (modalFaviconBackground.checked) {
         bookmark.faviconBackground = true;
         bookmark.backgroundImageUrl = null;
         bookmark.showFavicon = false;
         bookmark.invertColorBg = false;
+        bookmark.noBackground = false;
     } else {
         bookmark.faviconBackground = false;
         bookmark.backgroundImageUrl = modalBackgroundImage.value.trim() || null;
