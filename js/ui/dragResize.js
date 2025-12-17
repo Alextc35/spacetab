@@ -8,7 +8,19 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
     let pointerOffsetX = 0, pointerOffsetY = 0;
     const bookmarks = getBookmarks();
 
-    div.addEventListener('pointerdown', (e) => {
+    div.addEventListener('pointerdown', async (e) => {
+        // BOTÓN CENTRAL = eliminar en modo edición
+        if (e.button === 1) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (confirm(`¿Eliminar ${bookmark.name}?`)) {
+                bookmarks.splice(index, 1);
+                await saveBookmarks();
+                renderBookmarks();
+            }
+            return;
+        }
         if (e.target.classList.contains('edit') || e.target.classList.contains('delete')) return;
 
         e.preventDefault();
