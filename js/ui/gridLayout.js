@@ -2,8 +2,8 @@ export function updateGridSize() {
   const container = document.getElementById('bookmark-container');
   if (!container) return;
 
-  const cols = 13;
-  const rows = 7;
+  const cols = 12;
+  const rows = 6;
 
   const rect = container.getBoundingClientRect();
 

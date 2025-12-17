@@ -77,18 +77,29 @@ async function addNewBookmark() {
     if (!name || !url) return;
 
     const bookmarks = getBookmarks();
-    const maxRows = getMaxVisibleRows() - 1;
+    const maxRows = getMaxVisibleRows(); // número de filas visibles (6)
+    const maxCols = 12; // tu grid de 12 columnas
 
     let gx = 0, gy = 0;
-    while (!isAreaFree(bookmarks, gx, gy)) {
-        gy++;
-        if (gy > maxRows) {
-            gy = 0;
-            gx++;
+    let placed = false;
+
+    for (let col = 0; col < maxCols && !placed; col++) {
+        for (let row = 0; row < maxRows; row++) {
+            if (isAreaFree(bookmarks, col, row, 1, 1)) {
+                gx = col;
+                gy = row;
+                placed = true;
+                break;
+            }
         }
     }
 
-    await addBookmark({ name, url, gx, gy, w: 1, h: 1 });
+    if (!placed) {
+        alert('No hay espacio disponible para más favoritos 😅');
+        return;
+    }
+
+    await addBookmark({ name, url, gx, gy });
     renderBookmarks();
     hideAddModal();
 }

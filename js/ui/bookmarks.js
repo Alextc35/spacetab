@@ -1,5 +1,4 @@
 import { getBookmarks, deleteBookmark } from '../core/bookmark.js';
-import { gridToPx} from '../core/grid.js';
 import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { PADDING } from '../core/config.js';
@@ -12,6 +11,16 @@ export function setEditMode(value) {
   editMode = value;
 }
 
+export function getRowWitdh() {
+  const cols = 12; // número de columnas fijo o configurable
+  return container.clientWidth / cols;
+}
+
+export function getRowHeight() {
+  const rows = 6;
+  return container.clientHeight / rows;
+}
+
 export function renderBookmarks() {
   updateGridSize();
 
@@ -19,6 +28,8 @@ export function renderBookmarks() {
   container.innerHTML = '';
   const containerWidth = container.clientWidth;
   const containerHeight = container.clientHeight;
+  const gridSize = getRowWitdh();
+  const rowHeight = getRowHeight();
 
   bookmarks.forEach((bookmark, index) => {
     bookmark.w ||= 1;
@@ -30,13 +41,11 @@ export function renderBookmarks() {
 
     applyBookmarkStyle(div, bookmark);
 
-    const gx = bookmark.gx ?? 0;
-    const gy = bookmark.gy ?? 0;
-    div.style.setProperty('--x', gridToPx(gx) + 'px');
-    div.style.setProperty('--y', gridToPx(gy) + 'px');
-    div.style.setProperty('--w', (gridToPx(bookmark.w) - PADDING) + 'px');
-    div.style.setProperty('--h', (gridToPx(bookmark.h) - PADDING) + 'px');
-
+    div.style.setProperty('--x', bookmark.gx * gridSize + 'px');
+    div.style.setProperty('--y', bookmark.gy * rowHeight + 'px');
+    div.style.setProperty('--w', bookmark.w * gridSize - PADDING + 'px');
+    div.style.setProperty('--h', bookmark.h * rowHeight - PADDING + 'px');
+    
     const linkEl = createBookmarkContent(bookmark);
     div.appendChild(linkEl);
 
@@ -57,69 +66,39 @@ export function renderBookmarks() {
 }
 
 function applyBookmarkStyle(div, bookmark) {
-  div.classList.remove(
-    'is-favicon-bg',
-    'has-bg-image',
-    'invert-bg-image'
-  );
+  div.classList.remove('is-favicon-bg', 'has-bg-image', 'invert-bg-image');
 
-  if (bookmark.faviconBackground) {
-    div.classList.add('is-favicon-bg');
-  }
+  if (bookmark.faviconBackground) div.classList.add('is-favicon-bg');
 
   if (bookmark.backgroundImageUrl && !bookmark.faviconBackground) {
     div.classList.add('has-bg-image');
     div.style.setProperty('--bookmark-bg-image', `url(${bookmark.backgroundImageUrl})`);
-
-    if (bookmark.invertColorBg) {
-      div.classList.add('invert-bg-image');
-    } else {
-      div.classList.remove('invert-bg-image');
-    }
+    if (bookmark.invertColorBg) div.classList.add('invert-bg-image');
   } else {
     div.classList.remove('has-bg-image', 'invert-bg-image');
     div.style.removeProperty('--bookmark-bg-image');
   }
 
-  div.style.setProperty(
-    '--bookmark-bg',
-    bookmark.noBackground
-      ? 'transparent'
-      : (bookmark.bookmarkColor || '#222')
-  );
-
-  div.style.setProperty(
-    '--bookmark-text',
-    bookmark.textColor || '#fff'
-  );
+  div.style.setProperty('--bookmark-bg', bookmark.noBackground ? 'transparent' : (bookmark.bookmarkColor || '#222'));
+  div.style.setProperty('--bookmark-text', bookmark.textColor || '#fff');
 }
 
 function createBookmarkContent(bookmark) {
   const linkEl = document.createElement('a');
   linkEl.href = bookmark.url || '#';
   linkEl.className = 'bookmark-link';
-
   linkEl.classList.toggle('is-editing', editMode);
 
   if (bookmark.faviconBackground) {
     appendMainIcon(linkEl, bookmark);
-    if (bookmark.showText) {
-      linkEl.appendChild(createTextSpan(bookmark));
-    }
+    if (bookmark.showText) linkEl.appendChild(createTextSpan(bookmark));
     return linkEl;
   }
 
   const infoBox = document.createElement('div');
   infoBox.className = 'bookmark-info';
-
-  if (bookmark.showFavicon ?? true) {
-    infoBox.appendChild(createSmallIcon(bookmark));
-  }
-
-  if (bookmark.showText ?? true) {
-    infoBox.appendChild(createTextSpan(bookmark));
-  }
-
+  if (bookmark.showFavicon ?? true) infoBox.appendChild(createSmallIcon(bookmark));
+  if (bookmark.showText ?? true) infoBox.appendChild(createTextSpan(bookmark));
   linkEl.appendChild(infoBox);
   return linkEl;
 }
@@ -178,24 +157,20 @@ function generateInitialsCanvas(name) {
   canvas.width = 64;
   canvas.height = 64;
   const ctx = canvas.getContext('2d');
-
   ctx.fillStyle = '#555';
   ctx.fillRect(0, 0, 64, 64);
-
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 32px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   const initials = (name || '?').slice(0, 2).toUpperCase();
   ctx.fillText(initials, 32, 32);
-
   return canvas.toDataURL();
 }
 
 function addEditButtons(container, bookmark, index) {
   const bookmarks = getBookmarks();
-  const isDark = isVisuallyDark(bookmark);
-  const themeClass = isDark ? 'is-dark' : 'is-light';
+  const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
 
   const editBtn = createButton('✎', 'edit', themeClass, () => {
     openModal(bookmarks, index);
@@ -215,38 +190,24 @@ function createButton(text, type, themeClass, onClick) {
   const btn = document.createElement('button');
   btn.className = `bookmark-btn ${type} ${themeClass}`;
   btn.textContent = text;
-
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    onClick();
-  });
-
+  btn.addEventListener('click', e => { e.stopPropagation(); onClick(); });
   return btn;
 }
 
 function isVisuallyDark(bookmark) {
   let dark = isDarkColor(bookmark.bookmarkColor);
-
-  if (bookmark.backgroundImageUrl) {
-    dark = true;
-  }
-
-  if (bookmark.invertColorBg) {
-    dark = !dark;
-  }
-
+  if (bookmark.backgroundImageUrl) dark = true;
+  if (bookmark.invertColorBg) dark = !dark;
   return dark;
 }
 
 function isDarkColor(color) {
   if (!color || color === 'transparent') return true;
   if (!color.startsWith('#')) return true;
-
   const hex = color.replace('#', '');
   const r = parseInt(hex.slice(0,2), 16);
   const g = parseInt(hex.slice(2,4), 16);
   const b = parseInt(hex.slice(4,6), 16);
-
   const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
   return luminance < 64;
 }
