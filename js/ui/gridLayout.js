@@ -31,3 +31,15 @@ export function getMaxVisibleRows() {
 
   return Math.floor(usableHeight / gridSize);
 }
+
+export function getRowWidth() {
+  const container = document.getElementById('bookmark-container');
+  const cols = 12; // número de columnas fijo o configurable
+  return container.clientWidth / cols;
+}
+
+export function getRowHeight() {
+  const container = document.getElementById('bookmark-container');
+  const rows = 6;
+  return container.clientHeight / rows;
+}

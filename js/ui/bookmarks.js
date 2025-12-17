@@ -2,23 +2,13 @@ import { getBookmarks, deleteBookmark } from '../core/bookmark.js';
 import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { PADDING } from '../core/config.js';
-import { updateGridSize } from './gridLayout.js';
+import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
 
 export const container = document.getElementById('bookmark-container');
 let editMode = false;
 
 export function setEditMode(value) {
   editMode = value;
-}
-
-export function getRowWitdh() {
-  const cols = 12; // número de columnas fijo o configurable
-  return container.clientWidth / cols;
-}
-
-export function getRowHeight() {
-  const rows = 6;
-  return container.clientHeight / rows;
 }
 
 export function renderBookmarks() {
@@ -28,7 +18,7 @@ export function renderBookmarks() {
   container.innerHTML = '';
   const containerWidth = container.clientWidth;
   const containerHeight = container.clientHeight;
-  const gridSize = getRowWitdh();
+  const rowWitdh = getRowWidth();
   const rowHeight = getRowHeight();
 
   bookmarks.forEach((bookmark, index) => {
@@ -41,9 +31,9 @@ export function renderBookmarks() {
 
     applyBookmarkStyle(div, bookmark);
 
-    div.style.setProperty('--x', bookmark.gx * gridSize + 'px');
+    div.style.setProperty('--x', bookmark.gx * rowWitdh + 'px');
     div.style.setProperty('--y', bookmark.gy * rowHeight + 'px');
-    div.style.setProperty('--w', bookmark.w * gridSize - PADDING + 'px');
+    div.style.setProperty('--w', bookmark.w * rowWitdh - PADDING + 'px');
     div.style.setProperty('--h', bookmark.h * rowHeight - PADDING + 'px');
     
     const linkEl = createBookmarkContent(bookmark);

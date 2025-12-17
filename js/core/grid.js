@@ -1,11 +1,3 @@
-export function pxToGrid(px) {
-  return Math.round(px / getGridSize());
-}
-
-// convierte unidades de cuadrícula a píxeles
-export function gridToPx(g) {
-  return g * getGridSize();
-}
 
 // obtiene el rectángulo de cuadrícula de un bookmark
 export function getGridRectFromBookmark(bm) {
@@ -35,10 +27,3 @@ export function isAreaFree(bookmarks, gx, gy, w = 1, h = 1, ignoreIndex = -1) {
   return true;
 }
 
-function getGridSize() {
-  const size = parseInt(
-    getComputedStyle(document.documentElement)
-      .getPropertyValue('--grid-size')
-  );
-  return isNaN(size) ? 140 : size;
-}

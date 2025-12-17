@@ -1,7 +1,8 @@
 import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
 import { isAreaFree } from '../core/grid.js';
 import { PADDING } from '../core/config.js';
-import { renderBookmarks, container, getRowWitdh, getRowHeight } from './bookmarks.js';
+import { renderBookmarks, container } from './bookmarks.js';
+import { getRowWidth, getRowHeight } from './gridLayout.js';
 
 export function addDragAndResize(div, bookmark, index, containerWidth, containerHeight) {
     let dragging = false;
@@ -35,21 +36,21 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
     div.addEventListener('pointermove', (e) => {
         if (!dragging) return;
 
-        const rowWitdh = getRowWitdh();
+        const rowWidth = getRowWidth();
         const rowHeight = getRowHeight();
 
         let newLeftPx = e.clientX - pointerOffsetX;
         let newTopPx = e.clientY - pointerOffsetY;
 
-        newLeftPx = Math.max(0, Math.min(newLeftPx, containerWidth - bookmark.w * rowWitdh));
+        newLeftPx = Math.max(0, Math.min(newLeftPx, containerWidth - bookmark.w * rowWidth));
         newTopPx = Math.max(0, Math.min(newTopPx, containerHeight - bookmark.h * rowHeight));
 
         // Snap a la grilla
-        const snappedGX = Math.round(newLeftPx / rowWitdh);
+        const snappedGX = Math.round(newLeftPx / rowWidth);
         const snappedGY = Math.round(newTopPx / rowHeight);
 
         if (isAreaFree(bookmarks, snappedGX, snappedGY, bookmark.w, bookmark.h, index)) {
-            applyPosition(div, snappedGX, snappedGY, rowWitdh, rowHeight);
+            applyPosition(div, snappedGX, snappedGY, rowWidth, rowHeight);
             div.classList.remove('is-invalid');
         } else {
             div.classList.add('is-invalid');
@@ -64,12 +65,12 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
         div.releasePointerCapture(e.pointerId);
         div.style.zIndex = '';
 
-        const rowWitdh = getRowWitdh();
+        const rowWidth = getRowWidth();
         const rowHeight = getRowHeight();
         const maxGY = Math.floor(containerHeight / rowHeight) - bookmark.h;
-        const maxGX = Math.floor(containerWidth / rowWitdh) - bookmark.w;
+        const maxGX = Math.floor(containerWidth / rowWidth) - bookmark.w;
 
-        let snappedGX = Math.round(div.offsetLeft / rowWitdh);
+        let snappedGX = Math.round(div.offsetLeft / rowWidth);
         let snappedGY = Math.round(div.offsetTop / rowHeight);
 
         snappedGX = Math.min(Math.max(snappedGX, 0), maxGX);
@@ -106,7 +107,7 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
     const origW = bookmark.w;
     const origH = bookmark.h;
     const bookmarks = getBookmarks();
-    const rowWitdh = getRowWitdh();
+    const rowWidth = getRowWidth();
     const rowHeight = getRowHeight();
 
     let resizeCandidateGX = origGX;
@@ -123,13 +124,13 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
         let newGX = origGX, newGY = origGY, newW = origW, newH = origH;
 
         if (side === 'right') {
-            newW = Math.max(1, Math.round((localX / rowWitdh) - origGX));
+            newW = Math.max(1, Math.round((localX / rowWidth) - origGX));
             while (!isAreaFree(bookmarks, origGX, origGY, newW, origH, index) && newW > 1) newW--;
         } else if (side === 'bottom') {
             newH = Math.max(1, Math.round((localY / rowHeight) - origGY));
             while (!isAreaFree(bookmarks, origGX, origGY, origW, newH, index) && newH > 1) newH--;
         } else if (side === 'left') {
-            let deltaW = origGX - Math.round(localX / rowWitdh);
+            let deltaW = origGX - Math.round(localX / rowWidth);
             if (deltaW > 0) while (!isAreaFree(bookmarks, origGX - deltaW, origGY, origW + deltaW, origH, index) && deltaW > 0) deltaW--;
             else if (deltaW < 0) deltaW = Math.max(deltaW, -(origW - 1));
             newGX = origGX - deltaW;
@@ -145,7 +146,7 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
         // ajustes contenedor
         if (newGX < 0) { newW += newGX; newGX = 0; }
         if (newGY < 0) { newH += newGY; newGY = 0; }
-        if ((newGX + newW) * rowWitdh > containerWidth) newW = Math.floor(containerWidth / rowWitdh) - newGX;
+        if ((newGX + newW) * rowWidth > containerWidth) newW = Math.floor(containerWidth / rowWidth) - newGX;
         if ((newGY + newH) * rowHeight > containerHeight) newH = Math.floor(containerHeight / rowHeight) - newGY;
 
         resizeCandidateGX = newGX;
@@ -153,9 +154,9 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
         resizeCandidateW = newW;
         resizeCandidateH = newH;
 
-        applyPosition(div, newGX, newGY, rowWitdh);
-        div.style.width = newW * rowWitdh - PADDING + 'px';
-        div.style.height = newH * rowWitdh - PADDING + 'px';
+        applyPosition(div, newGX, newGY, rowWidth);
+        div.style.width = newW * rowWidth - PADDING + 'px';
+        div.style.height = newH * rowWidth - PADDING + 'px';
     };
 
     const onUp = async () => {
@@ -180,7 +181,7 @@ function handleResize(e, div, bookmark, index, side, containerWidth, containerHe
     document.addEventListener('pointerup', onUp);
 }
 
-function applyPosition(div, gx, gy, rowWitdh, rowHeight) {
-    div.style.left = gx * rowWitdh + 'px';
+function applyPosition(div, gx, gy, rowWidth, rowHeight) {
+    div.style.left = gx * rowWidth + 'px';
     div.style.top = gy * rowHeight + 'px';
 }
