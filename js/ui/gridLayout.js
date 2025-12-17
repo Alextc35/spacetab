@@ -10,26 +10,12 @@ export function updateGridSize() {
   const cellW = rect.width / cols;
   const cellH = rect.height / rows;
 
-  const gridSize = Math.floor(Math.min(cellW, cellH));
-
-  document.documentElement.style.setProperty(
-    '--grid-size',
-    gridSize + 'px'
-  );
+  document.documentElement.style.setProperty('--cell-w', cellW + 'px');
+  document.documentElement.style.setProperty('--cell-h', cellH + 'px');
 }
 
 export function getMaxVisibleRows() {
-  const container = document.getElementById('bookmark-container');
-  if (!container) return 0;
-
-  const gridSize = parseInt(
-    getComputedStyle(document.documentElement)
-      .getPropertyValue('--grid-size')
-  );
-
-  const usableHeight = container.clientHeight;
-
-  return Math.floor(usableHeight / gridSize);
+  return 6;
 }
 
 export function getRowWidth() {
