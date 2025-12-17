@@ -60,6 +60,7 @@ export function createBookmark({ name, url, gx = 0, gy = 0, w = 1, h = 1 }) {
     h,
     invertColorBg: false,
     invertColorIcon: false,
+    noBackground: false,
     bookmarkColor: "#cccccc",
     textColor: "#000000",
     showFavicon: true,

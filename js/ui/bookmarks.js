@@ -83,7 +83,7 @@ function applyBookmarkStyle(div, bookmark) {
 
   div.style.setProperty(
     '--bookmark-bg',
-    bookmark.bookmarkColor === 'transparent'
+    bookmark.noBackground
       ? 'transparent'
       : (bookmark.bookmarkColor || '#222')
   );

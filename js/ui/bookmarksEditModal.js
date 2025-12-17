@@ -36,7 +36,7 @@ export function openModal(currentBookmarks, index) {
     modalInvertColorIcon.checked = !!bookmark.invertColorIcon;
     modalInvertColorBg.checked = !!bookmark.invertColorBg;
     modalBookmarkColor.value = bookmark.bookmarkColor || "#222222";
-    modalNoBackground.checked = !bookmark.bookmarkColor || bookmark.bookmarkColor === "transparent";
+    modalNoBackground.checked = bookmark.noBackground === true;
     modalTextColor.value = bookmark.textColor || "#ffffff";
     modalShowFavicon.checked = bookmark.showFavicon ?? true;
     modalShowText.checked = bookmark.showText ?? true;
@@ -124,7 +124,7 @@ modalSave.addEventListener('click', async () => {
     bookmark.url = modalUrl.value.trim();
     bookmark.invertColorIcon = modalInvertColorIcon.checked;
     bookmark.invertColorBg = modalInvertColorBg.checked;
-    bookmark.bookmarkColor = modalNoBackground.checked ? "transparent" : modalBookmarkColor.value;
+    bookmark.noBackground = modalNoBackground.checked;
     bookmark.textColor = modalTextColor.value;
     bookmark.showText = modalShowText.checked;
 

@@ -42,6 +42,16 @@ export function initAddBookmarkModal() {
 
     modal.querySelector('#add-save').addEventListener('click', addNewBookmark);
     modal.querySelector('#add-cancel').addEventListener('click', hideAddModal);
+
+    modal.querySelector('.modal-overlay')
+        .addEventListener('click', hideAddModal);
+
+    urlInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addNewBookmark();
+        }
+    });
 }
 
 export function showAddModal() {
