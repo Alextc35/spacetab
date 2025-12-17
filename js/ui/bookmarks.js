@@ -1,42 +1,15 @@
-import { createBookmark, addBookmark, getBookmarks, deleteBookmark } from '../core/bookmark.js';
-import { pxToGrid, gridToPx, isAreaFree } from '../core/grid.js';
+import { getBookmarks, deleteBookmark } from '../core/bookmark.js';
+import { gridToPx} from '../core/grid.js';
 import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { PADDING } from '../core/config.js';
-import { updateGridSize, getMaxVisibleRows } from './gridLayout.js';
+import { updateGridSize } from './gridLayout.js';
 
 export const container = document.getElementById('bookmark-container');
 let editMode = false;
 
 export function setEditMode(value) {
   editMode = value;
-}
-
-export async function handleAddBookmark() {
-  const bookmarks = getBookmarks();
-
-  // TODO: Mejorar UI para añadir bookmark (formulario en modal)
-  const name = prompt("Nombre del favorito:");
-  if (!name) return;
-  const url = prompt("URL del favorito (incluye https://):");
-  if (!url) return;
-
-  const maxRows = getMaxVisibleRows() - 1;
-
-  let gx = 0;
-  let gy = 0;
-  while (!isAreaFree(bookmarks, gx, gy)) {
-    gy++;
-    if (gy > maxRows) {
-        gy = 0;
-        gx++;
-    }
-  }
-
-  const newBookmark = createBookmark({ name, url, gx, gy });
-  await addBookmark(newBookmark);
-  
-  renderBookmarks();
 }
 
 export function renderBookmarks() {

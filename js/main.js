@@ -1,6 +1,7 @@
 import { loadBookmarks } from './core/bookmark.js';
 import { initBookmarkModal } from './ui/bookmarksEditModal.js';
-import { handleAddBookmark, renderBookmarks, setEditMode} from './ui/bookmarks.js';
+import { initAddBookmarkModal, showAddModal } from './ui/bookmarksAddModal.js';
+import { renderBookmarks, setEditMode} from './ui/bookmarks.js';
 import { initSettings } from './ui/settings.js';
 import { SETTINGS } from './core/config.js';
 
@@ -12,7 +13,7 @@ let resizeTimeout;
 
 function initControls() {
     const toggleEdit = createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode);
-    addButton.addEventListener('click', handleAddBookmark);
+    addButton.addEventListener('click', showAddModal);
     toggleButton.addEventListener('click', toggleEdit);
 }
 
@@ -20,6 +21,7 @@ async function initApp() {
     await loadBookmarks();
     initSettings(SETTINGS);
     initBookmarkModal(renderBookmarks);
+    initAddBookmarkModal();
     renderBookmarks();
     initControls();
 }

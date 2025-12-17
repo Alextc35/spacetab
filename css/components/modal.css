@@ -53,3 +53,110 @@
 #edit-modal .modal-buttons button:hover {
   background-color: #777;
 }
+
+/* ===== Modal base ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, sans-serif;
+}
+
+/* Fondo oscuro */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(6px);
+}
+
+/* Tarjeta */
+.modal-card {
+  position: relative;
+  width: 340px;
+  background: #111;
+  color: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.6);
+  animation: modalIn .2s ease-out;
+}
+
+/* Título */
+.modal-card h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Campos */
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.modal-field label {
+  font-size: 12px;
+  opacity: .75;
+}
+
+.modal-field input {
+  background: #1c1c1c;
+  border: 1px solid #333;
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.modal-field input:focus {
+  border-color: #4da3ff;
+}
+
+/* Botones */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn.primary {
+  background: #4da3ff;
+  color: #000;
+  font-weight: 600;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: #aaa;
+}
+
+.btn.ghost:hover {
+  color: #fff;
+}
+
+/* Animación */
+@keyframes modalIn {
+  from {
+    transform: scale(.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
