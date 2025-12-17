@@ -53,6 +53,20 @@ function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEdi
 
 initApp();
 
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+
+  // evitar inputs
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  // dispara el toggle si el overlay está visible (modo edición)
+  const gridOverlay = document.getElementById('grid-overlay');
+  if (gridOverlay.style.display === 'block') {
+    toggleButton.click(); // simula el click en tu botón
+  }
+});
+
 window.addEventListener('resize', () => {
   // debounce para no recalcular 200 veces
   clearTimeout(resizeTimeout);
