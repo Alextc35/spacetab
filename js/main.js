@@ -51,6 +51,18 @@ function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEdi
     };
 }
 
+document.addEventListener('keydown', (e) => {
+  // solo espacio
+  if (e.code !== 'Space') return;
+
+  // no si estás escribiendo
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  e.preventDefault(); // evita scroll
+  toggleButton.click();
+});
+
 initApp();
 
 document.addEventListener('keydown', (e) => {
