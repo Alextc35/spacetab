@@ -46,9 +46,9 @@ export function renderBookmarks() {
     }
 
     div.addEventListener('click', (e) => {
-      if (!editMode && !e.target.classList.contains('edit') && !e.target.classList.contains('delete')) {
-        if (e.ctrlKey || e.metaKey || e.button === 1) window.open(bookmark.url, '_blank');
-        else window.location.href = bookmark.url;
+      if (editMode) {
+        e.preventDefault();
+        e.stopPropagation();
       }
     });
 

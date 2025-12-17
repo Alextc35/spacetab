@@ -46,7 +46,7 @@ export function initAddBookmarkModal() {
     modal.querySelector('.modal-overlay')
         .addEventListener('click', hideAddModal);
 
-    urlInput.addEventListener('keydown', e => {
+    modal.addEventListener('keydown', e => {
         if (e.key === 'Enter') {
             e.preventDefault();
             addNewBookmark();
