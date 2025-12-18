@@ -56,21 +56,40 @@ export function renderBookmarks() {
 }
 
 function applyBookmarkStyle(div, bookmark) {
-  div.classList.remove('is-favicon-bg', 'has-bg-image', 'invert-bg-image');
+  // reset total
+  div.classList.remove(
+    'is-favicon-bg',
+    'has-bg-image',
+    'invert-bg-image'
+  );
+  div.style.removeProperty('--bookmark-bg-image');
 
-  if (bookmark.faviconBackground) div.classList.add('is-favicon-bg');
-
-  if (bookmark.backgroundImageUrl && !bookmark.faviconBackground) {
+  if (bookmark.noBackground) {
+    div.style.setProperty('--bookmark-bg', 'transparent');
+  } else if (bookmark.faviconBackground) {
+    div.classList.add('is-favicon-bg');
+    div.style.setProperty('--bookmark-bg', bookmark.bookmarkColor || '#222');
+  } else if (bookmark.backgroundImageUrl) {
     div.classList.add('has-bg-image');
-    div.style.setProperty('--bookmark-bg-image', `url(${bookmark.backgroundImageUrl})`);
-    if (bookmark.invertColorBg) div.classList.add('invert-bg-image');
+    div.style.setProperty(
+      '--bookmark-bg-image',
+      `url(${bookmark.backgroundImageUrl})`
+    );
+    div.style.setProperty('--bookmark-bg', bookmark.bookmarkColor || '#222');
+    if (bookmark.invertColorBg) {
+      div.classList.add('invert-bg-image');
+    }
   } else {
-    div.classList.remove('has-bg-image', 'invert-bg-image');
-    div.style.removeProperty('--bookmark-bg-image');
+    div.style.setProperty(
+      '--bookmark-bg',
+      bookmark.bookmarkColor || '#222'
+    );
   }
 
-  div.style.setProperty('--bookmark-bg', bookmark.noBackground ? 'transparent' : (bookmark.bookmarkColor || '#222'));
-  div.style.setProperty('--bookmark-text', bookmark.textColor || '#fff');
+  div.style.setProperty(
+    '--bookmark-text',
+    bookmark.textColor || '#fff'
+  );
 }
 
 function createBookmarkContent(bookmark) {

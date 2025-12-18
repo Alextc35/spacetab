@@ -135,7 +135,6 @@ modalSave.addEventListener('click', async () => {
         bookmark.backgroundImageUrl = null;
         bookmark.showFavicon = false;
         bookmark.invertColorBg = false;
-        bookmark.noBackground = false;
     } else {
         bookmark.faviconBackground = false;
         bookmark.backgroundImageUrl = modalBackgroundImage.value.trim() || null;
