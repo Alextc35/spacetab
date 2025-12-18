@@ -26,21 +26,6 @@ async function initApp() {
     initControls();
 }
 
-document.addEventListener('keydown', (e) => {
-  // solo Enter
-  if (e.key !== 'Enter') return;
-
-  // no si estás escribiendo en un input
-  const tag = document.activeElement.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-
-  // no si estás en modo edición
-  if (document.getElementById('grid-overlay').style.display === 'block') return;
-
-  e.preventDefault();
-  showAddModal();
-});
-
 function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode) {
     return function toggleEditMode() {
         const isEditing = gridOverlay.style.display !== 'block';
@@ -51,36 +36,37 @@ function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEdi
     };
 }
 
-document.addEventListener('keydown', (e) => {
-  // solo espacio
-  if (e.code !== 'Space') return;
-
-  // no si estás escribiendo
-  const tag = document.activeElement.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-
-  e.preventDefault(); // evita scroll
-  toggleButton.click();
-});
-
 initApp();
 
 document.addEventListener('keydown', (e) => {
-  if (e.key !== 'Escape') return;
-
-  // evitar inputs
   const tag = document.activeElement.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
-  // dispara el toggle si el overlay está visible (modo edición)
-  const gridOverlay = document.getElementById('grid-overlay');
-  if (gridOverlay.style.display === 'block') {
-    toggleButton.click(); // simula el click en tu botón
+  const isEditing = gridOverlay.style.display === 'block';
+
+  switch (e.code) {
+    case 'Enter':
+      if (!isEditing) {
+        e.preventDefault();
+        showAddModal();
+      }
+      break;
+
+    case 'Space':
+      e.preventDefault(); // evita scroll
+      toggleButton.click();
+      break;
+
+    case 'Escape':
+      if (isEditing) {
+        e.preventDefault();
+        toggleButton.click();
+      }
+      break;
   }
 });
 
 window.addEventListener('resize', () => {
-  // debounce para no recalcular 200 veces
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
     renderBookmarks();
