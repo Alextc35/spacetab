@@ -53,7 +53,7 @@ document.addEventListener('keydown', (e) => {
       break;
 
     case 'Space':
-      e.preventDefault(); // evita scroll
+      e.preventDefault();
       toggleButton.click();
       break;
 
