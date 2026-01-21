@@ -8,14 +8,16 @@ export function getBookmarks() {
 
 export function setBookmarks(newList) {
   bookmarks = Array.isArray(newList)
-    ? newList.map(b => ({ ...b, w: b.w || 1, h: b.h || 1 }))
+    ? newList.map(normalizeBookmark)
     : [];
 }
 
-export async function addBookmark(bookmark) {
+export async function addBookmark(data) {
+  const bookmark = normalizeBookmark(data);
   bookmarks.push(bookmark);
   await saveBookmarks();
-  return bookmarks;
+  console.log('Bookmark added:', bookmark);
+  return bookmark;
 }
 
 export async function saveBookmarks() {
@@ -35,6 +37,7 @@ export async function updateBookmark(index, updatedData) {
     bookmarks[index] = { ...bookmarks[index], ...updatedData };
     await saveBookmarks();
   }
+  console.log('Bookmark updated at index', index, ':', bookmarks[index]);
   return bookmarks;
 }
 
@@ -43,24 +46,27 @@ export async function deleteBookmark(index) {
     bookmarks.splice(index, 1);
     await saveBookmarks();
   }
+  console.log('Bookmark deleted at index', index);
   return bookmarks;
 }
 
-export function createBookmark({ name, url, gx = 0, gy = 0, w = 1, h = 1 }) {
+function normalizeBookmark(bookmark) {
   return {
-    id: crypto.randomUUID(),
-    name,
-    url,
-    gx,
-    gy,
-    w,
-    h,
-    invertColorBg: false,
-    invertColorIcon: false,
-    noBackground: false,
-    bookmarkColor: "#cccccc",
-    textColor: "#000000",
-    showFavicon: true,
-    showText: true
+    id: bookmark.id || crypto.randomUUID(),
+    name: bookmark.name ?? 'New Bookmark',
+    url: bookmark.url ?? 'https://',
+    gx: bookmark.gx ?? 0,
+    gy: bookmark.gy ?? 0,
+    w: bookmark.w ?? 1,
+    h: bookmark.h ?? 1,
+    backgroundImageUrl: bookmark.backgroundImageUrl ?? null,
+    faviconBackground: bookmark.faviconBackground ?? true,
+    invertColorBg: bookmark.invertColorBg ?? false,
+    noBackground: bookmark.noBackground ?? false,
+    bookmarkColor: bookmark.bookmarkColor ?? "#cccccc",
+    showText: bookmark.showText ?? true,
+    textColor: bookmark.textColor ?? "#000000",
+    showFavicon: bookmark.showFavicon ?? false,
+    invertColorIcon: bookmark.invertColorIcon ?? false
   };
 }
