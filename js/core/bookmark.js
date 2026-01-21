@@ -1,9 +1,30 @@
+/**
+ * bookmarks.js
+ * ------------------------------------------------------
+ * In-memory bookmark store with persistence support.
+ *
+ * This module acts as the single source of truth for all bookmarks:
+ * - Keeps an internal bookmarks array in memory
+ * - Normalizes bookmark data to ensure consistent structure
+ * - Provides CRUD operations (add, update, delete)
+ * - Persists changes to chrome.storage via the storage abstraction
+ *
+ * Bookmarks are identified by a stable `id` (UUID).
+ * The UI or other modules should interact with bookmarks only through
+ * the exported functions and never mutate the internal array directly.
+ *
+ * Debug logging is controlled via the DEBUG flag.
+ * ------------------------------------------------------
+ */
+
 import { storage } from './storage.js';
+import { DEBUG } from './config.js';
 
 let bookmarks = [];
 
 export function getBookmarks() {
-  return bookmarks;
+  if (DEBUG) console.log('Retrieving bookmarks:', bookmarks);
+  return [...bookmarks];
 }
 
 export function setBookmarks(newList) {
@@ -16,37 +37,62 @@ export async function addBookmark(data) {
   const bookmark = normalizeBookmark(data);
   bookmarks.push(bookmark);
   await saveBookmarks();
-  console.log('Bookmark added:', bookmark);
+  if (DEBUG) console.log('Bookmark added:', bookmark);
   return bookmark;
 }
 
 export async function saveBookmarks() {
   await storage.set({ bookmarks });
-  console.log('Bookmarks saved:', bookmarks);
+  if (DEBUG) console.log('Bookmarks saved:', bookmarks);
 }
 
 export async function loadBookmarks() {
   const data = await storage.get('bookmarks');
   setBookmarks(data.bookmarks || []);
-  console.log('Bookmarks loaded:', bookmarks);
+  if (DEBUG) console.log('Bookmarks loaded:', bookmarks);
   return bookmarks;
 }
 
+export async function updateBookmarkById(id, updatedData) {
+  const index = bookmarks.findIndex(b => b.id === id);
+  if (index !== -1) {
+    bookmarks[index] = normalizeBookmark({
+      ...bookmarks[index],
+      ...updatedData
+    });
+    await saveBookmarks();
+    if (DEBUG) console.log('Bookmark updated with id', id, ':', bookmarks[index]);
+  } else if (DEBUG) console.warn('Bookmark not found for id:', id);
+  return bookmarks;
+}
+
+export async function deleteBookmarkById(id) {
+  const index = bookmarks.findIndex(b => b.id === id);
+  if (index !== -1) {
+    bookmarks.splice(index, 1);
+    await saveBookmarks();
+    if (DEBUG) console.log('Bookmark deleted with id', id);
+  } else if (DEBUG) console.warn('Bookmark not found for id:', id);
+  return bookmarks;
+}
+
+// LEGACY — prefer updateBookmarkById
 export async function updateBookmark(index, updatedData) {
   if (bookmarks[index]) {
     bookmarks[index] = { ...bookmarks[index], ...updatedData };
     await saveBookmarks();
   }
-  console.log('Bookmark updated at index', index, ':', bookmarks[index]);
+  if (DEBUG) console.log('Bookmark updated at index', index, ':', bookmarks[index]);
   return bookmarks;
 }
 
+// LEGACY — prefer deleteBookmarkById
 export async function deleteBookmark(index) {
   if (index >= 0 && index < bookmarks.length) {
     bookmarks.splice(index, 1);
     await saveBookmarks();
   }
-  console.log('Bookmark deleted at index', index);
+  if (DEBUG) console.log('Bookmark deleted at index', index);
   return bookmarks;
 }
 

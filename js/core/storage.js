@@ -19,8 +19,14 @@
  * - Data is stored per user profile and per extension.
  * - All operations are asynchronous.
  * - `get(null)` returns the entire local storage.
+ * 
+ * Debug logging is controlled via the DEBUG flag.
  * ------------------------------------------------------
  */
+
+import { DEBUG } from './config.js';
+
+if (DEBUG) console.log('Storage module initialized.');
 
 export const storage = {
   async get(keys) {
