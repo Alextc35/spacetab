@@ -1,10 +1,7 @@
-// core/bookmark.js
 import { storage } from './storage.js';
 
-/* ======================= Estado interno ======================= */
 let bookmarks = [];
 
-/* ======================= Acceso ======================= */
 export function getBookmarks() {
   return bookmarks;
 }
@@ -15,21 +12,21 @@ export function setBookmarks(newList) {
     : [];
 }
 
-/* ======================= Persistencia ======================= */
-export async function loadBookmarks() {
-  const data = await storage.get('bookmarks');
-  setBookmarks(data.bookmarks || []);
+export async function addBookmark(bookmark) {
+  bookmarks.push(bookmark);
+  await saveBookmarks();
   return bookmarks;
 }
 
 export async function saveBookmarks() {
   await storage.set({ bookmarks });
+  console.log('Bookmarks saved:', bookmarks);
 }
 
-/* ======================= CRUD ======================= */
-export async function addBookmark(bookmark) {
-  bookmarks.push(bookmark);
-  await saveBookmarks();
+export async function loadBookmarks() {
+  const data = await storage.get('bookmarks');
+  setBookmarks(data.bookmarks || []);
+  console.log('Bookmarks loaded:', bookmarks);
   return bookmarks;
 }
 
@@ -49,9 +46,9 @@ export async function deleteBookmark(index) {
   return bookmarks;
 }
 
-/* ======================= Utilidad ======================= */
 export function createBookmark({ name, url, gx = 0, gy = 0, w = 1, h = 1 }) {
   return {
+    id: crypto.randomUUID(),
     name,
     url,
     gx,
