@@ -4,6 +4,9 @@ import { initAddBookmarkModal, showAddModal } from './ui/bookmarksAddModal.js';
 import { renderBookmarks, setEditMode} from './ui/bookmarks.js';
 import { initSettings } from './ui/settings.js';
 import { SETTINGS } from './core/config.js';
+import { flashSuccess, flashError, flash } from './ui/flash.js';
+
+flash('Spacetab by @alextc35');
 
 /* ======================= Variables globales ======================= */
 const addButton = document.getElementById('add-bookmark');

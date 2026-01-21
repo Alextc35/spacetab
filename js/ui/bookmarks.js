@@ -3,8 +3,9 @@ import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { PADDING } from '../core/config.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
+import { flashSuccess, flashError, flash } from './flash.js';
 
-export const container = document.getElementById('bookmark-containe') || null;
+export const container = document.getElementById('bookmark-container') || null;
 let editMode = false;
 
 export function setEditMode(value) {
@@ -12,9 +13,6 @@ export function setEditMode(value) {
 }
 
 export function renderBookmarks() {
-  if (!container) {
-    return;
-  }
   updateGridSize(container);
 
   const bookmarks = getBookmarks();
