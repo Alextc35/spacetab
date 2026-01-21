@@ -3,13 +3,18 @@ import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { PADDING } from '../core/config.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
-import { flashSuccess, flashError, flash } from './flash.js';
+import { flashInfo } from './flash.js';
 
 export const container = document.getElementById('bookmark-container') || null;
 let editMode = false;
 
 export function setEditMode(value) {
   editMode = value;
+  if (value) {
+    flashInfo('Edit mode enabled', 1000);
+  } else {
+    flashInfo('Edit mode disabled', 1000);
+  }
 }
 
 export function renderBookmarks() {

@@ -18,6 +18,7 @@
  */
 
 import { storage } from './storage.js';
+import { flashSuccess, flashError, flash } from '../ui/flash.js';
 import { DEBUG } from './config.js';
 
 let bookmarks = [];
@@ -37,8 +38,8 @@ export async function addBookmark(data) {
   const bookmark = normalizeBookmark(data);
   bookmarks.push(bookmark);
   await saveBookmarks();
+  flashSuccess('Bookmark added successfully!');
   if (DEBUG) console.log('Bookmark added:', bookmark);
-  return bookmark;
 }
 
 export async function saveBookmarks() {
@@ -61,8 +62,10 @@ export async function updateBookmarkById(id, updatedData) {
       ...updatedData
     });
     await saveBookmarks();
+    flashSuccess('Bookmark updated successfully!');
     if (DEBUG) console.log('Bookmark updated with id', id, ':', bookmarks[index]);
   } else if (DEBUG) console.warn('Bookmark not found for id:', id);
+  flashError('Bookmark not found!');
   return bookmarks;
 }
 
@@ -71,8 +74,10 @@ export async function deleteBookmarkById(id) {
   if (index !== -1) {
     bookmarks.splice(index, 1);
     await saveBookmarks();
+    flashSuccess('Bookmark deleted successfully!');
     if (DEBUG) console.log('Bookmark deleted with id', id);
   } else if (DEBUG) console.warn('Bookmark not found for id:', id);
+  flashError('Bookmark not found!');
   return bookmarks;
 }
 
@@ -92,6 +97,7 @@ export async function deleteBookmark(index) {
     bookmarks.splice(index, 1);
     await saveBookmarks();
   }
+  flashSuccess('Bookmark deleted successfully!');
   if (DEBUG) console.log('Bookmark deleted at index', index);
   return bookmarks;
 }
