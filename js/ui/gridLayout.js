@@ -1,9 +1,10 @@
-export function updateGridSize() {
-  const container = document.getElementById('bookmark-container');
+import { colsGrid, rowsGrid } from '../core/config.js';
+
+export function updateGridSize(container) {
   if (!container) return;
 
-  const cols = 12;
-  const rows = 6;
+  const cols = colsGrid;
+  const rows = rowsGrid;
 
   const rect = container.getBoundingClientRect();
 

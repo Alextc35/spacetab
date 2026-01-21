@@ -4,7 +4,7 @@ import { addDragAndResize } from './dragResize.js';
 import { PADDING } from '../core/config.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
 
-export const container = document.getElementById('bookmark-container');
+export const container = document.getElementById('bookmark-containe') || null;
 let editMode = false;
 
 export function setEditMode(value) {
@@ -12,7 +12,10 @@ export function setEditMode(value) {
 }
 
 export function renderBookmarks() {
-  updateGridSize();
+  if (!container) {
+    return;
+  }
+  updateGridSize(container);
 
   const bookmarks = getBookmarks();
   container.innerHTML = '';
