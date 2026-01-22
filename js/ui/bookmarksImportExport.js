@@ -1,6 +1,7 @@
 // ui/bookmarksImportExport.js
-import { getBookmarks, setBookmarks, saveBookmarks } from '../core/bookmark.js';
+import { getBookmarks, setBookmarks, saveBookmarks, clearBookmarks} from '../core/bookmark.js';
 import { renderBookmarks } from './bookmarks.js';
+import { flashError, flashSuccess } from './flash.js';
 
 const flashContainer = document.createElement('div');
 flashContainer.id = 'flash-container';
@@ -14,30 +15,19 @@ flashContainer.style.cssText = `
 `;
 document.body.appendChild(flashContainer);
 
-/* =================== FLASH MESSAGE =================== */
-function showFlash(message, type = 'success', duration = 2000) {
-  const flash = document.createElement('div');
-  flash.textContent = message;
-  flash.style.cssText = `
-    background: ${type === 'success' ? '#4caf50' : '#f44336'};
-    color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: bold;
-    text-align: center;
-    margin-top: 10px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: auto;
-    min-width: 200px;
-  `;
-  flashContainer.appendChild(flash);
+/* =================== DELETE ALL =================== */
+export async function deleteAllBookmarks() {
+  const ok = confirm('Are you sure you want to delete ALL bookmarks? This cannot be undone.');
+  if (!ok) return;
 
-  requestAnimationFrame(() => flash.style.opacity = '1');
-  setTimeout(() => {
-    flash.style.opacity = '0';
-    setTimeout(() => flash.remove(), 300);
-  }, duration);
+  try {
+    await clearBookmarks();
+    renderBookmarks();
+    flashSuccess('All bookmarks deleted 🗑️');
+  } catch (err) {
+    console.error(err);
+    flashError('Failed to delete bookmarks ❌');
+  }
 }
 
 /* =================== EXPORT =================== */
@@ -56,16 +46,16 @@ export function exportBookmarks() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    showFlash('Bookmarks exported successfully ✅', 'success');
+    flashSuccess('Bookmarks exported successfully ✅');
   } catch (err) {
     console.error(err);
-    showFlash('Failed to export bookmarks ❌', 'error');
+    flashError('Failed to export bookmarks ❌');
   }
 }
 
 /* =================== IMPORT =================== */
 export function importBookmarks(file) {
-  if (!file) return showFlash('No file selected ❌', 'error');
+  if (!file) return flashError('No file selected ❌');
 
   const reader = new FileReader();
   reader.onload = async (e) => {
@@ -74,11 +64,11 @@ export function importBookmarks(file) {
       if (!Array.isArray(data)) throw new Error('Invalid bookmarks file');
       setBookmarks(data);
       await saveBookmarks();
-      showFlash('Bookmarks imported successfully ✅', 'success');
+      flashSuccess('Bookmarks imported successfully ✅');
       renderBookmarks();
     } catch (err) {
       console.error(err);
-      showFlash('Failed to import bookmarks ❌', 'error');
+      flashError('Failed to import bookmarks ❌');
     }
   };
   reader.readAsText(file);

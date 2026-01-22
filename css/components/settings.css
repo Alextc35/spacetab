@@ -132,7 +132,8 @@
 
 #reset-background,
 #export-btn,
-#import-btn {
+#import-btn,
+#delete-all-btn {
   padding: 5px 10px;
   border-radius: 5px;
   border: none;
@@ -141,10 +142,18 @@
   cursor: pointer;
 }
 
+#delete-all-btn {
+  background: #a33;
+}
+
 #reset-background:hover,
 #import-btn:hover,
 #export-btn:hover {
   background: #777;
+}
+
+#delete-all-btn:hover {
+  background: #c55;
 }
 
 #color-options .input-group {

@@ -6,6 +6,7 @@ import { initSettings } from './ui/settings.js';
 import { SETTINGS } from './core/config.js';
 import { flashSuccess, flashError, flash } from './ui/flash.js';
 import { initImportExportButtons } from './ui/bookmarksImportExport.js';
+import { deleteAllBookmarks } from './ui/bookmarksImportExport.js';
 
 /* ======================= Variables globales ======================= */
 const addButton = document.getElementById('add-bookmark');
@@ -18,6 +19,9 @@ const importBtn = document.getElementById('import-btn');
 const importInput = document.getElementById('import-input');
 
 initImportExportButtons(exportBtn, importInput);
+
+const deleteAllBtn = document.getElementById('delete-all-btn');
+deleteAllBtn.addEventListener('click', deleteAllBookmarks);
 
 importBtn.addEventListener('click', () => importInput.click());
 

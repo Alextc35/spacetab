@@ -4,6 +4,7 @@ import { addDragAndResize } from './dragResize.js';
 import { PADDING } from '../core/config.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
 import { flashInfo } from './flash.js';
+import { DEBUG } from '../core/config.js';
 
 export const container = document.getElementById('bookmark-container') || null;
 let editMode = false;
@@ -12,8 +13,10 @@ export function setEditMode(value) {
   editMode = value;
   if (value) {
     flashInfo('Edit mode enabled', 1000);
+    if (DEBUG) console.log('Edit mode enabled');
   } else {
     flashInfo('Edit mode disabled', 1000);
+    if (DEBUG) console.log('Edit mode disabled');
   }
 }
 

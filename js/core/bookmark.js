@@ -18,13 +18,12 @@
  */
 
 import { storage } from './storage.js';
-import { flashSuccess, flashError, flash } from '../ui/flash.js';
+import { flashSuccess, flashError } from '../ui/flash.js';
 import { DEBUG } from './config.js';
 
 let bookmarks = [];
 
 export function getBookmarks() {
-  if (DEBUG) console.log('Retrieving bookmarks:', bookmarks);
   return [...bookmarks];
 }
 
@@ -51,7 +50,6 @@ export async function loadBookmarks() {
   const data = await storage.get('bookmarks');
   setBookmarks(data.bookmarks || []);
   if (DEBUG) console.log('Bookmarks loaded:', bookmarks);
-  return bookmarks;
 }
 
 export async function updateBookmarkById(id, updatedData) {
@@ -79,6 +77,12 @@ export async function deleteBookmarkById(id) {
   } else if (DEBUG) console.warn('Bookmark not found for id:', id);
   flashError('Bookmark not found!');
   return bookmarks;
+}
+
+export async function clearBookmarks() {
+  bookmarks = [];
+  await saveBookmarks();
+  if (DEBUG) console.log('All bookmarks cleared');
 }
 
 // LEGACY — prefer updateBookmarkById
