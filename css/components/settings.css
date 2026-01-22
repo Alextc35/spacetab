@@ -67,7 +67,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: auto;
+  margin-top: 15px;
 }
 
 .settings-buttons button {
@@ -130,7 +130,9 @@
   border-radius: 6px;
 }
 
-#reset-background {
+#reset-background,
+#export-btn,
+#import-btn {
   padding: 5px 10px;
   border-radius: 5px;
   border: none;
@@ -139,7 +141,9 @@
   cursor: pointer;
 }
 
-#reset-background:hover {
+#reset-background:hover,
+#import-btn:hover,
+#export-btn:hover {
   background: #777;
 }
 

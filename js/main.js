@@ -5,12 +5,21 @@ import { renderBookmarks, setEditMode} from './ui/bookmarks.js';
 import { initSettings } from './ui/settings.js';
 import { SETTINGS } from './core/config.js';
 import { flashSuccess, flashError, flash } from './ui/flash.js';
+import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 
 /* ======================= Variables globales ======================= */
 const addButton = document.getElementById('add-bookmark');
 const toggleButton = document.getElementById('toggle-mode');
 const gridOverlay = document.getElementById('grid-overlay');
 let resizeTimeout;
+
+const exportBtn = document.getElementById('export-btn');
+const importBtn = document.getElementById('import-btn');
+const importInput = document.getElementById('import-input');
+
+initImportExportButtons(exportBtn, importInput);
+
+importBtn.addEventListener('click', () => importInput.click());
 
 function initControls() {
     const toggleEdit = createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode);
