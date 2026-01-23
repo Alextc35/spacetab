@@ -7,9 +7,9 @@
 </head>
 <body>
   <div id="floating-menu">
-    <button id="toggle-mode" type="button">✎</button>
-    <button id="add-bookmark" type="button">➕</button>
-    <button id="settings" type="button">⚙️</button>
+    <button id="toggle-mode" type="button" data-i18n="buttons.edit">✎</button>
+    <button id="add-bookmark" type="button" data-i18n="buttons.add">➕</button>
+    <button id="settings" type="button" data-i18n="buttons.settings">⚙️</button>
   </div>
   <div id="grid-overlay"></div>
   <div id="flash-container" class="flash-container"></div>
@@ -19,66 +19,66 @@
   <div id="edit-modal" style="display: none;">
     <div class="modal-content">
 
-      <h2>Editar Favorito</h2>
+      <h2 data-i18n="editModal.title">Editar Favorito</h2>
 
-      <h3>General</h3>
+      <h3 data-i18n="editModal.sections.general">General</h3>
 
-      <label for="modal-name">Nombre:</label>
+      <label for="modal-name" data-i18n="editModal.name">Nombre:</label>
       <input type="text" id="modal-name">
 
-      <label for="modal-url">URL:</label>
+      <label for="modal-url" data-i18n="editModal.url">URL:</label>
       <input type="text" id="modal-url">
 
-      <h3>Background</h3>
+      <h3 data-i18n="editModal.sections.background">Background</h3>
 
-      <label for="modal-background-image">Imagen de fondo (URL):</label>
+      <label for="modal-background-image" data-i18n="editModal.backgroundImage">Imagen de fondo (URL):</label>
       <input type="text" id="modal-background-image" placeholder="https://...">
 
       <div class="checkbox-wrapper">
         <input type="checkbox" id="modal-favicon-background">
-        <label for="modal-favicon-background">Favicon como background</label>
+        <label for="modal-favicon-background" data-i18n="editModal.faviconBackground">Favicon como background</label>
       </div>
 
       <div class="checkbox-wrapper">
         <input type="checkbox" id="modal-invert-color-bg">
-        <label for="modal-invert-color-bg">Invertir colores</label>
+        <label for="modal-invert-color-bg"  data-i18n="editModal.invertColorBg">Invertir colores</label>
       </div>
 
       <div class="checkbox-wrapper">
         <input type="checkbox" id="modal-no-background">
-        <label for="modal-no-background">Sin fondo</label>
+        <label for="modal-no-background" data-i18n="editModal.noBackground">Sin fondo</label>
       </div>
 
       <div class="color-options">
-        <label for="modal-bookmark-color">Color del bookmark:</label>
+        <label for="modal-bookmark-color" data-i18n="editModal.bookmarkColor">Color del bookmark:</label>
         <input type="color" id="modal-bookmark-color">
       </div>
 
-      <h3>Texto</h3>
+      <h3 data-i18n="editModal.sections.text">Texto</h3>
       <div class="checkbox-wrapper">
         <input type="checkbox" id="modal-show-text">
-        <label for="modal-show-text">Mostrar texto</label>
+        <label for="modal-show-text" data-i18n="editModal.showText">Mostrar texto</label>
       </div>
 
       <div class="color-options">
-        <label for="modal-text-color">Color del texto:</label>
+        <label for="modal-text-color" data-i18n="editModal.textColor">Color del texto:</label>
         <input type="color" id="modal-text-color">
       </div>
 
       <h3>Icono</h3>
       <div class="checkbox-wrapper">
         <input type="checkbox" id="modal-show-favicon">
-        <label for="modal-show-favicon">Mostrar favicon</label>
+        <label for="modal-show-favicon" data-i18n="editModal.showFavicon">Mostrar favicon</label>
       </div>
 
       <div class="checkbox-wrapper">
         <input type="checkbox" id="modal-invert-color-icon">
-        <label for="modal-invert-color-icon">Invertir colores</label>
+        <label for="modal-invert-color-icon" data-i18n="editModal.invertColorIcon">Invertir colores</label>
       </div>
 
       <div class="modal-buttons">
-        <button id="modal-save" type="button">Guardar</button>
-        <button id="modal-cancel" type="button">Cancelar</button>
+        <button id="modal-save" type="button" data-i18n="buttons.save">Guardar</button>
+        <button id="modal-cancel" type="button" data-i18n="buttons.cancel">Cancelar</button>
       </div>
     </div>
   </div>
@@ -88,34 +88,32 @@
     <div class="settings-content">
       <!-- Panel de pestañas -->
       <div class="settings-tabs">
-        <button class="tab-btn active" type="button" data-tab="tab-general">⚙️ General</button>
-        <button class="tab-btn" type="button" data-tab="tab-lang">🌐 Idiomas</button>
-        <button class="tab-btn" type="button" data-tab="tab-info">ℹ️ Información</button>
+        <button class="tab-btn active" type="button" data-tab="tab-general" data-i18n="settingsModal.sections.general">⚙️ General</button>
+        <button class="tab-btn" type="button" data-tab="tab-lang" data-i18n="settingsModal.sections.language">🌐 Idiomas</button>
+        <button class="tab-btn" type="button" data-tab="tab-info" data-i18n="settingsModal.sections.information">ℹ️ Información</button>
       </div>
 
       <!-- Contenido de cada pestaña -->
       <div class="settings-panel">
         <div class="tab-content" id="tab-general">
-          <h2>General</h2>
-          <label for="grid-size">Tamaño de cuadrícula:</label>
-          <input type="number" id="grid-size" min="60" max="200" value="140">
-          <h3>Fondo de la página</h3>
+          <h2 data-i18n="settingsModal.general.title">General</h2>
+          <h3 data-i18n="settingsModal.general.subtitle">Fondo de la página</h3>
           <div id="background-settings">
-            <label for="background-color">Color:</label>
+            <label for="background-color" data-i18n="settingsModal.general.backgroundColor">Color:</label>
             <input type="color" id="background-color">
-            <label for="background-image">Imagen URL:</label>
+            <label for="background-image" data-i18n="settingsModal.general.backgroundImage">Imagen URL:</label>
             <input type="text" id="background-image" placeholder="https://...">
-            <button id="reset-background" type="button">Restablecer</button>
-            <button id="export-btn" type="button">Exportar</button>
+            <button id="reset-background" type="button" data-i18n="settingsModal.general.resetBackground">Restablecer</button>
+            <button id="export-btn" type="button" data-i18n="settingsModal.general.export">Exportar</button>
             <input type="file" id="import-input" style="display:none;">
-            <button id="import-btn" type="button">Importar</button>
-            <button id="delete-all-btn" type="button">Delete all</button>
+            <button id="import-btn" type="button" data-i18n="settingsModal.general.import">Importar</button>
+            <button id="delete-all-btn" type="button" data-i18n="settingsModal.general.deleteAll">Borrar todos los Bookmarks</button>
           </div>
         </div>
 
         <div class="tab-content" id="tab-lang" style="display:none;">
-          <h2>Idiomas</h2>
-          <p>Selecciona el idioma de la interfaz:</p>
+          <h2 data-i18n="settingsModal.languages.title">Idiomas</h2>
+          <p data-i18n="settingsModal.languages.text">Selecciona el idioma de la interfaz:</p>
           <select id="language-select">
             <option value="es">Español</option>
             <option value="en">English</option>
@@ -123,17 +121,17 @@
         </div>
 
         <div class="tab-content" id="tab-info" style="display:none;">
-          <h2>Información</h2>
+          <h2 data-i18n="settingsModal.information.title">Información</h2>
           <p><strong>SpaceTab</strong></p>
-          <p>Versión: 0.12.0 - alfa</p>
-          <p>Autor: @alextc35</p>
+          <p data-i18n="settingsModal.information.version">Versión: 0.12.0 - alfa</p>
+          <p data-i18n="settingsModal.information.author">Autor: @alextc35</p>
           <p>© 2025</p>
         </div>
 
         <!-- Botones abajo -->
         <div class="settings-buttons">
-          <button id="settings-save" type="button">Guardar</button>
-          <button id="settings-cancel" type="button">Cancelar</button>
+          <button id="settings-save" type="button" data-i18n="buttons.save">Guardar</button>
+          <button id="settings-cancel" type="button" data-i18n="buttons.cancel">Cancelar</button>
         </div>
       </div>
     </div>

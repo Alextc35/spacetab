@@ -1,4 +1,5 @@
 // ui/settings.js
+import { applyI18n } from '../core/i18n.js';
 import { storage } from '../core/storage.js';
 
 export function initSettings(SETTINGS) {
@@ -30,7 +31,6 @@ export function initSettings(SETTINGS) {
 
     // Abrir modal
     settingsBtn.addEventListener('click', () => {
-        gridSizeInput.value = SETTINGS.gridSize;
         languageSelect.value = SETTINGS.language || "es";
         settingsModal.style.display = 'flex';
     });
@@ -42,7 +42,6 @@ export function initSettings(SETTINGS) {
     settingsCancel.addEventListener('click', () => { settingsModal.style.display = 'none'; });
 
     settingsSave.addEventListener('click', async () => {
-        SETTINGS.gridSize = parseInt(gridSizeInput.value, 10) || 140;
         SETTINGS.language = languageSelect.value;
         settingsModal.style.display = 'none';
         await storage.set({ settings: SETTINGS });
@@ -62,10 +61,17 @@ export function initSettings(SETTINGS) {
     // Cargar valores guardados
     storage.get(['settings', 'bgColor', 'bgImage']).then(data => {
         if (data.settings) Object.assign(SETTINGS, data.settings);
+        languageSelect.value = SETTINGS.language || "es";
+        applyI18n();
         if (data.bgColor) bgColorInput.value = data.bgColor;
         if (data.bgImage) bgImageInput.value = data.bgImage;
         applyBackground(data.bgColor, data.bgImage);
         updateColorState();
+    });
+
+    languageSelect.addEventListener('change', () => {
+        SETTINGS.language = languageSelect.value;
+        applyI18n();
     });
 
     // Background dinámico
