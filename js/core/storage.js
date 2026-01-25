@@ -24,10 +24,6 @@
  * ------------------------------------------------------
  */
 
-import { DEBUG } from './config.js';
-
-if (DEBUG) console.log('Storage module initialized.');
-
 export const storage = {
   async get(keys) {
     return new Promise((resolve) => chrome.storage.local.get(keys, resolve));
