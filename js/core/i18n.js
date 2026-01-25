@@ -2,6 +2,13 @@ import { SETTINGS } from './config.js';
 
 const translations = {
   es: {
+    flash: {
+      editMode: {
+        enabled: 'Modo edición activado',
+        disabled: 'Modo edición desactivado'
+      }
+    },
+
     buttons: {
       save: 'Guardar',
       cancel: 'Cancelar',
@@ -59,6 +66,13 @@ const translations = {
   },
 
   en: {
+    flash: {
+      editMode: {
+        enabled: 'Edit mode enabled',
+        disabled: 'Edit mode disabled'
+      }
+    },
+
     buttons: {
       save: 'Save',
       cancel: 'Cancel',

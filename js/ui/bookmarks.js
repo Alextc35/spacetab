@@ -11,13 +11,11 @@ let editMode = false;
 
 export function setEditMode(value) {
   editMode = value;
-  if (value) {
-    flashInfo('Edit mode enabled', 1000);
-    if (DEBUG) console.log('Edit mode enabled');
-  } else {
-    flashInfo('Edit mode disabled', 1000);
-    if (DEBUG) console.log('Edit mode disabled');
-  }
+  const key = value
+    ? 'flash.editMode.enabled'
+    : 'flash.editMode.disabled';
+  flashInfo(key, 1000);
+  if (DEBUG) console.log(`Edit mode ${value ? 'enabled' : 'disabled'}`);
 }
 
 export function renderBookmarks() {
