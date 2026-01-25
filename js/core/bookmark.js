@@ -37,8 +37,7 @@ export async function addBookmark(data) {
   const bookmark = normalizeBookmark(data);
   bookmarks.push(bookmark);
   await saveBookmarks();
-  flashSuccess('Bookmark added successfully!');
-  if (DEBUG) console.log('Bookmark added:', bookmark);
+  return bookmark;
 }
 
 export async function saveBookmarks() {
@@ -72,10 +71,7 @@ export async function deleteBookmarkById(id) {
   if (index !== -1) {
     bookmarks.splice(index, 1);
     await saveBookmarks();
-    flashSuccess('Bookmark deleted successfully!');
-    if (DEBUG) console.log('Bookmark deleted with id', id);
-  } else if (DEBUG) console.warn('Bookmark not found for id:', id);
-  flashError('Bookmark not found!');
+  }
   return bookmarks;
 }
 

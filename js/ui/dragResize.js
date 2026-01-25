@@ -1,8 +1,9 @@
-import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
+import { getBookmarks, saveBookmarks, deleteBookmarkById } from '../core/bookmark.js';
 import { isAreaFree } from '../core/grid.js';
-import { PADDING } from '../core/config.js';
+import { DEBUG, PADDING } from '../core/config.js';
 import { renderBookmarks, container } from './bookmarks.js';
 import { getRowWidth, getRowHeight } from './gridLayout.js';
+import { flashError, flashSuccess } from './flash.js';
 
 export function addDragAndResize(div, bookmark, index, containerWidth, containerHeight) {
     let dragging = false;
@@ -10,11 +11,17 @@ export function addDragAndResize(div, bookmark, index, containerWidth, container
     const bookmarks = getBookmarks();
 
     div.addEventListener('pointerdown', async e => {
-        if (e.button === 1) { // botón central = eliminar
+        if (e.button === 1) {
             e.preventDefault(); e.stopPropagation();
             if (confirm(`¿Eliminar ${bookmark.name}?`)) {
-                bookmarks.splice(index, 1);
-                await saveBookmarks();
+                const infoBookmark = await deleteBookmarkById(bookmark.id);
+                if (infoBookmark) {
+                    flashSuccess('flash.bookmark.deleted');
+                    if (DEBUG) console.log('Bookmark deleted with id:', bookmark.id);
+                } else if (DEBUG) {
+                    console.warn('Bookmark not found for id:', bookmark.id);
+                    flashError('flash.bookmark.notFound');
+                }
                 renderBookmarks();
             }
             return;

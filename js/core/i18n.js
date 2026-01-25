@@ -6,6 +6,11 @@ const translations = {
       editMode: {
         enabled: 'Modo edición activado',
         disabled: 'Modo edición desactivado'
+      },
+      bookmark: {
+        added: 'Favorito añadido correctamente',
+        deleted: 'Favorito eliminado correctamente',
+        notFound: 'Favorito no encontrado'
       }
     },
 
@@ -70,6 +75,11 @@ const translations = {
       editMode: {
         enabled: 'Edit mode enabled',
         disabled: 'Edit mode disabled'
+      },
+      bookmark: {
+        added: 'Bookmark added successfully',
+        deleted: 'Bookmark deleted successfully',
+        notFound: 'Bookmark not found'
       }
     },
 

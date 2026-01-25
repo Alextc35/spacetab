@@ -1,9 +1,9 @@
-import { getBookmarks, deleteBookmark } from '../core/bookmark.js';
+import { getBookmarks, deleteBookmarkById } from '../core/bookmark.js';
 import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { PADDING } from '../core/config.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
-import { flashInfo } from './flash.js';
+import { flashError, flashInfo, flashSuccess } from './flash.js';
 import { DEBUG } from '../core/config.js';
 
 export const container = document.getElementById('bookmark-container') || null;
@@ -28,10 +28,7 @@ export function renderBookmarks() {
   const rowWitdh = getRowWidth();
   const rowHeight = getRowHeight();
 
-  bookmarks.forEach((bookmark, index) => {
-    bookmark.w ||= 1;
-    bookmark.h ||= 1;
-
+  bookmarks.forEach((bookmark) => {
     const div = document.createElement('div');
     div.className = 'bookmark';
     div.classList.toggle('is-editing', editMode);
@@ -47,8 +44,8 @@ export function renderBookmarks() {
     div.appendChild(linkEl);
 
     if (editMode) {
-      addEditButtons(div, bookmark, index);
-      addDragAndResize(div, bookmark, index, containerWidth, containerHeight);
+      addEditButtons(div, bookmark);
+      addDragAndResize(div, bookmark, containerWidth, containerHeight);
     }
 
     div.addEventListener('click', (e) => {
@@ -184,17 +181,25 @@ function generateInitialsCanvas(name) {
   return canvas.toDataURL();
 }
 
-function addEditButtons(container, bookmark, index) {
-  const bookmarks = getBookmarks();
+function addEditButtons(container, bookmark) {
   const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
 
   const editBtn = createButton('✎', 'edit', themeClass, () => {
-    openModal(bookmarks, index);
+    openModal(getBookmarks(), bookmark.id);
   });
 
   const delBtn = createButton('🗑', 'delete', themeClass, async () => {
     if (confirm(`¿Eliminar ${bookmark.name}?`)) {
-      await deleteBookmark(index);
+      const infoBookmark = await deleteBookmarkById(bookmark.id);
+      if (infoBookmark) {
+        flashSuccess('flash.bookmark.deleted');
+        if (DEBUG) {
+          console.log('Bookmark deleted with id', bookmark.id);
+        }
+      } else if  (DEBUG) {
+        console.warn('Bookmark not found for id:', id);
+        flashError('flash.bookmark.notFound');
+      }
       renderBookmarks();
     }
   });

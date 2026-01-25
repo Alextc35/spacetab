@@ -1,12 +1,14 @@
 import { addBookmark, getBookmarks } from '../core/bookmark.js';
 import { renderBookmarks } from './bookmarks.js';
 import { isAreaFree } from '../core/grid.js';
-import { getMaxVisibleRows } from './gridLayout.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from './gridLayout.js';
+import { flashSuccess, flashError } from '../ui/flash.js';
+import { DEBUG } from '../core/config.js';
 
 let modal, nameInput, urlInput;
 
 export function initAddBookmarkModal() {
-    if (modal) return; // ⛔ evita duplicar
+    if (modal) return;
 
     modal = document.createElement('div');
     modal.className = 'modal';
@@ -78,7 +80,7 @@ async function addNewBookmark() {
 
     const bookmarks = getBookmarks();
     const maxRows = getMaxVisibleRows(); // número de filas visibles (6)
-    const maxCols = 12; // tu grid de 12 columnas
+    const maxCols = getMaxVisibleCols(); // tu grid de 12 columnas
 
     let gx = 0, gy = 0;
     let placed = false;
@@ -99,7 +101,9 @@ async function addNewBookmark() {
         return;
     }
 
-    await addBookmark({ name, url, gx, gy });
+    const bookmark = await addBookmark({ name, url, gx, gy });
     renderBookmarks();
+    flashSuccess('flash.bookmark.added');
+    if (DEBUG) console.log('Bookmark added:', bookmark);
     hideAddModal();
 }
