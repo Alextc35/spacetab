@@ -42,13 +42,13 @@ export async function addBookmark(data) {
 
 export async function saveBookmarks() {
   await storage.set({ bookmarks });
-  if (DEBUG) console.log('Bookmarks saved:', bookmarks);
+  return bookmarks;
 }
 
 export async function loadBookmarks() {
   const data = await storage.get('bookmarks');
   setBookmarks(data.bookmarks || []);
-  if (DEBUG) console.log('Bookmarks loaded:', bookmarks);
+  return bookmarks;
 }
 
 export async function updateBookmarkById(id, updatedData) {
@@ -61,8 +61,10 @@ export async function updateBookmarkById(id, updatedData) {
     await saveBookmarks();
     flashSuccess('Bookmark updated successfully!');
     if (DEBUG) console.log('Bookmark updated with id', id, ':', bookmarks[index]);
-  } else if (DEBUG) console.warn('Bookmark not found for id:', id);
-  flashError('Bookmark not found!');
+  } else if (DEBUG) {
+    console.warn('Bookmark not found for id:', id);
+    flashError('Bookmark not found!');
+  }
   return bookmarks;
 }
 
@@ -78,7 +80,6 @@ export async function deleteBookmarkById(id) {
 export async function clearBookmarks() {
   bookmarks = [];
   await saveBookmarks();
-  if (DEBUG) console.log('All bookmarks cleared');
 }
 
 // LEGACY — prefer updateBookmarkById

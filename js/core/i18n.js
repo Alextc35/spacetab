@@ -13,6 +13,14 @@ const translations = {
         added: 'Favorito añadido correctamente',
         deleted: 'Favorito eliminado correctamente',
         notFound: 'Favorito no encontrado'
+      },
+      bookmarks: {
+        deletedAll: 'Todos los favoritos eliminados correctamente',
+        deleteAllError: 'Error al eliminar los bookmarks',
+        exported: 'Favoritos exportados correctamente',
+        exportError: 'Error al exportar los favoritos',
+        imported: 'Favoritos importados correctamente',
+        importError: 'Error al importar los favoritos'
       }
     },
 
@@ -82,6 +90,14 @@ const translations = {
         added: 'Bookmark added successfully',
         deleted: 'Bookmark deleted successfully',
         notFound: 'Bookmark not found'
+      },
+      bookmarks: {
+        deletedAll: 'All bookmarks deleted successfully',
+        deleteAllError: 'Failed to delete all bookmarks',
+        exported: 'Bookmarks exported successfully',
+        exportError: 'Failed to export bookmarks',
+        imported: 'Bookmarks imported successfully',
+        importError: 'Failed to import bookmarks'
       }
     },
 

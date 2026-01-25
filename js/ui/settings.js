@@ -7,7 +7,6 @@ export function initSettings(SETTINGS) {
     const settingsModal = document.getElementById('settings-modal');
     const settingsSave = document.getElementById('settings-save');
     const settingsCancel = document.getElementById('settings-cancel');
-    const gridSizeInput = document.getElementById('grid-size');
     const languageSelect = document.getElementById('language-select');
 
     const bgColorInput = document.getElementById('background-color');

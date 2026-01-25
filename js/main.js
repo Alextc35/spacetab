@@ -3,7 +3,7 @@ import { initBookmarkModal } from './ui/bookmarksEditModal.js';
 import { initAddBookmarkModal, showAddModal } from './ui/bookmarksAddModal.js';
 import { renderBookmarks, setEditMode} from './ui/bookmarks.js';
 import { initSettings } from './ui/settings.js';
-import { SETTINGS } from './core/config.js';
+import { SETTINGS, DEBUG } from './core/config.js';
 import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 import { deleteAllBookmarks } from './ui/bookmarksImportExport.js';
 
@@ -31,7 +31,8 @@ function initControls() {
 }
 
 async function initApp() {
-    await loadBookmarks();
+    const bookmarks = await loadBookmarks();
+    if (DEBUG) console.log('Bookmarks loaded:', bookmarks);
     initSettings(SETTINGS);
     initBookmarkModal(renderBookmarks);
     initAddBookmarkModal();

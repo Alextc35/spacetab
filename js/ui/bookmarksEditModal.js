@@ -1,4 +1,5 @@
 import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
+import { DEBUG } from '../core/config.js';
 
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
@@ -142,7 +143,11 @@ modalSave.addEventListener('click', async () => {
         bookmark.showFavicon = modalShowFavicon.checked;
     }
 
-    await saveBookmarks(bookmarks);
+    if (DEBUG) {
+        console.log('Bookmark updated:', bookmark);
+    }
+
+    await saveBookmarks();
     renderBookmarks();
     closeModal();
 });

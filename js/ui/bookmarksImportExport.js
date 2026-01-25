@@ -2,6 +2,7 @@
 import { getBookmarks, setBookmarks, saveBookmarks, clearBookmarks} from '../core/bookmark.js';
 import { renderBookmarks } from './bookmarks.js';
 import { flashError, flashSuccess } from './flash.js';
+import { DEBUG } from '../core/config.js';
 
 const flashContainer = document.createElement('div');
 flashContainer.id = 'flash-container';
@@ -19,14 +20,17 @@ document.body.appendChild(flashContainer);
 export async function deleteAllBookmarks() {
   const ok = confirm('Are you sure you want to delete ALL bookmarks? This cannot be undone.');
   if (!ok) return;
-
+  const bookmarks = getBookmarks();
   try {
     await clearBookmarks();
     renderBookmarks();
-    flashSuccess('All bookmarks deleted 🗑️');
+    if (DEBUG) {
+      console.log('All bookmarks deleted', bookmarks);
+    }
+    flashSuccess('flash.bookmarks.deletedAll');
   } catch (err) {
     console.error(err);
-    flashError('Failed to delete bookmarks ❌');
+    flashError('flash.bookmarks.deleteAllError');
   }
 }
 
@@ -46,16 +50,20 @@ export function exportBookmarks() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    flashSuccess('Bookmarks exported successfully ✅');
+    if (DEBUG) {
+      console.log('Bookmarks exported:', bookmarks);
+    }
+
+    flashSuccess('flash.bookmarks.exported');
   } catch (err) {
     console.error(err);
-    flashError('Failed to export bookmarks ❌');
+    flashError('flash.bookmarks.exportError');
   }
 }
 
 /* =================== IMPORT =================== */
 export function importBookmarks(file) {
-  if (!file) return flashError('No file selected ❌');
+  if (!file) return flashError('flash.bookmarks.importError');
 
   const reader = new FileReader();
   reader.onload = async (e) => {
@@ -63,12 +71,17 @@ export function importBookmarks(file) {
       const data = JSON.parse(e.target.result);
       if (!Array.isArray(data)) throw new Error('Invalid bookmarks file');
       setBookmarks(data);
-      await saveBookmarks();
-      flashSuccess('Bookmarks imported successfully ✅');
+
+      const bookmarks = await saveBookmarks();
+      if (DEBUG) {
+        console.log('Bookmarks imported:', bookmarks);
+      }
+
+      flashSuccess('flash.bookmarks.imported');
       renderBookmarks();
     } catch (err) {
       console.error(err);
-      flashError('Failed to import bookmarks ❌');
+      flashError('flash.bookmarks.importError');
     }
   };
   reader.readAsText(file);
