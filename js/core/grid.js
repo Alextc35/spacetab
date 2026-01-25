@@ -10,20 +10,20 @@ export function getGridRectFromBookmark(bm) {
 }
 
 // comprueba si un área está libre dentro del conjunto de bookmarks
-export function isAreaFree(bookmarks, gx, gy, w = 1, h = 1, ignoreIndex = -1) {
-  for (let i = 0; i < bookmarks.length; i++) {
-    if (i === ignoreIndex) continue;
-    const bm = bookmarks[i];
+export function isAreaFree(bookmarks, gx, gy, w = 1, h = 1, ignoreId = null) {
+  for (const bm of bookmarks) {
+    if (ignoreId != null && bm.id === ignoreId) continue;
     if (bm.gx == null || bm.gy == null) continue;
 
-    const other = getGridRectFromBookmark(bm);
     const separated =
-      gx + w <= other.gx ||
-      other.gx + other.w <= gx ||
-      gy + h <= other.gy ||
-      other.gy + other.h <= gy;
+      gx + w <= bm.gx ||
+      bm.gx + bm.w <= gx ||
+      gy + h <= bm.gy ||
+      bm.gy + bm.h <= gy;
+
     if (!separated) return false;
   }
   return true;
 }
+
 
