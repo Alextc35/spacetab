@@ -185,7 +185,7 @@ function addEditButtons(container, bookmark) {
   const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
 
   const editBtn = createButton('✎', 'edit', themeClass, () => {
-    openModal(getBookmarks(), bookmark.id);
+    openModal(bookmark.id);
   });
 
   const delBtn = createButton('🗑', 'delete', themeClass, async () => {
@@ -194,7 +194,7 @@ function addEditButtons(container, bookmark) {
       if (infoBookmark) {
         flashSuccess('flash.bookmark.deleted');
         if (DEBUG) {
-          console.log('Bookmark deleted with id', bookmark.id);
+          console.log('Bookmark deleted', bookmark.id);
         }
       } else if  (DEBUG) {
         console.warn('Bookmark not found for id:', id);

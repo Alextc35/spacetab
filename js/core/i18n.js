@@ -12,7 +12,8 @@ const translations = {
       bookmark: {
         added: 'Favorito añadido correctamente',
         deleted: 'Favorito eliminado correctamente',
-        notFound: 'Favorito no encontrado'
+        notFound: 'Favorito no encontrado',
+        updated: 'Favorito actualizado correctamente'
       },
       bookmarks: {
         deletedAll: 'Todos los favoritos eliminados correctamente',
@@ -89,7 +90,8 @@ const translations = {
       bookmark: {
         added: 'Bookmark added successfully',
         deleted: 'Bookmark deleted successfully',
-        notFound: 'Bookmark not found'
+        notFound: 'Bookmark not found',
+        updated: 'Bookmark updated successfully'
       },
       bookmarks: {
         deletedAll: 'All bookmarks deleted successfully',

@@ -1,4 +1,5 @@
-import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
+import { getBookmarks, updateBookmarkById } from '../core/bookmark.js';
+import { flashSuccess, flashError } from '../ui/flash.js';
 import { DEBUG } from '../core/config.js';
 
 const editModal = document.getElementById('edit-modal');
@@ -13,143 +14,106 @@ const modalNoBackground = document.getElementById('modal-no-background');
 const modalTextColor = document.getElementById('modal-text-color');
 const modalShowFavicon = document.getElementById('modal-show-favicon');
 const modalShowText = document.getElementById('modal-show-text');
-const modalBackgroundImage = document.getElementById("modal-background-image");
+const modalBackgroundImage = document.getElementById('modal-background-image');
 const modalFaviconBackground = document.getElementById('modal-favicon-background');
 
-let bookmarks = [];
 let editingId = null;
 let renderBookmarks = () => {};
 
 export function initBookmarkModal(onRender) {
-    bookmarks = getBookmarks();
-    renderBookmarks = onRender;
+  renderBookmarks = onRender;
 }
 
-export function openModal(currentBookmarks, bookmarkId) {
-    bookmarks = currentBookmarks;
-    const bookmark = bookmarks.find(b => b.id === bookmarkId);
-    if (!bookmark) return;
+export function openModal(bookmarkId) {
+  const bookmark = getBookmarks().find(b => b.id === bookmarkId);
+  if (!bookmark) return;
 
-    editingId = bookmarkId;
+  editingId = bookmarkId;
 
-    modalName.value = bookmark.name || '';
-    modalUrl.value = bookmark.url || '';
-    modalInvertColorIcon.checked = !!bookmark.invertColorIcon;
-    modalInvertColorBg.checked = !!bookmark.invertColorBg;
-    modalBookmarkColor.value = bookmark.bookmarkColor || "#222222";
-    modalNoBackground.checked = bookmark.noBackground === true;
-    modalTextColor.value = bookmark.textColor || "#ffffff";
-    modalShowFavicon.checked = bookmark.showFavicon ?? true;
-    modalShowText.checked = bookmark.showText ?? true;
-    modalBackgroundImage.value = bookmark.backgroundImageUrl || "";
-    modalFaviconBackground.checked = !!bookmark.faviconBackground;
+  modalName.value = bookmark.name;
+  modalUrl.value = bookmark.url;
+  modalInvertColorIcon.checked = !!bookmark.invertColorIcon;
+  modalInvertColorBg.checked = !!bookmark.invertColorBg;
+  modalBookmarkColor.value = bookmark.bookmarkColor;
+  modalNoBackground.checked = !!bookmark.noBackground;
+  modalTextColor.value = bookmark.textColor;
+  modalShowText.checked = !!bookmark.showText;
+  modalShowFavicon.checked = !!bookmark.showFavicon;
+  modalBackgroundImage.value = bookmark.backgroundImageUrl || '';
+  modalFaviconBackground.checked = !!bookmark.faviconBackground;
 
-    modalBackgroundImage.disabled = modalFaviconBackground.checked;
-    modalShowFavicon.disabled = modalFaviconBackground.checked;
-    if (modalFaviconBackground.checked) modalShowFavicon.checked = false;
-    modalBookmarkColor.disabled = modalNoBackground.checked;
+  updateStates();
 
-    updateColorInputs();
-    updateInvertBgState();
-    updateFaviconBgState();
-
-    editModal.style.setProperty('display', 'flex', 'important');
+  editModal.style.display = 'flex';
 }
 
-function updateInvertBgState() {
-    const disabled = modalFaviconBackground.checked;
+/* ---------- helpers ---------- */
 
-    modalInvertColorBg.disabled = disabled;
-    modalInvertColorBg.parentElement.style.opacity = disabled ? '0.5' : '1';
+function updateStates() {
+  const hasImage = modalBackgroundImage.value.trim() !== '';
 
-    if (disabled) {
-        modalInvertColorBg.checked = false;
-    }
+  modalBookmarkColor.disabled = hasImage || modalNoBackground.checked;
+  modalNoBackground.disabled = hasImage && !modalFaviconBackground.checked;
+  modalTextColor.disabled = !modalShowText.checked;
+
+  modalBackgroundImage.disabled = modalFaviconBackground.checked;
+  modalShowFavicon.disabled = modalFaviconBackground.checked;
+
+  modalInvertColorBg.disabled = modalFaviconBackground.checked;
 }
 
-function updateFaviconBgState() {
-    const hasImage = modalBackgroundImage.value.trim() !== "";
+/* ---------- events ---------- */
 
-    modalFaviconBackground.disabled = hasImage;
-    modalFaviconBackground.parentElement.style.opacity = hasImage ? '0.5' : '1';
-
-    if (hasImage) {
-        modalFaviconBackground.checked = false;
-    }
-}
-
-function updateColorInputs() {
-    const hasImage = modalBackgroundImage.value.trim() !== "";
-    const noBackground = modalNoBackground.checked;
-    const faviconBg = modalFaviconBackground.checked;
-
-    modalBookmarkColor.disabled = hasImage || noBackground;
-    modalNoBackground.disabled = hasImage && !faviconBg;
-    modalTextColor.disabled = !modalShowText.checked;
-
-    modalBookmarkColor.style.opacity = hasImage ? "0.5" : "1";
-    modalNoBackground.parentElement.style.opacity = (hasImage && !faviconBg) ? "0.5" : "1";
-}
-
-modalBackgroundImage.addEventListener("input", () => {
-    updateColorInputs();
-    updateFaviconBgState();
-});
-modalNoBackground.addEventListener('change', updateColorInputs);
-modalShowText.addEventListener('change', updateColorInputs);
+modalBackgroundImage.addEventListener('input', updateStates);
+modalNoBackground.addEventListener('change', updateStates);
+modalShowText.addEventListener('change', updateStates);
 
 modalFaviconBackground.addEventListener('change', () => {
-    const checked = modalFaviconBackground.checked;
-
-    modalBackgroundImage.disabled = checked;
-    modalShowFavicon.disabled = checked;
-
-    if (checked) {
-        modalShowFavicon.checked = false;
-    }
-
-    updateInvertBgState();
-    updateColorInputs();
+  if (modalFaviconBackground.checked) {
+    modalShowFavicon.checked = false;
+    modalInvertColorBg.checked = false;
+  }
+  updateStates();
 });
 
-function closeModal() {
-    editModal.style.display = 'none';
-    editingId = null;
-}
-
 modalSave.addEventListener('click', async () => {
-    if (editingId === null) return;
+  if (!editingId) return;
 
-    const bookmark = bookmarks.find(b => b.id === editingId);
-    if (!bookmark) return;
+  const updatedData = {
+    name: modalName.value.trim(),
+    url: modalUrl.value.trim(),
+    invertColorIcon: modalInvertColorIcon.checked,
+    invertColorBg: modalInvertColorBg.checked,
+    noBackground: modalNoBackground.checked,
+    textColor: modalTextColor.value,
+    showText: modalShowText.checked,
+    bookmarkColor: modalBookmarkColor.value
+  };
 
-    bookmark.name = modalName.value.trim();
-    bookmark.url = modalUrl.value.trim();
-    bookmark.invertColorIcon = modalInvertColorIcon.checked;
-    bookmark.invertColorBg = modalInvertColorBg.checked;
-    bookmark.noBackground = modalNoBackground.checked;
-    bookmark.textColor = modalTextColor.value;
-    bookmark.showText = modalShowText.checked;
-    bookmark.bookmarkColor = modalBookmarkColor.value;
+  if (modalFaviconBackground.checked) {
+    updatedData.faviconBackground = true;
+    updatedData.backgroundImageUrl = null;
+    updatedData.showFavicon = false;
+    updatedData.invertColorBg = false;
+  } else {
+    updatedData.faviconBackground = false;
+    updatedData.backgroundImageUrl =
+      modalBackgroundImage.value.trim() || null;
+    updatedData.showFavicon = modalShowFavicon.checked;
+  }
 
-    if (modalFaviconBackground.checked) {
-        bookmark.faviconBackground = true;
-        bookmark.backgroundImageUrl = null;
-        bookmark.showFavicon = false;
-        bookmark.invertColorBg = false;
-    } else {
-        bookmark.faviconBackground = false;
-        bookmark.backgroundImageUrl = modalBackgroundImage.value.trim() || null;
-        bookmark.showFavicon = modalShowFavicon.checked;
-    }
+  const bookmark = await updateBookmarkById(editingId, updatedData);
 
-    if (DEBUG) {
-        console.log('Bookmark updated:', bookmark);
-    }
+  flashSuccess('flash.bookmark.updated');
+  if (DEBUG) console.log('Bookmark updated ', bookmark);
 
-    await saveBookmarks();
-    renderBookmarks();
-    closeModal();
+  renderBookmarks();
+  closeModal();
 });
 
 modalCancel.addEventListener('click', closeModal);
+
+function closeModal() {
+  editModal.style.display = 'none';
+  editingId = null;
+}
