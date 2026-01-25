@@ -109,7 +109,7 @@ const translations = {
       },
       information: {
         title: 'Information',
-        version: 'Version: 0.12.0 - alpha',
+        version: 'Version: 0.13.0 - alpha',
         author: 'Author: @alextc35'
       }
     }
