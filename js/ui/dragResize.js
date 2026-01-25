@@ -94,6 +94,9 @@ function handleResize(e, div, bookmark, side) {
   resizing = true;
   div.classList.add('is-resizing');
 
+  const startMouseX = e.clientX;
+  const startMouseY = e.clientY;
+
   const startGX = bookmark.gx;
   const startGY = bookmark.gy;
   const startW = bookmark.w;
@@ -104,24 +107,50 @@ function handleResize(e, div, bookmark, side) {
 
   const onMove = (ev) => {
     if (!resizing) return;
-    const rect = container.getBoundingClientRect();
-    const localX = ev.clientX - rect.left;
-    const localY = ev.clientY - rect.top;
-
     let newGX = startGX, newGY = startGY, newW = startW, newH = startH;
 
-    if (side === 'right') newW = Math.min(GRID_COLS - startGX, Math.max(1, Math.round(localX / rowWidth) - startGX));
-    if (side === 'bottom') newH = Math.min(GRID_ROWS - startGY, Math.max(1, Math.round(localY / rowHeight) - startGY));
-    if (side === 'left') {
-      const targetGX = Math.round(localX / rowWidth);
-      newGX = Math.max(0, Math.min(targetGX, startGX));
-      newW = startW + (startGX - newGX);
+    if (side === 'right') {
+      const deltaCols = Math.round((ev.clientX - startMouseX) / rowWidth);
+      newW = Math.max(1, startW + deltaCols);
     }
+
+    if (side === 'bottom') {
+      const deltaRows = Math.round((ev.clientY - startMouseY) / rowHeight);
+      newH = Math.max(1, startH + deltaRows);
+    }
+
+    if (side === 'left') {
+      const deltaCols = Math.round((ev.clientX - startMouseX) / rowWidth);
+
+      newGX = startGX + deltaCols;
+      newW  = startW - deltaCols;
+
+      if (newW < 1) {
+        newW = 1;
+        newGX = startGX + (startW - 1);
+      }
+
+      if (newGX < 0) {
+        newW += newGX;
+        newGX = 0;
+      }
+    }
+
     if (side === 'top') {
-      const targetGY = Math.round(localY / rowHeight);
-      newGY = Math.max(0, targetGY);
-      newGY = Math.min(newGY, startGY);
-      newH = startH + (startGY - newGY);
+      const deltaRows = Math.round((ev.clientY - startMouseY) / rowHeight);
+
+      newGY = startGY + deltaRows;
+      newH  = startH - deltaRows;
+
+      if (newH < 1) {
+        newH = 1;
+        newGY = startGY + (startH - 1);
+      }
+
+      if (newGY < 0) {
+        newH += newGY;
+        newGY = 0;
+      }
     }
 
     if (isAreaFree(getBookmarks(), newGX, newGY, newW, newH, bookmark.id)) {
