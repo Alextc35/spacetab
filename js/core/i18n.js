@@ -59,7 +59,7 @@ const translations = {
       },
       information: {
         title: 'Información',
-        version: 'Versión: 0.12.0 - alfa',
+        version: 'Versión: 0.13.1 - alfa',
         author: 'Autor: @alextc35'
       }
     }
@@ -123,7 +123,7 @@ const translations = {
       },
       information: {
         title: 'Information',
-        version: 'Version: 0.13.0 - alpha',
+        version: 'Version: 0.13.1 - alpha',
         author: 'Author: @alextc35'
       }
     }
