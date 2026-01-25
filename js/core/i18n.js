@@ -1,5 +1,7 @@
 import { SETTINGS } from './config.js';
 
+const version = '0.13.2';
+
 const translations = {
   es: {
     flash: {
@@ -64,7 +66,7 @@ const translations = {
       },
       information: {
         title: 'Información',
-        version: 'Versión: 0.13.1 - alfa',
+        version: 'Versión: ' + version + ' - alfa',
         author: 'Autor: @alextc35'
       }
     }
@@ -133,7 +135,7 @@ const translations = {
       },
       information: {
         title: 'Information',
-        version: 'Version: 0.13.1 - alpha',
+        version: 'Version: ' + version + ' - alpha',
         author: 'Author: @alextc35'
       }
     }
