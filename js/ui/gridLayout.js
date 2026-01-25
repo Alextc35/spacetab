@@ -16,17 +16,21 @@ export function updateGridSize(container) {
 }
 
 export function getMaxVisibleRows() {
-  return 6;
+  return rowsGrid;
+}
+
+export function getMaxVisibleCols() {
+  return colsGrid;
 }
 
 export function getRowWidth() {
   const container = document.getElementById('bookmark-container');
-  const cols = 12; // número de columnas fijo o configurable
+  const cols = getMaxVisibleCols();
   return container.clientWidth / cols;
 }
 
 export function getRowHeight() {
   const container = document.getElementById('bookmark-container');
-  const rows = 6;
+  const rows = getMaxVisibleRows();
   return container.clientHeight / rows;
 }
