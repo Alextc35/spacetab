@@ -16,7 +16,7 @@ const modalBackgroundImage = document.getElementById("modal-background-image");
 const modalFaviconBackground = document.getElementById('modal-favicon-background');
 
 let bookmarks = [];
-let editingIndex = null;
+let editingId = null;
 let renderBookmarks = () => {};
 
 export function initBookmarkModal(onRender) {
@@ -24,12 +24,12 @@ export function initBookmarkModal(onRender) {
     renderBookmarks = onRender;
 }
 
-export function openModal(currentBookmarks, index) {
+export function openModal(currentBookmarks, bookmarkId) {
     bookmarks = currentBookmarks;
-    if (index == null || !bookmarks[index]) return;
-    editingIndex = index;
+    const bookmark = bookmarks.find(b => b.id === bookmarkId);
+    if (!bookmark) return;
 
-    const bookmark = bookmarks[index];
+    editingId = bookmarkId;
 
     modalName.value = bookmark.name || '';
     modalUrl.value = bookmark.url || '';
@@ -49,10 +49,10 @@ export function openModal(currentBookmarks, index) {
     modalBookmarkColor.disabled = modalNoBackground.checked;
 
     updateColorInputs();
-
-    editModal.style.setProperty('display', 'flex', 'important');
     updateInvertBgState();
     updateFaviconBgState();
+
+    editModal.style.setProperty('display', 'flex', 'important');
 }
 
 function updateInvertBgState() {
@@ -113,13 +113,14 @@ modalFaviconBackground.addEventListener('change', () => {
 
 function closeModal() {
     editModal.style.display = 'none';
-    editingIndex = null;
+    editingId = null;
 }
 
 modalSave.addEventListener('click', async () => {
-    if (editingIndex === null) return;
+    if (editingId === null) return;
 
-    const bookmark = bookmarks[editingIndex];
+    const bookmark = bookmarks.find(b => b.id === editingId);
+    if (!bookmark) return;
 
     bookmark.name = modalName.value.trim();
     bookmark.url = modalUrl.value.trim();
