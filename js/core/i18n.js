@@ -1,6 +1,6 @@
 import { SETTINGS } from './config.js';
 
-const version = '0.13.5';
+const version = '0.13.6';
 
 const translations = {
   es: {
