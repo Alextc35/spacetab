@@ -1,12 +1,13 @@
 import { getBookmarks, deleteBookmarkById } from '../core/bookmark.js';
+import { PADDING, DEBUG } from '../core/config.js';
 import { openModal } from './bookmarksEditModal.js';
 import { addDragAndResize } from './dragResize.js';
-import { PADDING } from '../core/config.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
 import { flashError, flashInfo, flashSuccess } from './flash.js';
-import { DEBUG } from '../core/config.js';
 
 export const container = document.getElementById('bookmark-container') || null;
+if (DEBUG) { console.info('Bookmark container:', container); }
+
 let editMode = false;
 
 export function setEditMode(value) {
@@ -15,17 +16,17 @@ export function setEditMode(value) {
     ? 'flash.editMode.enabled'
     : 'flash.editMode.disabled';
   flashInfo(key, 1000);
-  if (DEBUG) console.log(`Edit mode ${value ? 'enabled' : 'disabled'}`);
+  if (DEBUG) console.info(`Edit mode ${value ? 'enabled' : 'disabled'}`);
 }
 
 export function renderBookmarks() {
+  if (!container) return;
   updateGridSize(container);
 
   const bookmarks = getBookmarks();
   container.innerHTML = '';
-  const containerWidth = container.clientWidth;
-  const containerHeight = container.clientHeight;
-  const rowWitdh = getRowWidth();
+
+  const rowWidth = getRowWidth();
   const rowHeight = getRowHeight();
 
   bookmarks.forEach((bookmark) => {
@@ -35,17 +36,17 @@ export function renderBookmarks() {
 
     applyBookmarkStyle(div, bookmark);
 
-    div.style.setProperty('--x', bookmark.gx * rowWitdh + 'px');
+    div.style.setProperty('--x', bookmark.gx * rowWidth + 'px');
     div.style.setProperty('--y', bookmark.gy * rowHeight + 'px');
-    div.style.setProperty('--w', bookmark.w * rowWitdh - PADDING + 'px');
+    div.style.setProperty('--w', bookmark.w * rowWidth - PADDING + 'px');
     div.style.setProperty('--h', bookmark.h * rowHeight - PADDING + 'px');
     
     const linkEl = createBookmarkContent(bookmark);
     div.appendChild(linkEl);
 
     if (editMode) {
-      addEditButtons(div, bookmark);
-      addDragAndResize(div, bookmark, containerWidth, containerHeight);
+      addEditDeleteButtons(div, bookmark);
+      addDragAndResize(div, bookmark);
     }
 
     div.addEventListener('click', (e) => {
@@ -60,7 +61,6 @@ export function renderBookmarks() {
 }
 
 function applyBookmarkStyle(div, bookmark) {
-  // reset total
   div.classList.remove(
     'is-favicon-bg',
     'has-bg-image',
@@ -181,7 +181,7 @@ function generateInitialsCanvas(name) {
   return canvas.toDataURL();
 }
 
-function addEditButtons(container, bookmark) {
+function addEditDeleteButtons(container, bookmark) {
   const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
 
   const editBtn = createButton('✎', 'edit', themeClass, () => {
@@ -190,16 +190,15 @@ function addEditButtons(container, bookmark) {
 
   const delBtn = createButton('🗑', 'delete', themeClass, async () => {
     if (confirm(`¿Eliminar ${bookmark.name}?`)) {
-      const infoBookmark = await deleteBookmarkById(bookmark.id);
-      if (infoBookmark) {
+      const deleted = await deleteBookmarkById(bookmark.id);
+      if (deleted) {
         flashSuccess('flash.bookmark.deleted');
-        if (DEBUG) {
-          console.log('Bookmark deleted', bookmark.id);
-        }
-      } else if  (DEBUG) {
-        console.warn('Bookmark not found for id:', id);
-        flashError('flash.bookmark.notFound');
+        if (DEBUG) console.info('Bookmark deleted', bookmark);
+      } else {
+        flashError('flash.bookmark.deleteError');
+        if (DEBUG) console.error('Error deleting bookmark', bookmark);
       }
+      
       renderBookmarks();
     }
   });
