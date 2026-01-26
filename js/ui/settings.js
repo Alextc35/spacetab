@@ -29,9 +29,31 @@ export function initSettings(SETTINGS) {
     }
 
     // Abrir modal
-    settingsBtn.addEventListener('click', () => {
+    const openModal = () => {
         languageSelect.value = SETTINGS.language || "es";
         settingsModal.style.display = 'flex';
+    };
+
+    const closeModal = () => {
+        settingsModal.style.display = 'none';
+    };
+
+    settingsBtn.addEventListener('click', openModal);
+
+    document.addEventListener('keydown', (e) => {
+        const activeTag = document.activeElement.tagName.toLowerCase();
+        
+        if (e.key === '.' && activeTag !== 'input' && activeTag !== 'textarea') {
+            e.preventDefault();
+            openModal();
+        }
+
+        if (e.key === 'Escape') {
+            if (settingsModal.style.display === 'flex') {
+                e.preventDefault();
+                closeModal();
+            }
+        }
     });
 
     settingsModal.addEventListener('click', e => {
