@@ -1,4 +1,5 @@
 import { colsGrid, rowsGrid } from '../core/config.js';
+import { container } from './bookmarks.js'; 
 
 export function updateGridSize(container) {
   if (!container) return;
@@ -24,13 +25,11 @@ export function getMaxVisibleCols() {
 }
 
 export function getRowWidth() {
-  const container = document.getElementById('bookmark-container');
   const cols = getMaxVisibleCols();
   return container.clientWidth / cols;
 }
 
 export function getRowHeight() {
-  const container = document.getElementById('bookmark-container');
   const rows = getMaxVisibleRows();
   return container.clientHeight / rows;
 }
