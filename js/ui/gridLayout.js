@@ -1,27 +1,24 @@
-import { colsGrid, rowsGrid } from '../core/config.js';
+import { GRID_COLS, GRID_ROWS } from '../core/config.js';
 import { container } from './bookmarks.js'; 
 
 export function updateGridSize(container) {
   if (!container) return;
 
-  const cols = colsGrid;
-  const rows = rowsGrid;
-
   const rect = container.getBoundingClientRect();
 
-  const cellW = rect.width / cols;
-  const cellH = rect.height / rows;
+  const cellW = rect.width / GRID_COLS;
+  const cellH = rect.height / GRID_ROWS;
 
   document.documentElement.style.setProperty('--cell-w', cellW + 'px');
   document.documentElement.style.setProperty('--cell-h', cellH + 'px');
 }
 
 export function getMaxVisibleRows() {
-  return rowsGrid;
+  return GRID_ROWS;
 }
 
 export function getMaxVisibleCols() {
-  return colsGrid;
+  return GRID_COLS;
 }
 
 export function getRowWidth() {

@@ -2,11 +2,9 @@ import { getBookmarks, saveBookmarks, deleteBookmarkById } from '../core/bookmar
 import { isAreaFree } from '../core/grid.js';
 import { DEBUG, PADDING } from '../core/config.js';
 import { renderBookmarks, container } from './bookmarks.js';
-import { colsGrid, rowsGrid } from '../core/config.js';
+import { GRID_COLS, GRID_ROWS } from '../core/config.js';
 import { flashError, flashSuccess } from './flash.js';
 
-const GRID_COLS = colsGrid;
-const GRID_ROWS = rowsGrid;
 let dragging = false;
 let resizing = false;
 
