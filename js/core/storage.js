@@ -1,39 +1,46 @@
 /**
- * core/storage.js
+ * storage.js
  * ------------------------------------------------------
- * Wrapper around the `chrome.storage.local` API.
+ * Promise-based wrapper around chrome.storage.local.
  *
- * Converts Chrome's callback-based storage methods
- * into Promises so the rest of the project can use
- * `async / await` syntax.
- *
- * This file does NOT implement a custom storage system.
- * It simply delegates all operations to
- * `chrome.storage.local`.
- *
- * Typical usage:
- *   const data = await storage.get("bookmarks");
- *   await storage.set({ bookmarks });
- *
- * Notes:
- * - Data is stored per user profile and per extension.
- * - All operations are asynchronous.
- * - `get(null)` returns the entire local storage.
- * 
- * Debug logging is controlled via the DEBUG flag.
+ * Acts as the single persistence layer for the application.
+ * All modules must interact with Chrome storage exclusively
+ * through this abstraction.
  * ------------------------------------------------------
  */
 
+/**
+ * @typedef {Object.<string, any>} StorageData
+ */
+
 export const storage = {
+  /**
+   * Retrieves values from storage.
+   *
+   * @param {string|string[]|Object|null} keys
+   * @returns {Promise<Object>}
+   */
   async get(keys) {
-    return new Promise((resolve) => chrome.storage.local.get(keys, resolve));
+    return new Promise(resolve => chrome.storage.local.get(keys, resolve));
   },
 
+  /**
+   * Persists data to storage.
+   *
+   * @param {StorageData} data
+   * @returns {Promise<void>}
+   */
   async set(data) {
-    return new Promise((resolve) => chrome.storage.local.set(data, resolve));
+    return new Promise(resolve => chrome.storage.local.set(data, resolve));
   },
 
+  /**
+   * Removes keys from storage.
+   *
+   * @param {string|string[]} keys
+   * @returns {Promise<void>}
+   */
   async remove(keys) {
-    return new Promise((resolve) => chrome.storage.local.remove(keys, resolve));
+    return new Promise(resolve => chrome.storage.local.remove(keys, resolve));
   }
 };
