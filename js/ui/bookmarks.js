@@ -175,6 +175,9 @@ function createBookmarkContent(bookmark) {
 /**
  * Create the main favicon (large icon) for bookmarks using
  * either fetched favicon or fallback initials.
+ * 
+ * @param {HTMLElement} container
+ * @param {Object} bookmark
  */
 function appendMainIcon(container, bookmark) {
   const img = createFavicon(bookmark);
@@ -185,6 +188,9 @@ function appendMainIcon(container, bookmark) {
 
 /**
  * Create a small icon for info boxes
+ * 
+ * @param {Object} bookmark
+ * @returns {HTMLElement} <img> element
  */
 function createSmallIcon(bookmark) {
   const img = createFavicon(bookmark);
@@ -197,6 +203,9 @@ function createSmallIcon(bookmark) {
 
 /**
  * Create a text span element for bookmark name
+ * 
+ * @param {Object} bookmark
+ * @returns {HTMLElement} <span> element
  */
 function createTextSpan(bookmark) {
   const span = document.createElement('span');
@@ -207,6 +216,9 @@ function createTextSpan(bookmark) {
 
 /**
  * Fetch favicon or generate fallback initials canvas
+ * 
+ * @param {Object} bookmark
+ * @return {HTMLImageElement} <img> element with favicon or initials
  */
 function createFavicon(bookmark) {
   const img = document.createElement('img');
@@ -236,6 +248,9 @@ function createFavicon(bookmark) {
 
 /**
  * Generate a base64 image with initials for bookmarks without favicon
+ * 
+ * @param {string} name
+ * @returns {string} Data URL of the generated image
  */
 function generateInitialsCanvas(name) {
   const canvas = document.createElement('canvas');
@@ -286,6 +301,12 @@ function addEditDeleteButtons(container, bookmark) {
 
 /**
  * Helper to create a styled button
+ * 
+ * @param {string} text - Button text content
+ * @param {string} type - 'edit' or 'delete' for styling
+ * @param {string} themeClass - 'is-dark' or 'is-light' for contrast
+ * @param {Function} onClick - Click handler function
+ * @returns {HTMLElement} <button> element
  */
 function createButton(text, type, themeClass, onClick) {
   const btn = document.createElement('button');
