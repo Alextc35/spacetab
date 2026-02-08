@@ -34,7 +34,8 @@ export const translations = {
         exportError: 'Error al exportar los favoritos',
         imported: 'Favoritos importados correctamente',
         importError: 'Error al importar los favoritos'
-      }
+      },
+      no_space: 'No hay espacio disponible para más favoritos 😅'
     },
 
     buttons: {
@@ -113,7 +114,8 @@ export const translations = {
         exportError: 'Failed to export bookmarks',
         imported: 'Bookmarks imported successfully',
         importError: 'Failed to import bookmarks'
-      }
+      },
+      no_space: 'No space available for more bookmarks 😅'
     },
 
     buttons: {

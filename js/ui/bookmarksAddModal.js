@@ -97,7 +97,8 @@ async function addNewBookmark() {
     }
 
     if (!placed) {
-        alert('No hay espacio disponible para más favoritos 😅');
+        hideAddModal();
+        flashError('flash.no_space');
         return;
     }
 
