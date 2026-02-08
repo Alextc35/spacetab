@@ -1,4 +1,23 @@
 /**
+ * =========================================================
+ * Favicon and Bookmark Icon Utilities
+ * =========================================================
+ *
+ * Responsibilities:
+ * - Fetch favicons for bookmarks
+ * - Generate fallback initials canvas if favicon is unavailable
+ * - Handle internal URLs and default icons
+ *
+ * Exports:
+ * - createFavicon(bookmark): returns an HTMLImageElement with the favicon or fallback
+ *
+ * Notes:
+ * - Uses generateInitialsCanvas internally for fallback generation
+ * - Designed for UI rendering of bookmark icons
+ * - Purely UI-focused; does not modify bookmark data
+ */
+
+/**
  * Fetch favicon or generate fallback initials canvas
  * 
  * @param {Object} bookmark
