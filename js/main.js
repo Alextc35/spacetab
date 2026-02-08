@@ -72,13 +72,6 @@ document.addEventListener('keydown', (e) => {
       e.preventDefault();
       toggleButton.click();
       break;
-
-    case 'Escape':
-      if (isEditing) {
-        e.preventDefault();
-        toggleButton.click();
-      }
-      break;
   }
 });
 
