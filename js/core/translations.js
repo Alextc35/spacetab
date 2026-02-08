@@ -36,7 +36,12 @@ export const translations = {
         imported: 'Favoritos importados correctamente',
         importError: 'Error al importar los favoritos'
       },
-      no_space: 'No hay espacio disponible para más favoritos 😅'
+    },
+
+    alert: {
+      bookmarks: {
+        no_space: 'No hay espacio disponible para más favoritos 😅'
+      }
     },
 
     addModal: {
@@ -124,7 +129,12 @@ export const translations = {
         imported: 'Bookmarks imported successfully',
         importError: 'Failed to import bookmarks'
       },
-      no_space: 'No space available for more bookmarks 😅'
+    },
+
+    alert: {
+      bookmarks: {
+        no_space: 'No space available for more bookmarks 😅'
+      }
     },
 
     addModal: {

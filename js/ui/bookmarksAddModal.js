@@ -2,7 +2,7 @@ import { addBookmark, getBookmarks } from '../core/bookmark.js';
 import { renderBookmarks } from './bookmarks.js';
 import { isAreaFree } from '../core/grid.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from './gridLayout.js';
-import { flashSuccess, flashError } from '../ui/flash.js';
+import { flashSuccess } from '../ui/flash.js';
 import { DEBUG } from '../core/config.js';
 import { showAlert } from './alert.js';
 import { t } from '../core/i18n.js';
@@ -91,8 +91,8 @@ async function addNewBookmark() {
 
     if (!placed) {
         hideAddModal();
-
-        await showAlert(t('flash.no_space'), { type: 'info' });
+        if (DEBUG) console.warn('No space to add new bookmark');
+        await showAlert(t('alert.bookmarks.no_space'), { type: 'info' });
         return;
     }
 
