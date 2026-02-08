@@ -1,3 +1,28 @@
+/**
+ * =========================================================
+ * Bookmarks UI rendering and interaction
+ * =========================================================
+ *
+ * Responsibilities:
+ * - Render bookmarks grid in the DOM
+ * - Apply styling based on bookmark properties
+ * - Manage edit mode (edit/delete buttons, drag & resize)
+ * - Handle favicon loading and fallback generation
+ * - Trigger flash messages for user feedback
+ *
+ * This module is purely UI-focused and depends on core modules:
+ * - bookmark.js for data access (CRUD)
+ * - config.js for settings and layout constants
+ * - dragResize.js for drag & resize behavior
+ * - flash.js for user notifications
+ * - gridLayout.js for calculating rows/columns sizes
+ *
+ * Notes:
+ * - editMode is controlled via setEditMode() and affects
+ *   the rendered bookmarks.
+ * - All DOM elements are recreated on each render call.
+ */
+
 import { getBookmarks, deleteBookmarkById } from '../core/bookmark.js';
 import { PADDING, DEBUG } from '../core/config.js';
 import { openModal } from './bookmarksEditModal.js';
@@ -5,11 +30,25 @@ import { addDragAndResize } from './dragResize.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
 import { flashError, flashInfo, flashSuccess } from './flash.js';
 
+/**
+ * Main container element where bookmarks are rendered
+ * @type {HTMLElement | null}
+ */
 export const container = document.getElementById('bookmark-container') || null;
 if (DEBUG) { console.info('Bookmark container:', container); }
 
+/**
+ * Indicates whether the application is in edit mode
+ * @type {boolean}
+ */
 let editMode = false;
 
+/**
+ * Toggle edit mode.
+ * When enabled, bookmarks show drag handles, edit/delete buttons.
+ *
+ * @param {boolean} value
+ */
 export function setEditMode(value) {
   editMode = value;
   const key = value
@@ -19,8 +58,13 @@ export function setEditMode(value) {
   if (DEBUG) console.info(`Edit mode ${value ? 'enabled' : 'disabled'}`);
 }
 
+/**
+ * Render all bookmarks into the container.
+ * Rebuilds the DOM every time and applies styles, content, and interactions.
+ */
 export function renderBookmarks() {
   if (!container) return;
+
   updateGridSize(container);
 
   const bookmarks = getBookmarks();
@@ -60,6 +104,12 @@ export function renderBookmarks() {
   });
 }
 
+/**
+ * Apply visual style to a bookmark div based on its properties
+ *
+ * @param {HTMLElement} div
+ * @param {Object} bookmark
+ */
 function applyBookmarkStyle(div, bookmark) {
   div.classList.remove(
     'is-favicon-bg',
@@ -96,6 +146,12 @@ function applyBookmarkStyle(div, bookmark) {
   );
 }
 
+/**
+ * Create the inner content of a bookmark (link, icon, text)
+ *
+ * @param {Object} bookmark
+ * @returns {HTMLElement} <a> element
+ */
 function createBookmarkContent(bookmark) {
   const linkEl = document.createElement('a');
   linkEl.href = bookmark.url || '#';
@@ -116,6 +172,10 @@ function createBookmarkContent(bookmark) {
   return linkEl;
 }
 
+/**
+ * Create the main favicon (large icon) for bookmarks using
+ * either fetched favicon or fallback initials.
+ */
 function appendMainIcon(container, bookmark) {
   const img = createFavicon(bookmark);
   img.alt = bookmark.name || '';
@@ -123,6 +183,9 @@ function appendMainIcon(container, bookmark) {
   container.appendChild(img);
 }
 
+/**
+ * Create a small icon for info boxes
+ */
 function createSmallIcon(bookmark) {
   const img = createFavicon(bookmark);
   img.alt = bookmark.name || '';
@@ -132,6 +195,9 @@ function createSmallIcon(bookmark) {
   return img;
 }
 
+/**
+ * Create a text span element for bookmark name
+ */
 function createTextSpan(bookmark) {
   const span = document.createElement('span');
   span.textContent = bookmark.name || '';
@@ -139,6 +205,9 @@ function createTextSpan(bookmark) {
   return span;
 }
 
+/**
+ * Fetch favicon or generate fallback initials canvas
+ */
 function createFavicon(bookmark) {
   const img = document.createElement('img');
   img.className = 'bookmark-favicon';
@@ -165,6 +234,9 @@ function createFavicon(bookmark) {
   return img;
 }
 
+/**
+ * Generate a base64 image with initials for bookmarks without favicon
+ */
 function generateInitialsCanvas(name) {
   const canvas = document.createElement('canvas');
   canvas.width = 64;
@@ -181,6 +253,12 @@ function generateInitialsCanvas(name) {
   return canvas.toDataURL();
 }
 
+/**
+ * Add edit and delete buttons for bookmarks in edit mode
+ *
+ * @param {HTMLElement} container
+ * @param {Object} bookmark
+ */
 function addEditDeleteButtons(container, bookmark) {
   const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
 
@@ -206,6 +284,9 @@ function addEditDeleteButtons(container, bookmark) {
   container.append(editBtn, delBtn);
 }
 
+/**
+ * Helper to create a styled button
+ */
 function createButton(text, type, themeClass, onClick) {
   const btn = document.createElement('button');
   btn.className = `bookmark-btn ${type} ${themeClass}`;
@@ -214,6 +295,12 @@ function createButton(text, type, themeClass, onClick) {
   return btn;
 }
 
+/**
+ * Determines if the bookmark background/text should be considered "dark"
+ *
+ * @param {Object} bookmark
+ * @returns {boolean}
+ */
 function isVisuallyDark(bookmark) {
   let dark = isDarkColor(bookmark.bookmarkColor);
   if (bookmark.backgroundImageUrl) dark = true;
@@ -221,6 +308,12 @@ function isVisuallyDark(bookmark) {
   return dark;
 }
 
+/**
+ * Calculates if a color string is visually dark
+ *
+ * @param {string} color
+ * @returns {boolean}
+ */
 function isDarkColor(color) {
   if (!color || color === 'transparent') return true;
   if (!color.startsWith('#')) return true;
