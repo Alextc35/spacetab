@@ -6,6 +6,7 @@ import { initSettings } from './ui/settings.js';
 import { SETTINGS, DEBUG } from './core/config.js';
 import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 import { deleteAllBookmarks } from './ui/bookmarksImportExport.js';
+import { initAlertModal } from './ui/alert.js';
 
 /* ======================= Variables globales ======================= */
 const addButton = document.getElementById('add-bookmark');
@@ -34,6 +35,7 @@ async function initApp() {
     const bookmarks = await loadBookmarks();
     if (DEBUG) console.log('Bookmarks loaded:', bookmarks);
     initSettings(SETTINGS);
+    initAlertModal();
     initBookmarkModal(renderBookmarks);
     initAddBookmarkModal();
     renderBookmarks();

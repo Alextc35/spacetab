@@ -1,9 +1,8 @@
-import { getBookmarks, saveBookmarks, deleteBookmarkById } from '../core/bookmark.js';
+import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
 import { isAreaFree } from '../core/grid.js';
-import { DEBUG, PADDING } from '../core/config.js';
-import { renderBookmarks, container } from './bookmarks.js';
+import { PADDING } from '../core/config.js';
+import { renderBookmarks, container, confirmAndDeleteBookmark } from './bookmarks.js';
 import { GRID_COLS, GRID_ROWS } from '../core/config.js';
-import { flashError, flashSuccess } from './flash.js';
 
 let dragging = false;
 let resizing = false;
@@ -19,7 +18,7 @@ export function addDragAndResize(div, bookmark) {
     if (resizing) return;
     if (e.button === 1) {
       e.preventDefault(); e.stopPropagation();
-      await handleMiddleClickDelete(bookmark);
+      await confirmAndDeleteBookmark(bookmark);
       return;
     }
     if (e.target.classList.contains('edit') || e.target.classList.contains('delete') || e.target.classList.contains("resizer")) return;
@@ -175,20 +174,4 @@ function applyPosition(div, gx, gy) {
   const rowHeight = container.clientHeight / GRID_ROWS;
   div.style.left = gx * rowWidth + 'px';
   div.style.top = gy * rowHeight + 'px';
-}
-
-async function handleMiddleClickDelete(bookmark) {
-  if (confirm(`¿Eliminar ${bookmark.name}?`)) {
-    const deleted = await deleteBookmarkById(bookmark.id);
-
-    if (deleted) {
-      flashSuccess('flash.bookmark.deleted');
-      if (DEBUG) console.info('Bookmark deleted', bookmark);
-    } else {
-      flashError('flash.bookmark.deleteError');
-      if (DEBUG) console.error('Error deleting bookmark', bookmark);
-    }
-
-    renderBookmarks();
-  }
 }

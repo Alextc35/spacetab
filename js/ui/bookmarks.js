@@ -30,6 +30,7 @@ import { addDragAndResize } from './dragResize.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
 import { flashError, flashInfo, flashSuccess } from './flash.js';
 import { createFavicon } from './favicon.js';
+import { showAlert } from './alert.js';
 
 /**
  * Main container element where bookmarks are rendered
@@ -228,19 +229,8 @@ function addEditDeleteButtons(container, bookmark) {
     openModal(bookmark.id);
   });
 
-  const delBtn = createButton('🗑', 'delete', themeClass, async () => {
-    if (confirm(`¿Eliminar ${bookmark.name}?`)) {
-      const deleted = await deleteBookmarkById(bookmark.id);
-      if (deleted) {
-        flashSuccess('flash.bookmark.deleted');
-        if (DEBUG) console.info('Bookmark deleted', bookmark);
-      } else {
-        flashError('flash.bookmark.deleteError');
-        if (DEBUG) console.error('Error deleting bookmark', bookmark);
-      }
-      
-      renderBookmarks();
-    }
+  const delBtn = createButton('🗑', 'delete', themeClass, () => {
+    confirmAndDeleteBookmark(bookmark);
   });
 
   container.append(editBtn, delBtn);
@@ -261,6 +251,31 @@ function createButton(text, type, themeClass, onClick) {
   btn.textContent = text;
   btn.addEventListener('click', e => { e.stopPropagation(); onClick(); });
   return btn;
+}
+
+/**
+ * Delete a bookmark after user confirmation.
+ * Can be called desde botones o middle-click events.
+ *
+ * @param {Object} bookmark
+ * @returns {Promise<void>}
+ */
+export async function confirmAndDeleteBookmark(bookmark) {
+  if (!bookmark) return;
+
+  const confirmed = await showAlert(`¿Eliminar ${bookmark.name}?`);
+  if (!confirmed) return;
+
+  const deleted = await deleteBookmarkById(bookmark.id);
+  if (deleted) {
+    flashSuccess('flash.bookmark.deleted');
+    if (DEBUG) console.info('Bookmark deleted', bookmark);
+  } else {
+    flashError('flash.bookmark.deleteError');
+    if (DEBUG) console.error('Error deleting bookmark', bookmark);
+  }
+
+  renderBookmarks();
 }
 
 /**
