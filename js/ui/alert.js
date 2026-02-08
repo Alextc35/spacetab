@@ -16,6 +16,7 @@
  */
 
 import { DEBUG } from '../core/config.js';
+import { t } from '../core/i18n.js';
 
 let modal, overlay, titleEl, btnAccept, btnCancel;
 let currentResolve = null;
@@ -32,14 +33,14 @@ export function initAlertModal() {
     modal.style.display = 'none';
 
     modal.innerHTML = `
-      <div class="modal-overlay"></div>
-      <div class="modal-card">
-        <h2 id="alert-title">Alerta</h2>
+    <div class="modal-overlay"></div>
+    <div class="modal-card">
+        <h2 id="alert-title"></h2>
         <div class="modal-actions">
-          <button id="alert-cancel" class="btn ghost">Cancelar</button>
-          <button id="alert-accept" class="btn primary">Aceptar</button>
+        <button id="alert-cancel" class="btn ghost"></button>
+        <button id="alert-accept" class="btn primary"></button>
         </div>
-      </div>
+    </div>
     `;
 
     document.body.appendChild(modal);
@@ -80,6 +81,8 @@ export function showAlert(text) {
         }
 
         titleEl.textContent = text;
+        btnCancel.textContent = t('buttons.cancel');
+        btnAccept.textContent = t('buttons.accept');
         modal.style.display = 'flex';
         modal.focus();
 

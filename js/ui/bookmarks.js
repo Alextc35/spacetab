@@ -31,6 +31,7 @@ import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
 import { flashError, flashInfo, flashSuccess } from './flash.js';
 import { createFavicon } from './favicon.js';
 import { showAlert } from './alert.js';
+import { t } from '../core/i18n.js';
 
 /**
  * Main container element where bookmarks are rendered
@@ -263,7 +264,8 @@ function createButton(text, type, themeClass, onClick) {
 export async function confirmAndDeleteBookmark(bookmark) {
   if (!bookmark) return;
 
-  const confirmed = await showAlert(`¿Eliminar ${bookmark.name}?`);
+  const message = t('flash.bookmark.confirmDelete').replace('{name}', bookmark.name);
+  const confirmed = await showAlert(message);
   if (!confirmed) return;
 
   const deleted = await deleteBookmarkById(bookmark.id);

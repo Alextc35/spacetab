@@ -22,6 +22,7 @@ export const translations = {
       },
       bookmark: {
         added: 'Favorito añadido correctamente',
+        confirmDelete: 'Eliminar {name}',
         deleted: 'Favorito eliminado correctamente',
         deleteError: 'Error al eliminar el favorito',
         notFound: 'Favorito no encontrado',
@@ -40,6 +41,7 @@ export const translations = {
 
     buttons: {
       save: 'Guardar',
+      accept: 'Aceptar',
       cancel: 'Cancelar',
       add: '➕',
       edit: '✎',
@@ -102,6 +104,7 @@ export const translations = {
       },
       bookmark: {
         added: 'Bookmark added successfully',
+        confirmDelete: 'Delete {name}',
         deleted: 'Bookmark deleted successfully',
         deleteError: 'Failed to delete bookmark',
         notFound: 'Bookmark not found',
@@ -120,6 +123,7 @@ export const translations = {
 
     buttons: {
       save: 'Save',
+      accept: 'Accept',
       cancel: 'Cancel',
       add: '➕',
       edit: '✎',
