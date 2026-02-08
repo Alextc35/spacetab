@@ -4,6 +4,8 @@ import { isAreaFree } from '../core/grid.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from './gridLayout.js';
 import { flashSuccess, flashError } from '../ui/flash.js';
 import { DEBUG } from '../core/config.js';
+import { showAlert } from './alert.js';
+import { t } from '../core/i18n.js';
 
 let modal, nameInput, urlInput;
 
@@ -16,23 +18,19 @@ export function initAddBookmarkModal() {
 
     modal.innerHTML = `
     <div class="modal-overlay"></div>
-
     <div class="modal-card">
-        <h2>➕ Nuevo favorito</h2>
-
+        <h2>➕ ${t('addModal.title')}</h2>
         <div class="modal-field">
-        <label>Nombre</label>
-        <input type="text" id="add-name" placeholder="Ej: GitHub">
+            <label>${t('addModal.name')}</label>
+            <input type="text" id="add-name" placeholder="Ej: GitHub">
         </div>
-
         <div class="modal-field">
-        <label>URL</label>
-        <input type="url" id="add-url" placeholder="https://github.com">
+            <label>${t('addModal.url')}</label>
+            <input type="url" id="add-url" placeholder="https://github.com">
         </div>
-
         <div class="modal-actions">
-        <button id="add-cancel" class="btn ghost">Cancelar</button>
-        <button id="add-save" class="btn primary">Añadir</button>
+            <button id="add-cancel" class="btn ghost">${t('buttons.cancel')}</button>
+            <button id="add-save" class="btn primary">${t('buttons.accept')}</button>
         </div>
     </div>
     `;
@@ -42,27 +40,22 @@ export function initAddBookmarkModal() {
     nameInput = modal.querySelector('#add-name');
     urlInput = modal.querySelector('#add-url');
 
-    modal.querySelector('#add-save').addEventListener('click', addNewBookmark);
-    modal.querySelector('#add-cancel').addEventListener('click', hideAddModal);
+    const addBtn = modal.querySelector('#add-save');
+    const cancelBtn = modal.querySelector('#add-cancel');
+    const overlay = modal.querySelector('.modal-overlay');
 
-    modal.querySelector('.modal-overlay')
-        .addEventListener('click', hideAddModal);
+    if (!addBtn || !cancelBtn || !overlay) {
+        console.error('Add modal buttons not found!');
+        return;
+    }
 
-    modal.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addNewBookmark();
-        }
-    });
+    addBtn.addEventListener('click', addNewBookmark);
+    cancelBtn.addEventListener('click', hideAddModal);
+    overlay.addEventListener('click', hideAddModal);
 }
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modal.style.display === 'flex') {
-    hideAddModal();
-  }
-});
-
 export function showAddModal() {
+    if (!modal) return;
     nameInput.value = '';
     urlInput.value = '';
     modal.style.display = 'flex';
@@ -79,8 +72,8 @@ async function addNewBookmark() {
     if (!name || !url) return;
 
     const bookmarks = getBookmarks();
-    const maxRows = getMaxVisibleRows(); // número de filas visibles (6)
-    const maxCols = getMaxVisibleCols(); // tu grid de 12 columnas
+    const maxRows = getMaxVisibleRows();
+    const maxCols = getMaxVisibleCols();
 
     let gx = 0, gy = 0;
     let placed = false;
@@ -98,7 +91,8 @@ async function addNewBookmark() {
 
     if (!placed) {
         hideAddModal();
-        flashError('flash.no_space');
+
+        await showAlert(t('flash.no_space'), { type: 'info' });
         return;
     }
 

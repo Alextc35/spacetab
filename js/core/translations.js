@@ -39,6 +39,12 @@ export const translations = {
       no_space: 'No hay espacio disponible para más favoritos 😅'
     },
 
+    addModal: {
+      title: 'Añadir nuevo favorito',
+      name: 'Nombre:',
+      url: 'URL:'
+    },
+
     buttons: {
       save: 'Guardar',
       accept: 'Aceptar',
@@ -119,6 +125,12 @@ export const translations = {
         importError: 'Failed to import bookmarks'
       },
       no_space: 'No space available for more bookmarks 😅'
+    },
+
+    addModal: {
+      title: 'Add new bookmark',
+      name: 'Name:',
+      url: 'URL:'
     },
 
     buttons: {

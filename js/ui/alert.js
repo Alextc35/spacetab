@@ -1,18 +1,21 @@
 /**
  * =========================================================
- * Alert modal (confirm-style)
+ * Alert modal (confirm/info-style)
  * =========================================================
  *
  * Responsibilities:
- * - Show modal alerts that require user confirmation
+ * - Show modal alerts that require user confirmation or just info
  * - Replaces native confirm() with a promise-based API
- * - Handles overlay, keyboard, and focus
+ * - Handles overlay, keyboard, focus, and translations
  *
  * Usage:
  *   import { initAlertModal, showAlert } from './alert.js';
  *   await initAlertModal();
- *   const confirmed = await showAlert("¿Eliminar este bookmark?");
+ *   const confirmed = await showAlert(t('flash.bookmark.confirmDelete', { name: bookmark.name }));
  *   if (confirmed) { // borrar bookmark }
+ *
+ *   // Info-only alert
+ *   await showAlert(t('flash.no_space'), { type: 'info' });
  */
 
 import { DEBUG } from '../core/config.js';
@@ -22,8 +25,7 @@ let modal, overlay, titleEl, btnAccept, btnCancel;
 let currentResolve = null;
 
 /**
- * Initialize the alert modal.
- * Must be called once before showing alerts.
+ * Initialize the alert modal. Must be called once.
  * 
  * @returns {void}
  */
@@ -68,13 +70,16 @@ export function initAlertModal() {
 }
 
 /**
- * Show the alert modal with custom text.
- * Returns a promise resolved with true (accept) or false (cancel).
- *
+ * Show the alert modal.
+ * 
  * @param {string} text - Message to display
- * @returns {Promise<boolean>}
+ * @param {Object} options
+ * @param {'confirm'|'info'} options.type - Type of alert, default 'confirm'
+ * @returns {Promise<boolean>} true if accepted
  */
-export function showAlert(text) {
+export function showAlert(text, options = {}) {
+    const { type = 'confirm' } = options;
+
     return new Promise((resolve) => {
         if (!modal) {
             console.error('Alert modal not initialized. Call initAlertModal() first.');
@@ -83,20 +88,27 @@ export function showAlert(text) {
         }
 
         titleEl.textContent = text;
-        btnCancel.textContent = t('buttons.cancel');
-        btnAccept.textContent = t('buttons.accept');
+
+        if (type === 'info') {
+            btnCancel.style.display = 'none';
+            btnAccept.textContent = t('buttons.accept');
+        } else { // confirm
+            btnCancel.style.display = 'inline-block';
+            btnCancel.textContent = t('buttons.cancel');
+            btnAccept.textContent = t('buttons.accept');
+        }
+
         modal.style.display = 'flex';
         modal.focus();
 
         currentResolve = resolve;
 
-        // Focus the primary button by default
         btnAccept.focus();
     });
 }
 
 /**
- * Hide the alert modal and resolve the current promise.
+ * Hide the alert modal and resolve the promise.
  * 
  * @param {boolean} result
  */

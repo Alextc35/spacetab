@@ -267,7 +267,7 @@ export async function confirmAndDeleteBookmark(bookmark) {
   if (!bookmark) return;
 
   const message = t('flash.bookmark.confirmDelete').replace('{name}', bookmark.name);
-  const confirmed = await showAlert(message);
+  const confirmed = await showAlert(message, { type: 'confirm' });
   if (!confirmed) return;
 
   const deleted = await deleteBookmarkById(bookmark.id);
