@@ -49,10 +49,23 @@ export function initAddBookmarkModal() {
         return;
     }
 
+    modal.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addNewBookmark();
+        }
+    });
+
     addBtn.addEventListener('click', addNewBookmark);
     cancelBtn.addEventListener('click', hideAddModal);
     overlay.addEventListener('click', hideAddModal);
 }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.style.display === 'flex') {
+    hideAddModal();
+  }
+});
 
 export function showAddModal() {
     if (!modal) return;
