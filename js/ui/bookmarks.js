@@ -64,6 +64,8 @@ export function setEditMode(value) {
 /**
  * Render all bookmarks into the container.
  * Rebuilds the DOM every time and applies styles, content, and interactions.
+ * 
+ * @returns {void}
  */
 export function renderBookmarks() {
   if (!container) return;

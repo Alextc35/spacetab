@@ -24,6 +24,8 @@ let currentResolve = null;
 /**
  * Initialize the alert modal.
  * Must be called once before showing alerts.
+ * 
+ * @returns {void}
  */
 export function initAlertModal() {
     if (modal) return;
@@ -95,6 +97,7 @@ export function showAlert(text) {
 
 /**
  * Hide the alert modal and resolve the current promise.
+ * 
  * @param {boolean} result
  */
 function hideAlert(result = false) {
