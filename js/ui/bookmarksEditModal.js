@@ -1,6 +1,7 @@
 import { getBookmarks, updateBookmarkById } from '../core/bookmark.js';
-import { flashSuccess, flashError } from '../ui/flash.js';
+import { flashSuccess } from '../ui/flash.js';
 import { DEBUG } from '../core/config.js';
+import { registerModal, openModal as openManagedModal, closeModal } from '../ui/modalManager.js';
 
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
@@ -20,8 +21,24 @@ const modalFaviconBackground = document.getElementById('modal-favicon-background
 let editingId = null;
 let renderBookmarks = () => {};
 
+let registered = false;
+
 export function initBookmarkModal(onRender) {
   renderBookmarks = onRender;
+
+  if (registered) return;
+  registered = true;
+
+  registerModal({
+    id: 'edit-bookmark',
+    element: editModal,
+    acceptOnEnter: false,
+    closeOnEsc: true,
+    closeOnOverlay: true,
+    initialFocus: modalName
+  });
+
+  if (DEBUG) console.log('EditBookmark modal registered');
 }
 
 export function openModal(bookmarkId) {
@@ -44,7 +61,7 @@ export function openModal(bookmarkId) {
 
   updateStates();
 
-  editModal.style.display = 'flex';
+  openManagedModal('edit-bookmark');
 }
 
 /* ---------- helpers ---------- */
@@ -108,12 +125,12 @@ modalSave.addEventListener('click', async () => {
   if (DEBUG) console.log('Bookmark updated ', bookmark);
 
   renderBookmarks();
-  closeModal();
+  closeEditModal();
 });
 
-modalCancel.addEventListener('click', closeModal);
+modalCancel.addEventListener('click', closeEditModal);
 
-function closeModal() {
-  editModal.style.display = 'none';
+function closeEditModal() {
   editingId = null;
+  closeModal();
 }
