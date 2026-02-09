@@ -1,3 +1,22 @@
+/**
+ * bookmarksAddModal.js
+ * ------------------------------------------------------
+ * Modal for creating new bookmarks.
+ *
+ * Responsibilities:
+ * - Display a modal form to create a bookmark
+ * - Validate minimal input (name + url)
+ * - Find the first available grid position
+ * - Prevent creation when the grid is full
+ * - Integrate with modalManager for focus and keyboard handling
+ *
+ * Notes:
+ * - This modal does NOT allow implicit submission on Enter
+ * - Submission is fully controlled to avoid conflicts with global shortcuts
+ * - When the grid is full, an informational alert is shown
+ * ------------------------------------------------------
+ */
+
 import { addBookmark, getBookmarks } from '../core/bookmark.js';
 import { renderBookmarks } from './bookmarks.js';
 import { isAreaFree } from '../core/grid.js';
@@ -8,11 +27,51 @@ import { showAlert } from './alert.js';
 import { t } from '../core/i18n.js';
 import { registerModal, openModal, closeModal } from '../ui/modalManager.js';
 
+/**
+ * Root modal element.
+ *
+ * Created once and reused.
+ *
+ * @type {HTMLElement|null}
+ */
 let modal;
-let nameInput, urlInput;
 
-/* ======================= Init ======================= */
+/**
+ * Input element for bookmark name.
+ * 
+ * @type {HTMLInputElement}
+ */
+let nameInput
 
+/**
+ * Input elements for name and URL.
+ * 
+ * @type {HTMLInputElement}
+ */
+let urlInput;
+
+/**
+ * Submission guard.
+ *
+ * Prevents double submissions caused by
+ * fast clicks or repeated key presses.
+ *
+ * @type {boolean}
+ */
+let submitting = false;
+
+/**
+ * Initializes the Add Bookmark modal.
+ *
+ * This function is idempotent and should be
+ * called once during app bootstrap.
+ *
+ * Responsibilities:
+ * - Create modal DOM
+ * - Bind form actions
+ * - Register modal in modalManager
+ * - Override Enter behavior inside the modal
+ */
 export function initAddBookmarkModal() {
   if (modal) return;
 
@@ -69,15 +128,21 @@ export function initAddBookmarkModal() {
     if (e.key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
-      handleAccept(); // esto solo cerrará el modal si los campos son válidos
+      handleAccept();
     }
   });
 
   if (DEBUG) console.info('AddBookmark modal registered');
 }
 
-/* ======================= Open ======================= */
-
+/**
+ * Opens the Add Bookmark modal.
+ *
+ * Resets form state and updates
+ * all translatable UI strings.
+ * 
+ * @returns {void}
+ */
 export function showAddBookmarkModal() {
   if (!modal) return;
 
@@ -95,9 +160,18 @@ export function showAddBookmarkModal() {
   });
 }
 
-/* ======================= Logic ======================= */
-let submitting = false;
-
+/**
+ * Handles bookmark creation.
+ *
+ * Flow:
+ * 1. Validate input
+ * 2. Find the first free grid position
+ * 3. Abort with alert if grid is full
+ * 4. Persist bookmark
+ * 5. Re-render UI and close modal
+ * 
+ * @returns {Promise<void>}
+ */
 async function handleAccept() {
   if (submitting) return;
   submitting = true;
