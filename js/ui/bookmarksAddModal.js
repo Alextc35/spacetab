@@ -59,7 +59,7 @@ export function initAddBookmarkModal() {
   registerModal({
     id: 'add-bookmark',
     element: modal,
-    //acceptOnEnter: true,
+    acceptOnEnter: false,
     closeOnEsc: true,
     closeOnOverlay: true,
     initialFocus: nameInput
@@ -131,6 +131,7 @@ async function handleAccept() {
     if (!placed) {
       closeModal();
       if (DEBUG) console.warn('No space to add new bookmark');
+      await new Promise(requestAnimationFrame);
       await showAlert(t('alert.bookmarks.no_space'), { type: 'info' });
       return;
     }

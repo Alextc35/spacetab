@@ -49,9 +49,9 @@ export function initAlertModal() {
   registerModal({
     id: 'alert',
     element: modal,
+    acceptOnEnter: true,
     closeOnEsc: true,
     closeOnOverlay: true,
-    acceptOnEnter: true,
     initialFocus: btnAccept
   });
 
