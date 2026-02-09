@@ -1,21 +1,91 @@
 /**
- * =========================================================
- * Alert modal (confirm / info)
- * =========================================================
+ * alert.js
+ * ------------------------------------------------------
+ * Generic alert / confirmation modal.
+ *
+ * Responsibilities:
+ * - Display confirm or info dialogs
+ * - Block interaction with other modals
+ * - Integrate with modalManager (stack, focus, keyboard)
+ * - Provide a Promise-based API for user decisions
+ *
+ * Notes:
+ * - Only one alert can be active at a time
+ * - Enter key confirms when the alert is focused
+ * - Escape / overlay click cancels (if enabled)
+ * - Consumers should await the returned Promise
+ * ------------------------------------------------------
  */
 
 import { DEBUG } from '../core/config.js';
 import { t } from '../core/i18n.js';
 import { registerModal, openModal, closeModal } from '../ui/modalManager.js';
 
+/**
+ * Root DOM element of the alert modal.
+ *
+ * Created dynamically on init and reused.
+ *
+ * @type {HTMLElement|null}
+ */
 let modal;
-let titleEl, btnAccept, btnCancel;
+
+/**
+ * Internal DOM references.
+ * 
+ * @type {HTMLHeadingElement}
+ */
+let titleEl
+
+/**
+ * Action buttons for user responses.
+ * 
+ * @type {HTMLButtonElement}
+ */
+let btnAccept
+
+/**
+ * Cancel button, conditionally shown for 'confirm' type.
+ * 
+ * @type {HTMLButtonElement}
+ */
+let btnCancel;
+
+/**
+ * Resolver function for the active Promise.
+ *
+ * Ensures the Promise returned by showAlert()
+ * is resolved exactly once.
+ *
+ * @type {Function|null}
+ */
 let currentResolve = null;
+
+/**
+ * Active callbacks for accept actions.
+ * 
+ * @type {Function|null}
+ */
 let activeAccept = null;
+
+/**
+ * Active callback for cancel action, only set for 'confirm' type.
+ * 
+ * @type {Function|null}
+ */
 let activeCancel = null;
 
-/* ======================= Init ======================= */
-
+/**
+ * Initializes the alert modal.
+ *
+ * This function is idempotent and should be called once
+ * during application bootstrap.
+ *
+ * Responsibilities:
+ * - Create modal DOM
+ * - Attach button listeners
+ * - Register the modal in modalManager
+ */
 export function initAlertModal() {
   if (modal) return;
 
@@ -58,13 +128,23 @@ export function initAlertModal() {
   if (DEBUG) console.info('Alert modal registered');
 }
 
-/* ======================= Show ======================= */
-
+/**
+ * Displays an alert modal and returns a Promise
+ * resolved with the user's decision.
+ *
+ * @param {string} text - Alert message
+ * @param {Object} options
+ * @param {'confirm'|'info'} [options.type='confirm']
+ *
+ * @returns {Promise<boolean>}
+ * - true  → accepted
+ * - false → cancelled / dismissed
+ */
 export function showAlert(text, options = {}) {
   const { type = 'confirm' } = options;
 
-  return new Promise((resolve) => {
-    currentResolve = resolve;
+  return new Promise((resolveResult) => {
+    currentResolve = resolveResult;
 
     titleEl.textContent = text;
 
@@ -73,12 +153,12 @@ export function showAlert(text, options = {}) {
     btnCancel.style.display = type === 'info' ? 'none' : 'inline-block';
 
     activeAccept = () => {
-      resolve(true);
+      resolveResult(true);
       closeModal();
     };
 
     activeCancel = () => {
-      resolve(false);
+      resolveResult(false);
       closeModal();
     };
 
@@ -89,9 +169,14 @@ export function showAlert(text, options = {}) {
   });
 }
 
-/* ======================= Resolve ======================= */
-
-function resolve(result) {
+/**
+ * Resolves the active Promise safely.
+ *
+ * Prevents double resolution and clears state.
+ *
+ * @param {boolean} result
+ */
+function resolveResult(result) {
   if (!currentResolve) return;
 
   currentResolve(result);
