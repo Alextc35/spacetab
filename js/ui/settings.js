@@ -1,6 +1,7 @@
 // ui/settings.js
 import { applyI18n } from '../core/i18n.js';
 import { storage } from '../core/storage.js';
+import { registerModal, openModal, closeModal } from './modalManager.js';
 
 export function initSettings(SETTINGS) {
     const settingsBtn = document.getElementById('settings');
@@ -28,44 +29,37 @@ export function initSettings(SETTINGS) {
         }
     }
 
-    // Abrir modal
-    const openModal = () => {
-        languageSelect.value = SETTINGS.language || "es";
-        settingsModal.style.display = 'flex';
-    };
+    registerModal({
+        id: 'settings',
+        element: settingsModal,
+        acceptOnEnter: false, // MUY importante
+        closeOnEsc: true,
+        closeOnOverlay: true,
+        initialFocus: languageSelect
+    });
 
-    const closeModal = () => {
-        settingsModal.style.display = 'none';
-    };
+    settingsBtn.addEventListener('click', () => {
+        languageSelect.value = SETTINGS.language || 'en';
 
-    settingsBtn.addEventListener('click', openModal);
-
-    document.addEventListener('keydown', (e) => {
-        const activeTag = document.activeElement.tagName.toLowerCase();
-        
-        if (e.key === '.' && activeTag !== 'input' && activeTag !== 'textarea') {
-            e.preventDefault();
-            openModal();
-        }
-
-        if (e.key === 'Escape') {
-            if (settingsModal.style.display === 'flex') {
-                e.preventDefault();
-                closeModal();
+        openModal('settings', {
+            onCancel: () => {},
+            onAccept: async () => {
+            SETTINGS.language = languageSelect.value;
+            await storage.set({ settings: SETTINGS });
             }
-        }
+        });
     });
 
     settingsModal.addEventListener('click', e => {
         if (e.target === settingsModal) settingsModal.style.display = 'none';
     });
 
-    settingsCancel.addEventListener('click', () => { settingsModal.style.display = 'none'; });
+    settingsCancel.addEventListener('click', closeModal);
 
     settingsSave.addEventListener('click', async () => {
         SETTINGS.language = languageSelect.value;
-        settingsModal.style.display = 'none';
         await storage.set({ settings: SETTINGS });
+        closeModal();
     });
 
     // Tabs

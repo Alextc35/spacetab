@@ -7,7 +7,7 @@ import { SETTINGS, DEBUG } from './core/config.js';
 import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 import { deleteAllBookmarks } from './ui/bookmarksImportExport.js';
 import { initAlertModal } from './ui/alert.js';
-import { hasOpenModal, shouldSuppressGlobalEnter } from './ui/modalManager.js';
+import { hasOpenModal, shouldSuppressGlobalEnter, openModal } from './ui/modalManager.js';
 
 /* ======================= Variables globales ======================= */
 const addButton = document.getElementById('add-bookmark');
@@ -61,10 +61,15 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  if (hasOpenModal()) { return; }
-
   const tag = document.activeElement.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  if (hasOpenModal()) return;
+
+  if (e.key === '.') {
+    e.preventDefault();
+    openModal('settings');
+  }
 
   const isEditing = gridOverlay.style.display === 'block';
 
