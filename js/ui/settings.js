@@ -114,5 +114,5 @@ export function initSettings(SETTINGS) {
         applyBackground('', '');
     });
 
-    if (DEBUG) console.info('Settings registered');
+    if (DEBUG) console.info('Settings modal registered');
 }

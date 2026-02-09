@@ -1,4 +1,5 @@
 // ui/modalManager.js
+import { DEBUG } from '../core/config.js';
 
 const stack = [];
 const registry = new Map();
@@ -8,7 +9,7 @@ function getActive() {
 }
 
 export function hasOpenModal() {
-  console.log('Modal stack:', stack.map(m => m.id));
+  if (DEBUG && (stack.length != 0)) console.log('Modal stack:', stack.map(m => m.id));
   return stack.length > 0;
 }
 
