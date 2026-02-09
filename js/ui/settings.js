@@ -2,6 +2,7 @@
 import { applyI18n } from '../core/i18n.js';
 import { storage } from '../core/storage.js';
 import { registerModal, openModal, closeModal } from './modalManager.js';
+import { DEBUG } from '../core/config.js';
 
 export function initSettings(SETTINGS) {
     const settingsBtn = document.getElementById('settings');
@@ -112,4 +113,6 @@ export function initSettings(SETTINGS) {
         bgColorInput.disabled = false;
         applyBackground('', '');
     });
+
+    if (DEBUG) console.info('Settings registered');
 }
