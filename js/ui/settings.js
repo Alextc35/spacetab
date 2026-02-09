@@ -52,7 +52,7 @@ export function initSettings(SETTINGS) {
     });
 
     settingsModal.addEventListener('click', e => {
-        if (e.target === settingsModal) settingsModal.style.display = 'none';
+        if (e.target === settingsModal) closeModal();
     });
 
     settingsCancel.addEventListener('click', closeModal);
