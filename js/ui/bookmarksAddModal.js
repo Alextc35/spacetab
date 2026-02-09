@@ -6,83 +6,109 @@ import { flashSuccess } from '../ui/flash.js';
 import { DEBUG } from '../core/config.js';
 import { showAlert } from './alert.js';
 import { t } from '../core/i18n.js';
+import { registerModal, openModal, closeModal } from '../ui/modalManager.js';
 
-let modal, nameInput, urlInput;
+let modal;
+let nameInput, urlInput;
+
+/* ======================= Init ======================= */
 
 export function initAddBookmarkModal() {
-    if (modal) return;
+  if (modal) return;
 
-    modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.style.display = 'none';
+  modal = document.createElement('div');
+  modal.className = 'modal';
 
-    modal.innerHTML = `
+  modal.innerHTML = `
     <div class="modal-overlay"></div>
     <div class="modal-card">
-        <h2>➕ ${t('addModal.title')}</h2>
-        <div class="modal-field">
-            <label>${t('addModal.name')}</label>
-            <input type="text" id="add-name" placeholder="Ej: GitHub">
-        </div>
-        <div class="modal-field">
-            <label>${t('addModal.url')}</label>
-            <input type="url" id="add-url" placeholder="https://github.com">
-        </div>
-        <div class="modal-actions">
-            <button id="add-cancel" class="btn ghost">${t('buttons.cancel')}</button>
-            <button id="add-save" class="btn primary">${t('buttons.accept')}</button>
-        </div>
+      <h2>➕ ${t('addModal.title')}</h2>
+
+      <div class="modal-field">
+        <label for="add-name">${t('addModal.name')}</label>
+        <input type="text" id="add-name" autofocus>
+      </div>
+
+      <div class="modal-field">
+        <label for="add-url">${t('addModal.url')}</label>
+        <input type="url" id="add-url" placeholder="https://">
+      </div>
+
+      <div class="modal-actions">
+        <button id="add-cancel" class="btn ghost">
+          ${t('buttons.cancel')}
+        </button>
+        <button id="add-save" class="btn primary">
+          ${t('buttons.accept')}
+        </button>
+      </div>
     </div>
-    `;
+  `;
 
-    document.body.appendChild(modal);
+  document.body.appendChild(modal);
 
-    nameInput = modal.querySelector('#add-name');
-    urlInput = modal.querySelector('#add-url');
+  nameInput = modal.querySelector('#add-name');
+  urlInput = modal.querySelector('#add-url');
 
-    const addBtn = modal.querySelector('#add-save');
-    const cancelBtn = modal.querySelector('#add-cancel');
-    const overlay = modal.querySelector('.modal-overlay');
+  modal.querySelector('#add-save')
+    .addEventListener('click', handleAccept);
 
-    if (!addBtn || !cancelBtn || !overlay) {
-        console.error('Add modal buttons not found!');
-        return;
+  modal.querySelector('#add-cancel')
+    .addEventListener('click', () => closeModal());
+
+  registerModal({
+    id: 'add-bookmark',
+    element: modal,
+    //acceptOnEnter: true,
+    closeOnEsc: true,
+    closeOnOverlay: true,
+    initialFocus: nameInput
+  });
+
+  modal.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAccept(); // esto solo cerrará el modal si los campos son válidos
     }
+  });
 
-    modal.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addNewBookmark();
-        }
-    });
-
-    addBtn.addEventListener('click', addNewBookmark);
-    cancelBtn.addEventListener('click', hideAddModal);
-    overlay.addEventListener('click', hideAddModal);
+  if (DEBUG) console.info('AddBookmark modal registered');
 }
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modal.style.display === 'flex') {
-    hideAddModal();
-  }
-});
+/* ======================= Open ======================= */
 
-export function showAddModal() {
-    if (!modal) return;
-    nameInput.value = '';
-    urlInput.value = '';
-    modal.style.display = 'flex';
-    nameInput.focus();
+export function showAddBookmarkModal() {
+  if (!modal) return;
+
+  nameInput.value = '';
+  urlInput.value = '';
+
+  modal.querySelector('h2').textContent = `➕ ${t('addModal.title')}`;
+  modal.querySelector('label[for="add-name"]').textContent = t('addModal.name');
+  modal.querySelector('label[for="add-url"]').textContent = t('addModal.url');
+  modal.querySelector('#add-save').textContent = t('buttons.accept');
+  modal.querySelector('#add-cancel').textContent = t('buttons.cancel');
+
+  openModal('add-bookmark', {
+    onAccept: handleAccept
+  });
 }
 
-function hideAddModal() {
-    modal.style.display = 'none';
-}
+/* ======================= Logic ======================= */
+let submitting = false;
 
-async function addNewBookmark() {
+async function handleAccept() {
+  if (submitting) return;
+  submitting = true;
+
+  try {
     const name = nameInput.value.trim();
     const url = urlInput.value.trim();
-    if (!name || !url) return;
+
+    if (!name || !url) {
+      submitting = false;  
+      return;
+    }
 
     const bookmarks = getBookmarks();
     const maxRows = getMaxVisibleRows();
@@ -92,26 +118,31 @@ async function addNewBookmark() {
     let placed = false;
 
     for (let col = 0; col < maxCols && !placed; col++) {
-        for (let row = 0; row < maxRows; row++) {
-            if (isAreaFree(bookmarks, col, row, 1, 1)) {
-                gx = col;
-                gy = row;
-                placed = true;
-                break;
-            }
+      for (let row = 0; row < maxRows; row++) {
+        if (isAreaFree(bookmarks, col, row, 1, 1)) {
+          gx = col;
+          gy = row;
+          placed = true;
+          break;
         }
+      }
     }
 
     if (!placed) {
-        hideAddModal();
-        if (DEBUG) console.warn('No space to add new bookmark');
-        await showAlert(t('alert.bookmarks.no_space'), { type: 'info' });
-        return;
+      closeModal();
+      if (DEBUG) console.warn('No space to add new bookmark');
+      await showAlert(t('alert.bookmarks.no_space'), { type: 'info' });
+      return;
     }
 
     const bookmark = await addBookmark({ name, url, gx, gy });
     renderBookmarks();
     flashSuccess('flash.bookmark.added');
+
     if (DEBUG) console.log('Bookmark added:', bookmark);
-    hideAddModal();
+
+    closeModal();
+  } finally {
+    submitting = false;
+  }
 }

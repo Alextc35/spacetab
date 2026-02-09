@@ -1,6 +1,6 @@
 import { loadBookmarks } from './core/bookmark.js';
 import { initBookmarkModal } from './ui/bookmarksEditModal.js';
-import { initAddBookmarkModal, showAddModal } from './ui/bookmarksAddModal.js';
+import { initAddBookmarkModal, showAddBookmarkModal } from './ui/bookmarksAddModal.js';
 import { renderBookmarks, setEditMode} from './ui/bookmarks.js';
 import { initSettings } from './ui/settings.js';
 import { SETTINGS, DEBUG } from './core/config.js';
@@ -27,7 +27,7 @@ importBtn.addEventListener('click', () => importInput.click());
 
 function initControls() {
     const toggleEdit = createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode);
-    addButton.addEventListener('click', showAddModal);
+    addButton.addEventListener('click', showAddBookmarkModal);
     toggleButton.addEventListener('click', toggleEdit);
 }
 
@@ -64,7 +64,7 @@ document.addEventListener('keydown', (e) => {
     case 'Enter':
       if (!isEditing) {
         e.preventDefault();
-        showAddModal();
+        showAddBookmarkModal();
       }
       break;
 
