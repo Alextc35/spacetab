@@ -1,3 +1,22 @@
+/**
+ * bookmarksEditModal.js
+ * ------------------------------------------------------
+ * Modal for editing existing bookmarks.
+ *
+ * Responsibilities:
+ * - Display and populate an edit form for a bookmark
+ * - Reflect current bookmark visual and layout options
+ * - Enforce UI state constraints between fields
+ * - Persist updates through the bookmark store
+ * - Integrate with modalManager for keyboard and focus handling
+ *
+ * Notes:
+ * - This modal operates on an existing bookmark id
+ * - Enter key submission is disabled to avoid conflicts
+ * - All state mutations go through updateBookmarkById
+ * ------------------------------------------------------
+ */
+
 import { getBookmarks, updateBookmarkById } from '../core/bookmark.js';
 import { flashSuccess } from '../ui/flash.js';
 import { DEBUG } from '../core/config.js';
@@ -18,11 +37,39 @@ const modalShowText = document.getElementById('modal-show-text');
 const modalBackgroundImage = document.getElementById('modal-background-image');
 const modalFaviconBackground = document.getElementById('modal-favicon-background');
 
+/**
+ * Currently edited bookmark id.
+ *
+ * @type {string|null}
+ */
 let editingId = null;
+
+/**
+ * Callback used to re-render bookmarks after updates.
+ *
+ * Injected from outside to avoid tight coupling.
+ *
+ * @type {Function}
+ */
 let renderBookmarks = () => {};
 
+/**
+ * Prevents registering the modal more than once.
+ *
+ * @type {boolean}
+ */
 let registered = false;
 
+/**
+ * Initializes the Edit Bookmark modal.
+ *
+ * Responsibilities:
+ * - Store render callback
+ * - Register modal with modalManager
+ * - Ensure idempotent initialization
+ *
+ * @param {Function} onRender
+ */
 export function initBookmarkModal(onRender) {
   renderBookmarks = onRender;
 
@@ -41,6 +88,14 @@ export function initBookmarkModal(onRender) {
   if (DEBUG) console.log('EditBookmark modal registered');
 }
 
+/**
+ * Opens the edit modal for a specific bookmark.
+ *
+ * Loads the bookmark data into the form and
+ * synchronizes UI states before displaying.
+ *
+ * @param {string} bookmarkId
+ */
 export function openModal(bookmarkId) {
   const bookmark = getBookmarks().find(b => b.id === bookmarkId);
   if (!bookmark) return;
@@ -64,8 +119,14 @@ export function openModal(bookmarkId) {
   openManagedModal('edit-bookmark');
 }
 
-/* ---------- helpers ---------- */
-
+/**
+ * Synchronizes enabled/disabled states between controls.
+ *
+ * Enforces visual consistency rules:
+ * - Background image vs color
+ * - Text visibility vs text color
+ * - Favicon background exclusivity
+ */
 function updateStates() {
   const hasImage = modalBackgroundImage.value.trim() !== '';
 
@@ -78,8 +139,6 @@ function updateStates() {
 
   modalInvertColorBg.disabled = modalFaviconBackground.checked;
 }
-
-/* ---------- events ---------- */
 
 modalBackgroundImage.addEventListener('input', updateStates);
 modalNoBackground.addEventListener('change', updateStates);
@@ -130,6 +189,9 @@ modalSave.addEventListener('click', async () => {
 
 modalCancel.addEventListener('click', closeEditModal);
 
+/**
+ * Closes the edit modal and clears editing state.
+ */
 function closeEditModal() {
   editingId = null;
   closeModal();
