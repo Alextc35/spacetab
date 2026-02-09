@@ -19,6 +19,14 @@
 
 import { storage } from './storage.js';
 
+/**
+ * In-memory bookmark list.
+ *
+ * This is the single source of truth for bookmarks during runtime.
+ * All operations should read from and write to this arrays
+ * 
+ * @type {Array<Object>}
+ */
 let bookmarks = [];
 
 /**
