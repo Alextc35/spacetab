@@ -82,7 +82,7 @@ export function initSettings(SETTINGS) {
     // Cargar valores guardados
     storage.get(['settings', 'bgColor', 'bgImage']).then(data => {
         if (data.settings) Object.assign(SETTINGS, data.settings);
-        languageSelect.value = SETTINGS.language || "es";
+        languageSelect.value = SETTINGS.language || "en";
         applyI18n();
         if (data.bgColor) bgColorInput.value = data.bgColor;
         if (data.bgImage) bgImageInput.value = data.bgImage;
