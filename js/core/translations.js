@@ -1,6 +1,6 @@
 // js/core/translations.js
 
-const version = '0.14.3';
+const version = '0.15.0';
 
 /**
  * Translation dictionary.
