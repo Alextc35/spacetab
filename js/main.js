@@ -7,6 +7,7 @@ import { SETTINGS, DEBUG } from './core/config.js';
 import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 import { deleteAllBookmarks } from './ui/bookmarksImportExport.js';
 import { initAlertModal } from './ui/alert.js';
+import { hasOpenModal, shouldSuppressGlobalEnter } from './ui/modalManager.js';
 
 /* ======================= Variables globales ======================= */
 const addButton = document.getElementById('add-bookmark');
@@ -55,23 +56,26 @@ function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEdi
 initApp();
 
 document.addEventListener('keydown', (e) => {
+  if (e.code === 'Enter' && shouldSuppressGlobalEnter()) {
+    e.preventDefault();
+    return;
+  }
+
+  if (hasOpenModal()) { return; }
+
   const tag = document.activeElement.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
   const isEditing = gridOverlay.style.display === 'block';
 
-  switch (e.code) {
-    case 'Enter':
-      if (!isEditing) {
-        e.preventDefault();
-        showAddBookmarkModal();
-      }
-      break;
+  if (e.code === 'Enter' && !isEditing) {
+    e.preventDefault();
+    showAddBookmarkModal();
+  }
 
-    case 'Space':
-      e.preventDefault();
-      toggleButton.click();
-      break;
+  if (e.code === 'Space') {
+    e.preventDefault();
+    toggleButton.click();
   }
 });
 

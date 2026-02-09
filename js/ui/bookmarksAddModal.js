@@ -68,6 +68,7 @@ export function initAddBookmarkModal() {
   modal.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      e.stopPropagation();
       handleAccept(); // esto solo cerrará el modal si los campos son válidos
     }
   });

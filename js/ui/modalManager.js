@@ -7,6 +7,17 @@ function getActive() {
   return stack[stack.length - 1] || null;
 }
 
+export function hasOpenModal() {
+  console.log('Modal stack:', stack.map(m => m.id));
+  return stack.length > 0;
+}
+
+let suppressNextGlobalEnter = false;
+
+export function shouldSuppressGlobalEnter() {
+  return suppressNextGlobalEnter;
+}
+
 /* ======================= Global keyboard ======================= */
 
 document.addEventListener('keydown', (e) => {
@@ -15,14 +26,20 @@ document.addEventListener('keydown', (e) => {
 
   if (e.key === 'Escape' && modal.closeOnEsc) {
     e.preventDefault();
+    e.stopPropagation();
     modal.onCancel?.();
     closeModal();
   }
 
   if (e.key === 'Enter' && modal.acceptOnEnter) {
     e.preventDefault();
+    e.stopPropagation();
+    suppressNextGlobalEnter = true;
     modal.onAccept?.();
     closeModal();
+    requestAnimationFrame(() => {
+      suppressNextGlobalEnter = false;
+    });
   }
 });
 
