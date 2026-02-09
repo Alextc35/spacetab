@@ -23,6 +23,7 @@
  * - All DOM elements are recreated on each render call.
  */
 
+import { version } from '../core/translations.js';
 import { getBookmarks, deleteBookmarkById } from '../core/bookmark.js';
 import { PADDING, DEBUG } from '../core/config.js';
 import { openModal } from './bookmarksEditModal.js';
@@ -32,6 +33,8 @@ import { flashError, flashInfo, flashSuccess } from './flash.js';
 import { createFavicon } from './favicon.js';
 import { showAlert } from './alert.js';
 import { t } from '../core/i18n.js';
+
+if (DEBUG) console.info('Initializing SpaceTab ' + version + ' alfa');
 
 /**
  * Main container element where bookmarks are rendered
