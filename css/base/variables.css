@@ -1,9 +1,26 @@
-:root {
-  --bg-main: #333;
-  --bg-bookmark: rgba(0,0,0,0.5);
-  --bg-modal: #222;
+/**
+ * variables.css
+ * ------------------------------------------------------
+ * Global design tokens for the application.
+ *
+ * Responsibilities:
+ * - Define reusable color values
+ * - Define layout and spacing constants
+ * - Centralize z-index layers
+ * - Provide a single source of truth for UI dimensions
+ *
+ * Notes:
+ * - All visual constants should be defined here
+ * - Components must reference variables instead of hardcoded values
+ * - Changes here should propagate safely across the UI
+ * ------------------------------------------------------
+ */
 
-  --text-main: #fff;
+:root {
+  --color-bg-main: #333;
+  --color-bg-bookmark: rgba(0,0,0,0.5);
+  --color-bg-modal: #222;
+  --color-text-main: #fff;
 
   --radius-sm: 5px;
   --radius-md: 10px;
