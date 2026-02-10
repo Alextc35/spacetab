@@ -1,5 +1,5 @@
 /**
- * settings.js
+ * settingsModal.js
  * ------------------------------------------------------
  * Application settings modal and persistence handler.
  *
@@ -157,5 +157,5 @@ export function initSettings(SETTINGS) {
         applyBackground('', '');
     });
 
-    if (DEBUG) console.info('Settings modal registered');
+    if (DEBUG) console.info('Settings modal initialized');
 }

@@ -2,7 +2,7 @@ import { loadBookmarks } from './core/bookmark.js';
 import { initBookmarkModal } from './ui/editBookmarkModal.js';
 import { initAddBookmarkModal, showAddBookmarkModal } from './ui/addBookmarkModal.js';
 import { renderBookmarks, setEditMode} from './ui/bookmarks.js';
-import { initSettings } from './ui/settings.js';
+import { initSettings } from './ui/settingsModal.js';
 import { SETTINGS, DEBUG } from './core/config.js';
 import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 import { deleteAllBookmarks } from './ui/bookmarksImportExport.js';
