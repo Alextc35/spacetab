@@ -1,5 +1,5 @@
 /**
- * bookmarksEditModal.js
+ * editBookmarkModal.js
  * ------------------------------------------------------
  * Modal for editing existing bookmarks.
  *
@@ -18,9 +18,9 @@
  */
 
 import { getBookmarks, updateBookmarkById } from '../core/bookmark.js';
-import { flashSuccess } from '../ui/flash.js';
+import { flashSuccess } from './flash.js';
 import { DEBUG } from '../core/config.js';
-import { registerModal, openModal as openManagedModal, closeModal } from '../ui/modalManager.js';
+import { registerModal, openModal as openManagedModal, closeModal } from './modalManager.js';
 
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
@@ -85,7 +85,7 @@ export function initBookmarkModal(onRender) {
     initialFocus: modalName
   });
 
-  if (DEBUG) console.log('EditBookmark modal registered');
+  if (DEBUG) console.log('EditBookmark modal initialized');
 }
 
 /**

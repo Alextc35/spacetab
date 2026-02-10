@@ -1,5 +1,5 @@
 /**
- * bookmarksAddModal.js
+ * addBookmarkModal.js
  * ------------------------------------------------------
  * Modal for creating new bookmarks.
  *
@@ -21,11 +21,11 @@ import { addBookmark, getBookmarks } from '../core/bookmark.js';
 import { renderBookmarks } from './bookmarks.js';
 import { isAreaFree } from '../core/grid.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from './gridLayout.js';
-import { flashSuccess } from '../ui/flash.js';
+import { flashSuccess } from './flash.js';
 import { DEBUG } from '../core/config.js';
 import { showAlert } from './alertModal.js';
 import { t } from '../core/i18n.js';
-import { registerModal, openModal, closeModal } from '../ui/modalManager.js';
+import { registerModal, openModal, closeModal } from './modalManager.js';
 
 /**
  * Root modal element.
@@ -132,7 +132,7 @@ export function initAddBookmarkModal() {
     }
   });
 
-  if (DEBUG) console.info('AddBookmark modal registered');
+  if (DEBUG) console.info('AddBookmark modal initialized');
 }
 
 /**

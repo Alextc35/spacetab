@@ -26,7 +26,7 @@
 import { version } from '../core/translations.js';
 import { getBookmarks, deleteBookmarkById } from '../core/bookmark.js';
 import { PADDING, DEBUG } from '../core/config.js';
-import { openModal } from './bookmarksEditModal.js';
+import { openModal } from './editBookmarkModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
 import { flashError, flashInfo, flashSuccess } from './flash.js';

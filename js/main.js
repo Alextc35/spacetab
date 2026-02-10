@@ -1,6 +1,6 @@
 import { loadBookmarks } from './core/bookmark.js';
-import { initBookmarkModal } from './ui/bookmarksEditModal.js';
-import { initAddBookmarkModal, showAddBookmarkModal } from './ui/bookmarksAddModal.js';
+import { initBookmarkModal } from './ui/editBookmarkModal.js';
+import { initAddBookmarkModal, showAddBookmarkModal } from './ui/addBookmarkModal.js';
 import { renderBookmarks, setEditMode} from './ui/bookmarks.js';
 import { initSettings } from './ui/settings.js';
 import { SETTINGS, DEBUG } from './core/config.js';
