@@ -31,7 +31,7 @@ import { addDragAndResize } from './dragResize.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
 import { flashError, flashInfo, flashSuccess } from './flash.js';
 import { createFavicon } from './favicon.js';
-import { showAlert } from './alert.js';
+import { showAlert } from './alertModal.js';
 import { t } from '../core/i18n.js';
 
 if (DEBUG) console.info('Initializing SpaceTab ' + version + ' alfa');

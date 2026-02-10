@@ -1,5 +1,5 @@
 /**
- * alert.js
+ * alertModal.js
  * ------------------------------------------------------
  * Generic alert / confirmation modal.
  *
@@ -19,7 +19,7 @@
 
 import { DEBUG } from '../core/config.js';
 import { t } from '../core/i18n.js';
-import { registerModal, openModal, closeModal } from '../ui/modalManager.js';
+import { registerModal, openModal, closeModal } from './modalManager.js';
 
 /**
  * Root DOM element of the alert modal.
@@ -125,7 +125,7 @@ export function initAlertModal() {
     initialFocus: btnAccept
   });
 
-  if (DEBUG) console.info('Alert modal registered');
+  if (DEBUG) console.info('Alert modal initialized');
 }
 
 /**

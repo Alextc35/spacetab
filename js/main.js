@@ -6,7 +6,7 @@ import { initSettings } from './ui/settings.js';
 import { SETTINGS, DEBUG } from './core/config.js';
 import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 import { deleteAllBookmarks } from './ui/bookmarksImportExport.js';
-import { initAlertModal } from './ui/alert.js';
+import { initAlertModal } from './ui/alertModal.js';
 import { hasOpenModal, shouldSuppressGlobalEnter, openModal } from './ui/modalManager.js';
 
 /* ======================= Variables globales ======================= */
