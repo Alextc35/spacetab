@@ -1,12 +1,9 @@
+import { initAddBookmarkModal, showAddBookmarkModal, initEditBookmarkModal, initAlertModal, initSettingsModal } from './ui/modals/index.js';
 import { loadBookmarks } from './core/bookmark.js';
-import { initBookmarkModal } from './ui/editBookmarkModal.js';
-import { initAddBookmarkModal, showAddBookmarkModal } from './ui/addBookmarkModal.js';
 import { renderBookmarks, setEditMode} from './ui/bookmarks.js';
-import { initSettings } from './ui/settingsModal.js';
 import { SETTINGS, DEBUG } from './core/config.js';
 import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 import { deleteAllBookmarks } from './ui/bookmarksImportExport.js';
-import { initAlertModal } from './ui/alertModal.js';
 import { hasOpenModal, shouldSuppressGlobalEnter, openModal } from './ui/modalManager.js';
 
 /* ======================= Variables globales ======================= */
@@ -35,9 +32,9 @@ function initControls() {
 async function initApp() {
     const bookmarks = await loadBookmarks();
     if (DEBUG) console.log('Bookmarks loaded:', bookmarks);
-    initSettings(SETTINGS);
+    initSettingsModal(SETTINGS);
     initAlertModal();
-    initBookmarkModal(renderBookmarks);
+    initEditBookmarkModal(renderBookmarks);
     initAddBookmarkModal();
     renderBookmarks();
     initControls();

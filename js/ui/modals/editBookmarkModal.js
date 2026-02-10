@@ -17,10 +17,10 @@
  * ------------------------------------------------------
  */
 
-import { getBookmarks, updateBookmarkById } from '../core/bookmark.js';
-import { flashSuccess } from './flash.js';
-import { DEBUG } from '../core/config.js';
-import { registerModal, openModal as openManagedModal, closeModal } from './modalManager.js';
+import { getBookmarks, updateBookmarkById } from '../../core/bookmark.js';
+import { flashSuccess } from '../flash.js';
+import { DEBUG } from '../../core/config.js';
+import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
@@ -70,7 +70,7 @@ let registered = false;
  *
  * @param {Function} onRender
  */
-export function initBookmarkModal(onRender) {
+export function initEditBookmarkModal(onRender) {
   renderBookmarks = onRender;
 
   if (registered) return;

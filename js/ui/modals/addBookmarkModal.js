@@ -17,15 +17,15 @@
  * ------------------------------------------------------
  */
 
-import { addBookmark, getBookmarks } from '../core/bookmark.js';
-import { renderBookmarks } from './bookmarks.js';
-import { isAreaFree } from '../core/grid.js';
-import { getMaxVisibleCols, getMaxVisibleRows } from './gridLayout.js';
-import { flashSuccess } from './flash.js';
-import { DEBUG } from '../core/config.js';
+import { addBookmark, getBookmarks } from '../../core/bookmark.js';
+import { renderBookmarks } from '../bookmarks.js';
+import { isAreaFree } from '../../core/grid.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
+import { flashSuccess } from '../flash.js';
+import { DEBUG } from '../../core/config.js';
 import { showAlert } from './alertModal.js';
-import { t } from '../core/i18n.js';
-import { registerModal, openModal, closeModal } from './modalManager.js';
+import { t } from '../../core/i18n.js';
+import { registerModal, openModal, closeModal } from '../modalManager.js';
 
 /**
  * Root modal element.

@@ -17,10 +17,10 @@
  * ------------------------------------------------------
  */
 
-import { applyI18n } from '../core/i18n.js';
-import { storage } from '../core/storage.js';
-import { registerModal, openModal, closeModal } from './modalManager.js';
-import { DEBUG } from '../core/config.js';
+import { applyI18n } from '../../core/i18n.js';
+import { storage } from '../../core/storage.js';
+import { registerModal, openModal, closeModal } from '../modalManager.js';
+import { DEBUG } from '../../core/config.js';
 
 /**
  * Initializes the Settings modal and its behavior.
@@ -33,7 +33,7 @@ import { DEBUG } from '../core/config.js';
  *
  * @param {Object} SETTINGS - Global mutable settings object
  */
-export function initSettings(SETTINGS) {
+export function initSettingsModal(SETTINGS) {
     const settingsBtn = document.getElementById('settings');
     const settingsModal = document.getElementById('settings-modal');
     const settingsSave = document.getElementById('settings-save');

@@ -17,9 +17,9 @@
  * ------------------------------------------------------
  */
 
-import { DEBUG } from '../core/config.js';
-import { t } from '../core/i18n.js';
-import { registerModal, openModal, closeModal } from './modalManager.js';
+import { DEBUG } from '../../core/config.js';
+import { t } from '../../core/i18n.js';
+import { registerModal, openModal, closeModal } from '../modalManager.js';
 
 /**
  * Root DOM element of the alert modal.
