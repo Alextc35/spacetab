@@ -1,12 +1,51 @@
+/**
+ * dragAndResize.js
+ * ------------------------------------------------------
+ * Drag & resize behavior for bookmark grid items.
+ *
+ * Responsibilities:
+ * - Enables dragging bookmarks across the grid
+ * - Enables resizing bookmarks from all four sides
+ * - Enforces grid boundaries and collision rules
+ * - Persists position and size changes
+ * - Triggers re-rendering after interactions
+ *
+ * Interaction rules:
+ * - Left click + drag → move bookmark
+ * - Middle click → delete bookmark (with confirmation)
+ * - Resize handles → resize in grid units
+ *
+ * Notes:
+ * - All movement is snapped to the grid
+ * - Collisions are validated via isAreaFree
+ * - Bookmark mutations are persisted immediately
+ * ------------------------------------------------------
+ */
+
 import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
 import { isAreaFree } from '../core/grid.js';
 import { PADDING } from '../core/config.js';
 import { renderBookmarks, container, confirmAndDeleteBookmark } from './bookmarks.js';
 import { GRID_COLS, GRID_ROWS } from '../core/config.js';
 
+/**
+ * Global drag state flag.
+ * Prevents drag and resize from overlapping.
+ */
 let dragging = false;
+
+/**
+ * Global resize state flag.
+ * Prevents drag and resize from overlapping.
+ */
 let resizing = false;
 
+/**
+ * Attaches drag and resize behavior to a bookmark element.
+ *
+ * @param {HTMLElement} div - Bookmark DOM element
+ * @param {Object} bookmark - Bookmark data object
+ */
 export function addDragAndResize(div, bookmark) {
   let startX = 0, startY = 0;
   let startLeft = 0, startTop = 0;
@@ -81,6 +120,14 @@ export function addDragAndResize(div, bookmark) {
   });
 }
 
+/**
+ * Handles resizing logic for a bookmark.
+ *
+ * @param {PointerEvent} e
+ * @param {HTMLElement} div
+ * @param {Object} bookmark
+ * @param {'top'|'right'|'bottom'|'left'} side
+ */
 function handleResize(e, div, bookmark, side) {
   e.preventDefault();
   resizing = true;
@@ -169,6 +216,13 @@ function handleResize(e, div, bookmark, side) {
   document.addEventListener('pointerup', onUp);
 }
 
+/**
+ * Applies grid-based position to a bookmark element.
+ *
+ * @param {HTMLElement} div
+ * @param {number} gx
+ * @param {number} gy
+ */
 function applyPosition(div, gx, gy) {
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
