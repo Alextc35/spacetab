@@ -66,13 +66,13 @@ export function initSettingsModal(SETTINGS) {
      * @param {string} image
      */
     function applyBackground(color, image) {
-        if (image) {
+        if (image) { // gif
             document.body.style.background = `url(${image}) no-repeat center center fixed`;
             document.body.style.backgroundSize = 'cover';
         } else if (color) {
             document.body.style.background = color;
-        } else {
-            document.body.style.background = '#333';
+        } else { // default
+            document.body.style.background = 'var(--color-bg-main)';
         }
     }
 
