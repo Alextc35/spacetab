@@ -1,10 +1,36 @@
-// ui/bookmarksImportExport.js
+/**
+ * bookmarksImportExport.js
+ * ------------------------------------------------------
+ * Bookmark import, export and bulk deletion utilities.
+ *
+ * Responsibilities:
+ * - Export bookmarks to a JSON file
+ * - Import bookmarks from a JSON file
+ * - Delete all bookmarks in a single operation
+ * - Bridge user actions with the bookmark store
+ * - Provide user feedback via flash messages
+ *
+ * Notes:
+ * - Import expects a JSON array of bookmark objects
+ * - Imported data is normalized by the bookmark store
+ * - All operations trigger a full re-render
+ * ------------------------------------------------------
+ */
+
 import { getBookmarks, setBookmarks, saveBookmarks, clearBookmarks} from '../core/bookmark.js';
 import { renderBookmarks } from './bookmarks.js';
 import { flashError, flashSuccess } from './flash.js';
 import { DEBUG } from '../core/config.js';
 
+/**
+ * Container used by flash notifications.
+ *
+ * Positioned above all UI layers.
+ * Created here to guarantee availability.
+ * 
+ */
 const flashContainer = document.createElement('div');
+
 flashContainer.id = 'flash-container';
 flashContainer.style.cssText = `
   position: fixed;
@@ -16,7 +42,16 @@ flashContainer.style.cssText = `
 `;
 document.body.appendChild(flashContainer);
 
-/* =================== DELETE ALL =================== */
+/**
+ * Deletes all bookmarks after user confirmation.
+ *
+ * This operation:
+ * - Clears in-memory and persistent storage
+ * - Triggers a full re-render
+ * - Emits a success or error flash
+ *
+ * @returns {Promise<void>}
+ */
 export async function deleteAllBookmarks() {
   const ok = confirm('Are you sure you want to delete ALL bookmarks? This cannot be undone.');
   if (!ok) return;
@@ -34,7 +69,14 @@ export async function deleteAllBookmarks() {
   }
 }
 
-/* =================== EXPORT =================== */
+/**
+ * Exports all bookmarks to a downloadable JSON file.
+ *
+ * Implementation details:
+ * - Serializes bookmarks with indentation
+ * - Uses Blob and ObjectURL for download
+ * - Cleans up DOM and memory after export
+ */
 export function exportBookmarks() {
   try {
     const bookmarks = getBookmarks();
@@ -61,7 +103,18 @@ export function exportBookmarks() {
   }
 }
 
-/* =================== IMPORT =================== */
+/**
+ * Imports bookmarks from a JSON file.
+ *
+ * The process:
+ * - Reads file contents
+ * - Parses JSON
+ * - Validates array structure
+ * - Replaces current bookmarks
+ * - Persists and re-renders
+ *
+ * @param {File} file
+ */
 export function importBookmarks(file) {
   if (!file) return flashError('flash.bookmarks.importError');
 
@@ -87,12 +140,17 @@ export function importBookmarks(file) {
   reader.readAsText(file);
 }
 
-/* =================== INIT BUTTONS =================== */
+/**
+ * Initializes import/export UI bindings.
+ *
+ * @param {HTMLButtonElement} exportBtn
+ * @param {HTMLInputElement} importInput
+ */
 export function initImportExportButtons(exportBtn, importInput) {
   exportBtn.addEventListener('click', exportBookmarks);
   importInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     importBookmarks(file);
-    importInput.value = ''; // reset input
+    importInput.value = '';
   });
 }
