@@ -1,3 +1,20 @@
+/**
+ * reset.css
+ * ------------------------------------------------------
+ * Minimal CSS reset for consistent cross-browser behavior.
+ *
+ * Responsibilities:
+ * - Normalize box model across all elements
+ * - Remove default browser margins
+ * - Reset base styles for common interactive elements
+ *
+ * Notes:
+ * - This reset is intentionally minimal
+ * - Visual styling must be handled by base and component styles
+ * - Avoid adding layout or theme-related rules here
+ * ------------------------------------------------------
+ */
+
 *,
 *::before,
 *::after {
