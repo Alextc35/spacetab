@@ -106,9 +106,9 @@ export function openModal(bookmarkId) {
   modalUrl.value = bookmark.url;
   modalInvertColorIcon.checked = !!bookmark.invertColorIcon;
   modalInvertColorBg.checked = !!bookmark.invertColorBg;
-  modalBackgroundColor.value = bookmark.backgroundColor ?? '#222222';
+  modalBackgroundColor.value = bookmark.backgroundColor ?? '#0f172a';
   modalNoBackground.checked = !!bookmark.noBackground;
-  modalTextColor.value = bookmark.textColor ?? '#cccccc';
+  modalTextColor.value = bookmark.textColor ?? '#e2e8f0';
   modalShowText.checked = !!bookmark.showText;
   modalShowFavicon.checked = !!bookmark.showFavicon;
   modalBackgroundImage.value = bookmark.backgroundImageUrl || '';
