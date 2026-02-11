@@ -21,6 +21,8 @@ deleteAllBtn.addEventListener('click', deleteAllBookmarks);
 
 importBtn.addEventListener('click', () => importInput.click());
 
+initApp();
+
 function initControls() {
     const toggleEdit = createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode);
     addButton.addEventListener('click', showAddBookmarkModal);
@@ -47,8 +49,6 @@ function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEdi
         renderBookmarks();
     };
 }
-
-initApp();
 
 document.addEventListener('keydown', (e) => {
   if (e.code === 'Enter' && shouldSuppressGlobalEnter()) {
