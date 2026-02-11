@@ -40,6 +40,7 @@ export const translations = {
 
     alert: {
       bookmarks: {
+        confirmDeleteAll: '¿Eliminar todos los favoritos?',
         no_space: 'No hay espacio disponible para más favoritos 😅'
       }
     },
@@ -133,6 +134,7 @@ export const translations = {
 
     alert: {
       bookmarks: {
+        confirmDeleteAll: 'Delete all bookmarks?',
         no_space: 'No space available for more bookmarks 😅'
       }
     },

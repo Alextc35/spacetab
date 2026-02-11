@@ -21,6 +21,8 @@ import { getBookmarks, setBookmarks, saveBookmarks, clearBookmarks} from '../cor
 import { renderBookmarks } from './bookmarks.js';
 import { flashError, flashSuccess } from './flash.js';
 import { DEBUG } from '../core/config.js';
+import { showAlert } from './modals/alertModal.js';
+import { t } from '../core/i18n.js';
 
 /**
  * Container used by flash notifications.
@@ -53,7 +55,7 @@ document.body.appendChild(flashContainer);
  * @returns {Promise<void>}
  */
 export async function deleteAllBookmarks() {
-  const ok = confirm('Are you sure you want to delete ALL bookmarks? This cannot be undone.');
+  const ok = await showAlert(t('alert.bookmarks.confirmDeleteAll'), { type: 'confirm' });
   if (!ok) return;
   const bookmarks = getBookmarks();
   try {
