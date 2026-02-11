@@ -130,6 +130,7 @@ export function openModal(bookmarkId) {
 function updateStates() {
   const hasImage = modalBackgroundImage.value.trim() !== '';
 
+  modalFaviconBackground.disabled = hasImage;
   modalBookmarkColor.disabled = hasImage || modalNoBackground.checked;
   modalNoBackground.disabled = hasImage && !modalFaviconBackground.checked;
   modalTextColor.disabled = !modalShowText.checked;
