@@ -173,7 +173,7 @@ function normalizeBookmark(bookmark = {}) {
     w: bookmark.w ?? 1,
     h: bookmark.h ?? 1,
     backgroundImageUrl: bookmark.backgroundImageUrl ?? null,
-    faviconBackground: bookmark.faviconBackground ?? true,
+    backgroundFavicon: bookmark.backgroundFavicon ?? true,
     invertColorBg: bookmark.invertColorBg ?? false,
     noBackground: bookmark.noBackground ?? false,
     backgroundColor: bookmark.backgroundColor ?? null,

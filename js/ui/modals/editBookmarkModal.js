@@ -35,7 +35,7 @@ const modalTextColor = document.getElementById('modal-text-color');
 const modalShowFavicon = document.getElementById('modal-show-favicon');
 const modalShowText = document.getElementById('modal-show-text');
 const modalBackgroundImage = document.getElementById('modal-background-image');
-const modalFaviconBackground = document.getElementById('modal-favicon-background');
+const modalBackgroundFavicon = document.getElementById('modal-background-favicon');
 
 /**
  * Currently edited bookmark id.
@@ -112,7 +112,7 @@ export function openModal(bookmarkId) {
   modalShowText.checked = !!bookmark.showText;
   modalShowFavicon.checked = !!bookmark.showFavicon;
   modalBackgroundImage.value = bookmark.backgroundImageUrl || '';
-  modalFaviconBackground.checked = !!bookmark.faviconBackground;
+  modalBackgroundFavicon.checked = !!bookmark.backgroundFavicon;
 
   updateStates();
 
@@ -130,23 +130,23 @@ export function openModal(bookmarkId) {
 function updateStates() {
   const hasImage = modalBackgroundImage.value.trim() !== '';
 
-  modalFaviconBackground.disabled = hasImage;
+  modalBackgroundFavicon.disabled = hasImage;
   modalBackgroundColor.disabled = hasImage || modalNoBackground.checked;
-  modalNoBackground.disabled = hasImage && !modalFaviconBackground.checked;
+  modalNoBackground.disabled = hasImage && !modalBackgroundFavicon.checked;
   modalTextColor.disabled = !modalShowText.checked;
 
-  modalBackgroundImage.disabled = modalFaviconBackground.checked;
-  modalShowFavicon.disabled = modalFaviconBackground.checked;
+  modalBackgroundImage.disabled = modalBackgroundFavicon.checked;
+  modalShowFavicon.disabled = modalBackgroundFavicon.checked;
 
-  modalInvertColorBg.disabled = modalFaviconBackground.checked;
+  modalInvertColorBg.disabled = modalBackgroundFavicon.checked;
 }
 
 modalBackgroundImage.addEventListener('input', updateStates);
 modalNoBackground.addEventListener('change', updateStates);
 modalShowText.addEventListener('change', updateStates);
 
-modalFaviconBackground.addEventListener('change', () => {
-  if (modalFaviconBackground.checked) {
+modalBackgroundFavicon.addEventListener('change', () => {
+  if (modalBackgroundFavicon.checked) {
     modalShowFavicon.checked = false;
     modalInvertColorBg.checked = false;
   }
@@ -167,13 +167,13 @@ modalSave.addEventListener('click', async () => {
     backgroundColor: modalBackgroundColor.value
   };
 
-  if (modalFaviconBackground.checked) {
-    updatedData.faviconBackground = true;
+  if (modalBackgroundFavicon.checked) {
+    updatedData.backgroundFavicon = true;
     updatedData.backgroundImageUrl = null;
     updatedData.showFavicon = false;
     updatedData.invertColorBg = false;
   } else {
-    updatedData.faviconBackground = false;
+    updatedData.backgroundFavicon = false;
     updatedData.backgroundImageUrl =
       modalBackgroundImage.value.trim() || null;
     updatedData.showFavicon = modalShowFavicon.checked;

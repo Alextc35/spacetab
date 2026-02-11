@@ -172,7 +172,7 @@ function applyBackgroundStyle(div, bookmark) {
     return;
   }
 
-  if (bookmark.faviconBackground) {
+  if (bookmark.backgroundFavicon) {
     div.classList.add('is-favicon-bg');
 
     if (bookmark.backgroundColor) {
@@ -229,7 +229,7 @@ function createBookmarkContent(bookmark) {
   linkEl.className = 'bookmark-link';
   linkEl.classList.toggle('is-editing', editMode);
 
-  if (bookmark.faviconBackground) {
+  if (bookmark.backgroundFavicon) {
     appendMainIcon(linkEl, bookmark);
     if (bookmark.showText) linkEl.appendChild(createTextSpan(bookmark));
     return linkEl;
