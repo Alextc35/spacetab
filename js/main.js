@@ -32,10 +32,10 @@ function initControls() {
 async function initApp() {
     await loadBookmarks();
     initSettingsModal(SETTINGS);
-    initImportExportButtons(exportBtn, importInput);
     initAlertModal();
     initEditBookmarkModal(renderBookmarks);
     initAddBookmarkModal();
+    initImportExportButtons(exportBtn, importInput);
     initControls();
     renderBookmarks();
 }
