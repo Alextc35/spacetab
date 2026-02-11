@@ -21,8 +21,12 @@ body {
   width: 100vw;
   overflow: hidden;
 
-  background: var(--color-bg-main) no-repeat center center fixed;
+  background-color: var(--color-bg-main);
+  background-image: var(--image-bg-main);
+  background-repeat: no-repeat;
+  background-position: center;
   background-size: cover;
+
 
   font-family: Arial, sans-serif;
   color: var(--color-text-bookmark);

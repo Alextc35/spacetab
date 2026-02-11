@@ -18,7 +18,7 @@
 
 :root {
   --color-bg-main: #333;
-  --image-bg-main: url('https://wallpapercave.com/wp/wp2730867.gif');
+  --image-bg-main: url();
 
   --color-bg-bookmark: #222;
   --color-text-bookmark: #ccc;
@@ -31,6 +31,4 @@
   --z-grid: 1;
   --z-bookmark: 2;
   --z-modal: 1000;
-
-  --grid-size: 140px;
 }

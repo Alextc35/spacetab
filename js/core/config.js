@@ -60,7 +60,12 @@ export const PADDING = 10;
  * @type {{ language: string }}
  */
 export const DEFAULT_SETTINGS = {
-  language: 'en'
+  language: 'en',
+
+  theme: {
+    backgroundColor: '#333333',
+    backgroundImageUrl: 'https://wallpapercave.com/wp/wp2730867.gif'
+  }
 };
 
 /**
@@ -79,4 +84,4 @@ export const DEFAULT_SETTINGS = {
  *
  * @type {{ language: string }}
  */
-export let SETTINGS = { ...DEFAULT_SETTINGS };
+export let SETTINGS = structuredClone(DEFAULT_SETTINGS);

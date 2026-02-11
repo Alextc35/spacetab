@@ -44,7 +44,8 @@ export const translations = {
       },
       bookmark: {
         confirmDelete: 'Eliminar {name}',
-      }
+      },
+      settingsReset: '¿Restablecer la configuración de fondo?'
     },
 
     addModal: {
@@ -140,7 +141,8 @@ export const translations = {
       },
       bookmark: {
         confirmDelete: 'Delete {name}',
-      }
+      },
+      settingsReset: 'Reset background settings?'
     },
 
     addModal: {
