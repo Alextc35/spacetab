@@ -22,7 +22,6 @@ export const translations = {
       },
       bookmark: {
         added: 'Favorito añadido correctamente',
-        confirmDelete: 'Eliminar {name}',
         deleted: 'Favorito eliminado correctamente',
         deleteError: 'Error al eliminar el favorito',
         notFound: 'Favorito no encontrado',
@@ -41,7 +40,10 @@ export const translations = {
     alert: {
       bookmarks: {
         confirmDeleteAll: '¿Eliminar todos los favoritos?',
-        no_space: 'No hay espacio disponible para más favoritos 😅'
+        no_space: 'No hay espacio disponible para más favoritos 😅',
+      },
+      bookmark: {
+        confirmDelete: 'Eliminar {name}',
       }
     },
 
@@ -116,7 +118,6 @@ export const translations = {
       },
       bookmark: {
         added: 'Bookmark added successfully',
-        confirmDelete: 'Delete {name}',
         deleted: 'Bookmark deleted successfully',
         deleteError: 'Failed to delete bookmark',
         notFound: 'Bookmark not found',
@@ -136,6 +137,9 @@ export const translations = {
       bookmarks: {
         confirmDeleteAll: 'Delete all bookmarks?',
         no_space: 'No space available for more bookmarks 😅'
+      },
+      bookmark: {
+        confirmDelete: 'Delete {name}',
       }
     },
 
