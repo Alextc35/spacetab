@@ -175,8 +175,8 @@ function applyBackgroundStyle(div, bookmark) {
   if (bookmark.faviconBackground) {
     div.classList.add('is-favicon-bg');
 
-    if (bookmark.bookmarkColor) {
-      div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
+    if (bookmark.backgroundColor) {
+      div.style.setProperty('--color-bg-bookmark', bookmark.backgroundColor);
     }
     return;
   }
@@ -189,8 +189,8 @@ function applyBackgroundStyle(div, bookmark) {
       `url("${bookmark.backgroundImageUrl}")`
     );
 
-    if (bookmark.bookmarkColor) {
-      div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
+    if (bookmark.backgroundColor) {
+      div.style.setProperty('--color-bg-bookmark', bookmark.backgroundColor);
     }
 
     if (bookmark.invertColorBg) {
@@ -200,8 +200,8 @@ function applyBackgroundStyle(div, bookmark) {
     return;
   }
 
-  if (bookmark.bookmarkColor) {
-    div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
+  if (bookmark.backgroundColor) {
+    div.style.setProperty('--color-bg-bookmark', bookmark.backgroundColor);
   }
 }
 
@@ -355,7 +355,7 @@ export async function confirmAndDeleteBookmark(bookmark) {
  * @returns {boolean}
  */
 function isVisuallyDark(bookmark) {
-  let dark = isDarkColor(bookmark.bookmarkColor);
+  let dark = isDarkColor(bookmark.backgroundColor);
   if (bookmark.backgroundImageUrl) dark = true;
   if (bookmark.invertColorBg) dark = !dark;
   return dark;

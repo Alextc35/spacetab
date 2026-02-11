@@ -29,7 +29,7 @@ const modalInvertColorIcon = document.getElementById('modal-invert-color-icon');
 const modalInvertColorBg = document.getElementById('modal-invert-color-bg');
 const modalSave = document.getElementById('modal-save');
 const modalCancel = document.getElementById('modal-cancel');
-const modalBookmarkColor = document.getElementById('modal-bookmark-color');
+const modalBackgroundColor = document.getElementById('modal-background-color');
 const modalNoBackground = document.getElementById('modal-no-background');
 const modalTextColor = document.getElementById('modal-text-color');
 const modalShowFavicon = document.getElementById('modal-show-favicon');
@@ -106,7 +106,7 @@ export function openModal(bookmarkId) {
   modalUrl.value = bookmark.url;
   modalInvertColorIcon.checked = !!bookmark.invertColorIcon;
   modalInvertColorBg.checked = !!bookmark.invertColorBg;
-  modalBookmarkColor.value = bookmark.bookmarkColor ?? '#222222';
+  modalBackgroundColor.value = bookmark.backgroundColor ?? '#222222';
   modalNoBackground.checked = !!bookmark.noBackground;
   modalTextColor.value = bookmark.textColor ?? '#cccccc';
   modalShowText.checked = !!bookmark.showText;
@@ -131,7 +131,7 @@ function updateStates() {
   const hasImage = modalBackgroundImage.value.trim() !== '';
 
   modalFaviconBackground.disabled = hasImage;
-  modalBookmarkColor.disabled = hasImage || modalNoBackground.checked;
+  modalBackgroundColor.disabled = hasImage || modalNoBackground.checked;
   modalNoBackground.disabled = hasImage && !modalFaviconBackground.checked;
   modalTextColor.disabled = !modalShowText.checked;
 
@@ -164,7 +164,7 @@ modalSave.addEventListener('click', async () => {
     noBackground: modalNoBackground.checked,
     textColor: modalTextColor.value,
     showText: modalShowText.checked,
-    bookmarkColor: modalBookmarkColor.value
+    backgroundColor: modalBackgroundColor.value
   };
 
   if (modalFaviconBackground.checked) {
