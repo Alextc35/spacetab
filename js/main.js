@@ -1,7 +1,7 @@
 import { initAddBookmarkModal, showAddBookmarkModal, initEditBookmarkModal, initAlertModal, initSettingsModal } from './ui/modals/index.js';
 import { loadBookmarks } from './core/bookmark.js';
 import { renderBookmarks, setEditMode} from './ui/bookmarks.js';
-import { SETTINGS, DEBUG } from './core/config.js';
+import { SETTINGS } from './core/config.js';
 import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 import { deleteAllBookmarks } from './ui/bookmarksImportExport.js';
 import { hasOpenModal, shouldSuppressGlobalEnter, openModal } from './ui/modalManager.js';
@@ -69,7 +69,7 @@ document.addEventListener('keydown', (e) => {
 
   const isEditing = gridOverlay.style.display === 'block';
 
-  if (e.code === 'Enter' && !isEditing) {
+  if (e.code === 'Enter') {
     e.preventDefault();
     showAddBookmarkModal();
   }
