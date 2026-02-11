@@ -115,31 +115,106 @@ export function renderBookmarks() {
 }
 
 /**
- * Apply visual style to a bookmark div based on its properties
+ * Apply visual style to a bookmark element
+ *
+ * Orchestrates visual updates:
+ * - Resets previous dynamic state
+ * - Applies background rules
+ * - Applies text styling
  *
  * @param {HTMLElement} div
  * @param {Object} bookmark
  */
 function applyBookmarkStyle(div, bookmark) {
-  div.classList.remove('is-favicon-bg', 'has-bg-image', 'invert-bg-image');
-  div.style.removeProperty('--color-bookmark-bg-image');
+  resetBookmarkVisualState(div);
+  applyBackgroundStyle(div, bookmark);
+  applyTextStyle(div, bookmark);
+}
 
+/* =====================================================
+ * Private helpers
+ * ===================================================== */
+
+/**
+ * Clears dynamic classes and inline CSS variables.
+ *
+ * Prevents style leakage between re-renders.
+ *
+ * @param {HTMLElement} div
+ */
+function resetBookmarkVisualState(div) {
+  div.classList.remove(
+    'is-favicon-bg',
+    'has-bg-image',
+    'invert-bg-image'
+  );
+
+  div.style.removeProperty('--bookmark-bg-image');
+  div.style.removeProperty('--color-bg-bookmark');
+  div.style.removeProperty('--color-text-bookmark');
+}
+
+/**
+ * Applies background-related styles.
+ *
+ * Handles:
+ * - Transparent mode
+ * - Favicon background mode
+ * - Image background mode
+ * - Solid color mode
+ *
+ * @param {HTMLElement} div
+ * @param {Object} bookmark
+ */
+function applyBackgroundStyle(div, bookmark) {
   if (bookmark.noBackground) {
     div.style.setProperty('--color-bg-bookmark', 'transparent');
-  } else if (bookmark.faviconBackground) {
+    return;
+  }
+
+  if (bookmark.faviconBackground) {
     div.classList.add('is-favicon-bg');
-    div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
-  } else if (bookmark.backgroundImageUrl) {
+
+    if (bookmark.bookmarkColor) {
+      div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
+    }
+    return;
+  }
+
+  if (bookmark.backgroundImageUrl) {
     div.classList.add('has-bg-image');
-    div.style.setProperty('--bookmark-bg-image', `url(${bookmark.backgroundImageUrl})`);
-    div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
+
+    div.style.setProperty(
+      '--bookmark-bg-image',
+      `url("${bookmark.backgroundImageUrl}")`
+    );
+
+    if (bookmark.bookmarkColor) {
+      div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
+    }
+
     if (bookmark.invertColorBg) {
       div.classList.add('invert-bg-image');
     }
-  } else {
+
+    return;
+  }
+
+  if (bookmark.bookmarkColor) {
     div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
   }
-  div.style.setProperty('--color-text-bookmark', bookmark.textColor);
+}
+
+/**
+ * Applies text color styling.
+ *
+ * @param {HTMLElement} div
+ * @param {Object} bookmark
+ */
+function applyTextStyle(div, bookmark) {
+  if (bookmark.textColor) {
+    div.style.setProperty('--color-text-bookmark', bookmark.textColor);
+  }
 }
 
 /**
