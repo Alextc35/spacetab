@@ -110,6 +110,8 @@ export function renderBookmarks() {
 
     container.appendChild(div);
   });
+
+  if (DEBUG) console.log('Bookmarks loaded:', bookmarks);
 }
 
 /**
@@ -119,39 +121,25 @@ export function renderBookmarks() {
  * @param {Object} bookmark
  */
 function applyBookmarkStyle(div, bookmark) {
-  div.classList.remove(
-    'is-favicon-bg',
-    'has-bg-image',
-    'invert-bg-image'
-  );
-  div.style.removeProperty('--bookmark-bg-image');
+  div.classList.remove('is-favicon-bg', 'has-bg-image', 'invert-bg-image');
+  div.style.removeProperty('--color-bookmark-bg-image');
 
   if (bookmark.noBackground) {
-    div.style.setProperty('--bookmark-bg', 'transparent');
+    div.style.setProperty('--color-bg-bookmark', 'transparent');
   } else if (bookmark.faviconBackground) {
     div.classList.add('is-favicon-bg');
-    div.style.setProperty('--bookmark-bg', bookmark.bookmarkColor || '#222');
+    div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
   } else if (bookmark.backgroundImageUrl) {
     div.classList.add('has-bg-image');
-    div.style.setProperty(
-      '--bookmark-bg-image',
-      `url(${bookmark.backgroundImageUrl})`
-    );
-    div.style.setProperty('--bookmark-bg', bookmark.bookmarkColor || '#222');
+    div.style.setProperty('--bookmark-bg-image', `url(${bookmark.backgroundImageUrl})`);
+    div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
     if (bookmark.invertColorBg) {
       div.classList.add('invert-bg-image');
     }
   } else {
-    div.style.setProperty(
-      '--bookmark-bg',
-      bookmark.bookmarkColor || '#222'
-    );
+    div.style.setProperty('--color-bg-bookmark', bookmark.bookmarkColor);
   }
-
-  div.style.setProperty(
-    '--bookmark-text',
-    bookmark.textColor || '#fff'
-  );
+  div.style.setProperty('--color-text-bookmark', bookmark.textColor);
 }
 
 /**
@@ -218,7 +206,7 @@ function createSmallIcon(bookmark) {
 function createTextSpan(bookmark) {
   const span = document.createElement('span');
   span.textContent = bookmark.name || '';
-  span.style.color = 'var(--bookmark-text)';
+  span.style.color = 'var(--color-text-bookmark)';
   return span;
 }
 

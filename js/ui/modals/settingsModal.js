@@ -53,7 +53,6 @@ export function initSettingsModal(SETTINGS) {
         bgColorInput.disabled = bgImageInput.value.trim() !== "";
     }
 
-
     /**
      * Applies the background to the document body.
      *
@@ -71,8 +70,6 @@ export function initSettingsModal(SETTINGS) {
             document.body.style.backgroundSize = 'cover';
         } else if (color) {
             document.body.style.background = color;
-        } else { // default
-            document.body.style.background = 'var(--color-bg-main)';
         }
     }
 

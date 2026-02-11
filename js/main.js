@@ -30,8 +30,7 @@ function initControls() {
 }
 
 async function initApp() {
-    const bookmarks = await loadBookmarks();
-    if (DEBUG) console.log('Bookmarks loaded:', bookmarks);
+    await loadBookmarks();
     initSettingsModal(SETTINGS);
     initAlertModal();
     initEditBookmarkModal(renderBookmarks);

@@ -21,11 +21,9 @@ body {
   width: 100vw;
   overflow: hidden;
 
-  /* Background is controlled globally via CSS variables */
   background: var(--color-bg-main) no-repeat center center fixed;
   background-size: cover;
 
-  /* Base typography */
   font-family: Arial, sans-serif;
-  color: var(--text-main);
+  color: var(--color-text-bookmark);
 }

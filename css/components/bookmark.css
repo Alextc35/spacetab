@@ -14,7 +14,7 @@
   text-align: center;
   flex-direction: column;
 
-  background-color: var(--bookmark-bg, #222);
+  background-color: var(--color-bg-bookmark);
   border-radius: var(--radius-md);
   z-index: var(--z-bookmark);
 }

@@ -18,9 +18,12 @@
 
 :root {
   --color-bg-main: #333;
-  --color-bg-bookmark: rgba(0,0,0,0.5);
+  --image-bg-main: url('https://wallpapercave.com/wp/wp2730867.gif');
+
+  --color-bg-bookmark: #222;
+  --color-text-bookmark: #ccc;
+
   --color-bg-modal: #222;
-  --color-text-main: #fff;
 
   --radius-sm: 5px;
   --radius-md: 10px;

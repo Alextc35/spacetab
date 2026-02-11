@@ -166,19 +166,19 @@ export async function clearBookmarks() {
 function normalizeBookmark(bookmark = {}) {
   return {
     id: bookmark.id || crypto.randomUUID(),
-    name: bookmark.name ?? 'New Bookmark',
-    url: bookmark.url ?? 'https://',
-    gx: bookmark.gx ?? 0,
-    gy: bookmark.gy ?? 0,
+    name: bookmark.name ?? null,
+    url: bookmark.url ?? null,
+    gx: bookmark.gx ?? null,
+    gy: bookmark.gy ?? null,
     w: bookmark.w ?? 1,
     h: bookmark.h ?? 1,
-    backgroundImageUrl: bookmark.backgroundImageUrl ?? null,
+    backgroundImageUrl: bookmark.backgroundImageUrl ?? false,
     faviconBackground: bookmark.faviconBackground ?? true,
     invertColorBg: bookmark.invertColorBg ?? false,
     noBackground: bookmark.noBackground ?? false,
-    bookmarkColor: bookmark.bookmarkColor ?? "#cccccc",
+    bookmarkColor: bookmark.bookmarkColor ?? null,
     showText: bookmark.showText ?? true,
-    textColor: bookmark.textColor ?? "#000000",
+    textColor: bookmark.textColor ?? null,
     showFavicon: bookmark.showFavicon ?? false,
     invertColorIcon: bookmark.invertColorIcon ?? false
   };
