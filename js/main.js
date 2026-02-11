@@ -16,8 +16,6 @@ const exportBtn = document.getElementById('export-btn');
 const importBtn = document.getElementById('import-btn');
 const importInput = document.getElementById('import-input');
 
-initImportExportButtons(exportBtn, importInput);
-
 const deleteAllBtn = document.getElementById('delete-all-btn');
 deleteAllBtn.addEventListener('click', deleteAllBookmarks);
 
@@ -32,6 +30,7 @@ function initControls() {
 async function initApp() {
     await loadBookmarks();
     initSettingsModal(SETTINGS);
+    initImportExportButtons(exportBtn, importInput);
     initAlertModal();
     initEditBookmarkModal(renderBookmarks);
     initAddBookmarkModal();

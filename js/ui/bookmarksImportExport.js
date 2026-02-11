@@ -155,4 +155,6 @@ export function initImportExportButtons(exportBtn, importInput) {
     importBookmarks(file);
     importInput.value = '';
   });
+
+  if (DEBUG) console.log('Import/export buttons initialized');
 }
