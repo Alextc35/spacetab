@@ -36,8 +36,8 @@ async function initApp() {
     initAlertModal();
     initEditBookmarkModal(renderBookmarks);
     initAddBookmarkModal();
-    renderBookmarks();
     initControls();
+    renderBookmarks();
 }
 
 function createToggleEditMode(toggleButton, gridOverlay, renderBookmarks, setEditMode) {
