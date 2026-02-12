@@ -59,6 +59,19 @@ export function initSettingsModal(SETTINGS) {
         bgColorInput.disabled = bgImageInput.value.trim() !== "";
     }
 
+    function updatePreview() {
+        const image = SETTINGS.theme.backgroundImageUrl;
+        const color = SETTINGS.theme.backgroundColor;
+
+        if (image) {
+            bgPreview.style.backgroundImage = `url(${image})`;
+            bgPreview.style.backgroundColor = 'transparent';
+        } else {
+            bgPreview.style.backgroundImage = 'none';
+            bgPreview.style.backgroundColor = color;
+        }
+    }
+
     registerModal({
         id: 'settings',
         element: settingsModal,
@@ -75,6 +88,7 @@ export function initSettingsModal(SETTINGS) {
         bgImageInput.value = SETTINGS.theme.backgroundImageUrl || '';
 
         updateColorState();
+        updatePreview();
 
         openModal('settings');
     });
@@ -111,13 +125,9 @@ export function initSettingsModal(SETTINGS) {
         bgColorInput.value = SETTINGS.theme.backgroundColor;
         bgImageInput.value = SETTINGS.theme.backgroundImageUrl || '';
 
-        bgPreview.style.backgroundImage = 
-        SETTINGS.theme.backgroundImageUrl 
-            ? `url(${SETTINGS.theme.backgroundImageUrl})`
-            : 'none';
-
         applyI18n();
         applyGlobalTheme(SETTINGS);
+        updatePreview();
         updateColorState();
 
         if (DEBUG) console.info('Settings loaded from storage:', SETTINGS);
@@ -135,6 +145,7 @@ export function initSettingsModal(SETTINGS) {
         SETTINGS.theme.backgroundImageUrl = null;
 
         applyGlobalTheme(SETTINGS);
+        updatePreview();
 
         await storage.set({ settings: SETTINGS });
     });
@@ -144,9 +155,8 @@ export function initSettingsModal(SETTINGS) {
 
         SETTINGS.theme.backgroundImageUrl = image || null;
 
-        bgPreview.style.backgroundImage = image ? `url(${image})` : 'none';
-
         applyGlobalTheme(SETTINGS);
+        updatePreview();
         updateColorState();
 
         await storage.set({ settings: SETTINGS });
@@ -162,6 +172,7 @@ export function initSettingsModal(SETTINGS) {
         bgImageInput.value = SETTINGS.theme.backgroundImageUrl || '';
 
         applyGlobalTheme(SETTINGS);
+        updatePreview();
         updateColorState();
 
         await storage.set({ settings: SETTINGS });
