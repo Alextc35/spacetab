@@ -88,7 +88,7 @@ export function initSettingsModal(SETTINGS) {
         element: settingsModal,
         acceptOnEnter: false,
         closeOnEsc: true,
-        closeOnOverlay: true,
+        closeOnOverlay: false,
         initialFocus: languageSelect
     });
 

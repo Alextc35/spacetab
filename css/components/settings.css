@@ -248,6 +248,7 @@ button {
 .input-clear {
   right: 8px;
   display: none;
+  color: white;
 }
 
 .input-action:hover {
