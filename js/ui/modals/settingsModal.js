@@ -25,7 +25,7 @@ import { applyGlobalTheme } from '../../core/theme.js';
 import { DEFAULT_SETTINGS } from '../../core/config.js';
 import { showAlert } from './alertModal.js';
 import { t } from '../../core/i18n.js';
-import { flash, flashSuccess } from '../flash.js';
+import { flashSuccess } from '../flash.js';
 
 /**
  * Initializes the Settings modal and its behavior.
@@ -50,7 +50,10 @@ export function initSettingsModal(SETTINGS) {
     const resetBgBtn = document.getElementById('reset-background');
 
     const clearBgImageBtn = document.getElementById('clear-background-image');
+    const copyBgImageBtn = document.getElementById('copy-background-image');
     const bgPreview = document.getElementById('background-preview');
+
+    let draftTheme = null;
 
     /**
      * Updates background input enabled/disabled state.
@@ -59,13 +62,17 @@ export function initSettingsModal(SETTINGS) {
      */
     function updateColorState() {
         bgColorInput.disabled = bgImageInput.value.trim() !== "";
+
         clearBgImageBtn.style.display = 
+            bgImageInput.value.trim() ? 'block' : 'none';
+
+        copyBgImageBtn.style.display =
             bgImageInput.value.trim() ? 'block' : 'none';
     }
 
-    function updatePreview() {
-        const image = SETTINGS.theme.backgroundImageUrl;
-        const color = SETTINGS.theme.backgroundColor;
+    function updatePreviewDraft() {
+        const image = draftTheme.backgroundImageUrl;
+        const color = draftTheme.backgroundColor;
 
         if (image) {
             bgPreview.style.backgroundImage = `url(${image})`;
@@ -88,17 +95,15 @@ export function initSettingsModal(SETTINGS) {
     settingsBtn.addEventListener('click', () => {
         languageSelect.value = SETTINGS.language;
 
-        bgColorInput.value = SETTINGS.theme.backgroundColor;
-        bgImageInput.value = SETTINGS.theme.backgroundImageUrl || '';
+        draftTheme = structuredClone(SETTINGS.theme);
+
+        bgColorInput.value = draftTheme.backgroundColor;
+        bgImageInput.value = draftTheme.backgroundImageUrl || '';
 
         updateColorState();
-        updatePreview();
+        updatePreviewDraft();
 
         openModal('settings');
-    });
-
-    settingsModal.addEventListener('click', e => {
-        if (e.target === settingsModal) closeModal();
     });
 
     settingsCancel.addEventListener('click', () => {
@@ -110,7 +115,11 @@ export function initSettingsModal(SETTINGS) {
 
     settingsSave.addEventListener('click', async () => {
         SETTINGS.language = languageSelect.value;
+        SETTINGS.theme = structuredClone(draftTheme);
+
+        applyGlobalTheme(SETTINGS);
         await storage.set({ settings: SETTINGS });
+
         flashSuccess('flash.settings.saved');
         closeModal();
     });
@@ -130,6 +139,8 @@ export function initSettingsModal(SETTINGS) {
             Object.assign(SETTINGS, data.settings);
         }
  
+        draftTheme = structuredClone(SETTINGS.theme);
+
         languageSelect.value = SETTINGS.language;
 
         bgColorInput.value = SETTINGS.theme.backgroundColor;
@@ -137,7 +148,7 @@ export function initSettingsModal(SETTINGS) {
 
         applyI18n();
         applyGlobalTheme(SETTINGS);
-        updatePreview();
+        updatePreviewDraft();
         updateColorState();
 
         if (DEBUG) console.info('Settings loaded from storage:', SETTINGS);
@@ -151,52 +162,53 @@ export function initSettingsModal(SETTINGS) {
     bgColorInput.addEventListener('input', async () => {
         if (bgColorInput.disabled) return;
 
-        SETTINGS.theme.backgroundColor = bgColorInput.value;
-        SETTINGS.theme.backgroundImageUrl = null;
+        draftTheme.backgroundColor = bgColorInput.value;
+        draftTheme.backgroundImageUrl = null;
 
-        applyGlobalTheme(SETTINGS);
-        updatePreview();
-
-        await storage.set({ settings: SETTINGS });
+        updatePreviewDraft();
+        updateColorState();
     });
 
     bgImageInput.addEventListener('input', async () => {
         const image = bgImageInput.value.trim();
 
-        SETTINGS.theme.backgroundImageUrl = image || null;
+        draftTheme.backgroundImageUrl = image || null;
 
-        applyGlobalTheme(SETTINGS);
-        updatePreview();
+        updatePreviewDraft();
         updateColorState();
+    });
 
-        await storage.set({ settings: SETTINGS });
+    copyBgImageBtn.addEventListener('click', async () => {
+        const value = bgImageInput.value.trim();
+        if (!value) return;
+
+        try {
+            await navigator.clipboard.writeText(value);
+            flashSuccess('flash.settings.copied');
+        } catch (err) {
+            console.error('Clipboard error:', err);
+        }
     });
 
     clearBgImageBtn.addEventListener('click', async () => {
         bgImageInput.value = '';
-        SETTINGS.theme.backgroundImageUrl = null;
+        draftTheme.backgroundImageUrl = null;
 
-        applyGlobalTheme(SETTINGS);
         updateColorState();
-        updatePreview();
-
-        await storage.set({ settings: SETTINGS });
+        updatePreviewDraft();
     });
 
     resetBgBtn.addEventListener('click', async () => {
         const ok = await showAlert(t('alert.settings.reset'), { type: 'confirm' });
         if (!ok) return;
-        SETTINGS.theme.backgroundColor = DEFAULT_SETTINGS.theme.backgroundColor;
-        SETTINGS.theme.backgroundImageUrl = DEFAULT_SETTINGS.theme.backgroundImageUrl;
 
-        bgColorInput.value = SETTINGS.theme.backgroundColor;
-        bgImageInput.value = SETTINGS.theme.backgroundImageUrl || '';
+        draftTheme = structuredClone(DEFAULT_SETTINGS.theme);
 
-        applyGlobalTheme(SETTINGS);
-        updatePreview();
+        bgColorInput.value = draftTheme.backgroundColor;
+        bgImageInput.value = draftTheme.backgroundImageUrl || '';
+
+        updatePreviewDraft();
         updateColorState();
-
-        await storage.set({ settings: SETTINGS });
     });
 
     if (DEBUG) console.info('Settings modal initialized');

@@ -63,7 +63,7 @@ document.addEventListener('keydown', (e) => {
 
   if (e.key === '.') {
     e.preventDefault();
-    openModal('settings');
+    document.getElementById('settings')?.click();
   }
 
   const isEditing = gridOverlay.style.display === 'block';

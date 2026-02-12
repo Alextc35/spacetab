@@ -36,7 +36,8 @@ export const translations = {
         importError: 'Error al importar los favoritos'
       },
       settings: {
-        saved: 'Configuración guardada correctamente'
+        saved: 'Configuración guardada correctamente',
+        copied: 'Valor copiado al portapapeles'
       }
     },
 
@@ -139,7 +140,8 @@ export const translations = {
         importError: 'Failed to import bookmarks'
       },
       settings: {
-        saved: 'Settings saved successfully'
+        saved: 'Settings saved successfully',
+        copied: 'Value copied to clipboard'
       }
     },
 
