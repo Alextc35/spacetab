@@ -94,10 +94,12 @@ document.addEventListener('keydown', (e) => {
     e.stopPropagation();
     suppressNextGlobalEnter = true;
     modal.onAccept?.();
-    closeModal();
+
     requestAnimationFrame(() => {
       suppressNextGlobalEnter = false;
+      modal.previouslyFocused?.focus?.();
     });
+    return;
   }
 });
 
@@ -211,5 +213,6 @@ export function closeModal() {
   if (!modal) return;
 
   modal.element.style.display = 'none';
-  modal.previouslyFocused?.focus?.();
+
+  if (!suppressNextGlobalEnter) { modal.previouslyFocused?.focus?.(); }
 }
