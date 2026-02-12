@@ -51,9 +51,22 @@ export function initSettingsModal(SETTINGS) {
 
     const clearBgImageBtn = document.getElementById('clear-background-image');
     const copyBgImageBtn = document.getElementById('copy-background-image');
+    const toggleBtn = document.getElementById('toggle-background-image');
+
     const bgPreview = document.getElementById('background-preview');
 
     let draftTheme = null;
+    let isLocked = false;
+
+    toggleBtn.addEventListener('click', () => {
+        if (isLocked) {
+            removeLockedState();
+        } else {
+            applyLockedState();
+        }
+
+        updateColorState(); // 
+    });
 
     /**
      * Updates background input enabled/disabled state.
@@ -64,9 +77,12 @@ export function initSettingsModal(SETTINGS) {
         bgColorInput.disabled = bgImageInput.value.trim() !== "";
 
         clearBgImageBtn.style.display = 
-            bgImageInput.value.trim() ? 'block' : 'none';
+            (!isLocked && bgImageInput.value.trim()) ? 'block' : 'none';
 
         copyBgImageBtn.style.display =
+            bgImageInput.value.trim() ? 'block' : 'none';
+
+        toggleBtn.style.display =
             bgImageInput.value.trim() ? 'block' : 'none';
     }
 
@@ -83,6 +99,32 @@ export function initSettingsModal(SETTINGS) {
         }
     }
 
+    function applyLockedState() {
+        isLocked = true;
+        draftTheme.backgroundImageUrlLocked = true;
+
+        bgImageInput.classList.add('input-locked');
+        bgImageInput.readOnly = true;
+
+        toggleBtn.textContent = '🔒';
+        toggleBtn.title = 'Unlock URL';
+
+        updateColorState();
+    }
+
+    function removeLockedState() {
+        isLocked = false;
+        draftTheme.backgroundImageUrlLocked = false;
+
+        bgImageInput.classList.remove('input-locked');
+        bgImageInput.readOnly = false;
+
+        toggleBtn.textContent = '🔓';
+        toggleBtn.title = 'Lock URL';
+
+        updateColorState();
+    }
+
     registerModal({
         id: 'settings',
         element: settingsModal,
@@ -96,6 +138,11 @@ export function initSettingsModal(SETTINGS) {
         languageSelect.value = SETTINGS.language;
 
         draftTheme = structuredClone(SETTINGS.theme);
+
+        isLocked = draftTheme.backgroundImageUrlLocked || false;
+
+        if (isLocked) { applyLockedState(); }
+            else { removeLockedState(); }
 
         bgColorInput.value = draftTheme.backgroundColor;
         bgImageInput.value = draftTheme.backgroundImageUrl || '';
@@ -138,13 +185,16 @@ export function initSettingsModal(SETTINGS) {
         if (data.settings) {
             Object.assign(SETTINGS, data.settings);
         }
- 
+
         draftTheme = structuredClone(SETTINGS.theme);
 
         languageSelect.value = SETTINGS.language;
 
         bgColorInput.value = SETTINGS.theme.backgroundColor;
         bgImageInput.value = SETTINGS.theme.backgroundImageUrl || '';
+
+        isLocked = SETTINGS.theme.backgroundImageUrlLocked || false;
+        if (isLocked && bgImageInput.value.trim()) { applyLockedState(); }
 
         applyI18n();
         applyGlobalTheme(SETTINGS);
@@ -208,6 +258,9 @@ export function initSettingsModal(SETTINGS) {
         bgImageInput.value = '';
 
         draftTheme.backgroundImageUrl = null;
+
+        draftTheme.backgroundImageUrlLocked = false;
+        removeLockedState();
 
         updatePreviewDraft();
         updateColorState();

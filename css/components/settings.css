@@ -221,7 +221,7 @@ button {
 
 .input-with-actions input {
   width: 100%;
-  padding-right: 72px; /* espacio real para 2 botones */
+  padding-right: 90px; /* espacio real para 3 botones */
   box-sizing: border-box;
 }
 
@@ -239,15 +239,26 @@ button {
   transition: opacity 0.2s ease, transform 0.15s ease, background 0.15s ease;
 }
 
+.input-toggle { right: 62px; }
+
+.input-locked {
+  font-style: italic;
+  opacity: 0.6;
+  color: #888;
+}
+
+.input-locked {
+  pointer-events: none;
+}
+
 /* Botón copiar */
 .input-copy {
-  right: 36px;
+  right: 32px;
 }
 
 /* Botón limpiar */
 .input-clear {
   right: 8px;
-  display: none;
   color: white;
 }
 

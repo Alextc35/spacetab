@@ -64,7 +64,8 @@ export const DEFAULT_SETTINGS = {
 
   theme: {
     backgroundColor: '#333333',
-    backgroundImageUrl: 'https://wallpapercave.com/wp/wp2730867.gif'
+    backgroundImageUrl: 'https://wallpapercave.com/wp/wp2730867.gif',
+    backgroundImageUrlLocked: false
   }
 };
 
