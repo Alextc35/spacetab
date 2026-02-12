@@ -40,8 +40,9 @@
 
 /* Sizes */
 .modal-lg {
-  width: 600px;
-  min-height: 400px;
+  width: 700px;
+  height: 500px;
+  max-height: 90vh;
 }
 
 .modal-sm {

@@ -48,6 +48,8 @@ export function initSettingsModal(SETTINGS) {
     const bgImageInput = document.getElementById('background-image');
     const resetBgBtn = document.getElementById('reset-background');
 
+    const bgPreview = document.getElementById('background-preview');
+
     /**
      * Updates background input enabled/disabled state.
      *
@@ -109,6 +111,11 @@ export function initSettingsModal(SETTINGS) {
         bgColorInput.value = SETTINGS.theme.backgroundColor;
         bgImageInput.value = SETTINGS.theme.backgroundImageUrl || '';
 
+        bgPreview.style.backgroundImage = 
+        SETTINGS.theme.backgroundImageUrl 
+            ? `url(${SETTINGS.theme.backgroundImageUrl})`
+            : 'none';
+
         applyI18n();
         applyGlobalTheme(SETTINGS);
         updateColorState();
@@ -136,6 +143,8 @@ export function initSettingsModal(SETTINGS) {
         const image = bgImageInput.value.trim();
 
         SETTINGS.theme.backgroundImageUrl = image || null;
+
+        bgPreview.style.backgroundImage = image ? `url(${image})` : 'none';
 
         applyGlobalTheme(SETTINGS);
         updateColorState();
