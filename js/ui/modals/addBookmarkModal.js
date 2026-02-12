@@ -80,7 +80,7 @@ export function initAddBookmarkModal() {
 
   modal.innerHTML = `
     <div class="modal-overlay"></div>
-    <div class="modal-card">
+    <div class="modal-card modal-sm">
       <h2>➕ ${t('addModal.title')}</h2>
 
       <div class="modal-field">

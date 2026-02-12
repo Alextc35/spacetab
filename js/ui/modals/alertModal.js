@@ -93,7 +93,7 @@ export function initAlertModal() {
   modal.className = 'modal';
   modal.innerHTML = `
     <div class="modal-overlay"></div>
-    <div class="modal-card">
+    <div class="modal-card modal-sm">
       <h2 id="alert-title"></h2>
       <div class="modal-actions">
         <button id="alert-cancel" class="btn ghost"></button>

@@ -6,18 +6,24 @@
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
+
   <div id="floating-menu">
     <button id="toggle-mode" type="button" data-i18n="buttons.edit">✎</button>
     <button id="add-bookmark" type="button" data-i18n="buttons.add">➕</button>
     <button id="settings" type="button" data-i18n="buttons.settings">⚙️</button>
   </div>
+
   <div id="grid-overlay"></div>
+
   <div id="flash-container" class="flash-container"></div>
+
   <div id="bookmark-container"></div>
 
   <!-- Modal de edición -->
-  <div id="edit-modal" style="display: none;">
-    <div class="modal-content">
+  <div class="modal" id="edit-modal">
+    <div class="modal-overlay"></div>
+
+    <div class="modal-card">
 
       <h2 data-i18n="editModal.title">Editar Favorito</h2>
 
@@ -76,66 +82,124 @@
         <label for="modal-invert-color-icon" data-i18n="editModal.invertColorIcon">Invertir colores</label>
       </div>
 
-      <div class="modal-buttons">
-        <button id="modal-cancel" type="button" data-i18n="buttons.cancel">Cancelar</button>
-        <button id="modal-save" type="button" data-i18n="buttons.save">Guardar</button>
+      <div class="modal-actions">
+        <button class="btn ghost" id="modal-cancel" type="button" data-i18n="buttons.cancel">Cancelar</button>
+        <button class="btn primary" id="modal-save" type="button" data-i18n="buttons.save">Guardar</button>
       </div>
     </div>
   </div>
 
   <!-- Modal de Configuración -->
-  <div id="settings-modal" style="display: none;">
-    <div class="settings-content">
-      <!-- Panel de pestañas -->
-      <div class="settings-tabs">
-        <button class="tab-btn active" type="button" data-tab="tab-general" data-i18n="settingsModal.sections.general">⚙️ General</button>
-        <button class="tab-btn" type="button" data-tab="tab-lang" data-i18n="settingsModal.sections.language">🌐 Idiomas</button>
-        <button class="tab-btn" type="button" data-tab="tab-info" data-i18n="settingsModal.sections.information">ℹ️ Información</button>
-      </div>
+  <div class="modal" id="settings-modal">
+    <div class="modal-overlay"></div>
 
-      <!-- Contenido de cada pestaña -->
-      <div class="settings-panel">
-        <div class="tab-content" id="tab-general">
-          <h2 data-i18n="settingsModal.general.title">General</h2>
-          <h3 data-i18n="settingsModal.general.subtitle">Fondo de la página</h3>
-          <div id="background-settings">
-            <label for="background-color" data-i18n="settingsModal.general.backgroundColor">Color:</label>
-            <input type="color" id="background-color">
-            <label for="background-image" data-i18n="settingsModal.general.backgroundImage">Imagen URL:</label>
-            <input type="text" id="background-image" placeholder="https://...">
-            <button id="reset-background" type="button" data-i18n="settingsModal.general.resetBackground">Restablecer</button>
-            <button id="export-btn" type="button" data-i18n="settingsModal.general.export">Exportar</button>
-            <input type="file" id="import-input" style="display:none;">
-            <button id="import-btn" type="button" data-i18n="settingsModal.general.import">Importar</button>
-            <button id="delete-all-btn" type="button" data-i18n="settingsModal.general.deleteAll">Borrar todos los Bookmarks</button>
+    <div class="modal-card modal-lg">
+      <div class="settings-layout">
+
+        <!-- Sidebar -->
+        <div class="settings-tabs">
+          <button class="tab-btn active" type="button" data-tab="tab-general"
+            data-i18n="settingsModal.sections.general">⚙️ General</button>
+
+          <button class="tab-btn" type="button" data-tab="tab-lang"
+            data-i18n="settingsModal.sections.language">🌐 Idiomas</button>
+
+          <button class="tab-btn" type="button" data-tab="tab-info"
+            data-i18n="settingsModal.sections.information">ℹ️ Información</button>
+        </div>
+
+        <!-- Panel derecho -->
+        <div class="settings-panel">
+
+          <!-- TAB GENERAL -->
+          <div class="tab-content" id="tab-general">
+            <h2 data-i18n="settingsModal.general.title">General</h2>
+            <h3 data-i18n="settingsModal.general.subtitle">Fondo de la página</h3>
+
+            <div id="background-settings">
+              <label for="background-color"
+                data-i18n="settingsModal.general.backgroundColor">Color:</label>
+
+              <input type="color" id="background-color">
+
+              <label for="background-image"
+                data-i18n="settingsModal.general.backgroundImage">Imagen URL:</label>
+
+              <input type="text" id="background-image" placeholder="https://...">
+
+              <button id="reset-background" type="button" class="btn btn-secondary"
+                data-i18n="settingsModal.general.resetBackground">
+                Restablecer
+              </button>
+
+              <button id="export-btn" type="button" class="btn btn-info"
+                data-i18n="settingsModal.general.export">
+                Exportar
+              </button>
+
+              <input type="file" id="import-input" style="display:none;">
+
+              <button id="import-btn" type="button" class="btn btn-info"
+                data-i18n="settingsModal.general.import">
+                Importar
+              </button>
+
+              <button id="delete-all-btn" type="button" class="btn btn-danger"
+                data-i18n="settingsModal.general.deleteAll">
+                Borrar todos los Bookmarks
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div class="tab-content" id="tab-lang" style="display:none;">
-          <h2 data-i18n="settingsModal.languages.title">Idiomas</h2>
-          <p data-i18n="settingsModal.languages.text">Selecciona el idioma de la interfaz:</p>
-          <select id="language-select">
-            <option value="en">English</option>
-            <option value="es">Español</option>
-          </select>
-        </div>
+          <!-- TAB LANG -->
+          <div class="tab-content" id="tab-lang" style="display:none;">
+            <h2 data-i18n="settingsModal.languages.title">Idiomas</h2>
 
-        <div class="tab-content" id="tab-info" style="display:none;">
-          <h2 data-i18n="settingsModal.information.title">Información</h2>
-          <p><strong>SpaceTab</strong></p>
-          <p data-i18n="settingsModal.information.version">Versión:</p>
-          <p data-i18n="settingsModal.information.author">Autor: @alextc35</p>
-          <p>© 2025</p>
-        </div>
+            <p data-i18n="settingsModal.languages.text">
+              Selecciona el idioma de la interfaz:
+            </p>
 
-        <!-- Botones abajo -->
-        <div class="settings-buttons">
-          <button id="settings-cancel" type="button" data-i18n="buttons.cancel">Cancelar</button>
-          <button id="settings-save" type="button" data-i18n="buttons.save">Guardar</button>
+            <select id="language-select">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+            </select>
+          </div>
+
+          <!-- TAB INFO -->
+          <div class="tab-content" id="tab-info" style="display:none;">
+            <h2 data-i18n="settingsModal.information.title">Información</h2>
+
+            <p><strong>SpaceTab</strong></p>
+
+            <p data-i18n="settingsModal.information.version">
+              Versión:
+            </p>
+
+            <p data-i18n="settingsModal.information.author">
+              Autor: @alextc35
+            </p>
+
+            <p>© 2025</p>
+          </div>
+
+          <!-- Botones inferiores -->
+          <div class="modal-actions">
+            <button id="settings-cancel" class="btn ghost" type="button"
+              data-i18n="buttons.cancel">
+              Cancelar
+            </button>
+
+            <button id="settings-save" class="btn primary" type="button"
+              data-i18n="buttons.save">
+              Guardar
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
   </div>
+
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
