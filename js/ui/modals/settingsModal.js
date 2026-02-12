@@ -205,7 +205,9 @@ export function initSettingsModal(SETTINGS) {
         draftTheme = structuredClone(DEFAULT_SETTINGS.theme);
 
         bgColorInput.value = draftTheme.backgroundColor;
-        bgImageInput.value = draftTheme.backgroundImageUrl || '';
+        bgImageInput.value = '';
+
+        draftTheme.backgroundImageUrl = null;
 
         updatePreviewDraft();
         updateColorState();
