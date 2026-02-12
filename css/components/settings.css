@@ -185,6 +185,5 @@ button {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  margin-top: 8px;
   transition: background-image 0.2s ease;
 }
