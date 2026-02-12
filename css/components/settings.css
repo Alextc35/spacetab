@@ -31,7 +31,7 @@
 .settings-panel .tab-content {
   flex: 1;
   overflow-y: auto;
-  padding-right: 6px;
+  padding-right: 10px;
 }
 
 /* ===============================
@@ -221,4 +221,26 @@ button {
 .input-clear:hover {
   background: #2a2a2a;
   color: #fff;
+}
+
+/* ===============================
+   Custom Scrollbar
+================================= */
+
+.settings-panel .tab-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.settings-panel .tab-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.settings-panel .tab-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 173, 239, 0.5); /* #00ADEF con alpha */
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.settings-panel .tab-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 173, 239, 0.8);
 }
