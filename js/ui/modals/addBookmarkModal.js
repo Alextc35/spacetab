@@ -132,6 +132,14 @@ export function initAddBookmarkModal() {
     }
   });
 
+  modal.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      closeModal();
+    }
+  });
+
   if (DEBUG) console.info('AddBookmark modal initialized');
 }
 

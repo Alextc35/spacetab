@@ -121,7 +121,7 @@ export function initAlertModal() {
     element: modal,
     acceptOnEnter: true,
     closeOnEsc: true,
-    closeOnOverlay: true,
+    closeOnOverlay: false,
     initialFocus: btnAccept
   });
 

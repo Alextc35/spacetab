@@ -86,7 +86,6 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     e.stopPropagation();
     modal.onCancel?.();
-    closeModal();
   }
 
   if (e.key === 'Enter' && modal.acceptOnEnter) {
