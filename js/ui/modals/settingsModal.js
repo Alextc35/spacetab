@@ -48,6 +48,7 @@ export function initSettingsModal(SETTINGS) {
     const bgImageInput = document.getElementById('background-image');
     const resetBgBtn = document.getElementById('reset-background');
 
+    const clearBgImageBtn = document.getElementById('clear-background-image');
     const bgPreview = document.getElementById('background-preview');
 
     /**
@@ -57,6 +58,8 @@ export function initSettingsModal(SETTINGS) {
      */
     function updateColorState() {
         bgColorInput.disabled = bgImageInput.value.trim() !== "";
+        clearBgImageBtn.style.display = 
+            bgImageInput.value.trim() ? 'block' : 'none';
     }
 
     function updatePreview() {
@@ -158,6 +161,17 @@ export function initSettingsModal(SETTINGS) {
         applyGlobalTheme(SETTINGS);
         updatePreview();
         updateColorState();
+
+        await storage.set({ settings: SETTINGS });
+    });
+
+    clearBgImageBtn.addEventListener('click', async () => {
+        bgImageInput.value = '';
+        SETTINGS.theme.backgroundImageUrl = null;
+
+        applyGlobalTheme(SETTINGS);
+        updateColorState();
+        updatePreview();
 
         await storage.set({ settings: SETTINGS });
     });

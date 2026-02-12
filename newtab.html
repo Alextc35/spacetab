@@ -119,13 +119,16 @@
             <div id="background-settings">
               <label for="background-color"
                 data-i18n="settingsModal.general.backgroundColor">Color:</label>
-
               <input type="color" id="background-color">
 
               <label for="background-image"
                 data-i18n="settingsModal.general.backgroundImage">Imagen URL:</label>
+              <div class="input-with-clear">
+                <input type="text" id="background-image" placeholder="https://...">
+                <button type="button" class="input-clear" id="clear-background-image">✕</button>
+              </div>
 
-              <input type="text" id="background-image" placeholder="https://...">
+
               <div class="bg-preview" id="background-preview"></div>
 
               <button id="reset-background" type="button" class="btn btn-secondary"
