@@ -35,6 +35,9 @@ export const translations = {
         imported: 'Favoritos importados correctamente',
         importError: 'Error al importar los favoritos'
       },
+      settings: {
+        saved: 'Configuración guardada correctamente'
+      }
     },
 
     alert: {
@@ -45,7 +48,10 @@ export const translations = {
       bookmark: {
         confirmDelete: 'Eliminar {name}',
       },
-      settingsReset: '¿Restablecer la configuración de fondo?'
+      settings: {
+        reset: '¿Restablecer la configuración de fondo?',
+        cancel: '¿Descartar los cambios en la configuración?'
+      }
     },
 
     addModal: {
@@ -132,6 +138,9 @@ export const translations = {
         imported: 'Bookmarks imported successfully',
         importError: 'Failed to import bookmarks'
       },
+      settings: {
+        saved: 'Settings saved successfully'
+      }
     },
 
     alert: {
@@ -142,7 +151,10 @@ export const translations = {
       bookmark: {
         confirmDelete: 'Delete {name}',
       },
-      settingsReset: 'Reset background settings?'
+      settings: {
+        reset: 'Reset background settings?',
+        cancel: 'Discard settings changes?'
+      }
     },
 
     addModal: {

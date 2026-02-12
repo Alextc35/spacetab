@@ -25,6 +25,7 @@ import { applyGlobalTheme } from '../../core/theme.js';
 import { DEFAULT_SETTINGS } from '../../core/config.js';
 import { showAlert } from './alertModal.js';
 import { t } from '../../core/i18n.js';
+import { flash, flashSuccess } from '../flash.js';
 
 /**
  * Initializes the Settings modal and its behavior.
@@ -100,11 +101,17 @@ export function initSettingsModal(SETTINGS) {
         if (e.target === settingsModal) closeModal();
     });
 
-    settingsCancel.addEventListener('click', closeModal);
+    settingsCancel.addEventListener('click', () => {
+        // todo: showAlert skel
+        showAlert(t('alert.settings.cancel'), { type: 'confirm' }).then(ok => {if (ok) { 
+            closeModal();
+        }});
+    });
 
     settingsSave.addEventListener('click', async () => {
         SETTINGS.language = languageSelect.value;
         await storage.set({ settings: SETTINGS });
+        flashSuccess('flash.settings.saved');
         closeModal();
     });
 
@@ -177,7 +184,7 @@ export function initSettingsModal(SETTINGS) {
     });
 
     resetBgBtn.addEventListener('click', async () => {
-        const ok = await showAlert(t('alert.settingsReset'), { type: 'confirm' });
+        const ok = await showAlert(t('alert.settings.reset'), { type: 'confirm' });
         if (!ok) return;
         SETTINGS.theme.backgroundColor = DEFAULT_SETTINGS.theme.backgroundColor;
         SETTINGS.theme.backgroundImageUrl = DEFAULT_SETTINGS.theme.backgroundImageUrl;
