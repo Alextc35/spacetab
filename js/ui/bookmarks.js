@@ -55,6 +55,8 @@ export function renderBookmarks() {
 
     container.appendChild(div);
   });
+
+  if (DEBUG) console.warn('Rendered bookmarks')
 }
 
 function applyBookmarkStyle(div, bookmark) {
