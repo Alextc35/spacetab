@@ -176,7 +176,7 @@ modalSave.addEventListener('click', async () => {
 
   if (bookmark) {
     flashSuccess('flash.bookmark.updated');
-    if (DEBUG) console.log('Bookmark updated ', bookmark);
+    if (DEBUG) console.log('Bookmark updated: ', bookmark);
   }
 
   closeEditModal();

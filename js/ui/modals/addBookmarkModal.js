@@ -147,7 +147,7 @@ async function handleAccept() {
 
     if (bookmark) {
       flashSuccess('flash.bookmark.added');
-      if (DEBUG) console.log('Bookmark added:', bookmark);
+      if (DEBUG) console.log('Bookmark added: ', bookmark);
     }
 
     closeModal();

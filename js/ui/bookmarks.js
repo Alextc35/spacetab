@@ -197,7 +197,7 @@ export async function confirmAndDeleteBookmark(bookmark) {
   const deleted = await deleteBookmarkById(bookmark.id);
   if (deleted) {
     flashSuccess('flash.bookmark.deleted');
-    if (DEBUG) console.info('Bookmark deleted', bookmark);
+    if (DEBUG) console.info('Bookmark deleted: ', bookmark);
   } else {
     flashError('flash.bookmark.deleteError');
     if (DEBUG) console.error('Error deleting bookmark', bookmark);
