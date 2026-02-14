@@ -103,8 +103,8 @@ function toggleEditMode() {
   toggleButton.textContent = next ? '🔒' : '✎';
   gridOverlay.style.display = next ? 'block' : 'none';
 
-  if (next) flash(t('flash.editMode.enabled'));
-   else flash(t('flash.editMode.disabled'));
+  if (next) flash(t('flash.editMode.enabled'), 'info', 1000);
+   else flash(t('flash.editMode.disabled'), 'info', 1000);
 
   setState({ isEditing: next });
 }
