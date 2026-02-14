@@ -28,9 +28,8 @@ import { setState, getState, subscribe, finishHydration } from './core/store.js'
 import { loadSettings } from './core/settings.js';
 import { DEFAULT_SETTINGS } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
-import { applyI18n } from './core/i18n.js';
+import { applyI18n, t } from './core/i18n.js';
 import { flash } from './ui/flash.js';
-import { t } from './core/i18n.js';
 
 /* ======================= DOM References ======================= */
 
