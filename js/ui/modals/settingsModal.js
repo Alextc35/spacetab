@@ -137,7 +137,12 @@ export function initSettingsModal(SETTINGS) {
         if (btn) btn.classList.add("active");
 
         const content = document.getElementById(tabId);
-        if (content) content.style.display = "block";
+        if (content) {
+            content.style.display = "block";
+            requestAnimationFrame(() => {
+                content.scrollTop = 0;
+            });
+        }
     }
 
     registerModal({
