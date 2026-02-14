@@ -191,6 +191,7 @@ export function initSettingsModal(SETTINGS) {
 
         applyGlobalTheme(getState().settings);
 
+        if (DEBUG) console.log("Settings updated: ", getState().settings);
         flashSuccess('flash.settings.saved');
         closeModal();
     });
