@@ -15,6 +15,7 @@ export const version = '0.16.3';
  */
 export const translations = {
   es: {
+    title: 'Nueva pestaña',
     flash: {
       editMode: {
         enabled: 'Modo edición activado',
@@ -120,6 +121,7 @@ export const translations = {
   },
 
   en: {
+    title: 'New tab',
     flash: {
       editMode: {
         enabled: 'Edit mode enabled',
