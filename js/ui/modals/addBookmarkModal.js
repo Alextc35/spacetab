@@ -1,5 +1,4 @@
 import { addBookmark } from '../../core/bookmark.js';
-import { renderBookmarks } from '../bookmarks.js';
 import { isAreaFree } from '../../core/grid.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { flashSuccess } from '../flash.js';

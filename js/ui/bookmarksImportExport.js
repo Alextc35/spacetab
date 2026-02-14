@@ -1,5 +1,4 @@
 import { clearBookmarks} from '../core/bookmark.js';
-import { renderBookmarks } from './bookmarks.js';
 import { flashError, flashSuccess } from './flash.js';
 import { DEBUG } from '../core/config.js';
 import { showAlert } from './modals/alertModal.js';
