@@ -40,8 +40,8 @@ let resizeTimeout = null;
 
 initApp();
 
-function initApp() {
-  initState(DEFAULT_SETTINGS);
+async function initApp() {
+  await initState(DEFAULT_SETTINGS);
   initModals();
   initImportExport();
   initControls();
@@ -63,10 +63,12 @@ async function initState(DEFAULT_SETTINGS) {
       applyI18n();
     }
   });
-  if (DEBUG) console.log('Initial default state:', getState());
+
   await loadBookmarks();
   await loadSettings(DEFAULT_SETTINGS);
+
   finishHydration();
+  
   if (DEBUG) console.log('State local loaded:', getState());
 }
 
