@@ -1,30 +1,20 @@
 /* ======================= Imports ======================= */
 
 import {
-  initAddBookmarkModal,
-  showAddBookmarkModal,
-  initEditBookmarkModal,
-  initAlertModal,
-  initSettingsModal
+  initAddBookmarkModal, showAddBookmarkModal,
+  initEditBookmarkModal, initAlertModal, initSettingsModal
 } from './ui/modals/index.js';
-
-import { loadBookmarks } from './core/bookmark.js';
-
 import {
-  renderBookmarks
-} from './ui/bookmarks.js';
-
-import {
-  initImportExportButtons,
-  deleteAllBookmarks
-} from './ui/bookmarksImportExport.js';
-
-import {
-  hasOpenModal,
-  shouldSuppressGlobalEnter
+  hasOpenModal, shouldSuppressGlobalEnter
 } from './ui/modalManager.js';
-
-import { setState, getState, subscribe, finishHydration } from './core/store.js';
+import {
+  initImportExportButtons, deleteAllBookmarks
+} from './ui/bookmarksImportExport.js';
+import {
+  setState, getState, subscribe, finishHydration
+} from './core/store.js';
+import { loadBookmarks } from './core/bookmark.js';
+import { renderBookmarks } from './ui/bookmarks.js';
 import { loadSettings } from './core/settings.js';
 import { DEFAULT_SETTINGS } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
