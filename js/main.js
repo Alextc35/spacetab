@@ -41,11 +41,13 @@ let resizeTimeout = null;
 initApp();
 
 async function initApp() {
+  if (DEBUG) console.time("Tiempo de ejecución"); 
   await initState(DEFAULT_SETTINGS);
   initModals();
   initImportExport();
   initControls();
   initGlobalEvents();
+  if (DEBUG) console.timeEnd("Tiempo de ejecución");
 }
 
 /* ======================= Init Sections ======================= */
