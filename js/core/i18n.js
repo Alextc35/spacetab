@@ -15,8 +15,8 @@
  * ------------------------------------------------------
  */
 
-import { SETTINGS } from './config.js';
 import { translations } from './translations.js';
+import { getState } from './store.js';
 
 /**
  * Applies translations to DOM elements using the `data-i18n` attribute.
@@ -53,7 +53,9 @@ export function applyI18n(root = document) {
  * @returns {string} Localized text or the key if missing
  */
 export function t(key) {
-  const lang = SETTINGS.language || 'en';
+  const { settings } = getState();
+
+  const lang = settings.language || 'en';
   const parts = key.split('.');
   let value = translations[lang];
 

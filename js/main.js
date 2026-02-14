@@ -9,11 +9,9 @@ import {
 } from './ui/modals/index.js';
 
 import { loadBookmarks } from './core/bookmark.js';
-import { SETTINGS } from './core/config.js';
 
 import {
-  renderBookmarks,
-  setEditMode
+  renderBookmarks
 } from './ui/bookmarks.js';
 
 import {
@@ -26,6 +24,11 @@ import {
   shouldSuppressGlobalEnter
 } from './ui/modalManager.js';
 
+import { setState, getState, subscribe, finishHydration } from './core/store.js';
+import { loadSettings } from './core/settings.js';
+import { DEFAULT_SETTINGS as SETTINGS } from './core/config.js';
+import { applyGlobalTheme } from './core/theme.js';
+import { applyI18n } from './core/i18n.js';
 
 /* ======================= DOM References ======================= */
 
@@ -43,30 +46,42 @@ const deleteAllBtn  = document.getElementById('delete-all-btn');
 
 let resizeTimeout = null;
 
-
 /* ======================= Bootstrap ======================= */
 
 initApp();
 
-
 async function initApp() {
+  subscribe((state, prev) => {
+    if (
+      state.bookmarks !== prev.bookmarks ||
+      state.isEditing !== prev.isEditing
+    ) {
+      renderBookmarks();
+    }
+
+    if (state.settings !== prev.settings) {
+      applyGlobalTheme(state.settings);
+      applyI18n();
+    }
+  });
+
   await loadBookmarks();
+  await loadSettings(SETTINGS);
+  finishHydration();
+  console.log('Initial state loaded:', getState());
 
   initModals();
   initImportExport();
   initControls();
   initGlobalEvents();
-
-  renderBookmarks();
 }
-
 
 /* ======================= Init Sections ======================= */
 
 function initModals() {
-  initSettingsModal(SETTINGS);
+  initSettingsModal();
   initAlertModal();
-  initEditBookmarkModal(renderBookmarks);
+  initEditBookmarkModal();
   initAddBookmarkModal();
 }
 
@@ -90,13 +105,14 @@ function initGlobalEvents() {
 /* ======================= Handlers ======================= */
 
 function toggleEditMode() {
-  const isEditing = gridOverlay.style.display !== 'block';
+  const { isEditing } = getState();
 
-  toggleButton.textContent = isEditing ? '🔒' : '✎';
-  gridOverlay.style.display = isEditing ? 'block' : 'none';
+  const next = !isEditing;
 
-  setEditMode(isEditing);
-  renderBookmarks();
+  toggleButton.textContent = next ? '🔒' : '✎';
+  gridOverlay.style.display = next ? 'block' : 'none';
+
+  setState({ isEditing: next });
 }
 
 function handleGlobalKeydown(e) {

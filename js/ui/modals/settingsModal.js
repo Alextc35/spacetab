@@ -18,14 +18,15 @@
  */
 
 import { applyI18n } from '../../core/i18n.js';
-import { storage } from '../../core/storage.js';
 import { registerModal, openModal, closeModal } from '../modalManager.js';
 import { DEBUG } from '../../core/config.js';
 import { applyGlobalTheme } from '../../core/theme.js';
-import { DEFAULT_SETTINGS } from '../../core/config.js';
 import { showAlert } from './alertModal.js';
 import { t } from '../../core/i18n.js';
 import { flashSuccess } from '../flash.js';
+import { getState } from '../../core/store.js';
+import { updateSettings } from '../../core/settings.js';
+import { DEFAULT_SETTINGS } from '../../core/config.js';
 
 /**
  * Initializes the Settings modal and its behavior.
@@ -135,9 +136,10 @@ export function initSettingsModal(SETTINGS) {
     });
 
     settingsBtn.addEventListener('click', () => {
-        languageSelect.value = SETTINGS.language;
+        const { settings } = getState();
 
-        draftTheme = structuredClone(SETTINGS.theme);
+        languageSelect.value = settings.language;
+        draftTheme = structuredClone(settings.theme);
 
         isLocked = draftTheme.backgroundImageUrlLocked || false;
 
@@ -161,11 +163,12 @@ export function initSettingsModal(SETTINGS) {
     });
 
     settingsSave.addEventListener('click', async () => {
-        SETTINGS.language = languageSelect.value;
-        SETTINGS.theme = structuredClone(draftTheme);
+        updateSettings({
+            language: languageSelect.value,
+            theme: structuredClone(draftTheme)
+        });
 
-        applyGlobalTheme(SETTINGS);
-        await storage.set({ settings: SETTINGS });
+        applyGlobalTheme(getState().settings);
 
         flashSuccess('flash.settings.saved');
         closeModal();
@@ -181,31 +184,9 @@ export function initSettingsModal(SETTINGS) {
         });
     });
 
-    storage.get(['settings']).then(data => {
-        if (data.settings) {
-            Object.assign(SETTINGS, data.settings);
-        }
-
-        draftTheme = structuredClone(SETTINGS.theme);
-
-        languageSelect.value = SETTINGS.language;
-
-        bgColorInput.value = SETTINGS.theme.backgroundColor;
-        bgImageInput.value = SETTINGS.theme.backgroundImageUrl || '';
-
-        isLocked = SETTINGS.theme.backgroundImageUrlLocked || false;
-        if (isLocked && bgImageInput.value.trim()) { applyLockedState(); }
-
-        applyI18n();
-        applyGlobalTheme(SETTINGS);
-        updatePreviewDraft();
-        updateColorState();
-
-        if (DEBUG) console.info('Settings loaded from storage:', SETTINGS);
-    });
-
     languageSelect.addEventListener('change', () => {
-        SETTINGS.language = languageSelect.value;
+        const { settings } = getState();
+        settings.language = languageSelect.value;
         applyI18n();
     });
 

@@ -1,81 +1,26 @@
-/**
- * =========================================================
- * Bookmarks UI rendering and interaction
- * =========================================================
- *
- * Responsibilities:
- * - Render bookmarks grid in the DOM
- * - Apply styling based on bookmark properties
- * - Manage edit mode (edit/delete buttons, drag & resize)
- * - Handle favicon loading and fallback generation
- * - Trigger flash messages for user feedback
- *
- * This module is purely UI-focused and depends on core modules:
- * - bookmark.js for data access (CRUD)
- * - config.js for settings and layout constants
- * - dragResize.js for drag & resize behavior
- * - flash.js for user notifications
- * - gridLayout.js for calculating rows/columns sizes
- *
- * Notes:
- * - editMode is controlled via setEditMode() and affects
- *   the rendered bookmarks.
- * - All DOM elements are recreated on each render call.
- */
-
 import { version } from '../core/translations.js';
-import { getBookmarks, deleteBookmarkById } from '../core/bookmark.js';
 import { PADDING, DEBUG } from '../core/config.js';
 import { openModal } from './modals/editBookmarkModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
-import { flashError, flashInfo, flashSuccess } from './flash.js';
+import { flashError, flashSuccess } from './flash.js';
 import { createFavicon } from './favicon.js';
 import { showAlert } from './modals/alertModal.js';
 import { t } from '../core/i18n.js';
+import { getState } from '../core/store.js';
+import { deleteBookmarkById } from '../core/bookmark.js';
 
 if (DEBUG) console.info('Initializing SpaceTab ' + version + ' alfa');
 
-/**
- * Main container element where bookmarks are rendered
- * @type {HTMLElement | null}
- */
 export const container = document.getElementById('bookmark-container') || null;
 if (DEBUG) { console.info('Bookmark container:', container); }
 
-/**
- * Indicates whether the application is in edit mode
- * @type {boolean}
- */
-let editMode = false;
-
-/**
- * Toggle edit mode.
- * When enabled, bookmarks show drag handles, edit/delete buttons.
- *
- * @param {boolean} value
- */
-export function setEditMode(value) {
-  editMode = value;
-  const key = value
-    ? 'flash.editMode.enabled'
-    : 'flash.editMode.disabled';
-  flashInfo(key, 1000);
-  if (DEBUG) console.info(`Edit mode ${value ? 'enabled' : 'disabled'}`);
-}
-
-/**
- * Render all bookmarks into the container.
- * Rebuilds the DOM every time and applies styles, content, and interactions.
- * 
- * @returns {void}
- */
 export function renderBookmarks() {
   if (!container) return;
 
-  updateGridSize(container);
+  const { bookmarks, isEditing } = getState();
 
-  const bookmarks = getBookmarks();
+  updateGridSize(container);
   container.innerHTML = '';
 
   const rowWidth = getRowWidth();
@@ -84,7 +29,7 @@ export function renderBookmarks() {
   bookmarks.forEach((bookmark) => {
     const div = document.createElement('div');
     div.className = 'bookmark';
-    div.classList.toggle('is-editing', editMode);
+    div.classList.toggle('is-editing', isEditing);
 
     applyBookmarkStyle(div, bookmark);
 
@@ -93,16 +38,16 @@ export function renderBookmarks() {
     div.style.setProperty('--w', bookmark.w * rowWidth - PADDING + 'px');
     div.style.setProperty('--h', bookmark.h * rowHeight - PADDING + 'px');
     
-    const linkEl = createBookmarkContent(bookmark);
+    const linkEl = createBookmarkContent(bookmark, isEditing);
     div.appendChild(linkEl);
 
-    if (editMode) {
+    if (isEditing) {
       addEditDeleteButtons(div, bookmark);
       addDragAndResize(div, bookmark);
     }
 
     div.addEventListener('click', (e) => {
-      if (editMode) {
+      if (isEditing) {
         e.preventDefault();
         e.stopPropagation();
       }
@@ -110,38 +55,14 @@ export function renderBookmarks() {
 
     container.appendChild(div);
   });
-
-  if (DEBUG) console.log('Bookmarks loaded:', bookmarks);
 }
 
-/**
- * Apply visual style to a bookmark element
- *
- * Orchestrates visual updates:
- * - Resets previous dynamic state
- * - Applies background rules
- * - Applies text styling
- *
- * @param {HTMLElement} div
- * @param {Object} bookmark
- */
 function applyBookmarkStyle(div, bookmark) {
   resetBookmarkVisualState(div);
   applyBackgroundStyle(div, bookmark);
   applyTextStyle(div, bookmark);
 }
 
-/* =====================================================
- * Private helpers
- * ===================================================== */
-
-/**
- * Clears dynamic classes and inline CSS variables.
- *
- * Prevents style leakage between re-renders.
- *
- * @param {HTMLElement} div
- */
 function resetBookmarkVisualState(div) {
   div.classList.remove(
     'is-favicon-bg',
@@ -154,18 +75,6 @@ function resetBookmarkVisualState(div) {
   div.style.removeProperty('--color-text-bookmark');
 }
 
-/**
- * Applies background-related styles.
- *
- * Handles:
- * - Transparent mode
- * - Favicon background mode
- * - Image background mode
- * - Solid color mode
- *
- * @param {HTMLElement} div
- * @param {Object} bookmark
- */
 function applyBackgroundStyle(div, bookmark) {
   if (bookmark.noBackground) {
     div.style.setProperty('--color-bg-bookmark', 'transparent');
@@ -205,29 +114,17 @@ function applyBackgroundStyle(div, bookmark) {
   }
 }
 
-/**
- * Applies text color styling.
- *
- * @param {HTMLElement} div
- * @param {Object} bookmark
- */
 function applyTextStyle(div, bookmark) {
   if (bookmark.textColor) {
     div.style.setProperty('--color-text-bookmark', bookmark.textColor);
   }
 }
 
-/**
- * Create the inner content of a bookmark (link, icon, text)
- *
- * @param {Object} bookmark
- * @returns {HTMLElement} <a> element
- */
-function createBookmarkContent(bookmark) {
+function createBookmarkContent(bookmark, isEditing) {
   const linkEl = document.createElement('a');
   linkEl.href = bookmark.url || '#';
   linkEl.className = 'bookmark-link';
-  linkEl.classList.toggle('is-editing', editMode);
+  linkEl.classList.toggle('is-editing', isEditing);
 
   if (bookmark.backgroundFavicon) {
     appendMainIcon(linkEl, bookmark);
@@ -243,13 +140,6 @@ function createBookmarkContent(bookmark) {
   return linkEl;
 }
 
-/**
- * Create the main favicon (large icon) for bookmarks using
- * either fetched favicon or fallback initials.
- * 
- * @param {HTMLElement} container
- * @param {Object} bookmark
- */
 function appendMainIcon(container, bookmark) {
   const img = createFavicon(bookmark);
   img.alt = bookmark.name || '';
@@ -257,12 +147,6 @@ function appendMainIcon(container, bookmark) {
   container.appendChild(img);
 }
 
-/**
- * Create a small icon for info boxes
- * 
- * @param {Object} bookmark
- * @returns {HTMLElement} <img> element
- */
 function createSmallIcon(bookmark) {
   const img = createFavicon(bookmark);
   img.alt = bookmark.name || '';
@@ -272,12 +156,6 @@ function createSmallIcon(bookmark) {
   return img;
 }
 
-/**
- * Create a text span element for bookmark name
- * 
- * @param {Object} bookmark
- * @returns {HTMLElement} <span> element
- */
 function createTextSpan(bookmark) {
   const span = document.createElement('span');
   span.textContent = bookmark.name || '';
@@ -285,12 +163,6 @@ function createTextSpan(bookmark) {
   return span;
 }
 
-/**
- * Add edit and delete buttons for bookmarks in edit mode
- *
- * @param {HTMLElement} container
- * @param {Object} bookmark
- */
 function addEditDeleteButtons(container, bookmark) {
   const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
 
@@ -305,15 +177,6 @@ function addEditDeleteButtons(container, bookmark) {
   container.append(editBtn, delBtn);
 }
 
-/**
- * Helper to create a styled button
- * 
- * @param {string} text - Button text content
- * @param {string} type - 'edit' or 'delete' for styling
- * @param {string} themeClass - 'is-dark' or 'is-light' for contrast
- * @param {Function} onClick - Click handler function
- * @returns {HTMLElement} <button> element
- */
 function createButton(text, type, themeClass, onClick) {
   const btn = document.createElement('button');
   btn.className = `bookmark-btn ${type} ${themeClass}`;
@@ -322,13 +185,6 @@ function createButton(text, type, themeClass, onClick) {
   return btn;
 }
 
-/**
- * Delete a bookmark after user confirmation.
- * Can be called desde botones o middle-click events.
- *
- * @param {Object} bookmark
- * @returns {Promise<void>}
- */
 export async function confirmAndDeleteBookmark(bookmark) {
   if (!bookmark) return;
 
@@ -344,16 +200,8 @@ export async function confirmAndDeleteBookmark(bookmark) {
     flashError('flash.bookmark.deleteError');
     if (DEBUG) console.error('Error deleting bookmark', bookmark);
   }
-
-  renderBookmarks();
 }
 
-/**
- * Determines if the bookmark background/text should be considered "dark"
- *
- * @param {Object} bookmark
- * @returns {boolean}
- */
 function isVisuallyDark(bookmark) {
   let dark = isDarkColor(bookmark.backgroundColor);
   if (bookmark.backgroundImageUrl) dark = true;
@@ -361,12 +209,6 @@ function isVisuallyDark(bookmark) {
   return dark;
 }
 
-/**
- * Calculates if a color string is visually dark
- *
- * @param {string} color
- * @returns {boolean}
- */
 function isDarkColor(color) {
   if (!color || color === 'transparent') return true;
   if (!color.startsWith('#')) return true;

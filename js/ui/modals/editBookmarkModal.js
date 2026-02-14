@@ -17,10 +17,11 @@
  * ------------------------------------------------------
  */
 
-import { getBookmarks, updateBookmarkById } from '../../core/bookmark.js';
+import { updateBookmarkById } from '../../core/bookmark.js';
 import { flashSuccess } from '../flash.js';
 import { DEBUG } from '../../core/config.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
+import { getState } from '../../core/store.js';
 
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
@@ -44,14 +45,6 @@ const modalBackgroundFavicon = document.getElementById('modal-background-favicon
  */
 let editingId = null;
 
-/**
- * Callback used to re-render bookmarks after updates.
- *
- * Injected from outside to avoid tight coupling.
- *
- * @type {Function}
- */
-let renderBookmarks = () => {};
 
 /**
  * Prevents registering the modal more than once.
@@ -70,9 +63,7 @@ let registered = false;
  *
  * @param {Function} onRender
  */
-export function initEditBookmarkModal(onRender) {
-  renderBookmarks = onRender;
-
+export function initEditBookmarkModal() {
   if (registered) return;
   registered = true;
 
@@ -97,7 +88,9 @@ export function initEditBookmarkModal(onRender) {
  * @param {string} bookmarkId
  */
 export function openModal(bookmarkId) {
-  const bookmark = getBookmarks().find(b => b.id === bookmarkId);
+  const { bookmarks } = getState();
+  const bookmark = bookmarks.find(b => b.id === bookmarkId);
+
   if (!bookmark) return;
 
   editingId = bookmarkId;
@@ -181,10 +174,11 @@ modalSave.addEventListener('click', async () => {
 
   const bookmark = await updateBookmarkById(editingId, updatedData);
 
-  flashSuccess('flash.bookmark.updated');
-  if (DEBUG) console.log('Bookmark updated ', bookmark);
+  if (bookmark) {
+    flashSuccess('flash.bookmark.updated');
+    if (DEBUG) console.log('Bookmark updated ', bookmark);
+  }
 
-  renderBookmarks();
   closeEditModal();
 });
 

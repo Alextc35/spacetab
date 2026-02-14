@@ -1,73 +1,51 @@
-/**
- * dragAndResize.js
- * ------------------------------------------------------
- * Drag & resize behavior for bookmark grid items.
- *
- * Responsibilities:
- * - Enables dragging bookmarks across the grid
- * - Enables resizing bookmarks from all four sides
- * - Enforces grid boundaries and collision rules
- * - Persists position and size changes
- * - Triggers re-rendering after interactions
- *
- * Interaction rules:
- * - Left click + drag → move bookmark
- * - Middle click → delete bookmark (with confirmation)
- * - Resize handles → resize in grid units
- *
- * Notes:
- * - All movement is snapped to the grid
- * - Collisions are validated via isAreaFree
- * - Bookmark mutations are persisted immediately
- * ------------------------------------------------------
- */
-
-import { getBookmarks, saveBookmarks } from '../core/bookmark.js';
+import { updateBookmarkById } from '../core/bookmark.js';
 import { isAreaFree } from '../core/grid.js';
-import { PADDING } from '../core/config.js';
-import { renderBookmarks, container, confirmAndDeleteBookmark } from './bookmarks.js';
-import { GRID_COLS, GRID_ROWS } from '../core/config.js';
+import { PADDING, GRID_COLS, GRID_ROWS } from '../core/config.js';
+import { container, confirmAndDeleteBookmark } from './bookmarks.js';
+import { getState } from '../core/store.js';
 
-/**
- * Global drag state flag.
- * Prevents drag and resize from overlapping.
- */
 let dragging = false;
-
-/**
- * Global resize state flag.
- * Prevents drag and resize from overlapping.
- */
 let resizing = false;
 
-/**
- * Attaches drag and resize behavior to a bookmark element.
- *
- * @param {HTMLElement} div - Bookmark DOM element
- * @param {Object} bookmark - Bookmark data object
- */
 export function addDragAndResize(div, bookmark) {
   let startX = 0, startY = 0;
   let startLeft = 0, startTop = 0;
+
+  let tempGX = bookmark.gx;
+  let tempGY = bookmark.gy;
 
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
 
   div.addEventListener('pointerdown', async e => {
     if (resizing) return;
+
+    // Middle click delete
     if (e.button === 1) {
-      e.preventDefault(); e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
       await confirmAndDeleteBookmark(bookmark);
       return;
     }
-    if (e.target.classList.contains('edit') || e.target.classList.contains('delete') || e.target.classList.contains("resizer")) return;
+
+    if (
+      e.target.classList.contains('edit') ||
+      e.target.classList.contains('delete') ||
+      e.target.classList.contains('resizer')
+    ) return;
+
     if (e.button !== 0) return;
 
     e.preventDefault();
     dragging = true;
 
-    startX = e.clientX; startY = e.clientY;
-    startLeft = div.offsetLeft; startTop = div.offsetTop;
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = div.offsetLeft;
+    startTop = div.offsetTop;
+
+    tempGX = bookmark.gx;
+    tempGY = bookmark.gy;
 
     div.classList.add('is-dragging');
     div.setPointerCapture(e.pointerId);
@@ -89,23 +67,40 @@ export function addDragAndResize(div, bookmark) {
     newGX = Math.max(0, Math.min(newGX, GRID_COLS - bookmark.w));
     newGY = Math.max(0, Math.min(newGY, GRID_ROWS - bookmark.h));
 
-    if (isAreaFree(getBookmarks(), newGX, newGY, bookmark.w, bookmark.h, bookmark.id)) {
-        bookmark.gx = newGX;
-        bookmark.gy = newGY;
-        applyPosition(div, newGX, newGY);
-        div.classList.remove('is-invalid');
+    if (
+      isAreaFree(
+        getState().bookmarks,
+        newGX,
+        newGY,
+        bookmark.w,
+        bookmark.h,
+        bookmark.id
+      )
+    ) {
+      tempGX = newGX;
+      tempGY = newGY;
+
+      applyPosition(div, newGX, newGY);
+      div.classList.remove('is-invalid');
     } else {
-        div.classList.add('is-invalid');
+      div.classList.add('is-invalid');
     }
   });
 
   div.addEventListener('pointerup', async () => {
     if (!dragging || resizing) return;
+
     dragging = false;
     div.classList.remove('is-dragging', 'is-invalid');
     div.style.zIndex = '';
-    await saveBookmarks();
-    renderBookmarks();
+
+    // Persist changes via store
+    if (tempGX !== bookmark.gx || tempGY !== bookmark.gy) {
+      await updateBookmarkById(bookmark.id, {
+        gx: tempGX,
+        gy: tempGY
+      });
+    }
   });
 
   ['top', 'right', 'bottom', 'left'].forEach(side => {
@@ -114,22 +109,14 @@ export function addDragAndResize(div, bookmark) {
     div.appendChild(resizer);
 
     resizer.addEventListener('pointerdown', (e) => {
-      e.stopPropagation(); e.preventDefault();
+      e.stopPropagation();
+      e.preventDefault();
       handleResize(e, div, bookmark, side);
     });
   });
 }
 
-/**
- * Handles resizing logic for a bookmark.
- *
- * @param {PointerEvent} e
- * @param {HTMLElement} div
- * @param {Object} bookmark
- * @param {'top'|'right'|'bottom'|'left'} side
- */
 function handleResize(e, div, bookmark, side) {
-  e.preventDefault();
   resizing = true;
   div.classList.add('is-resizing');
 
@@ -141,12 +128,21 @@ function handleResize(e, div, bookmark, side) {
   const startW = bookmark.w;
   const startH = bookmark.h;
 
+  let tempGX = startGX;
+  let tempGY = startGY;
+  let tempW = startW;
+  let tempH = startH;
+
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
 
   const onMove = (ev) => {
     if (!resizing) return;
-    let newGX = startGX, newGY = startGY, newW = startW, newH = startH;
+
+    let newGX = startGX;
+    let newGY = startGY;
+    let newW = startW;
+    let newH = startH;
 
     if (side === 'right') {
       const deltaCols = Math.round((ev.clientX - startMouseX) / rowWidth);
@@ -162,7 +158,7 @@ function handleResize(e, div, bookmark, side) {
       const deltaCols = Math.round((ev.clientX - startMouseX) / rowWidth);
 
       newGX = startGX + deltaCols;
-      newW  = startW - deltaCols;
+      newW = startW - deltaCols;
 
       if (newW < 1) {
         newW = 1;
@@ -179,7 +175,7 @@ function handleResize(e, div, bookmark, side) {
       const deltaRows = Math.round((ev.clientY - startMouseY) / rowHeight);
 
       newGY = startGY + deltaRows;
-      newH  = startH - deltaRows;
+      newH = startH - deltaRows;
 
       if (newH < 1) {
         newH = 1;
@@ -192,11 +188,21 @@ function handleResize(e, div, bookmark, side) {
       }
     }
 
-    if (isAreaFree(getBookmarks(), newGX, newGY, newW, newH, bookmark.id)) {
-      bookmark.gx = newGX;
-      bookmark.gy = newGY;
-      bookmark.w = newW;
-      bookmark.h = newH;
+    if (
+      isAreaFree(
+        getState().bookmarks,
+        newGX,
+        newGY,
+        newW,
+        newH,
+        bookmark.id
+      )
+    ) {
+      tempGX = newGX;
+      tempGY = newGY;
+      tempW = newW;
+      tempH = newH;
+
       applyPosition(div, newGX, newGY);
       div.style.width = newW * rowWidth - PADDING + 'px';
       div.style.height = newH * rowHeight - PADDING + 'px';
@@ -206,26 +212,33 @@ function handleResize(e, div, bookmark, side) {
   const onUp = async () => {
     resizing = false;
     div.classList.remove('is-resizing');
+
     document.removeEventListener('pointermove', onMove);
     document.removeEventListener('pointerup', onUp);
-    await saveBookmarks();
-    renderBookmarks();
+
+    if (
+      tempGX !== bookmark.gx ||
+      tempGY !== bookmark.gy ||
+      tempW !== bookmark.w ||
+      tempH !== bookmark.h
+    ) {
+      await updateBookmarkById(bookmark.id, {
+        gx: tempGX,
+        gy: tempGY,
+        w: tempW,
+        h: tempH
+      });
+    }
   };
 
   document.addEventListener('pointermove', onMove);
   document.addEventListener('pointerup', onUp);
 }
 
-/**
- * Applies grid-based position to a bookmark element.
- *
- * @param {HTMLElement} div
- * @param {number} gx
- * @param {number} gy
- */
 function applyPosition(div, gx, gy) {
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
+
   div.style.left = gx * rowWidth + 'px';
   div.style.top = gy * rowHeight + 'px';
 }
