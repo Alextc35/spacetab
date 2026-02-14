@@ -50,7 +50,16 @@ let resizeTimeout = null;
 
 initApp();
 
-async function initApp() {
+function initApp() {
+  initState(DEFAULT_SETTINGS);
+  initModals();
+  initImportExport();
+  initControls();
+  initGlobalEvents();
+}
+
+/* ======================= Init Sections ======================= */
+async function initState(DEFAULT_SETTINGS) {
   subscribe((state, prev) => {
     if (
       state.bookmarks !== prev.bookmarks ||
@@ -69,14 +78,7 @@ async function initApp() {
   await loadSettings(DEFAULT_SETTINGS);
   finishHydration();
   console.log('Initial state loaded:', getState());
-
-  initModals();
-  initImportExport();
-  initControls();
-  initGlobalEvents();
 }
-
-/* ======================= Init Sections ======================= */
 
 function initModals() {
   initSettingsModal();
