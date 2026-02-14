@@ -16,7 +16,7 @@ import {
 import { loadBookmarks } from './core/bookmark.js';
 import { renderBookmarks } from './ui/bookmarks.js';
 import { loadSettings } from './core/settings.js';
-import { DEFAULT_SETTINGS } from './core/config.js';
+import { DEBUG, DEFAULT_SETTINGS } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { applyI18n, t } from './core/i18n.js';
 import { flash } from './ui/flash.js';
@@ -63,11 +63,11 @@ async function initState(DEFAULT_SETTINGS) {
       applyI18n();
     }
   });
-
+  if (DEBUG) console.log('Initial default state:', getState());
   await loadBookmarks();
   await loadSettings(DEFAULT_SETTINGS);
   finishHydration();
-  console.log('Initial state loaded:', getState());
+  if (DEBUG) console.log('State local loaded:', getState());
 }
 
 function initModals() {
