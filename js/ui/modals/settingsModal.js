@@ -126,6 +126,20 @@ export function initSettingsModal(SETTINGS) {
         updateColorState();
     }
 
+    function activateTab(tabId) {
+        document.querySelectorAll("#settings-modal .tab-btn")
+            .forEach(b => b.classList.remove("active"));
+
+        document.querySelectorAll("#settings-modal .tab-content")
+            .forEach(tab => tab.style.display = "none");
+
+        const btn = document.querySelector(`#settings-modal .tab-btn[data-tab="${tabId}"]`);
+        if (btn) btn.classList.add("active");
+
+        const content = document.getElementById(tabId);
+        if (content) content.style.display = "block";
+    }
+
     registerModal({
         id: 'settings',
         element: settingsModal,
@@ -151,6 +165,8 @@ export function initSettingsModal(SETTINGS) {
 
         updateColorState();
         updatePreviewDraft();
+
+        activateTab('tab-general');
 
         openModal('settings');
     });
