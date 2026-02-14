@@ -29,6 +29,8 @@ import { loadSettings } from './core/settings.js';
 import { DEFAULT_SETTINGS as SETTINGS } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { applyI18n } from './core/i18n.js';
+import { flash } from './ui/flash.js';
+import { t } from './core/i18n.js';
 
 /* ======================= DOM References ======================= */
 
@@ -111,6 +113,9 @@ function toggleEditMode() {
 
   toggleButton.textContent = next ? '🔒' : '✎';
   gridOverlay.style.display = next ? 'block' : 'none';
+
+  if (next) flash(t('flash.editMode.enabled'));
+   else flash(t('flash.editMode.disabled'));
 
   setState({ isEditing: next });
 }
