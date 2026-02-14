@@ -26,7 +26,7 @@ import {
 
 import { setState, getState, subscribe, finishHydration } from './core/store.js';
 import { loadSettings } from './core/settings.js';
-import { DEFAULT_SETTINGS as SETTINGS } from './core/config.js';
+import { DEFAULT_SETTINGS } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { applyI18n } from './core/i18n.js';
 import { flash } from './ui/flash.js';
@@ -42,7 +42,6 @@ const exportBtn     = document.getElementById('export-btn');
 const importBtn     = document.getElementById('import-btn');
 const importInput   = document.getElementById('import-input');
 const deleteAllBtn  = document.getElementById('delete-all-btn');
-
 
 /* ======================= Internal State ======================= */
 
@@ -68,7 +67,7 @@ async function initApp() {
   });
 
   await loadBookmarks();
-  await loadSettings(SETTINGS);
+  await loadSettings(DEFAULT_SETTINGS);
   finishHydration();
   console.log('Initial state loaded:', getState());
 
@@ -102,7 +101,6 @@ function initGlobalEvents() {
   document.addEventListener('keydown', handleGlobalKeydown);
   window.addEventListener('resize', handleResize);
 }
-
 
 /* ======================= Handlers ======================= */
 
