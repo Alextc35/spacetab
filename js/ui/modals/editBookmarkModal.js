@@ -140,7 +140,7 @@ function updateStates() {
   modalNoBackground.disabled = hasImage && !modalBackgroundFavicon.checked;
   modalTextColor.disabled = !modalShowText.checked;
 
-  modalBackgroundImage.disabled = modalBackgroundFavicon.checked;
+  modalBackgroundImage.disabled = modalBackgroundFavicon.checked || modalNoBackground.checked;
   modalShowFavicon.disabled = modalBackgroundFavicon.checked;
 
   modalInvertColorBg.disabled = modalBackgroundFavicon.checked;
