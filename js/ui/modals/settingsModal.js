@@ -58,6 +58,7 @@ export function initSettingsModal(SETTINGS) {
 
     let draftTheme = null;
     let isLocked = false;
+    let initialSnapshot = null;
 
     toggleBtn.addEventListener('click', () => {
         if (isLocked) {
@@ -111,6 +112,7 @@ export function initSettingsModal(SETTINGS) {
         toggleBtn.title = 'Unlock URL';
 
         updateColorState();
+        updateSaveButtonState();
     }
 
     function removeLockedState() {
@@ -124,6 +126,7 @@ export function initSettingsModal(SETTINGS) {
         toggleBtn.title = 'Lock URL';
 
         updateColorState();
+        updateSaveButtonState();
     }
 
     function activateTab(tabId) {
@@ -145,6 +148,21 @@ export function initSettingsModal(SETTINGS) {
         }
     }
 
+    function hasChanges() {
+        const currentDraft = {
+            language: languageSelect.value,
+            theme: draftTheme
+        };
+
+        return JSON.stringify(currentDraft) !== JSON.stringify(initialSnapshot);
+    }
+
+    function updateSaveButtonState() {
+        const changed = hasChanges();
+        settingsSave.disabled = !changed;
+        settingsSave.classList.toggle('is-disabled', !changed);
+    }
+
     registerModal({
         id: 'settings',
         element: settingsModal,
@@ -157,6 +175,8 @@ export function initSettingsModal(SETTINGS) {
     settingsBtn.addEventListener('click', () => {
         const { settings } = getState();
 
+        initialSnapshot = structuredClone(settings);
+
         languageSelect.value = settings.language;
         draftTheme = structuredClone(settings.theme);
 
@@ -168,6 +188,7 @@ export function initSettingsModal(SETTINGS) {
         bgColorInput.value = draftTheme.backgroundColor;
         bgImageInput.value = draftTheme.backgroundImageUrl || '';
 
+        updateSaveButtonState();
         updateColorState();
         updatePreviewDraft();
 
@@ -176,11 +197,14 @@ export function initSettingsModal(SETTINGS) {
         openModal('settings');
     });
 
-    settingsCancel.addEventListener('click', () => {
-        // todo: showAlert skel
-        showAlert(t('alert.settings.cancel'), { type: 'confirm' }).then(ok => {if (ok) { 
+    settingsCancel.addEventListener('click', async () => {
+        if (!hasChanges()) {
             closeModal();
-        }});
+            return;
+        }
+
+        const ok = await showAlert(t('alert.settings.cancel'), { type: 'confirm' });
+        if (ok) closeModal();
     });
 
     settingsSave.addEventListener('click', async () => {
@@ -210,6 +234,7 @@ export function initSettingsModal(SETTINGS) {
         const { settings } = getState();
         settings.language = languageSelect.value;
         applyI18n();
+        updateSaveButtonState();
     });
 
     bgColorInput.addEventListener('input', async () => {
@@ -220,6 +245,7 @@ export function initSettingsModal(SETTINGS) {
 
         updatePreviewDraft();
         updateColorState();
+        updateSaveButtonState();
     });
 
     bgImageInput.addEventListener('input', async () => {
@@ -229,6 +255,7 @@ export function initSettingsModal(SETTINGS) {
 
         updatePreviewDraft();
         updateColorState();
+        updateSaveButtonState();
     });
 
     copyBgImageBtn.addEventListener('click', async () => {
@@ -249,6 +276,7 @@ export function initSettingsModal(SETTINGS) {
 
         updateColorState();
         updatePreviewDraft();
+        updateSaveButtonState();
     });
 
     resetBgBtn.addEventListener('click', async () => {
@@ -265,6 +293,7 @@ export function initSettingsModal(SETTINGS) {
 
         updatePreviewDraft();
         updateColorState();
+        updateSaveButtonState();
     });
 
     if (DEBUG) console.info('Settings modal initialized');
