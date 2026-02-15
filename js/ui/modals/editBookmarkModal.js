@@ -17,6 +17,7 @@ const modalBackgroundColor = document.getElementById('modal-background-color');
 const modalNoBackground = document.getElementById('modal-no-background');
 const modalTextColor = document.getElementById('modal-text-color');
 const modalShowFavicon = document.getElementById('modal-show-favicon');
+const labelModalShowFavicon = document.querySelector('label[for="modal-show-favicon"]');
 const modalShowText = document.getElementById('modal-show-text');
 const modalBackgroundImage = document.getElementById('modal-background-image');
 const modalBackgroundFavicon = document.getElementById('modal-background-favicon');
@@ -150,6 +151,12 @@ function updateStates() {
     labelModalInvertColorBg.classList.add('is-disabled');
   } else {
     labelModalInvertColorBg.classList.remove('is-disabled');
+  }
+
+  if (modalShowFavicon.disabled) {
+    labelModalShowFavicon.classList.add('is-disabled');
+  } else {
+    labelModalShowFavicon.classList.remove('is-disabled');
   }
 }
 
