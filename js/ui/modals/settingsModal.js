@@ -167,9 +167,9 @@ export function initSettingsModal(SETTINGS) {
         id: 'settings',
         element: settingsModal,
         acceptOnEnter: false,
-        closeOnEsc: true,
+        closeOnEsc: false,
         closeOnOverlay: false,
-        initialFocus: languageSelect
+        initialFocus: null
     });
 
     settingsBtn.addEventListener('click', () => {
@@ -204,7 +204,10 @@ export function initSettingsModal(SETTINGS) {
         }
 
         const ok = await showAlert(t('alert.settings.cancel'), { type: 'confirm' });
-        if (ok) closeModal();
+        if (ok) {
+            updateSettings({ language: initialSnapshot.language });
+            closeModal();
+        }
     });
 
     settingsSave.addEventListener('click', async () => {
