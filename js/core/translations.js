@@ -1,6 +1,6 @@
 // js/core/translations.js
 
-export const version = '0.17.3';
+export const version = '0.17.4';
 
 /**
  * Translation dictionary.
