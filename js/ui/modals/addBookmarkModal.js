@@ -112,7 +112,7 @@ async function handleAccept() {
     const name = nameInput.value.trim();
     const url = urlInput.value.trim();
 
-    if (!name || !url) {
+    if (!name) {
       submitting = false;  
       return;
     }
