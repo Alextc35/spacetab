@@ -10,6 +10,7 @@ const modalName = document.getElementById('modal-name');
 const modalUrl = document.getElementById('modal-url');
 const modalInvertColorIcon = document.getElementById('modal-invert-color-icon');
 const modalInvertColorBg = document.getElementById('modal-invert-color-bg');
+const labelModalInvertColorBg = document.querySelector('label[for="modal-invert-color-bg"]');
 const modalSave = document.getElementById('modal-save');
 const modalCancel = document.getElementById('modal-cancel');
 const modalBackgroundColor = document.getElementById('modal-background-color');
@@ -143,7 +144,13 @@ function updateStates() {
   modalBackgroundImage.disabled = modalBackgroundFavicon.checked || modalNoBackground.checked;
   modalShowFavicon.disabled = modalBackgroundFavicon.checked;
 
-  modalInvertColorBg.disabled = modalBackgroundFavicon.checked;
+  modalInvertColorBg.disabled = modalBackgroundFavicon.checked || modalNoBackground.checked || !hasImage;
+
+  if (modalInvertColorBg.disabled) {
+    labelModalInvertColorBg.classList.add('is-disabled');
+  } else {
+    labelModalInvertColorBg.classList.remove('is-disabled');
+  }
 }
 
 modalBackgroundImage.addEventListener('input', updateStates);
