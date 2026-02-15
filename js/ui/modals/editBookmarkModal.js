@@ -1,27 +1,9 @@
-/**
- * editBookmarkModal.js
- * ------------------------------------------------------
- * Modal for editing existing bookmarks.
- *
- * Responsibilities:
- * - Display and populate an edit form for a bookmark
- * - Reflect current bookmark visual and layout options
- * - Enforce UI state constraints between fields
- * - Persist updates through the bookmark store
- * - Integrate with modalManager for keyboard and focus handling
- *
- * Notes:
- * - This modal operates on an existing bookmark id
- * - Enter key submission is disabled to avoid conflicts
- * - All state mutations go through updateBookmarkById
- * ------------------------------------------------------
- */
-
 import { updateBookmarkById } from '../../core/bookmark.js';
 import { flashSuccess } from '../flash.js';
 import { DEBUG } from '../../core/config.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 import { getState } from '../../core/store.js';
+import { createBookmarkElement } from '../bookmarks.js';
 
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
@@ -38,31 +20,75 @@ const modalShowText = document.getElementById('modal-show-text');
 const modalBackgroundImage = document.getElementById('modal-background-image');
 const modalBackgroundFavicon = document.getElementById('modal-background-favicon');
 
-/**
- * Currently edited bookmark id.
- *
- * @type {string|null}
- */
 let editingId = null;
-
-
-/**
- * Prevents registering the modal more than once.
- *
- * @type {boolean}
- */
+let draft = null;
 let registered = false;
 
-/**
- * Initializes the Edit Bookmark modal.
- *
- * Responsibilities:
- * - Store render callback
- * - Register modal with modalManager
- * - Ensure idempotent initialization
- *
- * @param {Function} onRender
- */
+function resetTabScroll() {
+  const activeTab = editModal.querySelector('.edit-tab-content[style*="flex"]');
+  if (activeTab) activeTab.scrollTop = 0;
+}
+
+function buildDraft() {
+  draft = {
+    id: editingId,
+    name: modalName.value.trim(),
+    url: modalUrl.value.trim(),
+    invertColorIcon: modalInvertColorIcon.checked,
+    invertColorBg: modalInvertColorBg.checked,
+    noBackground: modalNoBackground.checked,
+    textColor: modalTextColor.value,
+    showText: modalShowText.checked,
+    backgroundColor: modalBackgroundColor.value,
+    backgroundImageUrl: modalBackgroundImage.value.trim() || null,
+    backgroundFavicon: modalBackgroundFavicon.checked,
+    showFavicon: modalShowFavicon.checked
+  };
+}
+
+const previewContainer = document.getElementById('edit-bookmark-preview');
+
+function renderPreview() {
+  if (!draft) return;
+
+  previewContainer.innerHTML = '';
+
+  const previewBookmark = createBookmarkElement(draft, {
+    isEditing: false,
+    isPreview: true
+  });
+
+  // Evitamos posicionamiento grid
+  previewBookmark.style.removeProperty('--x');
+  previewBookmark.style.removeProperty('--y');
+  previewBookmark.style.removeProperty('--w');
+  previewBookmark.style.removeProperty('--h');
+
+  previewContainer.appendChild(previewBookmark);
+}
+
+function updatePreview() {
+  buildDraft();
+  renderPreview();
+}
+
+[
+  modalName,
+  modalUrl,
+  modalInvertColorIcon,
+  modalInvertColorBg,
+  modalNoBackground,
+  modalTextColor,
+  modalShowText,
+  modalBackgroundColor,
+  modalBackgroundImage,
+  modalBackgroundFavicon,
+  modalShowFavicon
+].forEach(input => {
+  input.addEventListener('input', updatePreview);
+  input.addEventListener('change', updatePreview);
+});
+
 export function initEditBookmarkModal() {
   if (registered) return;
   registered = true;
@@ -71,22 +97,14 @@ export function initEditBookmarkModal() {
     id: 'edit-bookmark',
     element: editModal,
     acceptOnEnter: false,
-    closeOnEsc: true,
-    closeOnOverlay: true,
+    closeOnEsc: false,
+    closeOnOverlay: false,
     initialFocus: modalName
   });
 
   if (DEBUG) console.log('EditBookmark modal initialized');
 }
 
-/**
- * Opens the edit modal for a specific bookmark.
- *
- * Loads the bookmark data into the form and
- * synchronizes UI states before displaying.
- *
- * @param {string} bookmarkId
- */
 export function openModal(bookmarkId) {
   const { bookmarks } = getState();
   const bookmark = bookmarks.find(b => b.id === bookmarkId);
@@ -108,18 +126,12 @@ export function openModal(bookmarkId) {
   modalBackgroundFavicon.checked = !!bookmark.backgroundFavicon;
 
   updateStates();
-
+  updatePreview();
+  activateTab('edit-tab-general');
+  resetTabScroll();
   openManagedModal('edit-bookmark');
 }
 
-/**
- * Synchronizes enabled/disabled states between controls.
- *
- * Enforces visual consistency rules:
- * - Background image vs color
- * - Text visibility vs text color
- * - Favicon background exclusivity
- */
 function updateStates() {
   const hasImage = modalBackgroundImage.value.trim() !== '';
 
@@ -184,10 +196,33 @@ modalSave.addEventListener('click', async () => {
 
 modalCancel.addEventListener('click', closeEditModal);
 
-/**
- * Closes the edit modal and clears editing state.
- */
 function closeEditModal() {
   editingId = null;
   closeModal();
 }
+
+/* =====================================
+   Tabs Logic
+===================================== */
+
+const tabButtons = editModal.querySelectorAll('.edit-tab-btn');
+const tabContents = editModal.querySelectorAll('.edit-tab-content');
+
+function activateTab(tabId) {
+  tabButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  });
+
+  tabContents.forEach(content => {
+    const isActive = content.id === tabId;
+    content.style.display = isActive ? 'flex' : 'none';
+    if (isActive) content.scrollTop = 0;
+  });
+}
+
+// Click listener
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    activateTab(btn.dataset.tab);
+  });
+});

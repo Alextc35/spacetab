@@ -14,5 +14,6 @@
 @import './components/settings.css';
 @import './components/checkbox.css';
 @import './components/flash.css';
+@import './components/editModal.css';
 
 @import './states/disabled.css';

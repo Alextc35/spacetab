@@ -1,0 +1,234 @@
+/* ===============================
+   Edit Modal Layout
+================================= */
+
+.modal-xl {
+  width: 800px;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  max-height: 90vh;
+}
+
+/* Header */
+
+.edit-header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid #222;
+}
+
+.edit-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* ===============================
+   Tabs
+================================= */
+
+.edit-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 24px;
+  border-bottom: 1px solid #222;
+}
+
+.edit-tab-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: .15s ease;
+}
+
+.edit-tab-btn:hover {
+  background: #1c1c1c;
+  color: #fff;
+}
+
+.edit-tab-btn.active {
+  background: #222;
+  color: #fff;
+}
+
+/* ===============================
+   Main Layout
+================================= */
+
+.edit-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left panel */
+
+.edit-panel {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  border-right: 1px solid #222;
+}
+
+.edit-tab-content {
+  flex: 1;
+  overflow-y: auto;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Checkboxes */
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* Color block spacing */
+
+.color-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ===============================
+   Preview Panel
+================================= */
+
+.edit-preview-panel {
+  width: 320px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-preview-panel h3 {
+  font-size: 13px;
+  opacity: .6;
+  margin: 0;
+}
+
+/* Preview box */
+
+#edit-bookmark-preview {
+  width: 200px;
+  height: 210px;
+  border-radius: 14px;
+  background: #1c1c1c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  text-align: center;
+  overflow: hidden;
+  transition: .2s ease;
+}
+
+/* ===============================
+   Actions Override
+================================= */
+
+.modal-card.modal-xl .modal-actions {
+  border-top: 1px solid #222;
+  padding: 16px 24px;
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+
+  .modal-xl {
+    width: 95%;
+  }
+
+  .edit-layout {
+    flex-direction: column;
+  }
+
+  .edit-panel {
+    border-right: none;
+    border-bottom: 1px solid #222;
+  }
+
+  .edit-preview-panel {
+    width: 100%;
+  }
+}
+
+.bookmark-preview {
+  width: 180px;
+  height: 120px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: .2s ease;
+}
+
+.bookmark-preview-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.bookmark-preview-favicon {
+  font-size: 22px;
+}
+
+.bookmark.is-preview {
+  position: relative !important;
+  transform: none !important;
+  width: 200px;
+  height: 200px;
+}
+
+/* Header fijo */
+.edit-modal-header {
+  flex: 0 0 auto;
+}
+
+/* Tabs fijo */
+.edit-tabs {
+  flex: 0 0 auto;
+}
+
+/* Footer fijo */
+.modal-actions {
+  flex: 0 0 auto;
+}
+
+/* ===============================
+   Custom Scrollbar
+================================= */
+
+.edit-panel .edit-tab-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.edit-panel .edit-tab-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.edit-panel .edit-tab-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 173, 239, 0.5); /* #00ADEF con alpha */
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.edit-panel .edit-tab-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 173, 239, 0.8);
+}

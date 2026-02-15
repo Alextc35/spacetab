@@ -23,69 +23,126 @@
   <div class="modal" id="edit-modal">
     <div class="modal-overlay"></div>
 
-    <div class="modal-card">
+    <div class="modal-card modal-xl">
 
-      <h2 data-i18n="editModal.title">Editar Favorito</h2>
-
-      <h3 data-i18n="editModal.sections.general">General</h3>
-
-      <label for="modal-name" data-i18n="editModal.name">Nombre:</label>
-      <input type="text" id="modal-name">
-
-      <label for="modal-url" data-i18n="editModal.url">URL:</label>
-      <input type="text" id="modal-url">
-
-      <h3 data-i18n="editModal.sections.background">Background</h3>
-
-      <label for="modal-background-image" data-i18n="editModal.backgroundImage">Imagen de fondo (URL):</label>
-      <input type="text" id="modal-background-image" placeholder="https://...">
-
-      <div class="checkbox-wrapper">
-        <input type="checkbox" id="modal-background-favicon">
-        <label for="modal-background-favicon" data-i18n="editModal.backgroundFavicon">Favicon como background</label>
+      <!-- Header -->
+      <div class="edit-header">
+        <h2 data-i18n="editModal.title">Editar Favorito</h2>
       </div>
 
-      <div class="checkbox-wrapper">
-        <input type="checkbox" id="modal-invert-color-bg">
-        <label for="modal-invert-color-bg"  data-i18n="editModal.invertColorBg">Invertir colores</label>
+      <!-- Tabs horizontales -->
+      <div class="edit-tabs">
+        <button data-i18n="editModal.sections.general" class="edit-tab-btn active" data-tab="edit-tab-general" type="button">General</button>
+        <button data-i18n="editModal.sections.style" class="edit-tab-btn" data-tab="edit-tab-style" type="button">Estilo</button>
+        <button data-i18n="editModal.sections.text" class="edit-tab-btn" data-tab="edit-tab-text" type="button">Texto</button>
+        <button data-i18n="editModal.sections.icon" class="edit-tab-btn" data-tab="edit-tab-icon" type="button">Icono</button>
       </div>
 
-      <div class="checkbox-wrapper">
-        <input type="checkbox" id="modal-no-background">
-        <label for="modal-no-background" data-i18n="editModal.noBackground">Sin fondo</label>
+      <!-- Layout principal -->
+      <div class="edit-layout">
+
+        <!-- Panel izquierdo (formulario) -->
+        <div class="edit-panel">
+
+          <!-- TAB GENERAL -->
+          <div class="edit-tab-content" id="edit-tab-general">
+            <label for="modal-name" data-i18n="editModal.name">Nombre:</label>
+            <input type="text" id="modal-name">
+
+            <label for="modal-url" data-i18n="editModal.url">URL:</label>
+            <input type="text" id="modal-url">
+          </div>
+
+          <!-- TAB STYLE -->
+          <div class="edit-tab-content" id="edit-tab-style" style="display:none;">
+            <label for="modal-background-image" data-i18n="editModal.backgroundImage">
+              Imagen de fondo (URL):
+            </label>
+            <input type="text" id="modal-background-image" placeholder="https://...">
+
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="modal-background-favicon">
+              <label for="modal-background-favicon" data-i18n="editModal.backgroundFavicon">
+                Favicon como background
+              </label>
+            </div>
+
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="modal-invert-color-bg">
+              <label for="modal-invert-color-bg" data-i18n="editModal.invertColorBg">
+                Invertir colores
+              </label>
+            </div>
+
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="modal-no-background">
+              <label for="modal-no-background" data-i18n="editModal.noBackground">
+                Sin fondo
+              </label>
+            </div>
+
+            <div class="color-options">
+              <label for="modal-background-color" data-i18n="editModal.backgroundColor">
+                Color del bookmark:
+              </label>
+              <input type="color" id="modal-background-color">
+            </div>
+          </div>
+
+          <!-- TAB TEXT -->
+          <div class="edit-tab-content" id="edit-tab-text" style="display:none;">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="modal-show-text">
+              <label for="modal-show-text" data-i18n="editModal.showText">
+                Mostrar texto
+              </label>
+            </div>
+
+            <div class="color-options">
+              <label for="modal-text-color" data-i18n="editModal.textColor">
+                Color del texto:
+              </label>
+              <input type="color" id="modal-text-color">
+            </div>
+          </div>
+
+          <!-- TAB ICON -->
+          <div class="edit-tab-content" id="edit-tab-icon" style="display:none;">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="modal-show-favicon">
+              <label for="modal-show-favicon" data-i18n="editModal.showFavicon">
+                Mostrar favicon
+              </label>
+            </div>
+
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="modal-invert-color-icon">
+              <label for="modal-invert-color-icon" data-i18n="editModal.invertColorIcon">
+                Invertir colores
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Panel derecho (preview) -->
+        <div class="edit-preview-panel">
+          <h3 data-i18n="editModal.preview">Preview</h3>
+          <div id="edit-bookmark-preview"></div>
+        </div>
+
       </div>
 
-      <div class="color-options">
-        <label for="modal-background-color" data-i18n="editModal.backgroundColor">Color del bookmark:</label>
-        <input type="color" id="modal-background-color">
-      </div>
-
-      <h3 data-i18n="editModal.sections.text">Texto</h3>
-      <div class="checkbox-wrapper">
-        <input type="checkbox" id="modal-show-text">
-        <label for="modal-show-text" data-i18n="editModal.showText">Mostrar texto</label>
-      </div>
-
-      <div class="color-options">
-        <label for="modal-text-color" data-i18n="editModal.textColor">Color del texto:</label>
-        <input type="color" id="modal-text-color">
-      </div>
-
-      <h3>Icono</h3>
-      <div class="checkbox-wrapper">
-        <input type="checkbox" id="modal-show-favicon">
-        <label for="modal-show-favicon" data-i18n="editModal.showFavicon">Mostrar favicon</label>
-      </div>
-
-      <div class="checkbox-wrapper">
-        <input type="checkbox" id="modal-invert-color-icon">
-        <label for="modal-invert-color-icon" data-i18n="editModal.invertColorIcon">Invertir colores</label>
-      </div>
-
+      <!-- Botones -->
       <div class="modal-actions">
-        <button class="btn ghost" id="modal-cancel" type="button" data-i18n="buttons.cancel">Cancelar</button>
-        <button class="btn primary" id="modal-save" type="button" data-i18n="buttons.save">Guardar</button>
+        <button class="btn ghost" id="modal-cancel" type="button" data-i18n="buttons.cancel">
+          Cancelar
+        </button>
+        <button class="btn primary" id="modal-save" type="button" data-i18n="buttons.save">
+          Guardar
+        </button>
       </div>
+
     </div>
   </div>
 

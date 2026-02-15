@@ -221,3 +221,20 @@ function isDarkColor(color) {
   const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
   return luminance < 64;
 }
+
+export function createBookmarkElement(bookmark, options = {}) {
+  const { isEditing = false, isPreview = false } = options;
+
+  const div = document.createElement('div');
+  div.className = 'bookmark';
+
+  if (isEditing) div.classList.add('is-editing');
+  if (isPreview) div.classList.add('is-preview');
+
+  applyBookmarkStyle(div, bookmark);
+
+  const linkEl = createBookmarkContent(bookmark, isEditing);
+  div.appendChild(linkEl);
+
+  return div;
+}

@@ -86,9 +86,11 @@ export const translations = {
       invertColorIcon: 'Invertir colores',
       sections: {
         general: 'General',
-        background: 'Fondo',
-        text: 'Texto'
-      }
+        style: 'Estilo',
+        text: 'Texto',
+        icon: 'Icon'
+      },
+      preview: 'Previsualizador'
     },
 
     settingsModal: {
@@ -192,9 +194,11 @@ export const translations = {
       invertColorIcon: 'Invert icon colors',
       sections: {
         general: 'General',
-        background: 'Background',
-        text: 'Text'
-      }
+        style: 'Style',
+        text: 'Text',
+        icon: 'Icon'
+      },
+      preview: 'Preview'
     },
 
     settingsModal: {
