@@ -49,6 +49,7 @@ export const translations = {
       },
       bookmark: {
         confirmDelete: 'Eliminar {name}',
+        cancel: '¿Descartar los cambios en la edición?'
       },
       settings: {
         reset: '¿Restablecer la configuración de fondo?',
@@ -157,6 +158,7 @@ export const translations = {
       },
       bookmark: {
         confirmDelete: 'Delete {name}',
+        cancel: 'Discard edition changes?'
       },
       settings: {
         reset: 'Reset background settings?',

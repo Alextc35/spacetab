@@ -4,6 +4,8 @@ import { DEBUG } from '../../core/config.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 import { getState } from '../../core/store.js';
 import { createBookmarkElement } from '../bookmarks.js';
+import { showAlert } from './alertModal.js';
+import { t } from '../../core/i18n.js';
 
 const editModal = document.getElementById('edit-modal');
 const modalName = document.getElementById('modal-name');
@@ -25,10 +27,37 @@ const modalBackgroundFavicon = document.getElementById('modal-background-favicon
 let editingId = null;
 let draft = null;
 let registered = false;
+let initialSnapshot = null;
 
 function resetTabScroll() {
   const activeTab = editModal.querySelector('.edit-tab-content[style*="flex"]');
   if (activeTab) activeTab.scrollTop = 0;
+}
+
+function updateSaveButtonState() {
+  const changed = hasChanges();
+  modalSave.disabled = !changed;
+  modalSave.classList.toggle('is-disabled', !changed);
+}
+
+function hasChanges() {
+  return JSON.stringify(getCurrentFormState()) !== JSON.stringify(initialSnapshot);
+}
+
+function getCurrentFormState() {
+  return {
+    name: modalName.value.trim(),
+    url: modalUrl.value.trim(),
+    invertColorIcon: modalInvertColorIcon.checked,
+    invertColorBg: modalInvertColorBg.checked,
+    noBackground: modalNoBackground.checked,
+    textColor: modalTextColor.value,
+    showText: modalShowText.checked,
+    backgroundColor: modalBackgroundColor.value,
+    backgroundImageUrl: modalBackgroundImage.value.trim() || null,
+    backgroundFavicon: modalBackgroundFavicon.checked,
+    showFavicon: modalShowFavicon.checked
+  };
 }
 
 function buildDraft() {
@@ -87,8 +116,15 @@ function updatePreview() {
   modalBackgroundFavicon,
   modalShowFavicon
 ].forEach(input => {
-  input.addEventListener('input', updatePreview);
-  input.addEventListener('change', updatePreview);
+  input.addEventListener('input', () => {
+    updatePreview();
+    updateSaveButtonState();
+  });
+
+  input.addEventListener('change', () => {
+    updatePreview();
+    updateSaveButtonState();
+  });
 });
 
 export function initEditBookmarkModal() {
@@ -131,6 +167,10 @@ export function openModal(bookmarkId) {
   updatePreview();
   activateTab('edit-tab-general');
   resetTabScroll();
+
+  initialSnapshot = getCurrentFormState();
+  updateSaveButtonState();
+
   openManagedModal('edit-bookmark');
 }
 
@@ -205,10 +245,24 @@ modalSave.addEventListener('click', async () => {
     if (DEBUG) console.log('Bookmark updated: ', bookmark);
   }
 
+  initialSnapshot = null;
+
   closeEditModal();
 });
 
-modalCancel.addEventListener('click', closeEditModal);
+modalCancel.addEventListener('click', async () => {
+  if (!hasChanges()) {
+    closeEditModal();
+    return;
+  }
+
+  const ok = await showAlert(
+    t('alert.bookmark.cancel'), 
+    { type: 'confirm' }
+  );
+
+  if (ok) closeEditModal();
+});
 
 function closeEditModal() {
   editingId = null;
