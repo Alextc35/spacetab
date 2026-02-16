@@ -45,7 +45,7 @@ async function initApp() {
   if (DEBUG) console.info('Initializing SpaceTab ' + version + ' alfa');
   if (DEBUG) console.time("Execution time"); 
   await initState(DEFAULT_SETTINGS);
-  if (DEBUG) console.groupCollapsed("Modules initialized");
+  if (DEBUG) console.groupCollapsed("%c Modules initialized", "color: green;");
   initModals();
   initImportExport();
   initControls();

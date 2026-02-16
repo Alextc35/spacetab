@@ -13,7 +13,7 @@ export const container = document.getElementById('bookmark-container') || null;
 
 export function renderBookmarks() {
   if (DEBUG) {
-    console.groupCollapsed("Render Bookmarks");
+    console.groupCollapsed("%c Render Bookmarks", "color: orange;");
     console.time("Rendered in");
   }
 
