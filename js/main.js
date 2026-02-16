@@ -20,6 +20,7 @@ import { DEBUG, DEFAULT_SETTINGS } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { applyI18n, t } from './core/i18n.js';
 import { flash } from './ui/flash.js';
+import { version } from './core/translations.js';
 
 /* ======================= DOM References ======================= */
 
@@ -41,6 +42,7 @@ let resizeTimeout = null;
 initApp();
 
 async function initApp() {
+  if (DEBUG) console.info('Initializing SpaceTab ' + version + ' alfa');
   if (DEBUG) console.time("Execution time"); 
   await initState(DEFAULT_SETTINGS);
   if (DEBUG) console.groupCollapsed("Modules initialized");

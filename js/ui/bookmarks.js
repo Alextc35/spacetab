@@ -1,4 +1,3 @@
-import { version } from '../core/translations.js';
 import { PADDING, DEBUG } from '../core/config.js';
 import { openModal } from './modals/editBookmarkModal.js';
 import { addDragAndResize } from './dragResize.js';
@@ -9,8 +8,6 @@ import { showAlert } from './modals/alertModal.js';
 import { t } from '../core/i18n.js';
 import { getState } from '../core/store.js';
 import { deleteBookmarkById } from '../core/bookmark.js';
-
-if (DEBUG) console.info('Initializing SpaceTab ' + version + ' alfa');
 
 export const container = document.getElementById('bookmark-container') || null;
 
