@@ -17,7 +17,7 @@ let urlInput;
 let submitting = false;
 
 export function initAddBookmarkModal() {
-  if (DEBUG) console.time("AddBookmark Modal Loaded in");
+  if (DEBUG) console.time("AddBookmark in");
   if (modal) return;
 
   modal = document.getElementById('add-bookmark-modal');
@@ -56,7 +56,7 @@ export function initAddBookmarkModal() {
     }
   });
 
-  if (DEBUG) console.timeEnd("AddBookmark Modal Loaded in");
+  if (DEBUG) console.timeEnd("AddBookmark in");
 }
 
 export function showAddBookmarkModal() {

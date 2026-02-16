@@ -40,7 +40,7 @@ import { DEFAULT_SETTINGS } from '../../core/config.js';
  * @param {Object} SETTINGS - Global mutable settings object
  */
 export function initSettingsModal(SETTINGS) {
-    if (DEBUG) console.time("Settings Modal Loaded in");
+    if (DEBUG) console.time("Settings in");
     const settingsBtn = document.getElementById('settings');
     const settingsModal = document.getElementById('settings-modal');
     const settingsSave = document.getElementById('settings-modal-save');
@@ -300,5 +300,5 @@ export function initSettingsModal(SETTINGS) {
         updateSaveButtonState();
     });
 
-    if (DEBUG) console.timeEnd("Settings Modal Loaded in");
+    if (DEBUG) console.timeEnd("Settings in");
 }
