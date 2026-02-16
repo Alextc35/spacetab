@@ -52,6 +52,7 @@ async function initApp() {
   initGlobalEvents();
   if (DEBUG) console.groupEnd();
   if (DEBUG) console.timeEnd("Execution time");
+  if (DEBUG) console.info("%c Initial State \n", "color: green;", getState());
 }
 
 /* ======================= Init Sections ======================= */
