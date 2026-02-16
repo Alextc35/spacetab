@@ -16,17 +16,27 @@ let urlInput;
 
 let submitting = false;
 
+let modalSave;
+
+function updateSaveButtonState() {
+  const hasName = nameInput.value.trim().length > 0;
+
+  modalSave.disabled = !hasName;
+  modalSave.classList.toggle('is-disabled', !hasName);
+}
+
 export function initAddBookmarkModal() {
   if (DEBUG) console.time("AddBookmark in");
   if (modal) return;
 
   modal = document.getElementById('add-bookmark-modal');
+  modalSave = document.getElementById('add-bookmark-modal-save');
 
   nameInput = modal.querySelector('#add-bookmark-modal-name');
+  nameInput.addEventListener('input', updateSaveButtonState);
   urlInput = modal.querySelector('#add-bookmark-modal-url');
 
-  modal.querySelector('#add-bookmark-modal-save')
-    .addEventListener('click', handleAccept);
+  modalSave.addEventListener('click', handleAccept);
 
   modal.querySelector('#add-bookmark-modal-cancel')
     .addEventListener('click', () => closeModal());
@@ -64,6 +74,8 @@ export function showAddBookmarkModal() {
 
   nameInput.value = '';
   urlInput.value = '';
+
+  updateSaveButtonState();
 
   openModal('add-bookmark', {
     onAccept: handleAccept
