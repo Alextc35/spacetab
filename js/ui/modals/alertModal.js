@@ -17,6 +17,7 @@ let activeAccept = null;
 let activeCancel = null;
 
 export function initAlertModal() {
+  if (DEBUG) console.time("Alert Modal Loaded in");
   if (modal) return;
 
   modal = document.getElementById('alert-modal');
@@ -44,7 +45,7 @@ export function initAlertModal() {
     initialFocus: btnAccept
   });
 
-  if (DEBUG) console.info('Alert modal initialized');
+  if (DEBUG) console.timeEnd("Alert Modal Loaded in");
 }
 
 export function showAlert(text, options = {}) {

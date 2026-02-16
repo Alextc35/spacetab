@@ -128,6 +128,7 @@ function updatePreview() {
 });
 
 export function initEditBookmarkModal() {
+  if (DEBUG) console.time("EditBookmark Modal Loaded in");
   if (registered) return;
   registered = true;
 
@@ -140,7 +141,7 @@ export function initEditBookmarkModal() {
     initialFocus: modalName
   });
 
-  if (DEBUG) console.log('EditBookmark modal initialized');
+  if (DEBUG) console.timeEnd("EditBookmark Modal Loaded in");
 }
 
 export function openModal(bookmarkId) {

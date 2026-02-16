@@ -95,12 +95,12 @@ export function importBookmarks(file) {
 }
 
 export function initImportExportButtons(exportBtn, importInput) {
+  if (DEBUG) console.time("Import/Export Buttons Loaded in");
   exportBtn.addEventListener('click', exportBookmarks);
   importInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     importBookmarks(file);
     importInput.value = '';
   });
-
-  if (DEBUG) console.log('Import/export buttons initialized');
+  if (DEBUG) console.timeEnd("Import/Export Buttons Loaded in");
 }
