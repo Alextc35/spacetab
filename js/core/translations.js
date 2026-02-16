@@ -66,10 +66,7 @@ export const translations = {
     buttons: {
       save: 'Guardar',
       accept: 'Aceptar',
-      cancel: 'Cancelar',
-      add: '➕',
-      edit: '✎',
-      settings: '⚙️'
+      cancel: 'Cancelar'
     },
 
     editModal: {
@@ -175,10 +172,7 @@ export const translations = {
     buttons: {
       save: 'Save',
       accept: 'Accept',
-      cancel: 'Cancel',
-      add: '➕',
-      edit: '✎',
-      settings: '⚙️'
+      cancel: 'Cancel'
     },
 
     editModal: {

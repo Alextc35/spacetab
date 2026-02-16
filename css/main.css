@@ -17,3 +17,4 @@
 @import './components/editModal.css';
 
 @import './states/disabled.css';
+@import './states/hidden.css';
