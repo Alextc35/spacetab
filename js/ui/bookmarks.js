@@ -16,9 +16,18 @@ export const container = document.getElementById('bookmark-container') || null;
 if (DEBUG) { console.info('Bookmark container:', container); }
 
 export function renderBookmarks() {
-  if (!container) return;
+  if (DEBUG) {
+    console.groupCollapsed("Render Bookmarks");
+    console.time("Rendered in");
+  }
+
+  if (!container) {
+    if (DEBUG) console.groupEnd();
+    return;
+  }
 
   const { bookmarks, isEditing } = getState();
+  if (DEBUG) console.log('Bookmarks:', getState().bookmarks);
 
   updateGridSize(container);
   container.innerHTML = '';
@@ -56,7 +65,10 @@ export function renderBookmarks() {
     container.appendChild(div);
   });
 
-  if (DEBUG) console.warn('Rendered bookmarks')
+  if (DEBUG) {
+    console.timeEnd("Rendered in");
+    console.groupEnd();
+  }
 }
 
 function applyBookmarkStyle(div, bookmark) {

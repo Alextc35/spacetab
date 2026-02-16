@@ -41,13 +41,15 @@ let resizeTimeout = null;
 initApp();
 
 async function initApp() {
-  if (DEBUG) console.time("Tiempo de ejecución"); 
+  if (DEBUG) console.time("Execution time"); 
   await initState(DEFAULT_SETTINGS);
+  if (DEBUG) console.groupCollapsed("Modules initialized");
   initModals();
   initImportExport();
   initControls();
   initGlobalEvents();
-  if (DEBUG) console.timeEnd("Tiempo de ejecución");
+  if (DEBUG) console.groupEnd();
+  if (DEBUG) console.timeEnd("Execution time");
 }
 
 /* ======================= Init Sections ======================= */
@@ -56,10 +58,8 @@ async function initState(DEFAULT_SETTINGS) {
     if (
       state.bookmarks !== prev.bookmarks ||
       state.isEditing !== prev.isEditing
-    ) {
-      renderBookmarks();
-    }
-
+    ) { renderBookmarks(); }
+    
     if (state.settings !== prev.settings) {
       applyGlobalTheme(state.settings);
       applyI18n();
@@ -70,8 +70,6 @@ async function initState(DEFAULT_SETTINGS) {
   await loadSettings(DEFAULT_SETTINGS);
 
   finishHydration();
-  
-  if (DEBUG) console.log('State local loaded:', getState());
 }
 
 function initModals() {
