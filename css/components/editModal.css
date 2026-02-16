@@ -182,10 +182,14 @@
 }
 
 .bookmark.is-preview {
-  position: relative !important;
-  transform: none !important;
+  position: relative;
+  transform: none;
   width: 200px;
   height: 200px;
+}
+
+.bookmark.is-preview a {
+  pointer-events: none;
 }
 
 /* Header fijo */
