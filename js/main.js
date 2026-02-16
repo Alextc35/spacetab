@@ -59,7 +59,7 @@ async function initState(DEFAULT_SETTINGS) {
       state.bookmarks !== prev.bookmarks ||
       state.isEditing !== prev.isEditing
     ) { renderBookmarks(); }
-    
+
     if (state.settings !== prev.settings) {
       applyGlobalTheme(state.settings);
       applyI18n();
@@ -75,8 +75,8 @@ async function initState(DEFAULT_SETTINGS) {
 function initModals() {
   initSettingsModal();
   initAlertModal();
-  initEditBookmarkModal();
   initAddBookmarkModal();
+  initEditBookmarkModal();
 }
 
 function initImportExport() {
