@@ -13,7 +13,6 @@ import { deleteBookmarkById } from '../core/bookmark.js';
 if (DEBUG) console.info('Initializing SpaceTab ' + version + ' alfa');
 
 export const container = document.getElementById('bookmark-container') || null;
-if (DEBUG) { console.info('Bookmark container:', container); }
 
 export function renderBookmarks() {
   if (DEBUG) {
