@@ -24,7 +24,7 @@ import { flash } from './ui/flash.js';
 /* ======================= DOM References ======================= */
 
 const addButton     = document.getElementById('add-bookmark');
-const toggleButton  = document.getElementById('toggle-mode');
+const toggleButton  = document.getElementById('edit-toggle-mode');
 const gridOverlay   = document.getElementById('grid-overlay');
 
 const exportBtn     = document.getElementById('export-btn');

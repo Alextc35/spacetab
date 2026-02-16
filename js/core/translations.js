@@ -1,21 +1,9 @@
-// js/core/translations.js
-
 export const version = '0.17.6';
 
-/**
- * Translation dictionary.
- *
- * Structure:
- * translations[language][namespace][key] = string
- *
- * Example key:
- *   "flash.bookmark.deleted"
- *
- * Languages must share the same structure to avoid missing keys.
- */
 export const translations = {
   es: {
     title: 'Nueva pestaña',
+
     flash: {
       editMode: {
         enabled: 'Modo edición activado',
@@ -58,7 +46,7 @@ export const translations = {
     },
 
     addModal: {
-      title: 'Añadir nuevo favorito',
+      title: '➕ Añadir nuevo favorito',
       name: 'Nombre:',
       url: 'URL:'
     },
@@ -164,7 +152,7 @@ export const translations = {
     },
 
     addModal: {
-      title: 'Add new bookmark',
+      title: '➕ Add new bookmark',
       name: 'Name:',
       url: 'URL:'
     },

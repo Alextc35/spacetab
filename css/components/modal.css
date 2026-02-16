@@ -39,6 +39,14 @@
 }
 
 /* Sizes */
+.modal-xl {
+  width: 800px;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  max-height: 90vh;
+}
+
 .modal-lg {
   width: 700px;
   height: 500px;
@@ -112,18 +120,34 @@
   font-size: 13px;
 }
 
-.btn.primary {
+/* Primary (blue) */
+.btn-primary {
   background: #4da3ff;
-  color: #000;
   font-weight: 600;
 }
 
-.btn.ghost {
+.btn-primary:hover {
+  background: #6db4ff;
+}
+
+/* Secondary (neutral) */
+.btn-secondary {
+  background: #2a2a2a;
+  color: #bbb;
+}
+
+.btn-secondary:hover {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+/* Ghost (none) */
+.btn-ghost {
   background: transparent;
   color: #aaa;
 }
 
-.btn.ghost:hover {
+.btn-ghost:hover {
   color: #fff;
 }
 

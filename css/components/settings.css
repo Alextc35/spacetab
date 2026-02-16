@@ -2,14 +2,14 @@
    SETTINGS LAYOUT FIX
 ================================= */
 
-.settings-layout {
+.settings-modal-layout {
   display: flex;
   height: 100%;
   overflow: hidden;
 }
 
 /* Sidebar */
-.settings-tabs {
+.settings-modal-tabs {
   display: flex;
   flex-direction: column;
   background: #1a1a1a;
@@ -19,7 +19,7 @@
 }
 
 /* Hace que ocupe siempre todo el alto */
-.settings-panel {
+.settings-modal-panel {
   flex: 1;
   padding: 20px;
   display: flex;
@@ -28,7 +28,7 @@
 }
 
 /* Hace que el contenido crezca y empuje los botones abajo */
-.settings-panel .tab-content {
+.settings-modal-panel .settings-modal-tab-content {
   flex: 1;
   overflow-y: auto;
   padding-right: 10px;
@@ -38,7 +38,7 @@
    TABS STYLE FIX
 ================================= */
 
-.tab-btn {
+.settings-modal-tab-btn {
   width: 100%;
   padding: 12px;
   text-align: left;
@@ -49,12 +49,12 @@
   transition: all 0.2s ease;
 }
 
-.tab-btn:hover {
+.settings-modal-tab-btn:hover {
   background: #2a2a2a;
   color: #fff;
 }
 
-.tab-btn.active {
+.settings-modal-tab-btn.active {
   background: #333;
   color: #fff;
   font-weight: 600;
@@ -74,66 +74,8 @@ input[type="color"] {
 }
 
 /* ===============================
-   FIX BUTTONS (por reset.css)
-================================= */
-
-button {
-  border: none;
-  outline: none;
-}
-
-.btn {
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.btn-primary {
-  background: #4da3ff;
-  color: #000;
-}
-
-.btn-primary:hover {
-  background: #6cb5ff;
-}
-
-.btn-ghost {
-  background: #2a2a2a;
-  color: #ccc;
-}
-
-.btn-ghost:hover {
-  background: #3a3a3a;
-  color: #fff;
-}
-
-/* ===============================
    Button Variants (Design System)
 ================================= */
-
-/* Primary */
-.btn-primary {
-  background: #4da3ff;
-  color: #000;
-  font-weight: 600;
-}
-
-.btn-primary:hover {
-  background: #6db4ff;
-}
-
-/* Secondary (neutral) */
-.btn-secondary {
-  background: #2a2a2a;
-  color: #ddd;
-}
-
-.btn-secondary:hover {
-  background: #3a3a3a;
-  color: #fff;
-}
 
 /* Info (export/import) */
 .btn-info {
@@ -161,14 +103,14 @@ button {
    BACKGROUND SETTINGS SPACING
 ================================= */
 
-#background-settings {
+#settings-modal-background-settings {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-top: 10px;
 }
 
-#background-settings input[type="text"] {
+#settings-modal-background-settings input[type="text"] {
   width: 100%;
 }
 
@@ -192,21 +134,21 @@ button {
    Custom Scrollbar
 ================================= */
 
-.settings-panel .tab-content::-webkit-scrollbar {
+.settings-modal-panel .settings-modal-tab-content::-webkit-scrollbar {
   width: 8px;
 }
 
-.settings-panel .tab-content::-webkit-scrollbar-track {
+.settings-modal-panel .settings-modal-tab-content::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.settings-panel .tab-content::-webkit-scrollbar-thumb {
+.settings-modal-panel .settings-modal-tab-content::-webkit-scrollbar-thumb {
   background: rgba(0, 173, 239, 0.5); /* #00ADEF con alpha */
   border-radius: 10px;
   transition: background 0.2s ease;
 }
 
-.settings-panel .tab-content::-webkit-scrollbar-thumb:hover {
+.settings-modal-panel .settings-modal-tab-content::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 173, 239, 0.8);
 }
 

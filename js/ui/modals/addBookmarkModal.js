@@ -19,44 +19,15 @@ let submitting = false;
 export function initAddBookmarkModal() {
   if (modal) return;
 
-  modal = document.createElement('div');
-  modal.className = 'modal';
+  modal = document.getElementById('add-bookmark-modal');
 
-  modal.innerHTML = `
-    <div class="modal-overlay"></div>
-    <div class="modal-card modal-sm">
-      <h2>➕ ${t('addModal.title')}</h2>
+  nameInput = modal.querySelector('#add-bookmark-modal-name');
+  urlInput = modal.querySelector('#add-bookmark-modal-url');
 
-      <div class="modal-field">
-        <label for="add-name">${t('addModal.name')}</label>
-        <input type="text" id="add-name" autofocus>
-      </div>
-
-      <div class="modal-field">
-        <label for="add-url">${t('addModal.url')}</label>
-        <input type="url" id="add-url" placeholder="https://">
-      </div>
-
-      <div class="modal-actions">
-        <button id="add-cancel" class="btn ghost">
-          ${t('buttons.cancel')}
-        </button>
-        <button id="add-save" class="btn primary">
-          ${t('buttons.accept')}
-        </button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-
-  nameInput = modal.querySelector('#add-name');
-  urlInput = modal.querySelector('#add-url');
-
-  modal.querySelector('#add-save')
+  modal.querySelector('#add-bookmark-modal-save')
     .addEventListener('click', handleAccept);
 
-  modal.querySelector('#add-cancel')
+  modal.querySelector('#add-bookmark-modal-cancel')
     .addEventListener('click', () => closeModal());
 
   registerModal({
@@ -92,12 +63,6 @@ export function showAddBookmarkModal() {
 
   nameInput.value = '';
   urlInput.value = '';
-
-  modal.querySelector('h2').textContent = `➕ ${t('addModal.title')}`;
-  modal.querySelector('label[for="add-name"]').textContent = t('addModal.name');
-  modal.querySelector('label[for="add-url"]').textContent = t('addModal.url');
-  modal.querySelector('#add-save').textContent = t('buttons.accept');
-  modal.querySelector('#add-cancel').textContent = t('buttons.cancel');
 
   openModal('add-bookmark', {
     onAccept: handleAccept

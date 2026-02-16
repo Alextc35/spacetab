@@ -42,19 +42,19 @@ import { DEFAULT_SETTINGS } from '../../core/config.js';
 export function initSettingsModal(SETTINGS) {
     const settingsBtn = document.getElementById('settings');
     const settingsModal = document.getElementById('settings-modal');
-    const settingsSave = document.getElementById('settings-save');
-    const settingsCancel = document.getElementById('settings-cancel');
+    const settingsSave = document.getElementById('settings-modal-save');
+    const settingsCancel = document.getElementById('settings-modal-cancel');
     const languageSelect = document.getElementById('language-select');
 
-    const bgColorInput = document.getElementById('background-color');
-    const bgImageInput = document.getElementById('background-image');
-    const resetBgBtn = document.getElementById('reset-background');
+    const bgColorInput = document.getElementById('settings-modal-background-color');
+    const bgImageInput = document.getElementById('settings-modal-background-image');
+    const resetBgBtn = document.getElementById('settings-modal-reset-background');
 
-    const clearBgImageBtn = document.getElementById('clear-background-image');
-    const copyBgImageBtn = document.getElementById('copy-background-image');
-    const toggleBtn = document.getElementById('toggle-background-image');
+    const clearBgImageBtn = document.getElementById('settings-modal-clear-background-image');
+    const copyBgImageBtn = document.getElementById('settings-modal-copy-background-image');
+    const toggleBtn = document.getElementById('settings-modal-toggle-background-image');
 
-    const bgPreview = document.getElementById('background-preview');
+    const bgPreview = document.getElementById('settings-modal-background-preview');
 
     let draftTheme = null;
     let isLocked = false;
@@ -130,13 +130,13 @@ export function initSettingsModal(SETTINGS) {
     }
 
     function activateTab(tabId) {
-        document.querySelectorAll("#settings-modal .tab-btn")
+        document.querySelectorAll("#settings-modal .settings-modal-tab-btn")
             .forEach(b => b.classList.remove("active"));
 
-        document.querySelectorAll("#settings-modal .tab-content")
+        document.querySelectorAll("#settings-modal .settings-modal-tab-content")
             .forEach(tab => tab.style.display = "none");
 
-        const btn = document.querySelector(`#settings-modal .tab-btn[data-tab="${tabId}"]`);
+        const btn = document.querySelector(`#settings-modal .settings-modal-tab-btn[data-tab="${tabId}"]`);
         if (btn) btn.classList.add("active");
 
         const content = document.getElementById(tabId);
@@ -192,7 +192,7 @@ export function initSettingsModal(SETTINGS) {
         updateColorState();
         updatePreviewDraft();
 
-        activateTab('tab-general');
+        activateTab('settings-modal-tab-general');
 
         openModal('settings');
     });
@@ -223,11 +223,11 @@ export function initSettingsModal(SETTINGS) {
         closeModal();
     });
 
-    document.querySelectorAll("#settings-modal .tab-btn").forEach(btn => {
+    document.querySelectorAll("#settings-modal .settings-modal-tab-btn").forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll("#settings-modal .tab-btn").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll("#settings-modal .settings-modal-tab-btn").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
-            document.querySelectorAll("#settings-modal .tab-content").forEach(tab => tab.style.display = "none");
+            document.querySelectorAll("#settings-modal .settings-modal-tab-content").forEach(tab => tab.style.display = "none");
             const target = btn.dataset.tab;
             document.getElementById(target).style.display = "block";
         });

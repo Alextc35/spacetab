@@ -22,121 +22,183 @@
   <div id="flash-container" class="flash-container"></div>
 
   <!-- ==================================================
+      ALERT MODAL
+  ================================================== -->
+  <div id="alert-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-card modal-sm">
+      <h2 id="alert-modal-title">Alerta</h2>
+      <div class="modal-actions">
+        <button id="alert-modal-cancel" class="btn btn-ghost"
+          data-i18n="buttons.cancel">Cancelar
+        </button>
+        <button id="alert-modal-accept" class="btn btn-primary"
+          data-i18n="buttons.accept">Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================
       FLOATING MENU
   ================================================== -->
   <div id="floating-menu">
-    <button id="toggle-mode" type="button">✎</button>
+    <button id="edit-toggle-mode" type="button">✎</button>
     <button id="add-bookmark" type="button">➕</button>
     <button id="settings" type="button">⚙️</button>
   </div>
 
   <!-- ==================================================
+      ADD BOOKMARK MODAL
+  ================================================== -->
+  <div id="add-bookmark-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-card modal-sm">
+      <h2 data-i18n="addModal.title">➕ Añadir nuevo favorito</h2>
+
+      <div class="modal-field">
+        <label for="add-bookmark-modal-name"
+          data-i18n="addModal.name">Nombre:
+        </label>
+        <input id="add-bookmark-modal-name" type="text" autofocus>
+      </div>
+
+      <div class="modal-field">
+        <label for="add-bookmark-modal-url"
+          data-i18n="addModal.url">URL:
+        </label>
+        <input id="add-bookmark-modal-url" type="url" placeholder="https://">
+      </div>
+
+      <div class="modal-actions">
+        <button id="add-bookmark-modal-cancel" class="btn btn-ghost"
+          data-i18n="buttons.cancel">Cancelar
+        </button>
+        <button id="add-bookmark-modal-save" class="btn btn-primary"
+          data-i18n="buttons.accept">Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================
       EDIT BOOKMARK MODAL
   ================================================== -->
-  <div id="edit-modal" class="modal">
+  <div id="edit-bookmark-modal" class="modal">
     <div class="modal-overlay"></div>
     <div class="modal-card modal-xl">
-      <div class="edit-header">
-        <h2 data-i18n="editModal.title">Editar Favorito</h2>
+      <h2 data-i18n="editModal.title">Editar Favorito</h2>
+
+      <div class="edit-bookmark-modal-tabs">
+        <button data-tab="edit-bookmark-modal-tab-general" class="edit-bookmark-modal-tab-btn active" type="button"
+          data-i18n="editModal.sections.general">General
+        </button>
+        <button data-tab="edit-bookmark-modal-tab-style" class="edit-bookmark-modal-tab-btn" type="button"
+          data-i18n="editModal.sections.style">Estilo
+        </button>
+        <button data-tab="edit-bookmark-modal-tab-text" class="edit-bookmark-modal-tab-btn" type="button"
+          data-i18n="editModal.sections.text">Texto
+        </button>
+        <button data-tab="edit-bookmark-modal-tab-icon" class="edit-bookmark-modal-tab-btn" type="button"
+          data-i18n="editModal.sections.icon">Icono
+        </button>
       </div>
 
-      <div class="edit-tabs">
-        <button data-tab="edit-tab-general" class="edit-tab-btn active" type="button"
-          data-i18n="editModal.sections.general">General</button>
+      <div class="edit-bookmark-modal-layout">
+        <div class="edit-bookmark-modal-panel">
+          <div id="edit-bookmark-modal-tab-general" class="edit-bookmark-modal-tab-content">
+            <label for="edit-bookmark-modal-name"
+              data-i18n="editModal.name">Nombre:
+            </label>
+            <input id="edit-bookmark-modal-name" type="text" autofocus>
 
-        <button data-tab="edit-tab-style" class="edit-tab-btn" type="button"
-          data-i18n="editModal.sections.style">Estilo</button>
-
-        <button data-tab="edit-tab-text" class="edit-tab-btn" type="button"
-          data-i18n="editModal.sections.text">Texto</button>
-
-        <button data-tab="edit-tab-icon" class="edit-tab-btn" type="button"
-          data-i18n="editModal.sections.icon">Icono</button>
-      </div>
-
-      <div class="edit-layout">
-        <div class="edit-panel">
-          <div id="edit-tab-general" class="edit-tab-content">
-            <label for="modal-name"
-              data-i18n="editModal.name">Nombre:</label>
-            <input id="modal-name" type="text" autofocus>
-
-            <label for="modal-url"
-              data-i18n="editModal.url">URL:</label>
-            <input id="modal-url" type="text" placeholder="https://">
+            <label for="edit-bookmark-modal-url"
+              data-i18n="editModal.url">URL:
+            </label>
+            <input id="edit-bookmark-modal-url" type="text" placeholder="https://">
           </div>
 
-          <div id="edit-tab-style" class="edit-tab-content is-hidden">
+          <div id="edit-bookmark-modal-tab-style" class="edit-bookmark-modal-tab-content is-hidden">
             <div class="checkbox-wrapper">
-              <input id="modal-no-background" type="checkbox">
-              <label for="modal-no-background"
-                data-i18n="editModal.noBackground">Sin fondo</label>
+              <input id="edit-bookmark-modal-no-background" type="checkbox">
+              <label for="edit-bookmark-modal-no-background"
+                data-i18n="editModal.noBackground">Sin fondo
+              </label>
             </div>
 
-            <div class="color-options">
-              <label for="modal-background-color"
-                data-i18n="editModal.backgroundColor">Color del bookmark:</label>
-              <input id="modal-background-color" type="color">
+            <div class="edit-bookmark-modal-color-options">
+              <label for="edit-bookmark-modal-background-color"
+                data-i18n="editModal.backgroundColor">Color del bookmark:
+              </label>
+              <input id="edit-bookmark-modal-background-color" type="color">
             </div>
 
-            <label for="modal-background-image"
-              data-i18n="editModal.backgroundImage">Imagen de fondo (URL):</label>
-            <input id="modal-background-image" type="text" placeholder="https://...">
+            <label for="edit-bookmark-modal-background-image"
+              data-i18n="editModal.backgroundImage">Imagen de fondo (URL):
+            </label>
+            <input id="edit-bookmark-modal-background-image" type="text" placeholder="https://...">
 
             <div class="checkbox-wrapper">
-              <input id="modal-background-favicon" type="checkbox">
-              <label for="modal-background-favicon"
-                data-i18n="editModal.backgroundFavicon">Favicon como background</label>
+              <input id="edit-bookmark-modal-background-favicon" type="checkbox">
+              <label for="edit-bookmark-modal-background-favicon"
+                data-i18n="editModal.backgroundFavicon">Favicon como background
+              </label>
             </div>
 
             <div class="checkbox-wrapper">
-              <input id="modal-invert-color-bg" type="checkbox">
-              <label for="modal-invert-color-bg"
-                data-i18n="editModal.invertColorBg">Invertir colores</label>
+              <input id="edit-bookmark-modal-invert-color-bg" type="checkbox">
+              <label for="edit-bookmark-modal-invert-color-bg"
+                data-i18n="editModal.invertColorBg">Invertir colores
+              </label>
             </div>
           </div>
 
-          <div id="edit-tab-text" class="edit-tab-content is-hidden">
+          <div id="edit-bookmark-modal-tab-text" class="edit-bookmark-modal-tab-content is-hidden">
             <div class="checkbox-wrapper">
-              <input id="modal-show-text" type="checkbox">
-              <label for="modal-show-text"
-                data-i18n="editModal.showText">Mostrar texto</label>
+              <input id="edit-bookmark-modal-show-text" type="checkbox">
+              <label for="edit-bookmark-modal-show-text"
+                data-i18n="editModal.showText">Mostrar texto
+              </label>
             </div>
 
-            <div class="color-options">
-              <label for="modal-text-color"
-                data-i18n="editModal.textColor">Color del texto:</label>
-              <input id="modal-text-color" type="color">
+            <div class="edit-bookmark-modal-color-options">
+              <label for="edit-bookmark-modal-text-color"
+                data-i18n="editModal.textColor">Color del texto:
+              </label>
+              <input id="edit-bookmark-modal-text-color" type="color">
             </div>
           </div>
 
-          <div id="edit-tab-icon" class="edit-tab-content is-hidden">
+          <div id="edit-bookmark-modal-tab-icon" class="edit-bookmark-modal-tab-content is-hidden">
             <div class="checkbox-wrapper">
-              <input id="modal-show-favicon" type="checkbox">
-              <label for="modal-show-favicon"
-                data-i18n="editModal.showFavicon">Mostrar favicon</label>
+              <input id="edit-bookmark-modal-show-favicon" type="checkbox">
+              <label for="edit-bookmark-modal-show-favicon"
+                data-i18n="editModal.showFavicon">Mostrar favicon
+              </label>
             </div>
 
             <div class="checkbox-wrapper">
-              <input id="modal-invert-color-icon" type="checkbox">
-              <label for="modal-invert-color-icon"
-                data-i18n="editModal.invertColorIcon">Invertir colores</label>
+              <input id="edit-bookmark-modal-invert-color-icon" type="checkbox">
+              <label for="edit-bookmark-modal-invert-color-icon"
+                data-i18n="editModal.invertColorIcon">Invertir colores
+              </label>
             </div>
           </div>
         </div>
 
-        <div class="edit-preview-panel">
+        <div class="edit-bookmark-modal-preview-panel">
           <h3 data-i18n="editModal.preview">Preview</h3>
-          <div id="edit-bookmark-preview"></div>
+          <div id="edit-bookmark-modal-preview"></div>
         </div>
       </div>
 
       <div class="modal-actions">
-        <button id="modal-cancel" class="btn ghost" type="button"
-          data-i18n="buttons.cancel">Cancelar</button>
-
-        <button id="modal-save" class="btn primary" type="button"
-          data-i18n="buttons.save">Guardar</button>
+        <button id="edit-bookmark-modal-cancel" class="btn btn-ghost" type="button"
+          data-i18n="buttons.cancel">Cancelar
+        </button>
+        <button id="edit-bookmark-modal-save" class="btn btn-primary" type="button"
+          data-i18n="buttons.save">Guardar
+        </button>
       </div>
     </div>
   </div>
@@ -147,59 +209,69 @@
   <div id="settings-modal" class="modal">
     <div class="modal-overlay"></div>
     <div class="modal-card modal-lg">
-      <div class="settings-layout">
-        <div class="settings-tabs">
-          <button data-tab="tab-general" class="tab-btn active" type="button"
-            data-i18n="settingsModal.sections.general">⚙️ General</button>
-
-          <button data-tab="tab-lang" class="tab-btn" type="button"
-            data-i18n="settingsModal.sections.language">🌐 Idiomas</button>
-
-          <button data-tab="tab-info" class="tab-btn" type="button"
-            data-i18n="settingsModal.sections.information">ℹ️ Información</button>
+      <div class="settings-modal-layout">
+        <div class="settings-modal-tabs">
+          <button data-tab="settings-modal-tab-general" class="settings-modal-tab-btn active" type="button"
+            data-i18n="settingsModal.sections.general">⚙️ General
+          </button>
+          <button data-tab="settings-modal-tab-lang" class="settings-modal-tab-btn" type="button"
+            data-i18n="settingsModal.sections.language">🌐 Idiomas
+          </button>
+          <button data-tab="settings-modal-tab-info" class="settings-modal-tab-btn" type="button"
+            data-i18n="settingsModal.sections.information">ℹ️ Información
+          </button>
         </div>
 
-        <div class="settings-panel">
-          <div id="tab-general" class="tab-content">
+        <div class="settings-modal-panel">
+          <div id="settings-modal-tab-general" class="settings-modal-tab-content">
             <h2 data-i18n="settingsModal.general.title">General</h2>
 
             <h3 data-i18n="settingsModal.general.subtitle">Fondo de la página</h3>
 
-            <div id="background-settings">
-              <label for="background-color"
-                data-i18n="settingsModal.general.backgroundColor">Color:</label>
-              <input id="background-color" type="color">
+            <div id="settings-modal-background-settings">
+              <label for="settings-modal-background-color"
+                data-i18n="settingsModal.general.backgroundColor">Color:
+              </label>
+              <input id="settings-modal-background-color" type="color">
 
-              <label for="background-image"
-                data-i18n="settingsModal.general.backgroundImage">Imagen URL:</label>
+              <label for="settings-modal-background-image"
+                data-i18n="settingsModal.general.backgroundImage">Imagen URL:
+              </label>
               <div class="input-with-actions">
-                <input id="background-image" type="text" placeholder="https://...">
-                <button id="toggle-background-image" class="input-action input-toggle" type="button"
-                  title="Hide URL">👁</button>
-                <button id="copy-background-image" class="input-action input-copy" type="button"
-                  title="Copy to clipboard">📋</button>
-                <button id="clear-background-image" class="input-action input-clear" type="button"
-                  title="Clear input">✕</button>
+                <input id="settings-modal-background-image" type="text" placeholder="https://...">
+                <button id="settings-modal-toggle-background-image" class="input-action input-toggle" type="button"
+                  title="Hide URL">👁
+                </button>
+                <button id="settings-modal-copy-background-image" class="input-action input-copy" type="button"
+                  title="Copy to clipboard">📋
+                </button>
+                <button id="settings-modal-clear-background-image" class="input-action input-clear" type="button"
+                  title="Clear input">✕
+                </button>
               </div>
 
-              <div id="background-preview" class="bg-preview"></div>
+              <div id="settings-modal-background-preview" class="bg-preview"></div>
 
-              <button id="reset-background" class="btn btn-secondary" type="button"
-                data-i18n="settingsModal.general.resetBackground">Restablecer</button>
+              <button id="settings-modal-reset-background" class="btn btn-secondary" type="button"
+                data-i18n="settingsModal.general.resetBackground">Restablecer
+              </button>
 
               <button id="export-btn" class="btn btn-info" type="button"
-                data-i18n="settingsModal.general.export">Exportar</button>
+                data-i18n="settingsModal.general.export">Exportar
+              </button>
               <input id="import-input" class="is-hidden" type="file">
 
               <button id="import-btn" class="btn btn-info" type="button"
-                data-i18n="settingsModal.general.import">Importar</button>
+                data-i18n="settingsModal.general.import">Importar
+              </button>
 
               <button id="delete-all-btn" class="btn btn-danger" type="button"
-                data-i18n="settingsModal.general.deleteAll">Borrar todos los Bookmarks</button>
+                data-i18n="settingsModal.general.deleteAll">Borrar todos los Bookmarks
+              </button>
             </div>
           </div>
 
-          <div id="tab-lang" class="tab-content is-hidden">
+          <div id="settings-modal-tab-lang" class="settings-modal-tab-content is-hidden">
             <h2 data-i18n="settingsModal.languages.title">Idiomas</h2>
             <p data-i18n="settingsModal.languages.text">Selecciona el idioma de la interfaz:</p>
             <select id="language-select">
@@ -208,7 +280,7 @@
             </select>
           </div>
 
-          <div id="tab-info" class="tab-content is-hidden">
+          <div id="settings-modal-tab-info" class="settings-modal-tab-content is-hidden">
             <h2 data-i18n="settingsModal.information.title">Información</h2>
             <p><strong>SpaceTab</strong></p>
             <p data-i18n="settingsModal.information.version">Versión:</p>
@@ -217,11 +289,12 @@
           </div>
 
           <div class="modal-actions">
-            <button id="settings-cancel" class="btn btn-ghost" type="button"
-              data-i18n="buttons.cancel">Cancelar</button>
-
-            <button id="settings-save" class="btn btn-primary" type="button"
-              data-i18n="buttons.save">Guardar</button>
+            <button id="settings-modal-cancel" class="btn btn-ghost" type="button"
+              data-i18n="buttons.cancel">Cancelar
+            </button>
+            <button id="settings-modal-save" class="btn btn-primary" type="button"
+              data-i18n="buttons.save">Guardar
+            </button>
           </div>
         </div>
       </div>

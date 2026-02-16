@@ -20,7 +20,7 @@
 
 /* botones generales */
 button#add-bookmark,
-button#toggle-mode,
+button#edit-toggle-mode,
 button#settings {
   display: block;
   margin: 0 auto;

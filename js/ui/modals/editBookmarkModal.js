@@ -7,22 +7,22 @@ import { createBookmarkElement } from '../bookmarks.js';
 import { showAlert } from './alertModal.js';
 import { t } from '../../core/i18n.js';
 
-const editModal = document.getElementById('edit-modal');
-const modalName = document.getElementById('modal-name');
-const modalUrl = document.getElementById('modal-url');
-const modalInvertColorIcon = document.getElementById('modal-invert-color-icon');
-const modalInvertColorBg = document.getElementById('modal-invert-color-bg');
-const labelModalInvertColorBg = document.querySelector('label[for="modal-invert-color-bg"]');
-const modalSave = document.getElementById('modal-save');
-const modalCancel = document.getElementById('modal-cancel');
-const modalBackgroundColor = document.getElementById('modal-background-color');
-const modalNoBackground = document.getElementById('modal-no-background');
-const modalTextColor = document.getElementById('modal-text-color');
-const modalShowFavicon = document.getElementById('modal-show-favicon');
-const labelModalShowFavicon = document.querySelector('label[for="modal-show-favicon"]');
-const modalShowText = document.getElementById('modal-show-text');
-const modalBackgroundImage = document.getElementById('modal-background-image');
-const modalBackgroundFavicon = document.getElementById('modal-background-favicon');
+const editModal = document.getElementById('edit-bookmark-modal');
+const modalName = document.getElementById('edit-bookmark-modal-name');
+const modalUrl = document.getElementById('edit-bookmark-modal-url');
+const modalInvertColorIcon = document.getElementById('edit-bookmark-modal-invert-color-icon');
+const modalInvertColorBg = document.getElementById('edit-bookmark-modal-invert-color-bg');
+const labelModalInvertColorBg = document.querySelector('label[for="edit-bookmark-modal-invert-color-bg"]');
+const modalSave = document.getElementById('edit-bookmark-modal-save');
+const modalCancel = document.getElementById('edit-bookmark-modal-cancel');
+const modalBackgroundColor = document.getElementById('edit-bookmark-modal-background-color');
+const modalNoBackground = document.getElementById('edit-bookmark-modal-no-background');
+const modalTextColor = document.getElementById('edit-bookmark-modal-text-color');
+const modalShowFavicon = document.getElementById('edit-bookmark-modal-show-favicon');
+const labelModalShowFavicon = document.querySelector('label[for="edit-bookmark-modal-show-favicon"]');
+const modalShowText = document.getElementById('edit-bookmark-modal-show-text');
+const modalBackgroundImage = document.getElementById('edit-bookmark-modal-background-image');
+const modalBackgroundFavicon = document.getElementById('edit-bookmark-modal-background-favicon');
 
 let editingId = null;
 let draft = null;
@@ -30,7 +30,7 @@ let registered = false;
 let initialSnapshot = null;
 
 function resetTabScroll() {
-  const activeTab = editModal.querySelector('.edit-tab-content[style*="flex"]');
+  const activeTab = editModal.querySelector('.edit-bookmark-modal-tab-content[style*="flex"]');
   if (activeTab) activeTab.scrollTop = 0;
 }
 
@@ -77,7 +77,7 @@ function buildDraft() {
   };
 }
 
-const previewContainer = document.getElementById('edit-bookmark-preview');
+const previewContainer = document.getElementById('edit-bookmark-modal-preview');
 
 function renderPreview() {
   if (!draft) return;
@@ -165,7 +165,7 @@ export function openModal(bookmarkId) {
 
   updateStates();
   updatePreview();
-  activateTab('edit-tab-general');
+  activateTab('edit-bookmark-modal-tab-general');
   resetTabScroll();
 
   initialSnapshot = getCurrentFormState();
@@ -273,8 +273,8 @@ function closeEditModal() {
    Tabs Logic
 ===================================== */
 
-const tabButtons = editModal.querySelectorAll('.edit-tab-btn');
-const tabContents = editModal.querySelectorAll('.edit-tab-content');
+const tabButtons = editModal.querySelectorAll('.edit-bookmark-modal-tab-btn');
+const tabContents = editModal.querySelectorAll('.edit-bookmark-modal-tab-content');
 
 function activateTab(tabId) {
   tabButtons.forEach(btn => {

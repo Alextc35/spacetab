@@ -2,22 +2,14 @@
    Edit Modal Layout
 ================================= */
 
-.modal-xl {
-  width: 800px;
-  display: flex;
-  flex-direction: column;
-  height: 500px;
-  max-height: 90vh;
-}
-
 /* Header */
 
-.edit-header {
+.edit-bookmark-modal-header {
   padding: 20px 24px 12px;
   border-bottom: 1px solid #222;
 }
 
-.edit-header h2 {
+.edit-bookmark-modal-header h2 {
   margin: 0;
   font-size: 18px;
 }
@@ -26,14 +18,14 @@
    Tabs
 ================================= */
 
-.edit-tabs {
+.edit-bookmark-modal-tabs {
   display: flex;
   gap: 6px;
   padding: 10px 24px;
   border-bottom: 1px solid #222;
 }
 
-.edit-tab-btn {
+.edit-bookmark-modal-tab-btn {
   background: transparent;
   border: none;
   color: #888;
@@ -44,12 +36,12 @@
   transition: .15s ease;
 }
 
-.edit-tab-btn:hover {
+.edit-bookmark-modal-tab-btn:hover {
   background: #1c1c1c;
   color: #fff;
 }
 
-.edit-tab-btn.active {
+.edit-bookmark-modal-tab-btn.active {
   background: #222;
   color: #fff;
 }
@@ -58,7 +50,7 @@
    Main Layout
 ================================= */
 
-.edit-layout {
+.edit-bookmark-modal-layout {
   display: flex;
   flex: 1;
   overflow: hidden;
@@ -66,14 +58,14 @@
 
 /* Left panel */
 
-.edit-panel {
+.edit-bookmark-modal-panel {
   flex: 1;
   padding: 24px;
   display: flex;
   border-right: 1px solid #222;
 }
 
-.edit-tab-content {
+.edit-bookmark-modal-tab-content {
   flex: 1;
   overflow-y: auto;
   flex-direction: column;
@@ -93,7 +85,7 @@
 
 /* Color block spacing */
 
-.color-options {
+.edit-bookmark-modal-color-options {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -103,7 +95,7 @@
    Preview Panel
 ================================= */
 
-.edit-preview-panel {
+.edit-bookmark-modal-preview-panel {
   width: 320px;
   padding: 24px;
   display: flex;
@@ -113,7 +105,7 @@
   justify-content: center;
 }
 
-.edit-preview-panel h3 {
+.edit-bookmark-modal-preview-panel h3 {
   font-size: 13px;
   opacity: .6;
   margin: 0;
@@ -121,7 +113,7 @@
 
 /* Preview box */
 
-#edit-bookmark-preview {
+#edit-bookmark-modal-preview {
   width: 200px;
   height: 210px;
   border-radius: 14px;
@@ -165,7 +157,7 @@
   }
 }
 
-.bookmark-preview {
+.edit-bookmark-modal-preview {
   width: 180px;
   height: 120px;
   border-radius: 16px;
@@ -176,7 +168,7 @@
   transition: .2s ease;
 }
 
-.bookmark-preview-content {
+.edit-bookmark-modal-preview-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -185,7 +177,7 @@
   text-align: center;
 }
 
-.bookmark-preview-favicon {
+.edit-bookmark-modal-preview-favicon {
   font-size: 22px;
 }
 
@@ -197,12 +189,12 @@
 }
 
 /* Header fijo */
-.edit-modal-header {
+.edit-bookmark-modal-header {
   flex: 0 0 auto;
 }
 
 /* Tabs fijo */
-.edit-tabs {
+.edit-bookmark-modal-tabs {
   flex: 0 0 auto;
 }
 
@@ -215,20 +207,20 @@
    Custom Scrollbar
 ================================= */
 
-.edit-panel .edit-tab-content::-webkit-scrollbar {
+.edit-bookmark-modal-panel .edit-bookmark-modal-tab-content::-webkit-scrollbar {
   width: 8px;
 }
 
-.edit-panel .edit-tab-content::-webkit-scrollbar-track {
+.edit-bookmark-modal-panel .edit-bookmark-modal-tab-content::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.edit-panel .edit-tab-content::-webkit-scrollbar-thumb {
+.edit-bookmark-modal-panel .edit-bookmark-modal-tab-content::-webkit-scrollbar-thumb {
   background: rgba(0, 173, 239, 0.5); /* #00ADEF con alpha */
   border-radius: 10px;
   transition: background 0.2s ease;
 }
 
-.edit-panel .edit-tab-content::-webkit-scrollbar-thumb:hover {
+.edit-bookmark-modal-panel .edit-bookmark-modal-tab-content::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 173, 239, 0.8);
 }
