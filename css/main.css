@@ -2,15 +2,15 @@
 @import './base/variables.css';
 @import './base/base.css';
 
-@import './layout/container.css';
-@import './layout/grid.css';
+@import './layout/bookmarkContainer.css';
+@import './layout/gridOverlay.css';
+@import './layout/floatingMenu.css';
 
 @import './components/bookmark.css';
 @import './components/bookmark-link.css';
 @import './components/buttons.css';
 @import './components/modal.css';
 @import './components/resizer.css';
-@import './components/floating-menu.css';
 @import './components/settings.css';
 @import './components/checkbox.css';
 @import './components/flash.css';

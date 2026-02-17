@@ -3,7 +3,7 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 9999;
+  z-index: var(--z-flash);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -21,14 +21,13 @@
   opacity: 0;
   transform: translateY(-20px);
   transition: all 0.3s ease;
+
+  &.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.flash-message.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Tipos de mensajes */
 .flash-success { background-color: #4CAF50; }
 .flash-error   { background-color: #F44336; }
 .flash-info    { background-color: #2196F3; }

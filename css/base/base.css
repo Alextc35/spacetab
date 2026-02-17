@@ -1,33 +1,15 @@
-/**
- * base.css
- * ------------------------------------------------------
- * Global base styles for the application.
- *
- * Responsibilities:
- * - Define fundamental layout constraints for the app
- * - Set default background behavior
- * - Establish global typography and text color
- * - Prevent unwanted scrolling
- *
- * Notes:
- * - This file should NOT contain component-specific styles
- * - Visual theming must rely on CSS variables (see variables.css)
- * - The body element acts as the main viewport container
- * ------------------------------------------------------
- */
-
 body {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
 
-  background-color: var(--color-bg-main);
-  background-image: var(--image-bg-main);
+  background-color: var(--color-background-body);
+  background-image: var(--image-background-body);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
 
 
   font-family: Arial, sans-serif;
-  color: var(--color-text-bookmark);
+  color: var(--color-text-body);
 }

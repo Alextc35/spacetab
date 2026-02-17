@@ -117,7 +117,7 @@
 
       <div class="edit-bookmark-modal-layout">
         <div class="edit-bookmark-modal-panel">
-          <div id="edit-bookmark-modal-tab-general" class="edit-bookmark-modal-tab-content">
+          <div id="edit-bookmark-modal-tab-general" class="modal-field edit-bookmark-modal-tab-content">
             <label for="edit-bookmark-modal-name"
               data-i18n="editModal.name">Nombre:
             </label>
@@ -144,10 +144,12 @@
               <input id="edit-bookmark-modal-background-color" type="color">
             </div>
 
-            <label for="edit-bookmark-modal-background-image"
-              data-i18n="editModal.backgroundImage">Imagen de fondo (URL):
-            </label>
-            <input id="edit-bookmark-modal-background-image" type="text" placeholder="https://...">
+            <div class="modal-field">
+              <label for="edit-bookmark-modal-background-image"
+                data-i18n="editModal.backgroundImage">Imagen de fondo (URL):
+              </label>
+              <input id="edit-bookmark-modal-background-image" type="text" placeholder="https://...">
+            </div>
 
             <div class="checkbox-wrapper">
               <input id="edit-bookmark-modal-background-favicon" type="checkbox">
@@ -240,7 +242,7 @@
 
             <h3 data-i18n="settingsModal.general.subtitle">Fondo de la página</h3>
 
-            <div id="settings-modal-background-settings">
+            <div id="settings-modal-background-settings" class="modal-field">
               <label for="settings-modal-background-color"
                 data-i18n="settingsModal.general.backgroundColor">Color:
               </label>
@@ -285,11 +287,13 @@
 
           <div id="settings-modal-tab-lang" class="settings-modal-tab-content is-hidden">
             <h2 data-i18n="settingsModal.languages.title">Idiomas</h2>
-            <p data-i18n="settingsModal.languages.text">Selecciona el idioma de la interfaz:</p>
-            <select id="language-select">
-              <option value="en">English</option>
-              <option value="es">Español</option>
-            </select>
+            <div class="modal-field">
+              <p data-i18n="settingsModal.languages.text">Selecciona el idioma de la interfaz:</p>
+              <select id="language-select" class="modal-field">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+              </select>
+            </div>
           </div>
 
           <div id="settings-modal-tab-info" class="settings-modal-tab-content is-hidden">

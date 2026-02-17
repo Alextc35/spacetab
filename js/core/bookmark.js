@@ -70,9 +70,9 @@ function normalizeBookmark(bookmark = {}) {
     backgroundFavicon: bookmark.backgroundFavicon ?? true,
     invertColorBg: bookmark.invertColorBg ?? false,
     noBackground: bookmark.noBackground ?? false,
-    backgroundColor: bookmark.backgroundColor ?? null,
+    backgroundColor: bookmark.backgroundColor ?? '#000000',
     showText: bookmark.showText ?? true,
-    textColor: bookmark.textColor ?? null,
+    textColor: bookmark.textColor ?? '#ffffff',
     showFavicon: bookmark.showFavicon ?? false,
     invertColorIcon: bookmark.invertColorIcon ?? false
   };

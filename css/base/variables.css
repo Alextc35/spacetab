@@ -1,34 +1,23 @@
-/**
- * variables.css
- * ------------------------------------------------------
- * Global design tokens for the application.
- *
- * Responsibilities:
- * - Define reusable color values
- * - Define layout and spacing constants
- * - Centralize z-index layers
- * - Provide a single source of truth for UI dimensions
- *
- * Notes:
- * - All visual constants should be defined here
- * - Components must reference variables instead of hardcoded values
- * - Changes here should propagate safely across the UI
- * ------------------------------------------------------
- */
-
 :root {
-  --color-bg-main: #333;
-  --image-bg-main: url();
+  /* body */
+  --color-background-body: #fff;
+  --image-background-body: url();
+  --color-text-body: #fff;
 
-  --color-bg-bookmark: #0f172a;
-  --color-text-bookmark: #e2e8f0;
+  /* Bookmarks */
+  --color-bg-bookmark: #000;
+  --color-text-bookmark: #fff;
 
-  --color-bg-modal: #222;
+  /* Modals */
+  --color-bg-modal: #000;
 
   --radius-sm: 5px;
   --radius-md: 10px;
 
+  /* z-index */
   --z-grid: 1;
   --z-bookmark: 2;
+  --z-floatingMenu: 3;
   --z-modal: 1000;
+  --z-flash: 9999;
 }

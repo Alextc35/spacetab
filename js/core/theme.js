@@ -2,16 +2,16 @@ export function applyGlobalTheme(settings) {
   const root = document.documentElement;
 
   root.style.setProperty(
-    '--color-bg-main',
+    '--color-background-body',
     settings.theme.backgroundColor
   );
 
   if (settings.theme.backgroundImageUrl) {
     root.style.setProperty(
-      '--image-bg-main',
+      '--image-background-body',
       `url("${settings.theme.backgroundImageUrl}")`
     );
   } else {
-    root.style.setProperty('--image-bg-main', 'none');
+    root.style.setProperty('--image-background-body', 'none');
   }
 }
