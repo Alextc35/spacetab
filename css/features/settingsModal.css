@@ -131,28 +131,6 @@ input[type="color"] {
 }
 
 /* ===============================
-   Custom Scrollbar
-================================= */
-
-.settings-modal-panel .settings-modal-tab-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.settings-modal-panel .settings-modal-tab-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.settings-modal-panel .settings-modal-tab-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 173, 239, 0.5); /* #00ADEF con alpha */
-  border-radius: 10px;
-  transition: background 0.2s ease;
-}
-
-.settings-modal-panel .settings-modal-tab-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 173, 239, 0.8);
-}
-
-/* ===============================
    Input with Actions (Clear + Copy)
 ================================= */
 

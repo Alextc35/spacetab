@@ -7,14 +7,12 @@
 @import './layout/floatingMenu.css';
 
 @import './components/bookmark.css';
-@import './components/bookmark-link.css';
-@import './components/buttons.css';
 @import './components/modal.css';
-@import './components/resizer.css';
-@import './components/settings.css';
-@import './components/checkbox.css';
 @import './components/flash.css';
-@import './components/editModal.css';
+@import './components/scrollbar.css';
+
+@import './features/editModal.css';
+@import './features/settingsModal.css';
 
 @import './states/disabled.css';
 @import './states/hidden.css';

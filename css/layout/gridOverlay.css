@@ -5,8 +5,8 @@
   display: none;
   background-color: rgba(0,0,0,0.1);
   background-image:
-    linear-gradient(to right, rgba(255,255,255,0.5) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.5) 1px, transparent 1px);
+    linear-gradient(to right, var(--color-to-right-grid-overlay) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-to-bottom-grid-overlay) 1px, transparent 1px);
   background-size: var(--cell-w) var(--cell-h);
   z-index: var(--z-grid);
 }

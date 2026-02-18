@@ -3,13 +3,12 @@ body {
   width: 100vw;
   overflow: hidden;
 
-  background-color: var(--color-background-body);
-  background-image: var(--image-background-body);
+  background-color: var(--color-bg-body);
+  background-image: var(--image-bg-body);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
 
 
-  font-family: Arial, sans-serif;
-  color: var(--color-text-body);
+  font-family: var(--font-family-body);
 }

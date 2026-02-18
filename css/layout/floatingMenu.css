@@ -10,7 +10,7 @@
   flex-direction: column;
   gap: 10px;
   transition: left 0.3s ease, max-height 0.3s ease;
-  z-index: var(--z-floatingMenu);
+  z-index: var(--z-floating-menu);
 
   &:hover {
     left: -10px;
@@ -19,13 +19,18 @@
 }
 
 #floating-menu button {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-floating-menu-btn);
+  color: var(--color-text-floating-menu-btn);
   width: 40px;
   height: 40px;
-  background: rgba(0,0,0,0.6);
   transition: background-color 0.2s, transform 0.15s, box-shadow 0.15s;
 
   &:hover {
-    background: rgba(255,255,255,0.6);
+    background: var(--color-bg-floating-menu-btn-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.4);
   }

@@ -1,4 +1,3 @@
-/* Estilos de cada bookmark */
 .bookmark {
   position: absolute;
   left: var(--x);
@@ -17,67 +16,166 @@
   background-color: var(--color-bg-bookmark);
   border-radius: var(--radius-md);
   z-index: var(--z-bookmark);
+
+  & span {
+    font-size: 1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 5px;
+  }
+
+  &.has-bg-image {
+    background-color: transparent;
+    background-image: var(--bookmark-bg-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    &.invert-bg-image::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: var(--bookmark-bg-image);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: invert(1);
+      border-radius: inherit;
+      z-index: -1;
+    }
+  }
+
+  &.is-favicon-bg {
+    background-image: none;
+  }
+
+  &.is-editing {
+      &.is-dragging {
+      outline: 2px dashed orange;
+      outline-offset: -2px;
+      box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.35);
+      cursor: grabbing;
+
+      &.is-invalid {
+        outline-color: red;
+        box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.4);
+        opacity: 0.5;
+      }
+    }
+
+    &.is-resizing {
+      outline: 2px solid coral;
+      outline-offset: -2px;
+    }
+  }
+
+  & .resizer {
+    position: absolute;
+    background: rgba(255,255,255,0.8);
+    border-radius: 3px;
+
+    &.top,
+    &.bottom {
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 6px;
+      cursor: ns-resize;
+    }
+
+    &.left,
+    &.right {
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 20px;
+      cursor: ew-resize;
+    }
+
+    &.top {
+      top: -4px;
+    }
+
+    &.bottom {
+      bottom: -4px;
+    }
+
+    &.left {
+      left: -4px;
+    }
+
+    &.right {
+      right: -4px;
+    }
+  }
 }
 
-.bookmark a:not(.bookmark-link) {
-  justify-content: end;
-  align-items: end;
-  gap: 5px;
-  color: white;
+.bookmark-link {
   width: 100%;
   height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+
+  &.is-editing {
+    cursor: move;
+  }
 }
 
-/* fondo por imagen */
-.bookmark.has-bg-image {
-  background-color: transparent;
-  background-image: var(--bookmark-bg-image);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+.bookmark-favicon {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
 }
 
-/* cuando el favicon es el fondo */
-.bookmark.is-favicon-bg {
-  background-image: none;
-}
-
-/* inversión */
-.bookmark.has-bg-image.invert-bg-image {
-  background-image: var(--bookmark-bg-image);
-  filter: none; /* no invertimos todo el div */
-}
-
-.bookmark.has-bg-image.invert-bg-image::before {
-  content: '';
+.bookmark-info {
   position: absolute;
-  inset: 0;
-  background-image: var(--bookmark-bg-image);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: invert(1);
-  z-index: 0; /* detrás del contenido */
-  border-radius: inherit;
+  bottom: 6px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  & img {
+    width: 16px;
+    height: 16px;
+  }
 }
 
-/* Drag activo */
-.bookmark.is-editing.is-dragging {
-  outline: 2px dashed orange;
-  outline-offset: -2px;
-  box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.35);
-  cursor: grabbing;
-}
+.bookmark-btn {
+  position: absolute;
+  top: 5px;
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8em;
 
-/* Drag en zona inválida */
-.bookmark.is-editing.is-dragging.is-invalid {
-  outline-color: red;
-  box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.4);
-  opacity: 0.5;
-}
+  &.edit {
+    right: 35px;
+  }
 
-/* Resize activo */
-.bookmark.is-editing.is-resizing {
-  outline: 2px solid coral;
-  outline-offset: -2px;
+  &.delete {
+    right: 5px;
+  }
+
+  &.is-dark {
+    background: #fff;
+    color: #000;
+  }
+
+  &.is-light {
+    background: #222;
+    color: #fff;
+  }
+
+  &:hover {
+    filter: brightness(1.1);
+  }
 }

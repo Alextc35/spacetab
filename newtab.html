@@ -13,6 +13,18 @@
   <div id="bookmark-container"></div>
 
   <!-- ==================================================
+      FLOATING MENU
+  ================================================== -->
+
+  <div id="floating-menu">
+    <button id="edit-toggle-mode" type="button">✎</button>
+
+    <button id="add-bookmark" type="button">➕</button>
+    
+    <button id="settings" type="button">⚙️</button>
+  </div>
+
+  <!-- ==================================================
       GRID OVERLAY
   ================================================== -->
 
@@ -43,18 +55,6 @@
         </button>
       </div>
     </div>
-  </div>
-
-  <!-- ==================================================
-      FLOATING MENU
-  ================================================== -->
-
-  <div id="floating-menu">
-    <button id="edit-toggle-mode" type="button">✎</button>
-
-    <button id="add-bookmark" type="button">➕</button>
-    
-    <button id="settings" type="button">⚙️</button>
   </div>
 
   <!-- ==================================================
@@ -117,7 +117,7 @@
 
       <div class="edit-bookmark-modal-layout">
         <div class="edit-bookmark-modal-panel">
-          <div id="edit-bookmark-modal-tab-general" class="modal-field edit-bookmark-modal-tab-content">
+          <div id="edit-bookmark-modal-tab-general" class="modal-field edit-bookmark-modal-tab-content custom-scrollbar">
             <label for="edit-bookmark-modal-name"
               data-i18n="editModal.name">Nombre:
             </label>
@@ -129,7 +129,7 @@
             <input id="edit-bookmark-modal-url" type="text" placeholder="https://">
           </div>
 
-          <div id="edit-bookmark-modal-tab-style" class="edit-bookmark-modal-tab-content is-hidden">
+          <div id="edit-bookmark-modal-tab-style" class="edit-bookmark-modal-tab-content is-hidden custom-scrollbar">
             <div class="checkbox-wrapper">
               <input id="edit-bookmark-modal-no-background" type="checkbox">
               <label for="edit-bookmark-modal-no-background"
@@ -166,7 +166,7 @@
             </div>
           </div>
 
-          <div id="edit-bookmark-modal-tab-text" class="edit-bookmark-modal-tab-content is-hidden">
+          <div id="edit-bookmark-modal-tab-text" class="edit-bookmark-modal-tab-content is-hidden custom-scrollbar">
             <div class="checkbox-wrapper">
               <input id="edit-bookmark-modal-show-text" type="checkbox">
               <label for="edit-bookmark-modal-show-text"
@@ -182,7 +182,7 @@
             </div>
           </div>
 
-          <div id="edit-bookmark-modal-tab-icon" class="edit-bookmark-modal-tab-content is-hidden">
+          <div id="edit-bookmark-modal-tab-icon" class="edit-bookmark-modal-tab-content is-hidden custom-scrollbar">
             <div class="checkbox-wrapper">
               <input id="edit-bookmark-modal-show-favicon" type="checkbox">
               <label for="edit-bookmark-modal-show-favicon"
@@ -237,7 +237,7 @@
         </div>
 
         <div class="settings-modal-panel">
-          <div id="settings-modal-tab-general" class="settings-modal-tab-content">
+          <div id="settings-modal-tab-general" class="settings-modal-tab-content custom-scrollbar">
             <h2 data-i18n="settingsModal.general.title">General</h2>
 
             <h3 data-i18n="settingsModal.general.subtitle">Fondo de la página</h3>
@@ -285,7 +285,7 @@
             </div>
           </div>
 
-          <div id="settings-modal-tab-lang" class="settings-modal-tab-content is-hidden">
+          <div id="settings-modal-tab-lang" class="settings-modal-tab-content is-hidden custom-scrollbar">
             <h2 data-i18n="settingsModal.languages.title">Idiomas</h2>
             <div class="modal-field">
               <p data-i18n="settingsModal.languages.text">Selecciona el idioma de la interfaz:</p>
@@ -296,7 +296,7 @@
             </div>
           </div>
 
-          <div id="settings-modal-tab-info" class="settings-modal-tab-content is-hidden">
+          <div id="settings-modal-tab-info" class="settings-modal-tab-content is-hidden custom-scrollbar">
             <h2 data-i18n="settingsModal.information.title">Información</h2>
             <p><strong>SpaceTab</strong></p>
             <p data-i18n="settingsModal.information.version">Versión:</p>

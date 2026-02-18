@@ -1,8 +1,17 @@
 :root {
   /* body */
-  --color-background-body: #fff;
-  --image-background-body: url();
-  --color-text-body: #fff;
+  --color-bg-body: #fff;
+  --image-bg-body: url();
+  --font-family-body: Arial, sans-serif;
+
+  /* Floating Menu */
+  --color-bg-floating-menu-btn: rgba(255,255,255,0.25);
+  --color-bg-floating-menu-btn-hover: rgba(255,255,255,0.6);
+  --color-text-floating-menu-btn: white;
+
+  /* Grid Overlay */
+  --color-to-right-grid-overlay: rgba(255,255,255,0.5);
+  --color-to-bottom-grid-overlay: rgba(255,255,255,0.5);
 
   /* Bookmarks */
   --color-bg-bookmark: #000;
@@ -17,7 +26,7 @@
   /* z-index */
   --z-grid: 1;
   --z-bookmark: 2;
-  --z-floatingMenu: 3;
+  --z-floating-menu: 3;
   --z-modal: 1000;
   --z-flash: 9999;
 }
