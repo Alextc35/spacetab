@@ -28,6 +28,7 @@ let editingId = null;
 let draft = null;
 let registered = false;
 let initialSnapshot = null;
+let previousShowFavicon = null;
 
 function resetTabScroll() {
   const activeTab = editModal.querySelector('.edit-bookmark-modal-tab-content[style*="flex"]');
@@ -207,10 +208,19 @@ modalShowText.addEventListener('change', updateStates);
 
 modalBackgroundFavicon.addEventListener('change', () => {
   if (modalBackgroundFavicon.checked) {
+    previousShowFavicon = modalShowFavicon.checked;
+
     modalShowFavicon.checked = false;
     modalInvertColorBg.checked = false;
+  } else {
+    if (previousShowFavicon !== null) {
+      modalShowFavicon.checked = previousShowFavicon;
+    }
   }
+
   updateStates();
+  updatePreview();
+  updateSaveButtonState();
 });
 
 modalSave.addEventListener('click', async () => {
