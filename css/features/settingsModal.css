@@ -1,14 +1,9 @@
-/* ===============================
-   SETTINGS LAYOUT FIX
-================================= */
-
 .settings-modal-layout {
   display: flex;
   height: 100%;
   overflow: hidden;
 }
 
-/* Sidebar */
 .settings-modal-tabs {
   display: flex;
   flex-direction: column;
@@ -18,7 +13,6 @@
   gap: 6px;
 }
 
-/* Hace que ocupe siempre todo el alto */
 .settings-modal-panel {
   flex: 1;
   padding: 20px;
@@ -27,16 +21,11 @@
   overflow: hidden;
 }
 
-/* Hace que el contenido crezca y empuje los botones abajo */
 .settings-modal-panel .settings-modal-tab-content {
   flex: 1;
   overflow-y: auto;
   padding-right: 10px;
 }
-
-/* ===============================
-   TABS STYLE FIX
-================================= */
 
 .settings-modal-tab-btn {
   width: 100%;
@@ -47,76 +36,49 @@
   color: #aaa;
   cursor: pointer;
   transition: all 0.2s ease;
+
+  &:hover {
+    background: #2a2a2a;
+    color: #fff;
+  }
+
+  &.active {
+    background: #333;
+    color: #fff;
+    font-weight: 600;
+  }
 }
 
-.settings-modal-tab-btn:hover {
-  background: #2a2a2a;
-  color: #fff;
-}
-
-.settings-modal-tab-btn.active {
-  background: #333;
-  color: #fff;
-  font-weight: 600;
-}
-
-/* ===============================
-   FIX COLOR INPUT
-================================= */
-
-input[type="color"] {
-  width: 50px;
-  height: 40px;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  background: none;
-}
-
-/* ===============================
-   Button Variants (Design System)
-================================= */
-
-/* Info (export/import) */
 .btn-info {
   background: #1f3a52;
   color: #4da3ff;
+
+  &:hover {
+    background: #254865;
+    color: #fff;
+  }
 }
 
-.btn-info:hover {
-  background: #254865;
-  color: #fff;
-}
-
-/* Danger */
 .btn-danger {
   background: #3a1f1f;
   color: #ff6b6b;
-}
 
-.btn-danger:hover {
-  background: #5a2a2a;
-  color: #fff;
+  &:hover {
+    background: #5a2a2a;
+    color: #fff;
+  }
 }
-
-/* ===============================
-   BACKGROUND SETTINGS SPACING
-================================= */
 
 #settings-modal-background-settings {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-top: 10px;
-}
 
-#settings-modal-background-settings input[type="text"] {
-  width: 100%;
+  & input[type="text"] {
+    width: 100%;
+  }
 }
-
-/* ===============================
-   Background Preview
-================================= */
 
 .bg-preview {
   width: 100%;
@@ -130,19 +92,15 @@ input[type="color"] {
   transition: background-image 0.2s ease;
 }
 
-/* ===============================
-   Input with Actions (Clear + Copy)
-================================= */
-
 .input-with-actions {
   position: relative;
   width: 100%;
-}
 
-.input-with-actions input {
-  width: 100%;
-  padding-right: 90px; /* espacio real para 3 botones */
-  box-sizing: border-box;
+  & input {
+    width: 100%;
+    padding-right: 90px;
+    box-sizing: border-box;
+  }
 }
 
 .input-action {
@@ -157,6 +115,12 @@ input[type="color"] {
   padding: 4px;
   border-radius: 4px;
   transition: opacity 0.2s ease, transform 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    opacity: 1;
+    background: #2a2a2a;
+    transform: translateY(-50%) scale(1.1);
+  }
 }
 
 .input-toggle { right: 62px; }
@@ -165,25 +129,14 @@ input[type="color"] {
   font-style: italic;
   opacity: 0.6;
   color: #888;
-}
-
-.input-locked {
   pointer-events: none;
 }
 
-/* Botón copiar */
 .input-copy {
   right: 32px;
 }
 
-/* Botón limpiar */
 .input-clear {
   right: 8px;
   color: white;
-}
-
-.input-action:hover {
-  opacity: 1;
-  background: #2a2a2a;
-  transform: translateY(-50%) scale(1.1);
 }

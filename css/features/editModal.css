@@ -1,15 +1,17 @@
 .edit-bookmark-modal-header {
+  flex: 0 0 auto;
   padding: 20px 24px 12px;
   border-bottom: 1px solid #222;
-}
 
-.edit-bookmark-modal-header h2 {
-  margin: 0;
-  font-size: 18px;
+  & h2 {
+    margin: 0;
+    font-size: 18px;
+  }
 }
 
 .edit-bookmark-modal-tabs {
   display: flex;
+  flex: 0 0 auto;
   gap: 6px;
   padding: 10px 24px;
   border-bottom: 1px solid #222;
@@ -24,16 +26,16 @@
   font-size: 13px;
   cursor: pointer;
   transition: .15s ease;
-}
 
-.edit-bookmark-modal-tab-btn:hover {
-  background: #1c1c1c;
-  color: #fff;
-}
+  &:hover {
+    background: #1c1c1c;
+    color: #fff;
+  }
 
-.edit-bookmark-modal-tab-btn.active {
-  background: #222;
-  color: #fff;
+  &.active {
+    background: #222;
+    color: #fff;
+  }
 }
 
 .edit-bookmark-modal-layout {
@@ -79,12 +81,12 @@
   gap: 16px;
   align-items: center;
   justify-content: center;
-}
 
-.edit-bookmark-modal-preview-panel h3 {
-  font-size: 13px;
-  opacity: .6;
-  margin: 0;
+  & h3 {
+    font-size: 13px;
+    opacity: .6;
+    margin: 0;
+  }
 }
 
 #edit-bookmark-modal-preview {
@@ -105,6 +107,10 @@
   border-top: 1px solid #222;
   padding: 16px 24px;
   margin-top: 0;
+}
+
+.modal-actions {
+  flex: 0 0 auto;
 }
 
 .edit-bookmark-modal-preview {
@@ -129,27 +135,4 @@
 
 .edit-bookmark-modal-preview-favicon {
   font-size: 22px;
-}
-
-.bookmark.is-preview {
-  position: relative;
-  transform: none;
-  width: 200px;
-  height: 200px;
-}
-
-.bookmark.is-preview a {
-  pointer-events: none;
-}
-
-.edit-bookmark-modal-header {
-  flex: 0 0 auto;
-}
-
-.edit-bookmark-modal-tabs {
-  flex: 0 0 auto;
-}
-
-.modal-actions {
-  flex: 0 0 auto;
 }

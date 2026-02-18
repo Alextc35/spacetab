@@ -51,7 +51,7 @@
   }
 
   &.is-editing {
-      &.is-dragging {
+    &.is-dragging {
       outline: 2px dashed orange;
       outline-offset: -2px;
       box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.35);
@@ -107,6 +107,17 @@
 
     &.right {
       right: -4px;
+    }
+  }
+
+  &.is-preview {
+    position: relative;
+    transform: none;
+    width: 200px;
+    height: 200px;
+
+    & a {
+      pointer-events: none;
     }
   }
 }
