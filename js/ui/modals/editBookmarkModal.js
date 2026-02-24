@@ -146,7 +146,10 @@ export function initEditBookmarkModal() {
 }
 
 export function openModal(bookmarkId) {
-  const { bookmarks } = getState();
+  const state = getState();
+  const { data } = state;
+  const { bookmarks } = data;
+
   const bookmark = bookmarks.find(b => b.id === bookmarkId);
 
   if (!bookmark) return;

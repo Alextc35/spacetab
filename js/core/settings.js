@@ -8,18 +8,26 @@ export async function loadSettings(defaultSettings) {
     ...defaultSettings,
     ...(data?.settings ?? {})
   };
-  setState({ settings });
+
+  setState({
+    data: { settings }
+  });
 
   return settings;
 }
 
 export function updateSettings(partial) {
-  const current = getState().settings;
+  const { data } = getState();
+  const current = data.settings;
+
+  const updated = {
+    ...current,
+    ...partial
+  };
 
   setState({
-    settings: {
-      ...current,
-      ...partial
-    }
+    data: { settings: updated }
   });
+
+  return updated;
 }

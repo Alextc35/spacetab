@@ -95,7 +95,9 @@ async function handleAccept() {
       return;
     }
 
-    const { bookmarks } = getState();
+    const state = getState();
+    const { data } = state;
+    const { bookmarks } = data;
     const maxRows = getMaxVisibleRows();
     const maxCols = getMaxVisibleCols();
 

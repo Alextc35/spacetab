@@ -1,28 +1,22 @@
-import { storage } from './storage.js';
 import { getState, setState } from './store.js';
 
-export async function loadBookmarks() {
-  const data = await storage.get('bookmarks');
-  const bookmarks = (data?.bookmarks ?? []).map(normalizeBookmark);
-
-  setState({ bookmarks });
-
-  return bookmarks;
-}
-
 export async function addBookmark(data) {
-  const { bookmarks } = getState();
+  const { data: stateData } = getState();
+  const { bookmarks } = stateData;
 
   const bookmark = normalizeBookmark(data);
   const updated = [...bookmarks, bookmark];
 
-  setState({ bookmarks: updated });
+  setState({
+    data: { bookmarks: updated }
+  });
 
   return bookmark;
 }
 
 export async function updateBookmarkById(bookmarkId, updatedData) {
-  const { bookmarks } = getState();
+  const { data: stateData } = getState();
+  const { bookmarks } = stateData;
 
   const index = bookmarks.findIndex(b => b.id === bookmarkId);
   if (index === -1) return null;
@@ -36,24 +30,32 @@ export async function updateBookmarkById(bookmarkId, updatedData) {
     b.id === bookmarkId ? updatedBookmark : b
   );
 
-  setState({ bookmarks: updated });
+  setState({
+    data: { bookmarks: updated }
+  });
 
   return updatedBookmark;
 }
 
 export async function deleteBookmarkById(bookmarkId) {
-  const { bookmarks } = getState();
+  const { data: stateData } = getState();
+  const { bookmarks } = stateData;
 
   const updated = bookmarks.filter(b => b.id !== bookmarkId);
   if (updated.length === bookmarks.length) return false;
 
-  setState({ bookmarks: updated });
+  setState({
+    data: { bookmarks: updated }
+  });
 
   return true;
 }
 
 export async function clearBookmarks() {
-  setState({ bookmarks: [] });
+  setState({
+    data: { bookmarks: [] }
+  });
+
   return [];
 }
 

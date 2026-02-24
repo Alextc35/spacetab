@@ -53,7 +53,8 @@ export function applyI18n(root = document) {
  * @returns {string} Localized text or the key if missing
  */
 export function t(key) {
-  const { settings } = getState();
+  const { data } = getState();
+  const { settings } = data;
 
   const lang = settings.language || 'en';
   const parts = key.split('.');

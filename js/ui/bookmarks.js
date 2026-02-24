@@ -12,18 +12,12 @@ import { deleteBookmarkById } from '../core/bookmark.js';
 export const container = document.getElementById('bookmark-container') || null;
 
 export function renderBookmarks() {
-  if (DEBUG) {
-    console.groupCollapsed("%c Render Bookmarks", "color: orange;");
-    console.time("Rendered in");
-  }
+  if (!container) return;
 
-  if (!container) {
-    if (DEBUG) console.groupEnd();
-    return;
-  }
-
-  const { bookmarks, isEditing } = getState();
-  if (DEBUG) console.log('Bookmarks:', getState().bookmarks);
+  const state = getState();
+  const { data, ui } = state;
+  const { bookmarks } = data;
+  const { isEditing } = ui;
 
   updateGridSize(container);
   container.innerHTML = '';
@@ -60,11 +54,6 @@ export function renderBookmarks() {
 
     container.appendChild(div);
   });
-
-  if (DEBUG) {
-    console.timeEnd("Rendered in");
-    console.groupEnd();
-  }
 }
 
 function applyBookmarkStyle(div, bookmark) {

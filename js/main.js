@@ -11,12 +11,10 @@ import {
   initImportExportButtons, deleteAllBookmarks
 } from './ui/bookmarksImportExport.js';
 import {
-  setState, getState, subscribe, finishHydration
+  subscribe, hydrateStore, toggleEditing
 } from './core/store.js';
-import { loadBookmarks } from './core/bookmark.js';
 import { renderBookmarks } from './ui/bookmarks.js';
-import { loadSettings } from './core/settings.js';
-import { DEBUG, DEFAULT_SETTINGS } from './core/config.js';
+import { DEBUG } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { applyI18n, t } from './core/i18n.js';
 import { flash } from './ui/flash.js';
@@ -42,37 +40,29 @@ let resizeTimeout = null;
 initApp();
 
 async function initApp() {
-  if (DEBUG) console.info('Initializing SpaceTab ' + version + ' alfa');
-  if (DEBUG) console.time("Execution time"); 
-  await initState(DEFAULT_SETTINGS);
+  if (DEBUG) {
+    console.info('Initializing SpaceTab ' + version + ' alfa');
+    console.time("Execution time"); 
+  }
+  
+  await initState();
+
   if (DEBUG) console.groupCollapsed("%c Modals initialized", "color: cyan;");
   initModals();
+  if (DEBUG) console.groupEnd();
+  
   initImportExport();
   initControls();
   initGlobalEvents();
-  if (DEBUG) console.groupEnd();
+
+
   if (DEBUG) console.timeEnd("Execution time");
-  if (DEBUG) console.info("%c Initial State \n", "color: green;", getState());
 }
 
 /* ======================= Init Sections ======================= */
-async function initState(DEFAULT_SETTINGS) {
-  subscribe((state, prev) => {
-    if (
-      state.bookmarks !== prev.bookmarks ||
-      state.isEditing !== prev.isEditing
-    ) { renderBookmarks(); }
-
-    if (state.settings !== prev.settings) {
-      applyGlobalTheme(state.settings);
-      applyI18n();
-    }
-  });
-
-  await loadBookmarks();
-  await loadSettings(DEFAULT_SETTINGS);
-
-  finishHydration();
+async function initState() {
+  await hydrateStore();
+  subscribe(handleStateChange);
 }
 
 function initModals() {
@@ -99,19 +89,41 @@ function initGlobalEvents() {
 }
 
 /* ======================= Handlers ======================= */
+function handleStateChange(state, prev) {
+  if (!prev) {
+    applyGlobalTheme(state.data.settings);
+    applyI18n();
+    updateEditUI(state.ui.isEditing);
+    renderBookmarks();
+    return;
+  }
 
-function toggleEditMode() {
-  const { isEditing } = getState();
+  const settingsChanged =
+    state.data.settings !== prev.data.settings;
 
-  const next = !isEditing;
+  const bookmarksChanged =
+    state.data.bookmarks !== prev.data.bookmarks;
 
-  toggleButton.textContent = next ? '🔒' : '✎';
-  gridOverlay.style.display = next ? 'block' : 'none';
+  const editingChanged =
+    state.ui.isEditing !== prev.ui.isEditing;
 
-  if (next) flash(t('flash.editMode.enabled'), 'info', 1000);
-   else flash(t('flash.editMode.disabled'), 'info', 1000);
+  if (settingsChanged) {
+    applyGlobalTheme(state.data.settings);
+    applyI18n();
+  }
 
-  setState({ isEditing: next });
+  if (settingsChanged || bookmarksChanged || editingChanged) {
+    renderBookmarks();
+  }
+
+  if (editingChanged) {
+    updateEditUI(state.ui.isEditing);
+  }
+}
+
+function updateEditUI(isEditing) {
+  toggleButton.textContent = isEditing ? '🔒' : '✎';
+  gridOverlay.style.display = isEditing ? 'block' : 'none';
 }
 
 function handleGlobalKeydown(e) {
@@ -152,4 +164,16 @@ function handleGlobalKeydown(e) {
 function handleResize() {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(renderBookmarks, 100);
+}
+
+function toggleEditMode() {
+  let isEditing = toggleEditing();
+
+  flash(
+    isEditing
+      ? t('flash.editMode.disabled')
+      : t('flash.editMode.enabled'),
+    'info',
+    1000
+  );
 }

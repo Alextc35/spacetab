@@ -1,22 +1,3 @@
-/**
- * settingsModal.js
- * ------------------------------------------------------
- * Application settings modal and persistence handler.
- *
- * Responsibilities:
- * - Manages the Settings modal lifecycle
- * - Handles language selection and i18n updates
- * - Manages background customization (color / image)
- * - Persists settings and UI preferences via storage
- * - Integrates with modalManager for consistent UX
- *
- * Notes:
- * - Settings are applied immediately on change where possible
- * - Modal does NOT accept on Enter to avoid accidental submits
- * - This module owns all DOM interactions related to settings
- * ------------------------------------------------------
- */
-
 import { applyI18n } from '../../core/i18n.js';
 import { registerModal, openModal, closeModal } from '../modalManager.js';
 import { DEBUG } from '../../core/config.js';
@@ -28,17 +9,6 @@ import { getState } from '../../core/store.js';
 import { updateSettings } from '../../core/settings.js';
 import { DEFAULT_SETTINGS } from '../../core/config.js';
 
-/**
- * Initializes the Settings modal and its behavior.
- *
- * This function:
- * - Registers the modal with the modalManager
- * - Binds UI controls and keyboard-safe actions
- * - Loads persisted settings and applies them
- * - Keeps SETTINGS object in sync with storage
- *
- * @param {Object} SETTINGS - Global mutable settings object
- */
 export function initSettingsModal(SETTINGS) {
     if (DEBUG) console.time("Settings in");
     const settingsBtn = document.getElementById('settings');
@@ -68,14 +38,9 @@ export function initSettingsModal(SETTINGS) {
             applyLockedState();
         }
 
-        updateColorState(); // 
+        updateColorState();
     });
 
-    /**
-     * Updates background input enabled/disabled state.
-     *
-     * Color input is disabled when an image is set.
-     */
     function updateColorState() {
         bgColorInput.disabled = bgImageInput.value.trim() !== "";
 
@@ -174,7 +139,8 @@ export function initSettingsModal(SETTINGS) {
     });
 
     settingsBtn.addEventListener('click', () => {
-        const { settings } = getState();
+        const { data } = getState();
+        const { settings } = data;
 
         initialSnapshot = structuredClone(settings);
 
@@ -217,9 +183,10 @@ export function initSettingsModal(SETTINGS) {
             theme: structuredClone(draftTheme)
         });
 
-        applyGlobalTheme(getState().settings);
+        const state = getState();
+        const { data } = state;
+        applyGlobalTheme(data.settings);
 
-        if (DEBUG) console.log("Settings updated: ", getState().settings);
         flashSuccess('flash.settings.saved');
         closeModal();
     });
@@ -235,7 +202,9 @@ export function initSettingsModal(SETTINGS) {
     });
 
     languageSelect.addEventListener('change', () => {
-        const { settings } = getState();
+        const state = getState();
+        const { data } = state;
+        const { settings } = data;
         settings.language = languageSelect.value;
         applyI18n();
         updateSaveButtonState();

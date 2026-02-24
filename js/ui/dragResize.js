@@ -69,7 +69,7 @@ export function addDragAndResize(div, bookmark) {
 
     if (
       isAreaFree(
-        getState().bookmarks,
+        getState().data.bookmarks,
         newGX,
         newGY,
         bookmark.w,
@@ -190,7 +190,7 @@ function handleResize(e, div, bookmark, side) {
 
     if (
       isAreaFree(
-        getState().bookmarks,
+        getState().data.bookmarks,
         newGX,
         newGY,
         newW,
