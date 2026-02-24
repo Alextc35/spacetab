@@ -1,5 +1,7 @@
 // storage.js
-import { DEFAULT_SETTINGS } from './config.js';
+import { DEFAULT_STATE } from './defaults.js';
+
+/// <reference path="../types/types.js" />
 
 /**
  * @typedef {Pick<AppState['data'], 'bookmarks' | 'settings'>} PersistedData
@@ -11,8 +13,8 @@ import { DEFAULT_SETTINGS } from './config.js';
  * @type {PersistedData}
  */
 const DEFAULT_PERSISTED_DATA = {
-  bookmarks: [],
-  settings: DEFAULT_SETTINGS
+  bookmarks: DEFAULT_STATE.data.bookmarks,
+  settings: DEFAULT_STATE.data.settings
 };
 
 /**

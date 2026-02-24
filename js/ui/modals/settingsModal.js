@@ -7,9 +7,9 @@ import { t } from '../../core/i18n.js';
 import { flashSuccess } from '../flash.js';
 import { getState } from '../../core/store.js';
 import { updateSettings } from '../../core/settings.js';
-import { DEFAULT_SETTINGS } from '../../core/config.js';
+import { DEFAULT_SETTINGS } from '../../core/defaults.js';
 
-export function initSettingsModal(SETTINGS) {
+export function initSettingsModal() {
     if (DEBUG) console.time("Settings in");
     const settingsBtn = document.getElementById('settings');
     const settingsModal = document.getElementById('settings-modal');

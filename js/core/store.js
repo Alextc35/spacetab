@@ -1,6 +1,7 @@
 // store.js
-import { DEBUG, DEFAULT_SETTINGS } from './config.js';
+import { DEBUG } from './config.js';
 import { storage } from './storage.js';
+import { DEFAULT_STATE } from './defaults.js';
 
 /// <reference path="../types/types.js" />
 
@@ -8,15 +9,7 @@ import { storage } from './storage.js';
  * Global application state.
  * @type {AppState}
  */
-let state = {
-  data: {
-    bookmarks: [],
-    settings: DEFAULT_SETTINGS
-  },
-  ui: {
-    isEditing: false
-  }
-};
+let state = structuredClone(DEFAULT_STATE);
 
 /**
  * List of subscribed listeners executed on every state change.
