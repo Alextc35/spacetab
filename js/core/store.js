@@ -41,7 +41,7 @@ export function getState() {
  * Persists bookmarks and settings to storage if not hydrating.
  * Notifies all subscribed listeners.
  * 
- * @param {Partial<AppState>} partial - Parcial de estado a actualizar
+ * @param {Partial<AppState>} partial
  * @returns {Promise<void>}
  */
 export async function setState(partial) {
@@ -110,7 +110,7 @@ export async function setState(partial) {
  * The listener is immediately invoked with the current state.
  *
  * @param {(state: AppState, prevState: AppState|null) => void} listener
- * @returns {() => void} Función para desuscribirse.
+ * @returns {() => void} Function to unsubscribe.
  */
 export function subscribe(listener) {
   listeners.push(listener);
