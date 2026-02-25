@@ -1,3 +1,4 @@
+// bookmark.js
 import { getState, setState } from './store.js';
 
 /// <reference path="../types/types.js" />
