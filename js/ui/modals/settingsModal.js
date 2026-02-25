@@ -1,6 +1,5 @@
 import { applyI18n } from '../../core/i18n.js';
 import { registerModal, openModal, closeModal } from '../modalManager.js';
-import { DEBUG } from '../../core/config.js';
 import { applyGlobalTheme } from '../../core/theme.js';
 import { showAlert } from './alertModal.js';
 import { t } from '../../core/i18n.js';
@@ -10,7 +9,6 @@ import { updateSettings } from '../../core/settings.js';
 import { DEFAULT_SETTINGS } from '../../core/defaults.js';
 
 export function initSettingsModal() {
-    if (DEBUG) console.time("Settings in");
     const settingsBtn = document.getElementById('settings');
     const settingsModal = document.getElementById('settings-modal');
     const settingsSave = document.getElementById('settings-modal-save');
@@ -268,6 +266,4 @@ export function initSettingsModal() {
         updateColorState();
         updateSaveButtonState();
     });
-
-    if (DEBUG) console.timeEnd("Settings in");
 }

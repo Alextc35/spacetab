@@ -46,15 +46,10 @@ async function initApp() {
   }
   
   await initState();
-
-  if (DEBUG) console.groupCollapsed("%c Modals initialized", "color: cyan;");
   initModals();
-  if (DEBUG) console.groupEnd();
-  
   initImportExport();
   initControls();
   initGlobalEvents();
-
 
   if (DEBUG) console.timeEnd("Execution time");
 }

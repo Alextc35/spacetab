@@ -1,4 +1,3 @@
-import { DEBUG } from '../../core/config.js';
 import { t } from '../../core/i18n.js';
 import { registerModal, openModal, closeModal } from '../modalManager.js';
 
@@ -17,7 +16,6 @@ let activeAccept = null;
 let activeCancel = null;
 
 export function initAlertModal() {
-  if (DEBUG) console.time("Alert in");
   if (modal) return;
 
   modal = document.getElementById('alert-modal');
@@ -44,8 +42,6 @@ export function initAlertModal() {
     closeOnOverlay: false,
     initialFocus: btnAccept
   });
-
-  if (DEBUG) console.timeEnd("Alert in");
 }
 
 export function showAlert(text, options = {}) {

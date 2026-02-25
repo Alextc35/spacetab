@@ -1,6 +1,5 @@
 import { updateBookmarkById } from '../../core/bookmark.js';
 import { flashSuccess } from '../flash.js';
-import { DEBUG } from '../../core/config.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 import { getState } from '../../core/store.js';
 import { createBookmarkElement } from '../bookmarks.js';
@@ -129,7 +128,6 @@ function updatePreview() {
 });
 
 export function initEditBookmarkModal() {
-  if (DEBUG) console.time("EditBookmark in");
   if (registered) return;
   registered = true;
 
@@ -141,8 +139,6 @@ export function initEditBookmarkModal() {
     closeOnOverlay: false,
     initialFocus: modalName
   });
-
-  if (DEBUG) console.timeEnd("EditBookmark in");
 }
 
 export function openModal(bookmarkId) {
@@ -254,10 +250,7 @@ modalSave.addEventListener('click', async () => {
 
   const bookmark = await updateBookmarkById(editingId, updatedData);
 
-  if (bookmark) {
-    flashSuccess('flash.bookmark.updated');
-    if (DEBUG) console.log('Bookmark updated: ', bookmark);
-  }
+  if (bookmark) flashSuccess('flash.bookmark.updated');
 
   initialSnapshot = null;
 

@@ -2,7 +2,6 @@ import { addBookmark } from '../../core/bookmark.js';
 import { isAreaFree } from '../../core/grid.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { flashSuccess } from '../flash.js';
-import { DEBUG } from '../../core/config.js';
 import { showAlert } from './alertModal.js';
 import { t } from '../../core/i18n.js';
 import { registerModal, openModal, closeModal } from '../modalManager.js';
@@ -26,7 +25,6 @@ function updateSaveButtonState() {
 }
 
 export function initAddBookmarkModal() {
-  if (DEBUG) console.time("AddBookmark in");
   if (modal) return;
 
   modal = document.getElementById('add-bookmark-modal');
@@ -65,8 +63,6 @@ export function initAddBookmarkModal() {
       closeModal();
     }
   });
-
-  if (DEBUG) console.timeEnd("AddBookmark in");
 }
 
 export function showAddBookmarkModal() {
@@ -117,7 +113,6 @@ async function handleAccept() {
 
     if (!placed) {
       closeModal();
-      if (DEBUG) console.warn('No space to add new bookmark');
       await new Promise(requestAnimationFrame);
       await showAlert(t('alert.bookmarks.no_space'), { type: 'info' });
       return;
@@ -125,10 +120,7 @@ async function handleAccept() {
 
     const bookmark = await addBookmark({ name, url, gx, gy });
 
-    if (bookmark) {
-      flashSuccess('flash.bookmark.added');
-      if (DEBUG) console.log('Bookmark added: ', bookmark);
-    }
+    if (bookmark) flashSuccess('flash.bookmark.added');
 
     closeModal();
 
