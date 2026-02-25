@@ -129,9 +129,7 @@ export function subscribe(listener) {
  * @returns {Promise<void>}
  */
 export function toggleEditing() {
-  return setState({
-    ui: { isEditing: !state.ui.isEditing }
-  });
+  return setState({ ui: { isEditing: !state.ui.isEditing } });
 }
 
 /* ======================= HYDRATION ======================= */
@@ -151,9 +149,7 @@ export function toggleEditing() {
 export async function hydrateStore() {
   const persisted = await storage.get(null);
 
-  await setState({
-    data: persisted
-  });
+  await setState({ data: persisted });
 
   finishHydration();
 }
@@ -163,7 +159,7 @@ export async function hydrateStore() {
  * After this, state changes affecting bookmarks or settings
  * will be persisted automatically.
  */
-export function finishHydration() {
+function finishHydration() {
   isHydrating = false;
   if (DEBUG) console.log('[STORE] Hydration finished, ready to persist state.');
 }
