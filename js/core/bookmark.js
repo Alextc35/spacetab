@@ -1,71 +1,102 @@
 import { getState, setState } from './store.js';
 
-export async function addBookmark(data) {
-  const { data: stateData } = getState();
-  const { bookmarks } = stateData;
+/// <reference path="../types/types.js" />
+
+/**
+ * Adds a new bookmark to the application state.
+ *
+ * The input data can be partial. Missing properties
+ * will be normalized with default values.
+ *
+ * @param {Partial<Bookmark>} data - Partial bookmark data.
+ * @returns {Bookmark} The created bookmark.
+ */
+export function addBookmark(data) {
+  const { data: { bookmarks } } = getState();
 
   const bookmark = normalizeBookmark(data);
   const updated = [...bookmarks, bookmark];
 
-  setState({
-    data: { bookmarks: updated }
-  });
+  setState({ data: { bookmarks: updated } });
 
   return bookmark;
 }
 
-export async function updateBookmarkById(bookmarkId, updatedData) {
-  const { data: stateData } = getState();
-  const { bookmarks } = stateData;
+/**
+ * Adds a new bookmark to the application state.
+ *
+ * The input data can be partial. Missing properties
+ * will be normalized with default values.
+ *
+ * @param {Partial<Bookmark>} data - Partial bookmark data.
+ * @returns {Bookmark} The created bookmark.
+ */
+export function updateBookmarkById(bookmarkId, updatedData) {
+  const { data: { bookmarks } } = getState();
 
-  const index = bookmarks.findIndex(b => b.id === bookmarkId);
-  if (index === -1) return null;
+  let updatedBookmark = null;
 
-  const updatedBookmark = normalizeBookmark({
-    ...bookmarks[index],
-    ...updatedData
+  const updated = bookmarks.map(b => {
+    if (b.id !== bookmarkId) return b;
+
+    updatedBookmark = normalizeBookmark({
+      ...b,
+      ...updatedData
+    });
+
+    return updatedBookmark;
   });
 
-  const updated = bookmarks.map(b =>
-    b.id === bookmarkId ? updatedBookmark : b
-  );
+  if (!updatedBookmark) return null;
 
-  setState({
-    data: { bookmarks: updated }
-  });
+  setState({ data: { bookmarks: updated } });
 
   return updatedBookmark;
 }
 
-export async function deleteBookmarkById(bookmarkId) {
-  const { data: stateData } = getState();
-  const { bookmarks } = stateData;
+/**
+ * Deletes a bookmark by its id.
+ *
+ * @param {string} bookmarkId - The id of the bookmark to delete.
+ * @returns {boolean} True if the bookmark was removed, false otherwise.
+ */
+export function deleteBookmarkById(bookmarkId) {
+  const { data: { bookmarks } } = getState();
 
   const updated = bookmarks.filter(b => b.id !== bookmarkId);
   if (updated.length === bookmarks.length) return false;
 
-  setState({
-    data: { bookmarks: updated }
-  });
+  setState({ data: { bookmarks: updated } });
 
   return true;
 }
 
-export async function clearBookmarks() {
-  setState({
-    data: { bookmarks: [] }
-  });
+/**
+ * Removes all bookmarks from the state.
+ *
+ * @returns {Bookmark[]} An empty array.
+ */
+export function clearBookmarks() {
+  setState({ data: { bookmarks: [] } });
 
   return [];
 }
 
+/**
+ * Normalizes a bookmark object by ensuring all required
+ * properties are present and assigning default values
+ * where needed.
+ *
+ * @param {Partial<Bookmark>} [bookmark={}] - Partial bookmark data.
+ * @returns {Bookmark} A fully normalized bookmark object.
+ */
 function normalizeBookmark(bookmark = {}) {
   return {
     id: bookmark.id || crypto.randomUUID(),
-    name: bookmark.name ?? null,
-    url: bookmark.url ?? null,
-    gx: bookmark.gx ?? null,
-    gy: bookmark.gy ?? null,
+    name: bookmark.name ?? '',
+    url: bookmark.url ?? '',
+    gx: bookmark.gx ?? 0,
+    gy: bookmark.gy ?? 0,
     w: bookmark.w ?? 1,
     h: bookmark.h ?? 1,
     backgroundImageUrl: bookmark.backgroundImageUrl ?? null,
