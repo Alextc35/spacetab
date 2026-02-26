@@ -1,5 +1,3 @@
-import '../types/types.js'; // typedefs
-
 /**
  * Checks whether a rectangular grid area is free of overlapping bookmarks.
  *
