@@ -1,5 +1,5 @@
 export async function loadTranslations(lang) {
-  const url = chrome.runtime.getURL(`js/core/i18n/lang/${lang}.json`);
+  const url = chrome.runtime.getURL(`js/lang/${lang}.json`);
 
   const response = await fetch(url);
   if (!response.ok) {

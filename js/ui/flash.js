@@ -1,4 +1,4 @@
-import { t } from '../core/i18n/i18n.js';
+import { t } from '../core/i18n.js';
 
 const flashContainer = document.getElementById('flash-container');
 

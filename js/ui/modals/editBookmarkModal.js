@@ -4,7 +4,7 @@ import { registerModal, openModal as openManagedModal, closeModal } from '../mod
 import { getState } from '../../core/store.js';
 import { createBookmarkElement } from '../bookmarks.js';
 import { showAlert } from './alertModal.js';
-import { t } from '../../core/i18n/i18n.js';
+import { t } from '../../core/i18n.js';
 
 const editModal = document.getElementById('edit-bookmark-modal');
 const modalName = document.getElementById('edit-bookmark-modal-name');

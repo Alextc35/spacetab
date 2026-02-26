@@ -2,7 +2,7 @@ import { clearBookmarks} from '../core/bookmark.js';
 import { flashError, flashSuccess } from './flash.js';
 import { DEBUG } from '../core/config.js';
 import { showAlert } from './modals/alertModal.js';
-import { t } from '../core/i18n/i18n.js';
+import { t } from '../core/i18n.js';
 import { getState, setState } from '../core/store.js';
 
 const flashContainer = document.createElement('div');

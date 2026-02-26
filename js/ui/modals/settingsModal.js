@@ -1,7 +1,7 @@
 import { registerModal, openModal, closeModal } from '../modalManager.js';
 import { applyGlobalTheme } from '../../core/theme.js';
 import { showAlert } from './alertModal.js';
-import { changeLanguage, t } from '../../core/i18n/i18n.js';
+import { changeLanguage, t } from '../../core/i18n.js';
 import { flashSuccess } from '../flash.js';
 import { getState } from '../../core/store.js';
 import { updateSettings } from '../../core/settings.js';

@@ -16,7 +16,7 @@ import {
 import { renderBookmarks } from './ui/bookmarks.js';
 import { DEBUG } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
-import { changeLanguage, initI18n, t } from './core/i18n/i18n.js';
+import { changeLanguage, initI18n, t } from './core/i18n.js';
 import { flash } from './ui/flash.js';
 import { VERSION } from './core/config.js';
 
