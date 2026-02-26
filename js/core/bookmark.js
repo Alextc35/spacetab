@@ -95,29 +95,7 @@ export function clearBookmarks() {
 function normalizeBookmark(bookmark = {}) {
   return {
     id: bookmark.id || crypto.randomUUID(),
-    name: bookmark.name ?? DEFAULT_BOOKMARK.name,
-    url: bookmark.url ?? DEFAULT_BOOKMARK.url,
-    gx: bookmark.gx ?? DEFAULT_BOOKMARK.gx,
-    gy: bookmark.gy ?? DEFAULT_BOOKMARK.gy,
-    w: bookmark.w ?? DEFAULT_BOOKMARK.w,
-    h: bookmark.h ?? DEFAULT_BOOKMARK.h,
-    backgroundImageUrl: bookmark.backgroundImageUrl
-      ?? DEFAULT_BOOKMARK.backgroundImageUrl,
-    backgroundFavicon: bookmark.backgroundFavicon
-      ?? DEFAULT_BOOKMARK.backgroundFavicon,
-    invertColorBg: bookmark.invertColorBg 
-      ?? DEFAULT_BOOKMARK.invertColorBg,
-    noBackground: bookmark.noBackground
-      ?? DEFAULT_BOOKMARK.noBackground,
-    backgroundColor: bookmark.backgroundColor
-      ?? DEFAULT_BOOKMARK.backgroundColor,
-    showText: bookmark.showText
-      ?? DEFAULT_BOOKMARK.showText,
-    textColor: bookmark.textColor 
-      ?? DEFAULT_BOOKMARK.textColor,
-    showFavicon: bookmark.showFavicon
-      ?? DEFAULT_BOOKMARK.showFavicon,
-    invertColorIcon: bookmark.invertColorIcon
-      ?? DEFAULT_BOOKMARK.invertColorIcon
+    ...DEFAULT_BOOKMARK,
+    ...bookmark
   };
 }
