@@ -162,13 +162,13 @@ function handleResize() {
   resizeTimeout = setTimeout(renderBookmarks, 100);
 }
 
-function toggleEditMode() {
-  let isEditing = toggleEditing();
+async function toggleEditMode() {
+  let isEditing = await toggleEditing();
 
   flash(
     isEditing
-      ? t('flash.editMode.disabled')
-      : t('flash.editMode.enabled'),
+      ? t('flash.editMode.enabled')
+      : t('flash.editMode.disabled'),
     'info',
     1000
   );

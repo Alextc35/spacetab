@@ -126,10 +126,12 @@ export function subscribe(listener) {
 
 /**
  * Toggles the UI editing mode.
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>}
  */
-export function toggleEditing() {
-  return setState({ ui: { isEditing: !state.ui.isEditing } });
+export async function toggleEditing() {
+  const newValue = !state.ui.isEditing;
+  await setState({ ui: { isEditing: !state.ui.isEditing } });
+  return newValue;
 }
 
 /* ======================= HYDRATION ======================= */
