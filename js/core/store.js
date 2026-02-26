@@ -161,10 +161,7 @@ export async function hydrateStore() {
  * After this, state changes affecting bookmarks or settings
  * will be persisted automatically.
  */
-function finishHydration() {
-  isHydrating = false;
-  if (DEBUG) console.log('[STORE] Hydration finished, ready to persist state.');
-}
+function finishHydration() { isHydrating = false; }
 
 /* ======================= NOTIFY ======================= */
 
