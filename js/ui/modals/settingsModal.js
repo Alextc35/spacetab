@@ -114,7 +114,7 @@ export function initSettingsModal() {
 
     function hasChanges() {
         const currentDraft = {
-            language: draftLanguage || initialSnapshot.language,
+            language: draftLanguage,
             theme: draftTheme
         };
 
@@ -137,13 +137,13 @@ export function initSettingsModal() {
     });
 
     settingsBtn.addEventListener('click', () => {
-        const { data } = getState();
-        const { settings } = data;
+        const { data: { settings } } = getState();
 
         initialSnapshot = structuredClone(settings);
 
         languageSelect.value = settings.language;
         draftTheme = structuredClone(settings.theme);
+        draftLanguage = structuredClone(settings.language);
 
         isLocked = draftTheme.backgroundImageUrlLocked || false;
 
@@ -170,7 +170,7 @@ export function initSettingsModal() {
 
         const ok = await showAlert(t('alert.settings.cancel'), { type: 'confirm' });
         if (ok) {
-            await changeLanguage({ language: initialSnapshot.language }); // revert preview
+            await changeLanguage({ language: initialSnapshot.language });
             closeModal();
         }
     });
