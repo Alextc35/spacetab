@@ -29,6 +29,11 @@ import { getState } from './store.js';
  * @param {Document|HTMLElement} root - Root element to search from (defaults to document)
  */
 export function applyI18n(root = document) {
+  const { data: { settings } } = getState();
+  const lang = settings.language || 'en';
+
+  document.documentElement.lang = lang;
+
   const elements = root.querySelectorAll('[data-i18n]');
 
   elements.forEach(el => {
