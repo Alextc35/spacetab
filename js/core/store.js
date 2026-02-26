@@ -1,9 +1,7 @@
-// store.js
+import '../types/types.js'; // typedefs
 import { DEBUG } from './config.js';
 import { storage } from './storage.js';
 import { DEFAULT_STATE } from './defaults.js';
-
-/// <reference path="../types/types.js" />
 
 /**
  * Global application state.
@@ -12,19 +10,17 @@ import { DEFAULT_STATE } from './defaults.js';
 let state = structuredClone(DEFAULT_STATE);
 
 /**
- * List of subscribed listeners executed on every state change.
- * @type {Array<(state: AppState, prevState: AppState|null) => void>}
- */
-const listeners = [];
-
-/**
  * Indicates whether the store is still in the hydration phase.
  * While `true`, state changes will not be persisted to storage.
  * @type {boolean}
  */
 let isHydrating = true;
 
-/* ======================= GET STATE ======================= */
+/**
+ * List of subscribed listeners executed on every state change.
+ * @type {Array<(state: AppState, prevState: AppState|null) => void>}
+ */
+const listeners = [];
 
 /**
  * Returns a deep clone of the current state.
@@ -33,8 +29,6 @@ let isHydrating = true;
 export function getState() {
   return structuredClone(state);
 }
-
-/* ======================= SET STATE ======================= */
 
 /**
  * Updates the global state with the provided partial values.
@@ -103,8 +97,6 @@ export async function setState(partial) {
   if (DEBUG) console.groupEnd();
 }
 
-/* ======================= SUBSCRIBE ======================= */
-
 /**
  * Subscribes a listener that will run on every state change.
  * The listener is immediately invoked with the current state.
@@ -122,19 +114,15 @@ export function subscribe(listener) {
   };
 }
 
-/* ======================= TOGGLE EDIT MODE ======================= */
-
 /**
  * Toggles the UI editing mode.
  * @returns {Promise<boolean>}
  */
 export async function toggleEditing() {
   const newValue = !state.ui.isEditing;
-  await setState({ ui: { isEditing: !state.ui.isEditing } });
+  await setState({ ui: { isEditing: newValue } });
   return newValue;
 }
-
-/* ======================= HYDRATION ======================= */
 
 /**
  * Hydrates the store from persisted storage.
@@ -168,7 +156,6 @@ function finishHydration() { isHydrating = false; }
 /**
  * Notifies all subscribed listeners about a state change.
  * 
- * @private
  * @param {AppState} state
  * @param {AppState} prevState
  */
