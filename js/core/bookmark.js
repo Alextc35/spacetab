@@ -1,4 +1,4 @@
-import '../types/types.js';
+import '../types/types.js'; // typedefs
 import { getState, setState } from './store.js';
 import { DEFAULT_BOOKMARK } from './defaults.js';
 
@@ -23,14 +23,14 @@ export function addBookmark(data) {
 }
 
 /**
- * Adds a new bookmark to the application state.
+ * Updates an existing bookmark by its id.
  *
- * The input data can be partial. Missing properties
- * will be normalized with default values.
+ * Merges the provided partial data with the current bookmark
+ * and normalizes the result to ensure all required properties exist.
  *
- * @param {string} bookmarkId
- * @param {Partial<Bookmark>} updatedData
- * @returns {Bookmark|null}
+ * @param {string} bookmarkId - The id of the bookmark to update.
+ * @param {Partial<Bookmark>} updatedData - Partial data to merge into the bookmark.
+ * @returns {Bookmark|null} The updated bookmark, or null if not found.
  */
 export function updateBookmarkById(bookmarkId, updatedData) {
   const { data: { bookmarks } } = getState();
@@ -95,6 +95,6 @@ function normalizeBookmark(bookmark = {}) {
   return {
     ...DEFAULT_BOOKMARK,
     ...bookmark,
-    id: bookmark.id || crypto.randomUUID()
+    id: bookmark.id ?? crypto.randomUUID()
   };
 }
