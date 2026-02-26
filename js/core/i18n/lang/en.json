@@ -93,7 +93,7 @@
     },
     "information": {
       "title": "Information",
-      "version": "Version: {{version}} - alpha",
+      "version": "Version: {{VERSION}} - alpha",
       "author": "Author: @alextc35"
     }
   }

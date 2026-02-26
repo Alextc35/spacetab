@@ -187,7 +187,7 @@ function createButton(text, type, themeClass, onClick) {
 export async function confirmAndDeleteBookmark(bookmark) {
   if (!bookmark) return;
 
-  const message = t('alert.bookmark.confirmDelete').replace('{name}', bookmark.name);
+  const message = t('alert.bookmark.confirmDelete', { name: bookmark.name });
   const confirmed = await showAlert(message, { type: 'confirm' });
   if (!confirmed) return;
 

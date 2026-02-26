@@ -1,5 +1,6 @@
 import { getState } from '../store.js';
 import { loadTranslations } from './lang/index.js';
+import { VERSION } from '../config.js';
 
 let translations = {};
 let currentLang = null;
@@ -17,14 +18,15 @@ export async function initI18n() {
     currentLang = lang;
   }
 
-  applyI18n();
+  applyI18n(document, { VERSION });
 }
 
 export async function changeLanguage(settings = {}) {
   const language = settings.language || 'en';
   translations = await loadTranslations(language);
   currentLang = language;
-  applyI18n();
+
+  applyI18n(document, { VERSION });
 }
 
 /**
@@ -53,17 +55,16 @@ export function t(key, params = {}) {
 /**
  * Applies translations to DOM elements using data-i18n attribute.
  */
-function applyI18n(root = document) {
+function applyI18n(root = document, params = {}) {
   const { data: { settings } } = getState();
   const lang = settings.language || 'en';
-
   document.documentElement.lang = lang;
 
   const elements = root.querySelectorAll('[data-i18n]');
 
   elements.forEach(el => {
     const key = el.dataset.i18n;
-    const text = t(key);
+    const text = t(key, params);
 
     if (el.placeholder !== undefined && el.tagName === 'INPUT') {
       el.placeholder = text;

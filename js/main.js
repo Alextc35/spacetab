@@ -18,7 +18,7 @@ import { DEBUG } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { changeLanguage, initI18n, t } from './core/i18n/i18n.js';
 import { flash } from './ui/flash.js';
-import { version } from './core/config.js';
+import { VERSION } from './core/config.js';
 
 /* ======================= DOM References ======================= */
 
@@ -41,7 +41,7 @@ initApp();
 
 async function initApp() {
   if (DEBUG) {
-    console.info('Initializing SpaceTab ' + version + ' alfa');
+    console.info('Initializing SpaceTab ' + VERSION + ' alfa');
     console.time("Execution time"); 
   }
   
@@ -105,7 +105,7 @@ function handleStateChange(state, prev) {
 
   if (settingsChanged) {
     applyGlobalTheme(state.data.settings);
-    changeLanguage(state.data.settings.language)
+    changeLanguage(state.data.settings)
   }
 
   if (settingsChanged || bookmarksChanged || editingChanged) {
