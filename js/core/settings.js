@@ -30,10 +30,9 @@ export async function loadSettings(defaultSettings) {
  */
 export function updateSettings(partial) {
   const { data: { settings } } = getState();
-  const current = settings;
 
   const updated = {
-    ...current,
+    ...settings,
     ...partial
   };
 
