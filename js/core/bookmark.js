@@ -74,13 +74,9 @@ export function deleteBookmarkById(bookmarkId) {
 
 /**
  * Removes all bookmarks from the state.
- *
- * @returns {Bookmark[]} An empty array.
  */
 export function clearBookmarks() {
   setState({ data: { bookmarks: [] } });
-
-  return [];
 }
 
 /**
