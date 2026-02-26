@@ -1,6 +1,8 @@
 /**
  * Current extension version.
- * Uses semantic versioning (MAJOR.MINOR.PATCH).
+ * 
+ * - Uses semantic versioning (MAJOR.MINOR.PATCH).
+ * 
  * @type {string}
  */
 export const VERSION = chrome.runtime.getManifest().version;
