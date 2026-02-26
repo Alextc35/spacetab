@@ -1,6 +1,6 @@
 // config.js
 
-export const VERSION = '0.18.0';
+export const VERSION = '0.18.1';
 
 /**
  * Enables or disables debug logging throughout the app.
