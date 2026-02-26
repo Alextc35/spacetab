@@ -1,6 +1,6 @@
+import { VERSION } from './config.js';
 import { getState } from './store.js';
 import { loadTranslations } from '../lang/index.js';
-import { VERSION } from './config.js';
 
 /** @type {TranslationTree} */
 let translations = {};
