@@ -151,8 +151,6 @@ export async function hydrateStore() {
  */
 function finishHydration() { isHydrating = false; }
 
-/* ======================= NOTIFY ======================= */
-
 /**
  * Notifies all subscribed listeners about a state change.
  * 
