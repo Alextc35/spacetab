@@ -1,4 +1,4 @@
-export const version = '0.17.13';
+export const version = '0.17.14';
 
 export const translations = {
   es: {
