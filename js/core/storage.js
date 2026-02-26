@@ -1,11 +1,5 @@
-// storage.js
+import '../types/types.js'; // typedefs
 import { DEFAULT_STATE } from './defaults.js';
-
-/// <reference path="../types/types.js" />
-
-/**
- * @typedef {Pick<AppState['data'], 'bookmarks' | 'settings'>} PersistedData
- */
 
 /**
  * Default persisted values.

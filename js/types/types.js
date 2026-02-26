@@ -46,3 +46,7 @@
 /**
  * @typedef {Object<string, string | TranslationTree>} TranslationTree
  */
+
+/**
+ * @typedef {Pick<AppState['data'], 'bookmarks' | 'settings'>} PersistedData
+ */
