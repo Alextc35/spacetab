@@ -1,6 +1,9 @@
-// config.js
-
-export const VERSION = '0.18.3';
+/**
+ * Current extension version.
+ * Uses semantic versioning (MAJOR.MINOR.PATCH).
+ * @type {string}
+ */
+export const VERSION = chrome.runtime.getManifest().version;
 
 /**
  * Enables or disables debug logging throughout the app.
