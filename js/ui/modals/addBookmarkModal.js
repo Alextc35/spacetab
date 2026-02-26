@@ -3,7 +3,7 @@ import { isAreaFree } from '../../core/grid.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { flashSuccess } from '../flash.js';
 import { showAlert } from './alertModal.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../core/i18n/i18n.js';
 import { registerModal, openModal, closeModal } from '../modalManager.js';
 import { getState } from '../../core/store.js';
 

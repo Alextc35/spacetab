@@ -1,0 +1,100 @@
+{
+  "title": "New tab",
+  "flash": {
+    "editMode": {
+      "enabled": "Edit mode enabled",
+      "disabled": "Edit mode disabled"
+    },
+    "bookmark": {
+      "added": "Bookmark added successfully",
+      "deleted": "Bookmark deleted successfully",
+      "deleteError": "Failed to delete bookmark",
+      "notFound": "Bookmark not found",
+      "updated": "Bookmark updated successfully"
+    },
+    "bookmarks": {
+      "deletedAll": "All bookmarks deleted successfully",
+      "deleteAllError": "Failed to delete all bookmarks",
+      "exported": "Bookmarks exported successfully",
+      "exportError": "Failed to export bookmarks",
+      "imported": "Bookmarks imported successfully",
+      "importError": "Failed to import bookmarks"
+    },
+    "settings": {
+      "saved": "Settings saved successfully",
+      "copied": "Value copied to clipboard"
+    }
+  },
+  "alert": {
+    "bookmarks": {
+      "confirmDeleteAll": "Delete all bookmarks?",
+      "no_space": "No space available for more bookmarks 😅"
+    },
+    "bookmark": {
+      "confirmDelete": "Delete {{name}}",
+      "cancel": "Discard edition changes?"
+    },
+    "settings": {
+      "reset": "Reset background settings?",
+      "cancel": "Discard settings changes?"
+    }
+  },
+  "addModal": {
+    "title": "➕ Add new bookmark",
+    "name": "Name:",
+    "url": "URL:"
+  },
+  "buttons": {
+    "save": "Save",
+    "accept": "Accept",
+    "cancel": "Cancel"
+  },
+  "editModal": {
+    "title": "Edit Bookmark",
+    "name": "Name:",
+    "url": "URL:",
+    "backgroundImage": "Background image (URL):",
+    "backgroundFavicon": "Use favicon as background",
+    "invertColorBg": "Invert colors",
+    "noBackground": "No background",
+    "backgroundColor": "Bookmark color:",
+    "showText": "Show text",
+    "textColor": "Text color:",
+    "showFavicon": "Show favicon",
+    "invertColorIcon": "Invert icon colors",
+    "sections": {
+      "general": "General",
+      "style": "Style",
+      "text": "Text",
+      "icon": "Icon"
+    },
+    "preview": "Preview"
+  },
+  "settingsModal": {
+    "sections": {
+      "general": "⚙️ General",
+      "language": "🌐 Languages",
+      "information": "ℹ️ Information"
+    },
+    "general": {
+      "title": "General",
+      "subtitle": "Page background",
+      "backgroundColor": "Color:",
+      "backgroundImage": "Image URL:",
+      "urlHidden": "URL hidden",
+      "resetBackground": "Reset",
+      "export": "Export",
+      "import": "Import",
+      "deleteAll": "Delete all bookmarks"
+    },
+    "languages": {
+      "title": "Languages",
+      "text": "Select interface language:"
+    },
+    "information": {
+      "title": "Information",
+      "version": "Version: {{version}} - alpha",
+      "author": "Author: @alextc35"
+    }
+  }
+}

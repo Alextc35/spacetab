@@ -1,8 +1,7 @@
-import { applyI18n } from '../../core/i18n.js';
 import { registerModal, openModal, closeModal } from '../modalManager.js';
 import { applyGlobalTheme } from '../../core/theme.js';
 import { showAlert } from './alertModal.js';
-import { t } from '../../core/i18n.js';
+import { changeLanguage, t } from '../../core/i18n/i18n.js';
 import { flashSuccess } from '../flash.js';
 import { getState } from '../../core/store.js';
 import { updateSettings } from '../../core/settings.js';
@@ -26,6 +25,7 @@ export function initSettingsModal() {
     const bgPreview = document.getElementById('settings-modal-background-preview');
 
     let draftTheme = null;
+    let draftLanguage = null;
     let isLocked = false;
     let initialSnapshot = null;
 
@@ -114,7 +114,7 @@ export function initSettingsModal() {
 
     function hasChanges() {
         const currentDraft = {
-            language: languageSelect.value,
+            language: draftLanguage || initialSnapshot.language,
             theme: draftTheme
         };
 
@@ -170,20 +170,19 @@ export function initSettingsModal() {
 
         const ok = await showAlert(t('alert.settings.cancel'), { type: 'confirm' });
         if (ok) {
-            updateSettings({ language: initialSnapshot.language });
+            await changeLanguage({ language: initialSnapshot.language }); // revert preview
             closeModal();
         }
     });
 
     settingsSave.addEventListener('click', async () => {
-        updateSettings({
-            language: languageSelect.value,
+        const newSettings = {
+            language: draftLanguage || languageSelect.value,
             theme: structuredClone(draftTheme)
-        });
+        };
 
-        const state = getState();
-        const { data } = state;
-        applyGlobalTheme(data.settings);
+        updateSettings(newSettings);
+        applyGlobalTheme(newSettings);
 
         flashSuccess('flash.settings.saved');
         closeModal();
@@ -199,12 +198,9 @@ export function initSettingsModal() {
         });
     });
 
-    languageSelect.addEventListener('change', () => {
-        const state = getState();
-        const { data } = state;
-        const { settings } = data;
-        settings.language = languageSelect.value;
-        applyI18n();
+    languageSelect.addEventListener('change', async () => {
+        draftLanguage = languageSelect.value;
+        await changeLanguage({ language: draftLanguage });
         updateSaveButtonState();
     });
 

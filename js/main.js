@@ -16,7 +16,7 @@ import {
 import { renderBookmarks } from './ui/bookmarks.js';
 import { DEBUG } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
-import { applyI18n, t } from './core/i18n.js';
+import { changeLanguage, initI18n, t } from './core/i18n/i18n.js';
 import { flash } from './ui/flash.js';
 import { version } from './core/translations.js';
 
@@ -46,6 +46,7 @@ async function initApp() {
   }
   
   await initState();
+  await initI18n();
   initModals();
   initImportExport();
   initControls();
@@ -87,7 +88,7 @@ function initGlobalEvents() {
 function handleStateChange(state, prev) {
   if (!prev) {
     applyGlobalTheme(state.data.settings);
-    applyI18n();
+    changeLanguage(state.data.settings);
     updateEditUI(state.ui.isEditing);
     renderBookmarks();
     return;
@@ -104,7 +105,7 @@ function handleStateChange(state, prev) {
 
   if (settingsChanged) {
     applyGlobalTheme(state.data.settings);
-    applyI18n();
+    changeLanguage(state.data.settings.language)
   }
 
   if (settingsChanged || bookmarksChanged || editingChanged) {

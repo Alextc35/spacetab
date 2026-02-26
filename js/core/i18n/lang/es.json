@@ -1,0 +1,100 @@
+{
+  "title": "Nueva pestaña",
+  "flash": {
+    "editMode": {
+      "enabled": "Modo edición activado",
+      "disabled": "Modo edición desactivado"
+    },
+    "bookmark": {
+      "added": "Favorito añadido correctamente",
+      "deleted": "Favorito eliminado correctamente",
+      "deleteError": "Error al eliminar el favorito",
+      "notFound": "Favorito no encontrado",
+      "updated": "Favorito actualizado correctamente"
+    },
+    "bookmarks": {
+      "deletedAll": "Todos los favoritos eliminados correctamente",
+      "deleteAllError": "Error al eliminar los bookmarks",
+      "exported": "Favoritos exportados correctamente",
+      "exportError": "Error al exportar los favoritos",
+      "imported": "Favoritos importados correctamente",
+      "importError": "Error al importar los favoritos"
+    },
+    "settings": {
+      "saved": "Configuración guardada correctamente",
+      "copied": "Valor copiado al portapapeles"
+    }
+  },
+  "alert": {
+    "bookmarks": {
+      "confirmDeleteAll": "¿Eliminar todos los favoritos?",
+      "no_space": "No hay espacio disponible para más favoritos 😅"
+    },
+    "bookmark": {
+      "confirmDelete": "Eliminar {{name}}",
+      "cancel": "¿Descartar los cambios en la edición?"
+    },
+    "settings": {
+      "reset": "¿Restablecer la configuración de fondo?",
+      "cancel": "¿Descartar los cambios en la configuración?"
+    }
+  },
+  "addModal": {
+    "title": "➕ Añadir nuevo favorito",
+    "name": "Nombre:",
+    "url": "URL:"
+  },
+  "buttons": {
+    "save": "Guardar",
+    "accept": "Aceptar",
+    "cancel": "Cancelar"
+  },
+  "editModal": {
+    "title": "Editar Favorito",
+    "name": "Nombre:",
+    "url": "URL:",
+    "backgroundImage": "Imagen de fondo (URL):",
+    "backgroundFavicon": "Favicon como background",
+    "invertColorBg": "Invertir colores",
+    "noBackground": "Sin fondo",
+    "backgroundColor": "Color del bookmark:",
+    "showText": "Mostrar texto",
+    "textColor": "Color del texto:",
+    "showFavicon": "Mostrar favicon",
+    "invertColorIcon": "Invertir colores",
+    "sections": {
+      "general": "General",
+      "style": "Estilo",
+      "text": "Texto",
+      "icon": "Icon"
+    },
+    "preview": "Previsualizador"
+  },
+  "settingsModal": {
+    "sections": {
+      "general": "⚙️ General",
+      "language": "🌐 Idiomas",
+      "information": "ℹ️ Información"
+    },
+    "general": {
+      "title": "General",
+      "subtitle": "Fondo de la página",
+      "backgroundColor": "Color:",
+      "backgroundImage": "Imagen URL:",
+      "urlHidden": "URL oculta",
+      "resetBackground": "Restablecer",
+      "export": "Exportar",
+      "import": "Importar",
+      "deleteAll": "Borrar todos los Bookmarks"
+    },
+    "languages": {
+      "title": "Idiomas",
+      "text": "Selecciona el idioma de la interfaz:"
+    },
+    "information": {
+      "title": "Información",
+      "version": "Versión: {{version}} - alfa",
+      "author": "Autor: @alextc35"
+    }
+  }
+}
