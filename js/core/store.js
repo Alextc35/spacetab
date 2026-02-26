@@ -1,7 +1,7 @@
 import '../types/types.js'; // typedefs
 import { DEBUG } from './config.js';
-import { storage } from './storage.js';
 import { DEFAULT_STATE } from './defaults.js';
+import { storage } from './storage.js';
 
 /**
  * Global application state.
