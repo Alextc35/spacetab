@@ -1,3 +1,5 @@
+import '../types/types.js'; // typedefs
+
 /**
  * Base bookmark configuration.
  *

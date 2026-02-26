@@ -1,3 +1,4 @@
+import '../types/types.js'; // typedefs
 import { storage } from './storage.js';
 import { getState, setState } from './store.js';
 
