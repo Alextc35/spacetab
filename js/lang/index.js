@@ -1,3 +1,9 @@
+/**
+ * Loads translation JSON file for a given language.
+ *
+ * @param {string} lang - Language code (e.g. "en", "es").
+ * @returns {Promise<TranslationTree>}
+ */
 export async function loadTranslations(lang) {
   const url = chrome.runtime.getURL(`js/lang/${lang}.json`);
 

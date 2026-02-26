@@ -42,3 +42,7 @@
  * @property {DataState} data
  * @property {UIState} ui
  */
+
+/**
+ * @typedef {Object<string, string | TranslationTree>} TranslationTree
+ */

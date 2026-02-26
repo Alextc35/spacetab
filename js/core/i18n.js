@@ -2,12 +2,19 @@ import { getState } from './store.js';
 import { loadTranslations } from '../lang/index.js';
 import { VERSION } from './config.js';
 
+/** @type {TranslationTree} */
 let translations = {};
+
+/** @type {string|null} */
 let currentLang = null;
 
 /**
- * Loads translations for the current language.
- * Must be called before applying i18n.
+ * Initializes the internationalization system.
+ *
+ * Loads translations for the current language stored in the application state
+ * and applies them to the document.
+ *
+ * @returns {Promise<void>}
  */
 export async function initI18n() {
   const { data: { settings } } = getState();
@@ -21,6 +28,12 @@ export async function initI18n() {
   applyI18n(document, { VERSION });
 }
 
+/**
+ * Changes the active language and reapplies translations to the document.
+ *
+ * @param {Partial<Settings>} [settings={}] - Settings object containing the language to apply.
+ * @returns {Promise<void>}
+ */
 export async function changeLanguage(settings = {}) {
   const language = settings.language || 'en';
   translations = await loadTranslations(language);
@@ -30,13 +43,11 @@ export async function changeLanguage(settings = {}) {
 }
 
 /**
- * Resolves a translation key using dot-notation.
+ * Resolves a translation key using dot-notation and interpolates parameters.
  *
- * Supports interpolation via {{variable}} syntax.
- *
- * @param {string} key
- * @param {Object} [params]
- * @returns {string}
+ * @param {string} key - Translation key (e.g. "alert.bookmarks.no_space").
+ * @param {Object<string, string|number>} [params={}] - Parameters for template interpolation.
+ * @returns {string} The translated string, or the key if not found.
  */
 export function t(key, params = {}) {
   const parts = key.split('.');
@@ -53,7 +64,12 @@ export function t(key, params = {}) {
 }
 
 /**
- * Applies translations to DOM elements using data-i18n attribute.
+ * Applies translations to all elements within a root node that have
+ * a `data-i18n` attribute.
+ *
+ * @param {Document|HTMLElement} [root=document] - Root element to search within.
+ * @param {Object<string, string|number>} [params={}] - Interpolation parameters.
+ * @returns {void}
  */
 function applyI18n(root = document, params = {}) {
   const { data: { settings } } = getState();
