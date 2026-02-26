@@ -1,5 +1,6 @@
 // bookmark.js
 import { getState, setState } from './store.js';
+import { DEFAULT_BOOKMARK } from './defaults.js';
 
 /// <reference path="../types/types.js" />
 
@@ -94,20 +95,29 @@ export function clearBookmarks() {
 function normalizeBookmark(bookmark = {}) {
   return {
     id: bookmark.id || crypto.randomUUID(),
-    name: bookmark.name ?? '',
-    url: bookmark.url ?? '',
-    gx: bookmark.gx ?? 0,
-    gy: bookmark.gy ?? 0,
-    w: bookmark.w ?? 1,
-    h: bookmark.h ?? 1,
-    backgroundImageUrl: bookmark.backgroundImageUrl ?? null,
-    backgroundFavicon: bookmark.backgroundFavicon ?? true,
-    invertColorBg: bookmark.invertColorBg ?? false,
-    noBackground: bookmark.noBackground ?? false,
-    backgroundColor: bookmark.backgroundColor ?? '#000000',
-    showText: bookmark.showText ?? true,
-    textColor: bookmark.textColor ?? '#ffffff',
-    showFavicon: bookmark.showFavicon ?? false,
-    invertColorIcon: bookmark.invertColorIcon ?? false
+    name: bookmark.name ?? DEFAULT_BOOKMARK.name,
+    url: bookmark.url ?? DEFAULT_BOOKMARK.url,
+    gx: bookmark.gx ?? DEFAULT_BOOKMARK.gx,
+    gy: bookmark.gy ?? DEFAULT_BOOKMARK.gy,
+    w: bookmark.w ?? DEFAULT_BOOKMARK.w,
+    h: bookmark.h ?? DEFAULT_BOOKMARK.h,
+    backgroundImageUrl: bookmark.backgroundImageUrl
+      ?? DEFAULT_BOOKMARK.backgroundImageUrl,
+    backgroundFavicon: bookmark.backgroundFavicon
+      ?? DEFAULT_BOOKMARK.backgroundFavicon,
+    invertColorBg: bookmark.invertColorBg 
+      ?? DEFAULT_BOOKMARK.invertColorBg,
+    noBackground: bookmark.noBackground
+      ?? DEFAULT_BOOKMARK.noBackground,
+    backgroundColor: bookmark.backgroundColor
+      ?? DEFAULT_BOOKMARK.backgroundColor,
+    showText: bookmark.showText
+      ?? DEFAULT_BOOKMARK.showText,
+    textColor: bookmark.textColor 
+      ?? DEFAULT_BOOKMARK.textColor,
+    showFavicon: bookmark.showFavicon
+      ?? DEFAULT_BOOKMARK.showFavicon,
+    invertColorIcon: bookmark.invertColorIcon
+      ?? DEFAULT_BOOKMARK.invertColorIcon
   };
 }
