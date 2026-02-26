@@ -1,8 +1,6 @@
-// bookmark.js
+import '../types/types.js';
 import { getState, setState } from './store.js';
 import { DEFAULT_BOOKMARK } from './defaults.js';
-
-/// <reference path="../types/types.js" />
 
 /**
  * Adds a new bookmark to the application state.
@@ -30,8 +28,9 @@ export function addBookmark(data) {
  * The input data can be partial. Missing properties
  * will be normalized with default values.
  *
- * @param {Partial<Bookmark>} data - Partial bookmark data.
- * @returns {Bookmark} The created bookmark.
+ * @param {string} bookmarkId
+ * @param {Partial<Bookmark>} updatedData
+ * @returns {Bookmark|null}
  */
 export function updateBookmarkById(bookmarkId, updatedData) {
   const { data: { bookmarks } } = getState();
@@ -94,8 +93,8 @@ export function clearBookmarks() {
  */
 function normalizeBookmark(bookmark = {}) {
   return {
-    id: bookmark.id || crypto.randomUUID(),
     ...DEFAULT_BOOKMARK,
-    ...bookmark
+    ...bookmark,
+    id: bookmark.id || crypto.randomUUID()
   };
 }
