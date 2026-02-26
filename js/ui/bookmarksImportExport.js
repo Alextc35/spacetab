@@ -40,7 +40,7 @@ export async function deleteAllBookmarks() {
 
 export function exportBookmarks() {
   try {
-    const { bookmarks } = getState();
+    const { data: { bookmarks } } = getState();
     const dataStr = JSON.stringify(bookmarks, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -53,9 +53,7 @@ export function exportBookmarks() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    if (DEBUG) {
-      console.log('Bookmarks exported:', bookmarks);
-    }
+    if (DEBUG) console.log('Bookmarks exported:', bookmarks);
 
     flashSuccess('flash.bookmarks.exported');
   } catch (err) {
@@ -77,7 +75,7 @@ export function importBookmarks(file) {
         throw new Error('Invalid bookmarks file');
       }
 
-      setState({ bookmarks: data });
+      setState({ data: { bookmarks: data } });
 
       if (DEBUG) {
         console.log('Bookmarks imported:', data);
