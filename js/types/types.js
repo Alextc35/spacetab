@@ -23,6 +23,7 @@
  * @property {Object} theme
  * @property {string} theme.backgroundColor
  * @property {string|null} theme.backgroundImageUrl
+ * @property {boolean} theme.backgroundImageUrlLocked
  */
 
 /**

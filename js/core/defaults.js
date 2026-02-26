@@ -1,6 +1,4 @@
-// defaults.js
-
-/// <reference path="../types/types.js" />
+import '../types/types.js'; // typedefs
 
 /**
  * Base bookmark configuration.
