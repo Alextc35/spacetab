@@ -24,7 +24,7 @@ export const DEFAULT_BOOKMARK = {
   backgroundFavicon: true,
   invertColorBg: false,
   noBackground: false,
-  backgroundColor: '#0f172a',
+  backgroundColor: '#000000',
   showText: true,
   textColor: '#ffffff',
   showFavicon: true,
