@@ -7,7 +7,7 @@ import {
 import {
   hasOpenModal, shouldSuppressGlobalEnter
 } from './ui/modalManager.js';
-import { initImportExportButtons } from './ui/bookmarksImportExport.js';
+import { initImportExportButtons } from './ui/bookmarkImportExport.js';
 import {
   subscribe, hydrateStore, toggleEditing
 } from './core/store.js';
