@@ -1,4 +1,4 @@
-import { PADDING, DEBUG } from '../core/config.js';
+import { PADDING } from '../core/config.js';
 import { openModal } from './modals/editBookmarkModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
