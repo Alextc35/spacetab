@@ -160,7 +160,7 @@ function handleGlobalKeydown(e) {
 
 function handleResize() {
   clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(renderBookmarks, 100);
+  resizeTimeout = setTimeout(() => renderBookmarks(container), 100);
 }
 
 async function toggleEditMode() {
