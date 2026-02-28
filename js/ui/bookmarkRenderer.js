@@ -1,17 +1,11 @@
-import { deleteBookmarkById, clearBookmarks } from '../core/bookmark.js';
-import { PADDING } from '../core/config.js';
-import { t } from '../core/i18n.js';
 import { getState } from '../core/store.js';
-import { showAlert } from './modals/alertModal.js';
-import { openModal } from './modals/editBookmarkModal.js';
-import { addDragAndResize } from './dragResize.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
+import { PADDING } from '../core/config.js';
 import { createFavicon } from './favicon.js';
-import { flashSuccess, flashError } from './flash.js';
+import { addDragAndResize } from './dragResize.js';
+import { addEditDeleteButtons } from './bookmarkActions.js';
 
-export const container = document.getElementById('bookmark-container') || null;
-
-export function renderBookmarks() {
+export function renderBookmarks(container) {
   if (!container) return;
 
   const state = getState();
@@ -41,7 +35,7 @@ export function renderBookmarks() {
 
     if (isEditing) {
       addEditDeleteButtons(div, bookmark);
-      addDragAndResize(div, bookmark);
+      addDragAndResize(container, div, bookmark);
     }
 
     div.addEventListener('click', (e) => {
@@ -53,6 +47,23 @@ export function renderBookmarks() {
 
     container.appendChild(div);
   });
+}
+
+export function createBookmarkElement(bookmark, options = {}) {
+  const { isEditing = false, isPreview = false } = options;
+
+  const div = document.createElement('div');
+  div.className = 'bookmark';
+
+  if (isEditing) div.classList.add('is-editing');
+  if (isPreview) div.classList.add('is-preview');
+
+  applyBookmarkStyle(div, bookmark);
+
+  const linkEl = createBookmarkContent(bookmark, isEditing);
+  div.appendChild(linkEl);
+
+  return div;
 }
 
 function applyBookmarkStyle(div, bookmark) {
@@ -159,102 +170,4 @@ function createTextSpan(bookmark) {
   span.textContent = bookmark.name || '';
   span.style.color = 'var(--color-text-bookmark)';
   return span;
-}
-
-function addEditDeleteButtons(container, bookmark) {
-  const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
-
-  const editBtn = createButton('✎', 'edit', themeClass, () => {
-    openModal(bookmark.id);
-  });
-
-  const delBtn = createButton('🗑', 'delete', themeClass, () => {
-    confirmAndDeleteBookmark(bookmark);
-  });
-
-  container.append(editBtn, delBtn);
-}
-
-function createButton(text, type, themeClass, onClick) {
-  const btn = document.createElement('button');
-  btn.className = `bookmark-btn ${type} ${themeClass}`;
-  btn.textContent = text;
-  btn.addEventListener('click', e => { e.stopPropagation(); onClick(); });
-  return btn;
-}
-
-/**
- * Deletes all bookmarks after user confirmation.
- *
- * Displays a confirmation modal before clearing bookmarks.
- * 
- * Shows a success or error flash message depending on the result.
- *
- * @returns {Promise<void>}
- */
-export async function deleteAllBookmarks() {
-  const ok = await showAlert(
-    t('alert.bookmarks.confirmDeleteAll'),
-    { type: 'confirm' }
-  );
-
-  if (!ok) return;
-
-  try {
-    clearBookmarks();
-    flashSuccess('flash.bookmarks.deletedAll');
-  } catch (err) {
-    console.error(err);
-    flashError('flash.bookmarks.deleteAllError');
-  }
-}
-
-export async function confirmAndDeleteBookmark(bookmark) {
-  if (!bookmark) return;
-
-  const message = t('alert.bookmark.confirmDelete', { name: bookmark.name });
-  const confirmed = await showAlert(message, { type: 'confirm' });
-  if (!confirmed) return;
-
-  const deleted = await deleteBookmarkById(bookmark.id);
-  if (deleted) {
-    flashSuccess('flash.bookmark.deleted');
-  } else {
-    flashError('flash.bookmark.deleteError');
-  }
-}
-
-function isVisuallyDark(bookmark) {
-  let dark = isDarkColor(bookmark.backgroundColor);
-  if (bookmark.backgroundImageUrl) dark = true;
-  if (bookmark.invertColorBg) dark = !dark;
-  return dark;
-}
-
-function isDarkColor(color) {
-  if (!color || color === 'transparent') return true;
-  if (!color.startsWith('#')) return true;
-  const hex = color.replace('#', '');
-  const r = parseInt(hex.slice(0,2), 16);
-  const g = parseInt(hex.slice(2,4), 16);
-  const b = parseInt(hex.slice(4,6), 16);
-  const luminance = 0.2126*r + 0.7152*g + 0.0722*b;
-  return luminance < 64;
-}
-
-export function createBookmarkElement(bookmark, options = {}) {
-  const { isEditing = false, isPreview = false } = options;
-
-  const div = document.createElement('div');
-  div.className = 'bookmark';
-
-  if (isEditing) div.classList.add('is-editing');
-  if (isPreview) div.classList.add('is-preview');
-
-  applyBookmarkStyle(div, bookmark);
-
-  const linkEl = createBookmarkContent(bookmark, isEditing);
-  div.appendChild(linkEl);
-
-  return div;
 }

@@ -2,7 +2,7 @@ import { updateBookmarkById } from '../../core/bookmark.js';
 import { flashSuccess } from '../flash.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 import { getState } from '../../core/store.js';
-import { createBookmarkElement } from '../bookmarks.js';
+import { createBookmarkElement } from '../bookmarkRenderer.js';
 import { showAlert } from './alertModal.js';
 import { t } from '../../core/i18n.js';
 

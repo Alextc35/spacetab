@@ -1,13 +1,13 @@
 import { updateBookmarkById } from '../core/bookmark.js';
 import { isAreaFree } from '../core/grid.js';
 import { PADDING, GRID_COLS, GRID_ROWS } from '../core/config.js';
-import { container, confirmAndDeleteBookmark } from './bookmarks.js';
+import { confirmAndDeleteBookmark } from './bookmarkActions.js';
 import { getState } from '../core/store.js';
 
 let dragging = false;
 let resizing = false;
 
-export function addDragAndResize(div, bookmark) {
+export function addDragAndResize(container, div, bookmark) {
   let startX = 0, startY = 0;
   let startLeft = 0, startTop = 0;
 
@@ -80,7 +80,7 @@ export function addDragAndResize(div, bookmark) {
       tempGX = newGX;
       tempGY = newGY;
 
-      applyPosition(div, newGX, newGY);
+      applyPosition(container, div, newGX, newGY);
       div.classList.remove('is-invalid');
     } else {
       div.classList.add('is-invalid');
@@ -96,7 +96,7 @@ export function addDragAndResize(div, bookmark) {
 
     // Persist changes via store
     if (tempGX !== bookmark.gx || tempGY !== bookmark.gy) {
-      await updateBookmarkById(bookmark.id, {
+      updateBookmarkById(bookmark.id, {
         gx: tempGX,
         gy: tempGY
       });
@@ -111,12 +111,12 @@ export function addDragAndResize(div, bookmark) {
     resizer.addEventListener('pointerdown', (e) => {
       e.stopPropagation();
       e.preventDefault();
-      handleResize(e, div, bookmark, side);
+      handleResize(container, e, div, bookmark, side);
     });
   });
 }
 
-function handleResize(e, div, bookmark, side) {
+function handleResize(container, e, div, bookmark, side) {
   resizing = true;
   div.classList.add('is-resizing');
 
@@ -203,7 +203,7 @@ function handleResize(e, div, bookmark, side) {
       tempW = newW;
       tempH = newH;
 
-      applyPosition(div, newGX, newGY);
+      applyPosition(container, div, newGX, newGY);
       div.style.width = newW * rowWidth - PADDING + 'px';
       div.style.height = newH * rowHeight - PADDING + 'px';
     }
@@ -222,7 +222,7 @@ function handleResize(e, div, bookmark, side) {
       tempW !== bookmark.w ||
       tempH !== bookmark.h
     ) {
-      await updateBookmarkById(bookmark.id, {
+      updateBookmarkById(bookmark.id, {
         gx: tempGX,
         gy: tempGY,
         w: tempW,
@@ -235,7 +235,7 @@ function handleResize(e, div, bookmark, side) {
   document.addEventListener('pointerup', onUp);
 }
 
-function applyPosition(div, gx, gy) {
+function applyPosition(container, div, gx, gy) {
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
 

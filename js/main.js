@@ -11,7 +11,8 @@ import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 import {
   subscribe, hydrateStore, toggleEditing
 } from './core/store.js';
-import { renderBookmarks, deleteAllBookmarks } from './ui/bookmarks.js';
+import { deleteAllBookmarks } from './ui/bookmarkActions.js';
+import { renderBookmarks } from './ui/bookmarkRenderer.js';
 import { DEBUG } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { changeLanguage, initI18n, t } from './core/i18n.js';
@@ -19,6 +20,8 @@ import { flash } from './ui/flash.js';
 import { VERSION } from './core/config.js';
 
 /* ======================= DOM References ======================= */
+
+const container = document.getElementById('bookmark-container');
 
 const addButton     = document.getElementById('add-bookmark');
 const toggleButton  = document.getElementById('edit-toggle-mode');
@@ -88,7 +91,7 @@ function handleStateChange(state, prev) {
     applyGlobalTheme(state.data.settings);
     changeLanguage(state.data.settings);
     updateEditUI(state.ui.isEditing);
-    renderBookmarks();
+    renderBookmarks(container);
     return;
   }
 
@@ -107,7 +110,7 @@ function handleStateChange(state, prev) {
   }
 
   if (settingsChanged || bookmarksChanged || editingChanged) {
-    renderBookmarks();
+    renderBookmarks(container);
   }
 
   if (editingChanged) {
