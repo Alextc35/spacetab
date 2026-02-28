@@ -81,15 +81,11 @@ export function importBookmarks(file) {
     try {
       const data = JSON.parse(e.target.result);
 
-      if (!Array.isArray(data)) {
-        throw new Error('Invalid bookmarks file');
-      }
+      if (!Array.isArray(data)) throw new Error('Invalid bookmarks file');
 
       setState({ data: { bookmarks: data } });
 
-      if (DEBUG) {
-        console.log('Bookmarks imported:', data);
-      }
+      if (DEBUG) console.log('Bookmarks imported:', data);
 
       flashSuccess('flash.bookmarks.imported');
 
