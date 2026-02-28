@@ -1,23 +1,4 @@
-/**
- * gridLayout.js
- * ------------------------------------------------------
- * Grid layout utilities and CSS synchronization.
- *
- * Responsibilities:
- * - Computes grid cell dimensions based on container size
- * - Exposes grid limits (rows / columns)
- * - Synchronizes grid measurements with CSS variables
- * - Provides helpers for pixel-to-grid calculations
- *
- * Notes:
- * - Grid dimensions are driven by GRID_COLS / GRID_ROWS
- * - The container element is the visual reference
- * - CSS variables are used by the UI for layout and snapping
- * ------------------------------------------------------
- */
-
 import { GRID_COLS, GRID_ROWS } from '../core/config.js';
-import { container } from './bookmarks.js'; 
 
 /**
  * Updates CSS variables representing grid cell size.
@@ -43,6 +24,26 @@ export function updateGridSize(container) {
 }
 
 /**
+ * Returns the pixel width of a single grid column.
+ *
+ * @returns {number}
+ */
+export function getRowWidth(container) {
+  if (!container) return 0;
+  return container.clientWidth / GRID_COLS;
+}
+
+/**
+ * Returns the pixel height of a single grid row.
+ *
+ * @returns {number}
+ */
+export function getRowHeight(container) {
+  if (!container) return 0;
+  return container.clientHeight / GRID_ROWS;
+}
+
+/**
  * Returns the maximum number of visible grid rows.
  *
  * @returns {number}
@@ -58,24 +59,4 @@ export function getMaxVisibleRows() {
  */
 export function getMaxVisibleCols() {
   return GRID_COLS;
-}
-
-/**
- * Returns the pixel width of a single grid column.
- *
- * @returns {number}
- */
-export function getRowWidth() {
-  const cols = getMaxVisibleCols();
-  return container.clientWidth / cols;
-}
-
-/**
- * Returns the pixel height of a single grid row.
- *
- * @returns {number}
- */
-export function getRowHeight() {
-  const rows = getMaxVisibleRows();
-  return container.clientHeight / rows;
 }

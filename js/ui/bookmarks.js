@@ -22,8 +22,8 @@ export function renderBookmarks() {
   updateGridSize(container);
   container.innerHTML = '';
 
-  const rowWidth = getRowWidth();
-  const rowHeight = getRowHeight();
+  const rowWidth = getRowWidth(container);
+  const rowHeight = getRowHeight(container);
 
   bookmarks.forEach((bookmark) => {
     const div = document.createElement('div');
