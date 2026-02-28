@@ -1,23 +1,18 @@
 import { clearBookmarks} from '../core/bookmark.js';
-import { flashError, flashSuccess } from './flash.js';
 import { DEBUG } from '../core/config.js';
-import { showAlert } from './modals/alertModal.js';
 import { t } from '../core/i18n.js';
 import { getState, setState } from '../core/store.js';
+import { showAlert } from './modals/alertModal.js';
+import { flashSuccess, flashError } from './flash.js';
 
-const flashContainer = document.createElement('div');
-
-flashContainer.id = 'flash-container';
-flashContainer.style.cssText = `
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-  pointer-events: none;
-`;
-document.body.appendChild(flashContainer);
-
+/**
+ * Deletes all bookmarks after user confirmation.
+ *
+ * Displays a confirmation modal before clearing bookmarks.
+ * Shows a success or error flash message depending on the result.
+ *
+ * @returns {Promise<void>}
+ */
 export async function deleteAllBookmarks() {
   const ok = await showAlert(
     t('alert.bookmarks.confirmDeleteAll'),
@@ -27,10 +22,7 @@ export async function deleteAllBookmarks() {
   if (!ok) return;
 
   try {
-    await clearBookmarks();
-
-    if (DEBUG) console.log('All bookmarks deleted');
-
+    clearBookmarks();
     flashSuccess('flash.bookmarks.deletedAll');
   } catch (err) {
     console.error(err);
@@ -38,6 +30,15 @@ export async function deleteAllBookmarks() {
   }
 }
 
+/**
+ * Exports all current bookmarks as a JSON file.
+ *
+ * Generates a downloadable file named "bookmarks.json"
+ * containing the serialized bookmarks array.
+ *
+ * @returns {void}
+ * @throws {Error} Logs error to console if export fails.
+ */
 export function exportBookmarks() {
   try {
     const { data: { bookmarks } } = getState();
@@ -62,6 +63,15 @@ export function exportBookmarks() {
   }
 }
 
+/**
+ * Imports bookmarks from a JSON file.
+ *
+ * The file must contain a JSON array of Bookmark objects.
+ * If parsing fails or the format is invalid, an error flash is shown.
+ *
+ * @param {File} file - JSON file containing bookmarks data.
+ * @returns {void}
+ */
 export function importBookmarks(file) {
   if (!file) return flashError('flash.bookmarks.importError');
 
@@ -92,6 +102,13 @@ export function importBookmarks(file) {
   reader.readAsText(file);
 }
 
+/**
+ * Initializes import and export button event listeners.
+ *
+ * @param {HTMLButtonElement} exportBtn - Button that triggers export.
+ * @param {HTMLInputElement} importInput - File input used for importing bookmarks.
+ * @returns {void}
+ */
 export function initImportExportButtons(exportBtn, importInput) {
   exportBtn.addEventListener('click', exportBookmarks);
   importInput.addEventListener('change', (e) => {
