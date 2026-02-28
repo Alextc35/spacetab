@@ -6,32 +6,6 @@ import { showAlert } from './modals/alertModal.js';
 import { flashSuccess, flashError } from './flash.js';
 
 /**
- * Deletes all bookmarks after user confirmation.
- *
- * Displays a confirmation modal before clearing bookmarks.
- * 
- * Shows a success or error flash message depending on the result.
- *
- * @returns {Promise<void>}
- */
-export async function deleteAllBookmarks() {
-  const ok = await showAlert(
-    t('alert.bookmarks.confirmDeleteAll'),
-    { type: 'confirm' }
-  );
-
-  if (!ok) return;
-
-  try {
-    clearBookmarks();
-    flashSuccess('flash.bookmarks.deletedAll');
-  } catch (err) {
-    console.error(err);
-    flashError('flash.bookmarks.deleteAllError');
-  }
-}
-
-/**
  * Exports all current bookmarks as a JSON file.
  *
  * Generates a downloadable file named "bookmarks.json"

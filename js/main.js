@@ -7,13 +7,11 @@ import {
 import {
   hasOpenModal, shouldSuppressGlobalEnter
 } from './ui/modalManager.js';
-import {
-  initImportExportButtons, deleteAllBookmarks
-} from './ui/bookmarksImportExport.js';
+import { initImportExportButtons } from './ui/bookmarksImportExport.js';
 import {
   subscribe, hydrateStore, toggleEditing
 } from './core/store.js';
-import { renderBookmarks } from './ui/bookmarks.js';
+import { renderBookmarks, deleteAllBookmarks } from './ui/bookmarks.js';
 import { DEBUG } from './core/config.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { changeLanguage, initI18n, t } from './core/i18n.js';

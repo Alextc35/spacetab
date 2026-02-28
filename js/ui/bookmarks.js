@@ -7,7 +7,7 @@ import { createFavicon } from './favicon.js';
 import { showAlert } from './modals/alertModal.js';
 import { t } from '../core/i18n.js';
 import { getState } from '../core/store.js';
-import { deleteBookmarkById } from '../core/bookmark.js';
+import { clearBookmarks, deleteBookmarkById } from '../core/bookmark.js';
 
 export const container = document.getElementById('bookmark-container') || null;
 
@@ -181,6 +181,32 @@ function createButton(text, type, themeClass, onClick) {
   btn.textContent = text;
   btn.addEventListener('click', e => { e.stopPropagation(); onClick(); });
   return btn;
+}
+
+/**
+ * Deletes all bookmarks after user confirmation.
+ *
+ * Displays a confirmation modal before clearing bookmarks.
+ * 
+ * Shows a success or error flash message depending on the result.
+ *
+ * @returns {Promise<void>}
+ */
+export async function deleteAllBookmarks() {
+  const ok = await showAlert(
+    t('alert.bookmarks.confirmDeleteAll'),
+    { type: 'confirm' }
+  );
+
+  if (!ok) return;
+
+  try {
+    clearBookmarks();
+    flashSuccess('flash.bookmarks.deletedAll');
+  } catch (err) {
+    console.error(err);
+    flashError('flash.bookmarks.deleteAllError');
+  }
 }
 
 export async function confirmAndDeleteBookmark(bookmark) {
