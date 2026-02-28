@@ -15,9 +15,8 @@ export function renderBookmarks() {
   if (!container) return;
 
   const state = getState();
-  const { data, ui } = state;
-  const { bookmarks } = data;
-  const { isEditing } = ui;
+  const { data: { bookmarks } } = state;
+  const { ui: { isEditing } } = state;
 
   updateGridSize(container);
   container.innerHTML = '';
