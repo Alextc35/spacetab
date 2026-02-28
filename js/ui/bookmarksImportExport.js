@@ -9,6 +9,7 @@ import { flashSuccess, flashError } from './flash.js';
  * Deletes all bookmarks after user confirmation.
  *
  * Displays a confirmation modal before clearing bookmarks.
+ * 
  * Shows a success or error flash message depending on the result.
  *
  * @returns {Promise<void>}
