@@ -23,8 +23,8 @@ export function addEditDeleteButtons(container, bookmark) {
     openModal(bookmark.id);
   });
 
-  const delBtn = createButton('🗑', 'delete', themeClass, () => {
-    confirmAndDeleteBookmark(bookmark);
+  const delBtn = createButton('🗑', 'delete', themeClass, async () => {
+    await confirmDeleteBookmark(bookmark);
   });
 
   container.append(editBtn, delBtn);
@@ -82,7 +82,7 @@ export async function deleteAllBookmarks() {
  * @param {Bookmark} bookmark - The bookmark to delete.
  * @returns {Promise<void>}
  */
-export async function confirmAndDeleteBookmark(bookmark) {
+export async function confirmDeleteBookmark(bookmark) {
   if (!bookmark) return;
 
   const ok = await showAlert(

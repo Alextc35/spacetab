@@ -1,8 +1,9 @@
+import '../types/types.js'; // typedefs
 import { updateBookmarkById } from '../core/bookmark.js';
+import { GRID_COLS, GRID_ROWS, PADDING } from '../core/config.js';
 import { isAreaFree } from '../core/grid.js';
-import { PADDING, GRID_COLS, GRID_ROWS } from '../core/config.js';
-import { confirmAndDeleteBookmark } from './bookmarkActions.js';
 import { getState } from '../core/store.js';
+import { confirmDeleteBookmark } from './bookmarkActions.js';
 
 let dragging = false;
 let resizing = false;
@@ -24,7 +25,7 @@ export function addDragAndResize(container, div, bookmark) {
     if (e.button === 1) {
       e.preventDefault();
       e.stopPropagation();
-      await confirmAndDeleteBookmark(bookmark);
+      await confirmDeleteBookmark(bookmark);
       return;
     }
 
