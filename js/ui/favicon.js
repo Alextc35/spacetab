@@ -1,26 +1,12 @@
-/**
- * =========================================================
- * Favicon and Bookmark Icon Utilities
- * =========================================================
- *
- * Responsibilities:
- * - Fetch favicons for bookmarks
- * - Generate fallback initials canvas if favicon is unavailable
- * - Handle internal URLs and default icons
- *
- * Exports:
- * - createFavicon(bookmark): returns an HTMLImageElement with the favicon or fallback
- *
- * Notes:
- * - Uses generateInitialsCanvas internally for fallback generation
- * - Designed for UI rendering of bookmark icons
- * - Purely UI-focused; does not modify bookmark data
- */
+import '../types/types.js'; // typedefs
 
 /**
- * Fetch favicon or generate fallback initials canvas
- * 
- * @param {Object} bookmark
+ * Creates a favicon image element for a bookmark.
+ *
+ * Attempts to fetch the site favicon. If it fails or the URL is internal,
+ * generates a fallback image with the bookmark initials.
+ *
+ * @param {Bookmark} bookmark - Bookmark object
  * @return {HTMLImageElement} <img> element with favicon or initials
  */
 export function createFavicon(bookmark) {
@@ -42,24 +28,25 @@ export function createFavicon(bookmark) {
     img.src = 'https://cdn-icons-png.flaticon.com/512/1828/1828843.png';
   }
 
-  if (isInternal) {
-    img.src = generateInitialsCanvas(bookmark.name);
-  }
+  if (isInternal) img.src = generateInitialsCanvas(bookmark.name);
 
   return img;
 }
 
 /**
- * Generate a base64 image with initials for bookmarks without favicon
- * 
- * @param {string} name
- * @returns {string} Data URL of the generated image
+ * Generates a base64-encoded image containing the bookmark initials.
+ *
+ * Used as a fallback when the favicon cannot be retrieved.
+ *
+ * @param {Bookmark} name - Bookmark display name.
+ * @returns {string} Data URL representing the generated image.
  */
 function generateInitialsCanvas(name) {
   const canvas = document.createElement('canvas');
   canvas.width = 64;
   canvas.height = 64;
   const ctx = canvas.getContext('2d');
+  if (!ctx) return '';
   ctx.fillStyle = '#555';
   ctx.fillRect(0, 0, 64, 64);
   ctx.fillStyle = '#fff';
