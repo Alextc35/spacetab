@@ -1,8 +1,5 @@
-import { clearBookmarks} from '../core/bookmark.js';
 import { DEBUG } from '../core/config.js';
-import { t } from '../core/i18n.js';
 import { getState, setState } from '../core/store.js';
-import { showAlert } from './modals/alertModal.js';
 import { flashSuccess, flashError } from './flash.js';
 
 /**
