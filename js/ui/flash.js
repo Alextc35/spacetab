@@ -1,8 +1,7 @@
+import { MAX_FLASHES } from '../core/config.js'
 import { t } from '../core/i18n.js';
 
 const flashContainer = document.getElementById('flash-container');
-
-const MAX_FLASHES = 3;
 
 export function flash(message, type = 'info', duration = 3000) {
   while (flashContainer.children.length >= MAX_FLASHES) {

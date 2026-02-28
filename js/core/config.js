@@ -30,3 +30,10 @@ export const GRID_ROWS = 6;
  * @type {number}
  */
 export const PADDING = 10;
+
+/**
+ * Maximum number of flash message visible at the same time.
+ * Older messages are removed when this limit is exceeded.
+ * @type {number}
+ */
+export const MAX_FLASHES = 3;
