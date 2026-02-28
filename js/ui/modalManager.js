@@ -1,22 +1,3 @@
-/**
- * modalManager.js
- * ------------------------------------------------------
- * Centralized modal stack manager with keyboard handling.
- *
- * Responsibilities:
- * - Acts as the single authority for modal open/close state
- * - Manages a modal stack (supports nested modals)
- * - Handles global keyboard shortcuts (Enter / Escape)
- * - Restores focus correctly when modals close
- * - Prevents accidental global Enter re-triggering
- *
- * Notes:
- * - Only one modal is considered "active" at a time (top of stack)
- * - Modals must be registered before they can be opened
- * - Consumers should NEVER manipulate modal visibility directly
- * ------------------------------------------------------
- */
-
 import { DEBUG } from '../core/config.js';
 
 /**
@@ -54,7 +35,7 @@ function getActive() {
  * @returns {boolean}
  */
 export function hasOpenModal() {
-  if (DEBUG && (stack.length != 0)) console.log('Modal stack:', stack.map(m => m.id));
+  if (DEBUG && (stack.length != 0)) console.log('[MODAL MANAGER] stack:', stack.map(m => m.id));
   return stack.length > 0;
 }
 
