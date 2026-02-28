@@ -38,7 +38,6 @@ export async function deleteAllBookmarks() {
  * containing the serialized bookmarks array.
  *
  * @returns {void}
- * @throws {Error} Logs error to console if export fails.
  */
 export function exportBookmarks() {
   try {
