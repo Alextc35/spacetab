@@ -1,5 +1,4 @@
 import { registerModal, openModal, closeModal } from '../modalManager.js';
-import { applyGlobalTheme } from '../../core/theme.js';
 import { showAlert } from './alertModal.js';
 import { changeLanguage, t } from '../../core/i18n.js';
 import { flashSuccess } from '../flash.js';
@@ -182,7 +181,6 @@ export function initSettingsModal() {
         };
 
         updateSettings(newSettings);
-        applyGlobalTheme(newSettings);
 
         flashSuccess('flash.settings.saved');
         closeModal();
