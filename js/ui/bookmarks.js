@@ -1,13 +1,13 @@
+import { deleteBookmarkById, clearBookmarks } from '../core/bookmark.js';
 import { PADDING } from '../core/config.js';
+import { t } from '../core/i18n.js';
+import { getState } from '../core/store.js';
+import { showAlert } from './modals/alertModal.js';
 import { openModal } from './modals/editBookmarkModal.js';
 import { addDragAndResize } from './dragResize.js';
 import { updateGridSize, getRowWidth, getRowHeight } from './gridLayout.js';
-import { flashError, flashSuccess } from './flash.js';
 import { createFavicon } from './favicon.js';
-import { showAlert } from './modals/alertModal.js';
-import { t } from '../core/i18n.js';
-import { getState } from '../core/store.js';
-import { clearBookmarks, deleteBookmarkById } from '../core/bookmark.js';
+import { flashSuccess, flashError } from './flash.js';
 
 export const container = document.getElementById('bookmark-container') || null;
 
