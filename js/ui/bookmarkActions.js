@@ -64,11 +64,10 @@ export async function deleteAllBookmarks() {
 
   if (!ok) return;
 
-  try {
-    clearBookmarks();
+  const deleted = clearBookmarks();
+  if (deleted) {
     flashSuccess('flash.bookmarks.deletedAll');
-  } catch (err) {
-    console.error(err);
+  } else {
     flashError('flash.bookmarks.deleteAllError');
   }
 }
@@ -86,9 +85,12 @@ export async function deleteAllBookmarks() {
 export async function confirmAndDeleteBookmark(bookmark) {
   if (!bookmark) return;
 
-  const message = t('alert.bookmark.confirmDelete', { name: bookmark.name });
-  const confirmed = await showAlert(message, { type: 'confirm' });
-  if (!confirmed) return;
+  const ok = await showAlert(
+    t('alert.bookmark.confirmDelete', { name: bookmark.name }),
+    { type: 'confirm' }
+  );
+
+  if (!ok) return;
 
   const deleted = deleteBookmarkById(bookmark.id);
   if (deleted) {
