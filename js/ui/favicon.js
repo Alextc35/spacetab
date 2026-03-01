@@ -18,7 +18,8 @@ export function createFavicon(bookmark) {
     const urlObj = new URL(bookmark.url);
     isInternal = urlObj.hostname.endsWith('.internal') || urlObj.hostname.endsWith('.local');
     if (!isInternal) {
-      img.src = `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(urlObj.origin)}&size=64`;
+      img.src =
+        `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(urlObj.origin)}&size=64`;
       img.onerror = () => {
         img.onerror = null;
         img.src = generateInitialsCanvas(bookmark.name);
