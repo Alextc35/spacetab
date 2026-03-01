@@ -50,7 +50,6 @@ export function addDragAndResize(container, div, bookmark) {
 
     div.classList.add('is-dragging');
     div.setPointerCapture(e.pointerId);
-    div.style.zIndex = 9999;
   });
 
   div.addEventListener('pointermove', (e) => {
@@ -205,8 +204,11 @@ function handleResize(container, e, div, bookmark, side) {
       tempH = newH;
 
       applyPosition(container, div, newGX, newGY);
+      div.classList.remove('is-invalid');
       div.style.width = newW * rowWidth - PADDING + 'px';
       div.style.height = newH * rowHeight - PADDING + 'px';
+    } else {
+      div.classList.add('is-invalid');
     }
   };
 

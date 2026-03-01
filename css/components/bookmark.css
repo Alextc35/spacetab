@@ -56,6 +56,7 @@
       outline-offset: -2px;
       box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.35);
       cursor: grabbing;
+      z-index: calc(var(--z-bookmark) + 1);
 
       &.is-invalid {
         outline-color: red;
@@ -67,6 +68,14 @@
     &.is-resizing {
       outline: 2px solid coral;
       outline-offset: -2px;
+      box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.35);
+      z-index: calc(var(--z-bookmark) + 1);
+      
+      &.is-invalid {
+        outline-color: red;
+        box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.4);
+        opacity: 0.5;
+      }
     }
   }
 
