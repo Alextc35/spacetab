@@ -28,20 +28,12 @@ export function renderBookmarks(container) {
   updateGridSize(container);
   container.innerHTML = '';
 
-  const rowWidth = getRowWidth(container);
-  const rowHeight = getRowHeight(container);
-
   bookmarks.forEach((bookmark) => {
     const div = document.createElement('div');
     div.className = 'bookmark';
     div.classList.toggle('is-editing', isEditing);
 
-    applyBookmarkStyle(div, bookmark);
-
-    div.style.setProperty('--x', bookmark.gx * rowWidth + 'px');
-    div.style.setProperty('--y', bookmark.gy * rowHeight + 'px');
-    div.style.setProperty('--w', bookmark.w * rowWidth - PADDING + 'px');
-    div.style.setProperty('--h', bookmark.h * rowHeight - PADDING + 'px');
+    applyBookmarkStyle(container, div, bookmark);
     
     const linkEl = createBookmarkContent(bookmark, isEditing);
     div.appendChild(linkEl);
@@ -99,10 +91,33 @@ export function createBookmarkElement(bookmark, options = {}) {
  * @param {Bookmark} bookmark - Bookmark data object.
  * @returns {void}
  */
-function applyBookmarkStyle(div, bookmark) {
+function applyBookmarkStyle(container, div, bookmark) {
+  applyBookmarkPosition(container, div, bookmark);
   resetBookmarkVisualState(div);
   applyBackgroundStyle(div, bookmark);
   applyTextStyle(div, bookmark);
+}
+
+/**
+ * Calculates and applies grid-based positioning CSS variables to a bookmark element.
+ *
+ * Uses the container dimensions to convert grid coordinates (gx, gy) and size (w, h)
+ * into pixel values for --x, --y, --w and --h CSS custom properties.
+ * The PADDING constant is subtracted from width and height.
+ *
+ * @param {HTMLElement} container - The grid container element used for dimension calculations.
+ * @param {HTMLDivElement} div - Bookmark DOM element to apply position styles to.
+ * @param {Bookmark} bookmark - Bookmark data object containing grid position (gx, gy) and size (w, h).
+ * @returns {void}
+ */
+function applyBookmarkPosition(container, div, bookmark) {
+  const rowWidth = getRowWidth(container);
+  const rowHeight = getRowHeight(container);
+
+  div.style.setProperty('--x', bookmark.gx * rowWidth + 'px');
+  div.style.setProperty('--y', bookmark.gy * rowHeight + 'px');
+  div.style.setProperty('--w', bookmark.w * rowWidth - PADDING + 'px');
+  div.style.setProperty('--h', bookmark.h * rowHeight - PADDING + 'px');
 }
 
 /**
