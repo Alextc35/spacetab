@@ -34,13 +34,10 @@ export function initSettingsModal() {
         } else {
             applyLockedState();
         }
-
         updateColorState();
     });
 
     function updateColorState() {
-        bgColorInput.disabled = bgImageInput.value.trim() !== "";
-
         clearBgImageBtn.style.display = 
             (!isLocked && bgImageInput.value.trim()) ? 'block' : 'none';
 
@@ -55,12 +52,12 @@ export function initSettingsModal() {
         const image = draftTheme.backgroundImageUrl;
         const color = draftTheme.backgroundColor;
 
+        bgPreview.style.backgroundColor = color;
+
         if (image) {
             bgPreview.style.backgroundImage = `url(${image})`;
-            bgPreview.style.backgroundColor = 'transparent';
         } else {
             bgPreview.style.backgroundImage = 'none';
-            bgPreview.style.backgroundColor = color;
         }
     }
 
@@ -206,7 +203,6 @@ export function initSettingsModal() {
         if (bgColorInput.disabled) return;
 
         draftTheme.backgroundColor = bgColorInput.value;
-        draftTheme.backgroundImageUrl = null;
 
         updatePreviewDraft();
         updateColorState();
