@@ -1,3 +1,18 @@
+import '../types/types.js'; // typedefs
+
+/**
+ * Determines whether a bookmark should be considered visually dark.
+ *
+ * The evaluation is based on:
+ * - Background color luminance
+ * - Presence of a background image (assumed dark for contrast safety)
+ * - Optional background color inversion flag
+ *
+ * This is mainly used to decide UI contrast (e.g. action button theme).
+ *
+ * @param {Bookmark} bookmark - The bookmark data object.
+ * @returns {boolean} True if the bookmark is considered visually dark.
+ */
 export function isVisuallyDark(bookmark) {
   let dark = isDarkColor(bookmark.backgroundColor);
   if (bookmark.backgroundImageUrl) dark = true;
@@ -5,6 +20,18 @@ export function isVisuallyDark(bookmark) {
   return dark;
 }
 
+/**
+ * Checks whether a hex color is considered dark based on luminance.
+ *
+ * Uses the relative luminance formula:
+ * 0.2126R + 0.7152G + 0.0722B
+ *
+ * Any value below the defined threshold is treated as dark.
+ * Non-hex or undefined values default to dark for safety.
+ *
+ * @param {string|null|undefined} color - Hex color string (e.g. "#ffffff").
+ * @returns {boolean} True if the color is considered dark.
+ */
 function isDarkColor(color) {
   if (!color || color === 'transparent') return true;
   if (!color.startsWith('#')) return true;
