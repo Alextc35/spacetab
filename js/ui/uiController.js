@@ -5,17 +5,35 @@ import { t } from '../core/i18n.js';
 import { hasOpenModal, shouldSuppressGlobalEnter } from './modalManager.js';
 import { showAddBookmarkModal } from './modals/index.js';
 
-/* ================= Private references ================= */
-
+/** @type {HTMLElement|null} */
 let containerRef = null;
-let addButtonRef = null;
-let toggleButtonRef = null;
+
+/** @type {HTMLElement|null} */
 let gridOverlayRef = null;
 
+/** @type {HTMLElement|null} */
+let addButtonRef = null;
+
+/** @type {HTMLElement|null} */
+let toggleButtonRef = null;
+
+/** @type {number|null} */
 let resizeTimeout = null;
 
-/* ================= Public API ================= */
-
+/**
+ * Initializes global UI controller behavior.
+ * 
+ * Responsibilities:
+ * - Registers global keyboard shortcuts
+ * - Handles resize re-render logic
+ * - Binds Add and Edit toggle buttons
+ *
+ * @param {Object} options
+ * @param {HTMLElement} options.container - Bookmark container element
+ * @param {HTMLElement} options.gridOverlay - Grid overlay element
+ * @param {HTMLElement} options.addButton - Add bookmark button
+ * @param {HTMLElement} options.toggleButton - Edit mode toggle button
+ */
 export function initUIController({
   container,
   gridOverlay,
@@ -37,6 +55,11 @@ export function initUIController({
   toggleButtonRef?.addEventListener('click', toggleEditMode);
 }
 
+/**
+ * Updates visual UI state when edit mode changes.
+ *
+ * @param {boolean} isEditing - Whether edit mode is enabled
+ */
 export function updateEditUI(isEditing) {
   if (!toggleButtonRef || !gridOverlayRef) return;
 
@@ -44,8 +67,11 @@ export function updateEditUI(isEditing) {
   gridOverlayRef.style.display = isEditing ? 'block' : 'none';
 }
 
-/* ================= Internal logic ================= */
-
+/**
+ * Toggles edit mode in the store and displays a feedback message.
+ *
+ * @returns {Promise<void>}
+ */
 async function toggleEditMode() {
   const isEditing = await toggleEditing();
 
@@ -58,6 +84,21 @@ async function toggleEditMode() {
   );
 }
 
+/**
+ * Handles global keyboard shortcuts.
+ *
+ * Shortcuts:
+ * - "." → Open settings
+ * - Enter → Open Add Bookmark modal
+ * - Space → Toggle edit mode
+ *
+ * Suppresses:
+ * - Active modal interactions
+ * - Input/textarea typing contexts
+ * - Modal-controlled Enter behavior
+ *
+ * @param {KeyboardEvent} e
+ */
 function handleGlobalKeydown(e) {
   if (e.code === 'Enter' && shouldSuppressGlobalEnter()) {
     e.preventDefault();
@@ -87,6 +128,12 @@ function handleGlobalKeydown(e) {
   }
 }
 
+/**
+ * Debounced window resize handler.
+ *
+ * Re-renders bookmarks after a short delay to avoid
+ * excessive layout recalculations during resize.
+ */
 function handleResize() {
   if (!containerRef) return;
 

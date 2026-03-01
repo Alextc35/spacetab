@@ -11,22 +11,43 @@ import { initAddBookmarkModal, initEditBookmarkModal,
 
 /* ======================= DOM References ======================= */
 
-const container     = document.getElementById('bookmark-container');
-const gridOverlay   = document.getElementById('grid-overlay');
+/** @type {HTMLElement|null} */
+const container = document.getElementById('bookmark-container');
 
-const addButton     = document.getElementById('add-bookmark');
-const toggleButton  = document.getElementById('edit-toggle-mode');
+/** @type {HTMLElement|null} */
+const gridOverlay = document.getElementById('grid-overlay');
 
-const exportBtn     = document.getElementById('export-btn');
-const importBtn     = document.getElementById('import-btn');
-const importInput   = document.getElementById('import-input');
+/** @type {HTMLElement|null} */
+const addButton = document.getElementById('add-bookmark');
 
-const deleteAllBtn  = document.getElementById('delete-all-btn');
+/** @type {HTMLElement|null} */
+const toggleButton = document.getElementById('edit-toggle-mode');
+
+/** @type {HTMLElement|null} */
+const exportBtn = document.getElementById('export-btn');
+
+/** @type {HTMLElement|null} */
+const importBtn = document.getElementById('import-btn');
+
+/** @type {HTMLInputElement|null} */
+const importInput = document.getElementById('import-input');
+
+/** @type {HTMLElement|null} */
+const deleteAllBtn = document.getElementById('delete-all-btn');
 
 /* ======================= Bootstrap ======================= */
 
 initApp();
 
+/**
+ * Application bootstrap sequence.
+ *
+ * Order matters:
+ * 1. Hydrate state
+ * 2. Initialize i18n
+ * 3. Initialize UI layer
+ * 4. Initialize modals and import/export
+ */
 async function initApp() {
   if (DEBUG) { console.info('Initializing SpaceTab ' + VERSION + ' alfa'); console.time("Execution time"); }
   
@@ -42,11 +63,19 @@ async function initApp() {
 
 /* ======================= Init Sections ======================= */
 
+/**
+ * Initializes application state and subscribes to store changes.
+ *
+ * @returns {Promise<void>}
+ */
 async function initState() {
   await hydrateStore();
   subscribe(handleStateChange);
 }
 
+/**
+ * Initializes global UI controller.
+ */
 function initUI() {
   initUIController({
     container,
@@ -56,6 +85,9 @@ function initUI() {
   });
 }
 
+/**
+ * Initializes all modal components.
+ */
 function initModals() {
   initSettingsModal();
   initAlertModal();
@@ -63,6 +95,9 @@ function initModals() {
   initEditBookmarkModal();
 }
 
+/**
+ * Initializes import/export functionality.
+ */
 function initImportExport() {
   initImportExportButtons(exportBtn, importInput);
   deleteAllBtn.addEventListener('click', deleteAllBookmarks);
@@ -71,6 +106,17 @@ function initImportExport() {
 
 /* ======================= Store Reaction ======================= */
 
+/**
+ * Store subscription handler.
+ *
+ * Reacts to:
+ * - Settings changes (theme + language)
+ * - Bookmark changes (re-render)
+ * - Edit mode changes (UI update)
+ *
+ * @param {Object} state - Current application state
+ * @param {Object|undefined} prev - Previous state
+ */
 function handleStateChange(state, prev) {
   if (!prev) {
     applyGlobalTheme(state.data.settings);
