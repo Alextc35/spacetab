@@ -5,6 +5,19 @@ import { createFavicon } from './favicon.js';
 import { addDragAndResize } from './bookmarkDragResize.js';
 import { addEditDeleteButtons } from './bookmarkActions.js';
 
+/**
+ * Renders all bookmarks into the given container element.
+ *
+ * Responsible for:
+ * - Reading application state
+ * - Calculating grid dimensions
+ * - Creating bookmark DOM elements
+ * - Applying layout positioning
+ * - Attaching edit, drag and resize behaviors when editing mode is enabled
+ *
+ * @param {HTMLElement} container - Grid container element.
+ * @returns {void}
+ */
 export function renderBookmarks(container) {
   if (!container) return;
 
@@ -49,6 +62,17 @@ export function renderBookmarks(container) {
   });
 }
 
+/**
+ * Creates a bookmark DOM element without attaching it to the container.
+ *
+ * Useful for previews or isolated rendering scenarios.
+ *
+ * @param {Bookmark} bookmark - Bookmark data object.
+ * @param {Object} [options]
+ * @param {boolean} [options.isEditing=false] - Whether editing styles should apply.
+ * @param {boolean} [options.isPreview=false] - Whether preview styles should apply.
+ * @returns {HTMLDivElement} The generated bookmark element.
+ */
 export function createBookmarkElement(bookmark, options = {}) {
   const { isEditing = false, isPreview = false } = options;
 
@@ -66,12 +90,29 @@ export function createBookmarkElement(bookmark, options = {}) {
   return div;
 }
 
+/**
+ * Applies full visual styling to a bookmark element.
+ *
+ * Includes background, image, color and text styling.
+ *
+ * @param {HTMLDivElement} div - Bookmark DOM element.
+ * @param {Bookmark} bookmark - Bookmark data object.
+ * @returns {void}
+ */
 function applyBookmarkStyle(div, bookmark) {
   resetBookmarkVisualState(div);
   applyBackgroundStyle(div, bookmark);
   applyTextStyle(div, bookmark);
 }
 
+/**
+ * Resets visual state and CSS variables before applying new styles.
+ *
+ * Prevents style leakage between renders.
+ *
+ * @param {HTMLDivElement} div
+ * @returns {void}
+ */
 function resetBookmarkVisualState(div) {
   div.classList.remove(
     'is-favicon-bg',
@@ -84,6 +125,19 @@ function resetBookmarkVisualState(div) {
   div.style.removeProperty('--color-text-bookmark');
 }
 
+/**
+ * Applies background-related styles based on bookmark configuration.
+ *
+ * Supports:
+ * - Transparent background
+ * - Favicon background mode
+ * - Custom background image
+ * - Solid background color
+ *
+ * @param {HTMLDivElement} div
+ * @param {Bookmark} bookmark
+ * @returns {void}
+ */
 function applyBackgroundStyle(div, bookmark) {
   if (bookmark.noBackground) {
     div.style.setProperty('--color-bg-bookmark', 'transparent');
@@ -123,12 +177,31 @@ function applyBackgroundStyle(div, bookmark) {
   }
 }
 
+/**
+ * Applies text color styling to a bookmark element.
+ *
+ * @param {HTMLDivElement} div
+ * @param {Bookmark} bookmark
+ * @returns {void}
+ */
 function applyTextStyle(div, bookmark) {
   if (bookmark.textColor) {
     div.style.setProperty('--color-text-bookmark', bookmark.textColor);
   }
 }
 
+/**
+ * Creates the inner anchor content for a bookmark.
+ *
+ * Handles:
+ * - Favicon-only layout
+ * - Favicon + text layout
+ * - Conditional visibility of text and icon
+ *
+ * @param {Bookmark} bookmark
+ * @param {boolean} isEditing
+ * @returns {HTMLAnchorElement}
+ */
 function createBookmarkContent(bookmark, isEditing) {
   const linkEl = document.createElement('a');
   linkEl.href = bookmark.url || '#';
@@ -149,6 +222,13 @@ function createBookmarkContent(bookmark, isEditing) {
   return linkEl;
 }
 
+/**
+ * Appends the main favicon as background-style icon.
+ *
+ * @param {HTMLElement} container
+ * @param {Bookmark} bookmark
+ * @returns {void}
+ */
 function appendMainIcon(container, bookmark) {
   const img = createFavicon(bookmark);
   img.alt = bookmark.name || '';
@@ -156,6 +236,12 @@ function appendMainIcon(container, bookmark) {
   container.appendChild(img);
 }
 
+/**
+ * Creates a small favicon element for inline display.
+ *
+ * @param {Bookmark} bookmark
+ * @returns {HTMLImageElement}
+ */
 function createSmallIcon(bookmark) {
   const img = createFavicon(bookmark);
   img.alt = bookmark.name || '';
@@ -165,6 +251,12 @@ function createSmallIcon(bookmark) {
   return img;
 }
 
+/**
+ * Creates a text span element for bookmark title.
+ *
+ * @param {Bookmark} bookmark
+ * @returns {HTMLSpanElement}
+ */
 function createTextSpan(bookmark) {
   const span = document.createElement('span');
   span.textContent = bookmark.name || '';
