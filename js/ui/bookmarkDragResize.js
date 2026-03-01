@@ -204,9 +204,9 @@ function handleResize(container, e, div, bookmark, side) {
       tempH = newH;
 
       applyPosition(container, div, newGX, newGY);
-      div.classList.remove('is-invalid');
       div.style.width = newW * rowWidth - PADDING + 'px';
       div.style.height = newH * rowHeight - PADDING + 'px';
+      div.classList.remove('is-invalid');
     } else {
       div.classList.add('is-invalid');
     }
