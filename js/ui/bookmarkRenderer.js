@@ -72,7 +72,7 @@ export function createBookmarkElement(bookmark, options = {}) {
   if (isEditing) div.classList.add('is-editing');
   if (isPreview) div.classList.add('is-preview');
 
-  applyBookmarkStyle(div, bookmark);
+  applyBookmarkStyle(null, div, bookmark);
 
   createBookmarkContent(div, bookmark, isEditing);
 
@@ -89,7 +89,7 @@ export function createBookmarkElement(bookmark, options = {}) {
  * @returns {void}
  */
 function applyBookmarkStyle(container, div, bookmark) {
-  applyBookmarkPosition(container, div, bookmark);
+  if (container) applyBookmarkPosition(container, div, bookmark);
   resetBookmarkVisualState(div);
   applyBackgroundStyle(div, bookmark);
   applyTextStyle(div, bookmark);
