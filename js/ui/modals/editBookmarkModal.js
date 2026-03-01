@@ -247,7 +247,7 @@ modalSave.addEventListener('click', async () => {
     updatedData.showFavicon = modalShowFavicon.checked;
   }
 
-  const bookmark = await updateBookmarkById(editingId, updatedData);
+  const bookmark = updateBookmarkById(editingId, updatedData);
 
   if (bookmark) flashSuccess('flash.bookmark.updated');
 
