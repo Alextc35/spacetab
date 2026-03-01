@@ -8,6 +8,20 @@ import { confirmDeleteBookmark } from './bookmarkActions.js';
 let dragging = false;
 let resizing = false;
 
+/**
+ * Enables drag and resize behavior for a bookmark element.
+ *
+ * Handles:
+ * - Grid-based dragging with collision detection.
+ * - Resizing from all four sides.
+ * - Middle-click deletion shortcut.
+ * - State persistence via store updates.
+ *
+ * @param {HTMLElement} container - Grid container element.
+ * @param {HTMLElement} div - Bookmark DOM element.
+ * @param {Bookmark} bookmark - Bookmark data object.
+ * @returns {void}
+ */
 export function addDragAndResize(container, div, bookmark) {
   let startX = 0, startY = 0;
   let startLeft = 0, startTop = 0;
@@ -116,6 +130,23 @@ export function addDragAndResize(container, div, bookmark) {
   });
 }
 
+/**
+ * Handles resize interaction for a bookmark.
+ *
+ * Dynamically recalculates grid position and dimensions while ensuring:
+ * - Minimum size constraints.
+ * - Grid boundary limits.
+ * - Collision-free placement.
+ *
+ * Persists changes on pointer release.
+ *
+ * @param {HTMLElement} container - Grid container element.
+ * @param {PointerEvent} e - Initial pointer event.
+ * @param {HTMLElement} div - Bookmark DOM element.
+ * @param {Bookmark} bookmark - Bookmark data object.
+ * @param {'top'|'right'|'bottom'|'left'} side - Resize direction.
+ * @returns {void}
+ */
 function handleResize(container, e, div, bookmark, side) {
   resizing = true;
   div.classList.add('is-resizing');
@@ -238,6 +269,18 @@ function handleResize(container, e, div, bookmark, side) {
   document.addEventListener('pointerup', onUp);
 }
 
+/**
+ * Applies grid-based positioning to a bookmark element.
+ *
+ * Converts grid coordinates (gx, gy) into pixel-based positioning
+ * relative to the container dimensions.
+ *
+ * @param {HTMLElement} container - Grid container element.
+ * @param {HTMLElement} div - Bookmark DOM element.
+ * @param {number} gx - Grid column position.
+ * @param {number} gy - Grid row position.
+ * @returns {void}
+ */
 function applyPosition(container, div, gx, gy) {
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
