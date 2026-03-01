@@ -153,15 +153,12 @@ function resetBookmarkVisualState(div) {
 function applyBackgroundStyle(div, bookmark) {
   if (bookmark.noBackground) {
     div.style.setProperty('--color-bg-bookmark', 'transparent');
-    return;
+  } else if (bookmark.backgroundColor) {
+    div.style.setProperty('--color-bg-bookmark', bookmark.backgroundColor);
   }
 
   if (bookmark.backgroundFavicon) {
     div.classList.add('is-favicon-bg');
-
-    if (bookmark.backgroundColor) {
-      div.style.setProperty('--color-bg-bookmark', bookmark.backgroundColor);
-    }
     return;
   }
 
@@ -172,10 +169,6 @@ function applyBackgroundStyle(div, bookmark) {
       '--bookmark-bg-image',
       `url("${bookmark.backgroundImageUrl}")`
     );
-
-    if (bookmark.backgroundColor) {
-      div.style.setProperty('--color-bg-bookmark', bookmark.backgroundColor);
-    }
 
     if (bookmark.invertColorBg) {
       div.classList.add('invert-bg-image');

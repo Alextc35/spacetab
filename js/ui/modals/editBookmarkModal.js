@@ -179,14 +179,13 @@ function updateStates() {
   const hasImage = modalBackgroundImage.value.trim() !== '';
 
   modalBackgroundFavicon.disabled = hasImage;
-  modalBackgroundColor.disabled = hasImage || modalNoBackground.checked;
-  modalNoBackground.disabled = hasImage && !modalBackgroundFavicon.checked;
+  modalBackgroundColor.disabled = modalNoBackground.checked;
   modalTextColor.disabled = !modalShowText.checked;
 
-  modalBackgroundImage.disabled = modalBackgroundFavicon.checked || modalNoBackground.checked;
+  modalBackgroundImage.disabled = modalBackgroundFavicon.checked;
   modalShowFavicon.disabled = modalBackgroundFavicon.checked;
 
-  modalInvertColorBg.disabled = modalBackgroundFavicon.checked || modalNoBackground.checked || !hasImage;
+  modalInvertColorBg.disabled = modalBackgroundFavicon.checked || !hasImage;
 
   if (modalInvertColorBg.disabled) {
     labelModalInvertColorBg.classList.add('is-disabled');
