@@ -34,9 +34,7 @@ export function renderBookmarks(container) {
     div.classList.toggle('is-editing', isEditing);
 
     applyBookmarkStyle(container, div, bookmark);
-    
-    const linkEl = createBookmarkContent(bookmark, isEditing);
-    div.appendChild(linkEl);
+    createBookmarkContent(div, bookmark, isEditing);
 
     if (isEditing) {
       addEditDeleteButtons(div, bookmark);
@@ -76,8 +74,7 @@ export function createBookmarkElement(bookmark, options = {}) {
 
   applyBookmarkStyle(div, bookmark);
 
-  const linkEl = createBookmarkContent(bookmark, isEditing);
-  div.appendChild(linkEl);
+  createBookmarkContent(div, bookmark, isEditing);
 
   return div;
 }
@@ -213,11 +210,12 @@ function applyTextStyle(div, bookmark) {
  * - Favicon + text layout
  * - Conditional visibility of text and icon
  *
+ * @param {HTMLDivElement} div
  * @param {Bookmark} bookmark
  * @param {boolean} isEditing
- * @returns {HTMLAnchorElement}
+ * @returns {void}
  */
-function createBookmarkContent(bookmark, isEditing) {
+function createBookmarkContent(div, bookmark, isEditing) {
   const linkEl = document.createElement('a');
   linkEl.href = bookmark.url || '#';
   linkEl.className = 'bookmark-link';
@@ -225,8 +223,11 @@ function createBookmarkContent(bookmark, isEditing) {
 
   if (bookmark.backgroundFavicon) {
     appendMainIcon(linkEl, bookmark);
-    if (bookmark.showText) linkEl.appendChild(createTextSpan(bookmark));
-    return linkEl;
+    if (bookmark.showText) {
+      linkEl.appendChild(createTextSpan(bookmark));
+      div.appendChild(linkEl);
+      return;
+    }
   }
 
   const infoBox = document.createElement('div');
@@ -234,7 +235,8 @@ function createBookmarkContent(bookmark, isEditing) {
   if (bookmark.showFavicon ?? true) infoBox.appendChild(createSmallIcon(bookmark));
   if (bookmark.showText ?? true) infoBox.appendChild(createTextSpan(bookmark));
   linkEl.appendChild(infoBox);
-  return linkEl;
+  div.appendChild(linkEl);
+  return;
 }
 
 /**
