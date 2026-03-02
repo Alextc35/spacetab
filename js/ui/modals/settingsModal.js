@@ -35,12 +35,56 @@ export function initSettingsModal() {
     const bookmarkInvertIcon = document.getElementById('settings-bookmark-invert-icon');
     const bookmarkResetBtn = document.getElementById('settings-bookmark-reset');
 
+    const labelBookmarkInvertBg = document.querySelector('label[for="settings-bookmark-invert-bg"]');
+    const labelBookmarkShowFavicon = document.querySelector('label[for="settings-bookmark-show-favicon"]');
+    const labelBookmarkBgFavicon = document.querySelector('label[for="settings-bookmark-background-favicon"]');
+    const labelBookmarkInvertIcon = document.querySelector('label[for="settings-bookmark-invert-icon"]');
+
     let bgController;
 
     let draftTheme = null;
     let draftLanguage = null;
     let initialSnapshot = null;
     let draftBookmarkDefault = null;
+
+    function updateBookmarkDefaultStates() {
+        const hasImage = bookmarkBgImage.value.trim() !== '';
+
+        bookmarkBgFavicon.disabled = hasImage;
+        bookmarkBgColor.disabled = bookmarkNoBg.checked;
+        bookmarkTextColor.disabled = !bookmarkShowText.checked;
+
+        bookmarkBgImage.disabled = bookmarkBgFavicon.checked;
+        bookmarkShowFavicon.disabled = bookmarkBgFavicon.checked;
+
+        bookmarkInvertBg.disabled = bookmarkBgFavicon.checked || !hasImage;
+
+        bookmarkInvertIcon.disabled = !bookmarkBgFavicon.checked && !bookmarkShowFavicon.checked;
+
+        if (bookmarkInvertBg.disabled) {
+            labelBookmarkInvertBg.classList.add('is-disabled');
+        } else {
+            labelBookmarkInvertBg.classList.remove('is-disabled');
+        }
+
+        if (bookmarkShowFavicon.disabled) {
+            labelBookmarkShowFavicon.classList.add('is-disabled');
+        } else {
+            labelBookmarkShowFavicon.classList.remove('is-disabled');
+        }
+
+        if (bookmarkBgFavicon.disabled) {
+            labelBookmarkBgFavicon.classList.add('is-disabled');
+        } else {
+            labelBookmarkBgFavicon.classList.remove('is-disabled');
+        }
+
+        if (bookmarkInvertIcon.disabled) {
+            labelBookmarkInvertIcon.classList.add('is-disabled');
+        } else {
+            labelBookmarkInvertIcon.classList.remove('is-disabled');
+        }
+    }
 
     function updateColorState() {
         const hasImage = bgImageInput.value.trim() !== '';
@@ -127,6 +171,8 @@ export function initSettingsModal() {
         bookmarkTextColor.value = draftBookmarkDefault.textColor;
         bookmarkShowFavicon.checked = draftBookmarkDefault.showFavicon;
         bookmarkInvertIcon.checked = draftBookmarkDefault.invertColorIcon;
+
+        updateBookmarkDefaultStates();
 
         if (!bgController) {
             bgController = createLockableInputController({
@@ -263,11 +309,33 @@ export function initSettingsModal() {
     bookmarkBgImage.addEventListener('input', () => {
         const image = bookmarkBgImage.value.trim();
         draftBookmarkDefault.backgroundImageUrl = image || null;
+
+        updateBookmarkDefaultStates();
         updateSaveButtonState();
     });
 
     bookmarkNoBg.addEventListener('change', () => {
         draftBookmarkDefault.noBackground = bookmarkNoBg.checked;
+
+        updateBookmarkDefaultStates();
+        updateSaveButtonState();
+    });
+
+    bookmarkBgFavicon.addEventListener('change', () => {
+        draftBookmarkDefault.backgroundFavicon = bookmarkBgFavicon.checked;
+
+        if (bookmarkBgFavicon.checked) {
+            bookmarkBgImage.value = '';
+            draftBookmarkDefault.backgroundImageUrl = null;
+
+            bookmarkShowFavicon.checked = false;
+            draftBookmarkDefault.showFavicon = false;
+
+            bookmarkInvertBg.checked = false;
+            draftBookmarkDefault.invertColorBg = false;
+        }
+
+        updateBookmarkDefaultStates();
         updateSaveButtonState();
     });
 
@@ -278,6 +346,12 @@ export function initSettingsModal() {
 
     bookmarkShowText.addEventListener('change', () => {
         draftBookmarkDefault.showText = bookmarkShowText.checked;
+
+        if (!bookmarkShowText.checked) {
+            bookmarkTextColor.disabled = true;
+        }
+
+        updateBookmarkDefaultStates();
         updateSaveButtonState();
     });
 
@@ -288,6 +362,7 @@ export function initSettingsModal() {
 
     bookmarkShowFavicon.addEventListener('change', () => {
         draftBookmarkDefault.showFavicon = bookmarkShowFavicon.checked;
+        updateBookmarkDefaultStates();
         updateSaveButtonState();
     });
 
@@ -315,6 +390,7 @@ export function initSettingsModal() {
         bookmarkShowFavicon.checked = draftBookmarkDefault.showFavicon;
         bookmarkInvertIcon.checked = draftBookmarkDefault.invertColorIcon;
 
+        updateBookmarkDefaultStates();
         updateSaveButtonState();
     });
 }

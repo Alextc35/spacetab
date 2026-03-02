@@ -14,6 +14,7 @@ const modalUrlToggleBtn = document.getElementById('edit-modal-toggle-url');
 const modalUrlCopyBtn = document.getElementById('edit-modal-copy-url');
 const modalUrlClearBtn = document.getElementById('edit-modal-clear-url');
 const modalInvertColorIcon = document.getElementById('edit-bookmark-modal-invert-color-icon');
+const labelModalInvertColorIcon = document.querySelector('label[for="edit-bookmark-modal-invert-color-icon"]');
 const modalInvertColorBg = document.getElementById('edit-bookmark-modal-invert-color-bg');
 const labelModalInvertColorBg = document.querySelector('label[for="edit-bookmark-modal-invert-color-bg"]');
 const modalSave = document.getElementById('edit-bookmark-modal-save');
@@ -231,6 +232,8 @@ function updateStates() {
 
   modalInvertColorBg.disabled = modalBackgroundFavicon.checked || !hasImage;
 
+  modalInvertColorIcon.disabled = !modalBackgroundFavicon.checked && !modalShowFavicon.checked;
+
   if (modalInvertColorBg.disabled) {
     labelModalInvertColorBg.classList.add('is-disabled');
   } else {
@@ -248,11 +251,18 @@ function updateStates() {
   } else {
     labelModalBackgroundFavicon.classList.remove('is-disabled');
   }
+
+  if (modalInvertColorIcon.disabled) {
+    labelModalInvertColorIcon.classList.add('is-disabled');
+  } else {
+    labelModalInvertColorIcon.classList.remove('is-disabled');
+  }
 }
 
 modalBackgroundImage.addEventListener('input', updateStates);
 modalNoBackground.addEventListener('change', updateStates);
 modalShowText.addEventListener('change', updateStates);
+modalShowFavicon.addEventListener('change', updateStates);
 
 modalBackgroundFavicon.addEventListener('change', () => {
   if (modalBackgroundFavicon.checked) {
