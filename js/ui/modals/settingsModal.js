@@ -32,8 +32,9 @@ export function initSettingsModal() {
 
     function updateColorState() {
         const hasImage = bgImageInput.value.trim() !== '';
+        const isLocked = bgController?.isLocked?.() ?? false;
 
-        clearBgImageBtn.style.display = hasImage ? 'block' : 'none';
+        clearBgImageBtn.style.display = hasImage && !isLocked ? 'block' : 'none';
         copyBgImageBtn.style.display = hasImage ? 'block' : 'none';
         toggleBtn.style.display = hasImage ? 'block' : 'none';
     }
