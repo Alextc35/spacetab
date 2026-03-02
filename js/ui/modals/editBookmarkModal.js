@@ -1,3 +1,4 @@
+import { createLockableInputController } from './helper/stateLocked.js';
 import { updateBookmarkById } from '../../core/bookmark.js';
 import { flashSuccess } from '../flash.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
@@ -9,6 +10,9 @@ import { t } from '../../core/i18n.js';
 const editModal = document.getElementById('edit-bookmark-modal');
 const modalName = document.getElementById('edit-bookmark-modal-name');
 const modalUrl = document.getElementById('edit-bookmark-modal-url');
+const modalUrlToggleBtn = document.getElementById('edit-modal-toggle-url');
+const modalUrlCopyBtn = document.getElementById('edit-modal-copy-url');
+const modalUrlClearBtn = document.getElementById('edit-modal-clear-url');
 const modalInvertColorIcon = document.getElementById('edit-bookmark-modal-invert-color-icon');
 const modalInvertColorBg = document.getElementById('edit-bookmark-modal-invert-color-bg');
 const labelModalInvertColorBg = document.querySelector('label[for="edit-bookmark-modal-invert-color-bg"]');
@@ -21,6 +25,9 @@ const modalShowFavicon = document.getElementById('edit-bookmark-modal-show-favic
 const labelModalShowFavicon = document.querySelector('label[for="edit-bookmark-modal-show-favicon"]');
 const modalShowText = document.getElementById('edit-bookmark-modal-show-text');
 const modalBackgroundImage = document.getElementById('edit-bookmark-modal-background-image');
+const modalBgToggleBtn = document.getElementById('edit-modal-toggle-background-image');
+const modalBgCopyBtn = document.getElementById('edit-modal-copy-background-image');
+const modalBgClearBtn = document.getElementById('edit-modal-clear-background-image');
 const modalBackgroundFavicon = document.getElementById('edit-bookmark-modal-background-favicon');
 const labelModalBackgroundFavicon = document.querySelector('label[for="edit-bookmark-modal-background-favicon"]');
 
@@ -29,6 +36,8 @@ let draft = null;
 let registered = false;
 let initialSnapshot = null;
 let previousShowFavicon = null;
+let urlController;
+let bgController;
 
 function resetTabScroll() {
   const activeTab = editModal.querySelector('.edit-bookmark-modal-tab-content[style*="flex"]');
@@ -49,6 +58,7 @@ function getCurrentFormState() {
   return {
     name: modalName.value.trim(),
     url: modalUrl.value.trim(),
+    urlLocked: urlController?.isLocked() ?? false,
     invertColorIcon: modalInvertColorIcon.checked,
     invertColorBg: modalInvertColorBg.checked,
     noBackground: modalNoBackground.checked,
@@ -56,8 +66,9 @@ function getCurrentFormState() {
     showText: modalShowText.checked,
     backgroundColor: modalBackgroundColor.value,
     backgroundImageUrl: modalBackgroundImage.value.trim() || null,
+    backgroundImageUrlLocked: bgController?.isLocked() ?? false,
     backgroundFavicon: modalBackgroundFavicon.checked,
-    showFavicon: modalShowFavicon.checked
+    showFavicon: modalShowFavicon.checked,
   };
 }
 
@@ -144,8 +155,7 @@ export function initEditBookmarkModal() {
 
 export function openModal(bookmarkId) {
   const state = getState();
-  const { data } = state;
-  const { bookmarks } = data;
+  const { bookmarks } = state.data;
 
   const bookmark = bookmarks.find(b => b.id === bookmarkId);
 
@@ -164,6 +174,39 @@ export function openModal(bookmarkId) {
   modalShowFavicon.checked = !!bookmark.showFavicon;
   modalBackgroundImage.value = bookmark.backgroundImageUrl || '';
   modalBackgroundFavicon.checked = !!bookmark.backgroundFavicon;
+
+  if (!urlController) {
+    urlController = createLockableInputController({
+      input: modalUrl,
+      toggleBtn: modalUrlToggleBtn,
+      clearBtn: modalUrlClearBtn,
+      copyBtn: modalUrlCopyBtn,
+      initialLocked: !!bookmark.urlLocked,
+      onChange: () => {
+        updatePreview();
+        updateSaveButtonState();
+      }
+    });
+  } else {
+    urlController.setLocked(!!bookmark.urlLocked);
+  }
+
+  if (!bgController) {
+    bgController = createLockableInputController({
+      input: modalBackgroundImage,
+      toggleBtn: modalBgToggleBtn,
+      clearBtn: modalBgClearBtn,
+      copyBtn: modalBgCopyBtn,
+      initialLocked: !!bookmark.backgroundImageUrlLocked,
+      onChange: () => {
+        updateStates();
+        updatePreview();
+        updateSaveButtonState();
+      }
+    });
+  } else {
+    bgController.setLocked(!!bookmark.backgroundImageUrlLocked);
+  }
 
   updateStates();
   updatePreview();
@@ -253,6 +296,9 @@ modalSave.addEventListener('click', async () => {
       modalBackgroundImage.value.trim() || null;
     updatedData.showFavicon = modalShowFavicon.checked;
   }
+  
+  updatedData.urlLocked = urlController?.isLocked() ?? false;
+  updatedData.backgroundImageUrlLocked = bgController?.isLocked() ?? false;
 
   const bookmark = updateBookmarkById(editingId, updatedData);
 

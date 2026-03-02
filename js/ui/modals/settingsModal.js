@@ -1,3 +1,4 @@
+import { createLockableInputController } from './helper/stateLocked.js';
 import { registerModal, openModal, closeModal } from '../modalManager.js';
 import { showAlert } from './alertModal.js';
 import { changeLanguage, t } from '../../core/i18n.js';
@@ -20,32 +21,21 @@ export function initSettingsModal() {
     const clearBgImageBtn = document.getElementById('settings-modal-clear-background-image');
     const copyBgImageBtn = document.getElementById('settings-modal-copy-background-image');
     const toggleBtn = document.getElementById('settings-modal-toggle-background-image');
-
+    
     const bgPreview = document.getElementById('settings-modal-background-preview');
+
+    let bgController;
 
     let draftTheme = null;
     let draftLanguage = null;
-    let isLocked = false;
     let initialSnapshot = null;
 
-    toggleBtn.addEventListener('click', () => {
-        if (isLocked) {
-            removeLockedState();
-        } else {
-            applyLockedState();
-        }
-        updateColorState();
-    });
-
     function updateColorState() {
-        clearBgImageBtn.style.display = 
-            (!isLocked && bgImageInput.value.trim()) ? 'block' : 'none';
+        const hasImage = bgImageInput.value.trim() !== '';
 
-        copyBgImageBtn.style.display =
-            bgImageInput.value.trim() ? 'block' : 'none';
-
-        toggleBtn.style.display =
-            bgImageInput.value.trim() ? 'block' : 'none';
+        clearBgImageBtn.style.display = hasImage ? 'block' : 'none';
+        copyBgImageBtn.style.display = hasImage ? 'block' : 'none';
+        toggleBtn.style.display = hasImage ? 'block' : 'none';
     }
 
     function updatePreviewDraft() {
@@ -59,34 +49,6 @@ export function initSettingsModal() {
         } else {
             bgPreview.style.backgroundImage = 'none';
         }
-    }
-
-    function applyLockedState() {
-        isLocked = true;
-        draftTheme.backgroundImageUrlLocked = true;
-
-        bgImageInput.classList.add('input-locked');
-        bgImageInput.readOnly = true;
-
-        toggleBtn.textContent = '🔒';
-        toggleBtn.title = 'Unlock URL';
-
-        updateColorState();
-        updateSaveButtonState();
-    }
-
-    function removeLockedState() {
-        isLocked = false;
-        draftTheme.backgroundImageUrlLocked = false;
-
-        bgImageInput.classList.remove('input-locked');
-        bgImageInput.readOnly = false;
-
-        toggleBtn.textContent = '🔓';
-        toggleBtn.title = 'Lock URL';
-
-        updateColorState();
-        updateSaveButtonState();
     }
 
     function activateTab(tabId) {
@@ -141,10 +103,27 @@ export function initSettingsModal() {
         draftTheme = structuredClone(settings.theme);
         draftLanguage = structuredClone(settings.language);
 
-        isLocked = draftTheme.backgroundImageUrlLocked || false;
+        if (!bgController) {
+            bgController = createLockableInputController({
+                input: bgImageInput,
+                toggleBtn,
+                clearBtn: clearBgImageBtn,
+                copyBtn: copyBgImageBtn,
+                initialLocked: draftTheme.backgroundImageUrlLocked || false,
+                onChange: () => {
+                    draftTheme.backgroundImageUrl =
+                        bgImageInput.value.trim() || null;
 
-        if (isLocked) { applyLockedState(); }
-            else { removeLockedState(); }
+                    draftTheme.backgroundImageUrlLocked =
+                        bgController?.isLocked() ?? false;
+
+                    updatePreviewDraft();
+                    updateSaveButtonState();
+                }
+            });
+        } else {
+            bgController.setLocked(draftTheme.backgroundImageUrlLocked || false);
+        }
 
         bgColorInput.value = draftTheme.backgroundColor;
         bgImageInput.value = draftTheme.backgroundImageUrl || '';
@@ -222,13 +201,6 @@ export function initSettingsModal() {
     copyBgImageBtn.addEventListener('click', async () => {
         const value = bgImageInput.value.trim();
         if (!value) return;
-
-        try {
-            await navigator.clipboard.writeText(value);
-            flashSuccess('flash.settings.copied');
-        } catch (err) {
-            console.error('Clipboard error:', err);
-        }
     });
 
     clearBgImageBtn.addEventListener('click', async () => {

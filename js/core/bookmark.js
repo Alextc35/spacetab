@@ -91,9 +91,18 @@ export function clearBookmarks() {
  * @returns {Bookmark} A fully normalized bookmark object.
  */
 function normalizeBookmark(bookmark = {}) {
+  const now = Date.now();
+  const isNew = !bookmark.id;
+
   return {
     ...DEFAULT_BOOKMARK,
     ...bookmark,
-    id: bookmark.id ?? crypto.randomUUID()
+    id: bookmark.id ?? crypto.randomUUID(),
+
+    createdAt: isNew
+      ? now
+      : bookmark.createdAt ?? now,
+
+    updatedAt: now
   };
 }

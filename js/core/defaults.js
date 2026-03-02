@@ -14,19 +14,28 @@ import '../types/types.js'; // typedefs
 export const DEFAULT_BOOKMARK = {
   name: '',
   url: '',
+  urlLocked: false,
+
   gx: 0,
   gy: 0,
   w: 1,
   h: 1,
+
   backgroundImageUrl: null,
+  backgroundImageUrlLocked: false,
   backgroundFavicon: true,
   invertColorBg: false,
   noBackground: false,
   backgroundColor: '#000000',
+
   showText: true,
   textColor: '#ffffff',
+
   showFavicon: true,
-  invertColorIcon: false
+  invertColorIcon: false,
+
+  createdAt: 0,
+  updatedAt: 0
 };
 
 /**

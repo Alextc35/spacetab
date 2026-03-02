@@ -3,11 +3,13 @@
  * @property {string} id
  * @property {string} name
  * @property {string} url
+ * @property {boolean} urlLocked
  * @property {number} gx
  * @property {number} gy
  * @property {number} w
  * @property {number} h
  * @property {string|null} backgroundImageUrl
+ * @property {boolean} backgroundImageUrlLocked
  * @property {boolean} backgroundFavicon
  * @property {boolean} invertColorBg
  * @property {boolean} noBackground
@@ -16,6 +18,8 @@
  * @property {string} textColor
  * @property {boolean} showFavicon
  * @property {boolean} invertColorIcon
+ * @property {number} createdAt
+ * @property {number} updatedAt
  */
 
 /**
