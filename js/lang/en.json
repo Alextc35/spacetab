@@ -36,7 +36,10 @@
     },
     "settings": {
       "reset": "Reset background settings?",
-      "cancel": "Discard settings changes?"
+      "cancel": "Discard settings changes?",
+      "bookmark": {
+        "reset": "Reset bookmark style?"
+      }
     }
   },
   "addModal": {
@@ -73,6 +76,7 @@
   "settingsModal": {
     "sections": {
       "general": "⚙️ General",
+      "bookmark": "🔖 Bookmarks",
       "language": "🌐 Languages",
       "information": "ℹ️ Information"
     },
@@ -86,6 +90,10 @@
       "export": "Export",
       "import": "Import",
       "deleteAll": "Delete all bookmarks"
+    },
+    "bookmark": {
+      "title": "Bookmark Default",
+      "reset": "Reset default settings"
     },
     "languages": {
       "title": "Languages",

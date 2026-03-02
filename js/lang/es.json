@@ -36,7 +36,10 @@
     },
     "settings": {
       "reset": "¿Restablecer la configuración de fondo?",
-      "cancel": "¿Descartar los cambios en la configuración?"
+      "cancel": "¿Descartar los cambios en la configuración?",
+      "bookmark": {
+        "reset": "¿Restablecer el estilo del favorito?"
+      }
     }
   },
   "addModal": {
@@ -73,6 +76,7 @@
   "settingsModal": {
     "sections": {
       "general": "⚙️ General",
+      "bookmark": "🔖 Favoritos",
       "language": "🌐 Idiomas",
       "information": "ℹ️ Información"
     },
@@ -86,6 +90,10 @@
       "export": "Exportar",
       "import": "Importar",
       "deleteAll": "Borrar todos los Bookmarks"
+    },
+    "bookmark": {
+      "title": "Favoritos por defecto",
+      "reset": "Restablecer valores por defecto"
     },
     "languages": {
       "title": "Idiomas",

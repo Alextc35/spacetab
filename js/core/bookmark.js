@@ -93,16 +93,16 @@ export function clearBookmarks() {
 function normalizeBookmark(bookmark = {}) {
   const now = Date.now();
   const isNew = !bookmark.id;
+  const { data: { settings } } = getState();
 
   return {
     ...DEFAULT_BOOKMARK,
+    ...(isNew ? settings.bookmarkDefault : null),
     ...bookmark,
     id: bookmark.id ?? crypto.randomUUID(),
-
     createdAt: isNew
       ? now
       : bookmark.createdAt ?? now,
-
     updatedAt: now
   };
 }

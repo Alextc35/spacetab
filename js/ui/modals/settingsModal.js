@@ -24,11 +24,23 @@ export function initSettingsModal() {
     
     const bgPreview = document.getElementById('settings-modal-background-preview');
 
+    const bookmarkBgColor = document.getElementById('settings-bookmark-background-color');
+    const bookmarkBgImage = document.getElementById('settings-bookmark-background-image');
+    const bookmarkNoBg = document.getElementById('settings-bookmark-no-background');
+    const bookmarkBgFavicon = document.getElementById('settings-bookmark-background-favicon');
+    const bookmarkInvertBg = document.getElementById('settings-bookmark-invert-bg');
+    const bookmarkShowText = document.getElementById('settings-bookmark-show-text');
+    const bookmarkTextColor = document.getElementById('settings-bookmark-text-color');
+    const bookmarkShowFavicon = document.getElementById('settings-bookmark-show-favicon');
+    const bookmarkInvertIcon = document.getElementById('settings-bookmark-invert-icon');
+    const bookmarkResetBtn = document.getElementById('settings-bookmark-reset');
+
     let bgController;
 
     let draftTheme = null;
     let draftLanguage = null;
     let initialSnapshot = null;
+    let draftBookmarkDefault = null;
 
     function updateColorState() {
         const hasImage = bgImageInput.value.trim() !== '';
@@ -74,7 +86,8 @@ export function initSettingsModal() {
     function hasChanges() {
         const currentDraft = {
             language: draftLanguage,
-            theme: draftTheme
+            theme: draftTheme,
+            bookmarkDefault: draftBookmarkDefault
         };
 
         return JSON.stringify(currentDraft) !== JSON.stringify(initialSnapshot);
@@ -98,11 +111,22 @@ export function initSettingsModal() {
     settingsBtn.addEventListener('click', () => {
         const { data: { settings } } = getState();
 
+        draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
         initialSnapshot = structuredClone(settings);
 
         languageSelect.value = settings.language;
         draftTheme = structuredClone(settings.theme);
         draftLanguage = structuredClone(settings.language);
+
+        bookmarkBgColor.value = draftBookmarkDefault.backgroundColor;
+        bookmarkBgImage.value = draftBookmarkDefault.backgroundImageUrl || '';
+        bookmarkNoBg.checked = draftBookmarkDefault.noBackground;
+        bookmarkBgFavicon.checked = draftBookmarkDefault.backgroundFavicon;
+        bookmarkInvertBg.checked = draftBookmarkDefault.invertColorBg;
+        bookmarkShowText.checked = draftBookmarkDefault.showText;
+        bookmarkTextColor.value = draftBookmarkDefault.textColor;
+        bookmarkShowFavicon.checked = draftBookmarkDefault.showFavicon;
+        bookmarkInvertIcon.checked = draftBookmarkDefault.invertColorIcon;
 
         if (!bgController) {
             bgController = createLockableInputController({
@@ -154,7 +178,8 @@ export function initSettingsModal() {
     settingsSave.addEventListener('click', async () => {
         const newSettings = {
             language: draftLanguage || languageSelect.value,
-            theme: structuredClone(draftTheme)
+            theme: structuredClone(draftTheme),
+            bookmarkDefault: structuredClone(draftBookmarkDefault)
         };
 
         updateSettings(newSettings);
@@ -227,6 +252,69 @@ export function initSettingsModal() {
 
         updatePreviewDraft();
         updateColorState();
+        updateSaveButtonState();
+    });
+
+    bookmarkBgColor.addEventListener('input', () => {
+        draftBookmarkDefault.backgroundColor = bookmarkBgColor.value;
+        updateSaveButtonState();
+    });
+
+    bookmarkBgImage.addEventListener('input', () => {
+        const image = bookmarkBgImage.value.trim();
+        draftBookmarkDefault.backgroundImageUrl = image || null;
+        updateSaveButtonState();
+    });
+
+    bookmarkNoBg.addEventListener('change', () => {
+        draftBookmarkDefault.noBackground = bookmarkNoBg.checked;
+        updateSaveButtonState();
+    });
+
+    bookmarkInvertBg.addEventListener('change', () => {
+        draftBookmarkDefault.invertColorBg = bookmarkInvertBg.checked;
+        updateSaveButtonState();
+    });
+
+    bookmarkShowText.addEventListener('change', () => {
+        draftBookmarkDefault.showText = bookmarkShowText.checked;
+        updateSaveButtonState();
+    });
+
+    bookmarkTextColor.addEventListener('input', () => {
+        draftBookmarkDefault.textColor = bookmarkTextColor.value;
+        updateSaveButtonState();
+    });
+
+    bookmarkShowFavicon.addEventListener('change', () => {
+        draftBookmarkDefault.showFavicon = bookmarkShowFavicon.checked;
+        updateSaveButtonState();
+    });
+
+    bookmarkInvertIcon.addEventListener('change', () => {
+        draftBookmarkDefault.invertColorIcon = bookmarkInvertIcon.checked;
+        updateSaveButtonState();
+    });
+
+    bookmarkResetBtn.addEventListener('click', async () => {
+        const ok = await showAlert(
+            t('alert.settings.bookmark.reset'),
+            { type: 'confirm' }
+        );
+        if (!ok) return;
+
+        draftBookmarkDefault = structuredClone(DEFAULT_SETTINGS.bookmarkDefault);
+
+        bookmarkBgColor.value = draftBookmarkDefault.backgroundColor;
+        bookmarkBgImage.value = draftBookmarkDefault.backgroundImageUrl || '';
+        bookmarkNoBg.checked = draftBookmarkDefault.noBackground;
+        bookmarkBgFavicon.checked = draftBookmarkDefault.backgroundFavicon;
+        bookmarkInvertBg.checked = draftBookmarkDefault.invertColorBg;
+        bookmarkShowText.checked = draftBookmarkDefault.showText;
+        bookmarkTextColor.value = draftBookmarkDefault.textColor;
+        bookmarkShowFavicon.checked = draftBookmarkDefault.showFavicon;
+        bookmarkInvertIcon.checked = draftBookmarkDefault.invertColorIcon;
+
         updateSaveButtonState();
     });
 }
