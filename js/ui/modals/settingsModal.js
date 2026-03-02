@@ -120,7 +120,7 @@ export function initSettingsModal() {
     function updateSaveButtonState() {
         const changed = hasChanges();
         settingsSave.disabled = !changed;
-        settingsSave.classList.toggle('is-disabled', !changed);
+        settingsSave.classList.toggle('is-hidden', !changed);
     }
 
     registerModal({

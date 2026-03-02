@@ -22,6 +22,7 @@ const labelModalShowFavicon = document.querySelector('label[for="edit-bookmark-m
 const modalShowText = document.getElementById('edit-bookmark-modal-show-text');
 const modalBackgroundImage = document.getElementById('edit-bookmark-modal-background-image');
 const modalBackgroundFavicon = document.getElementById('edit-bookmark-modal-background-favicon');
+const labelModalBackgroundFavicon = document.querySelector('label[for="edit-bookmark-modal-background-favicon"]');
 
 let editingId = null;
 let draft = null;
@@ -37,7 +38,7 @@ function resetTabScroll() {
 function updateSaveButtonState() {
   const changed = hasChanges();
   modalSave.disabled = !changed;
-  modalSave.classList.toggle('is-disabled', !changed);
+  modalSave.classList.toggle('is-hidden', !changed);
 }
 
 function hasChanges() {
@@ -197,6 +198,12 @@ function updateStates() {
     labelModalShowFavicon.classList.add('is-disabled');
   } else {
     labelModalShowFavicon.classList.remove('is-disabled');
+  }
+
+  if (modalBackgroundFavicon.disabled) {
+    labelModalBackgroundFavicon.classList.add('is-disabled');
+  } else {
+    labelModalBackgroundFavicon.classList.remove('is-disabled');
   }
 }
 
