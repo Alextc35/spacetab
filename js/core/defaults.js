@@ -68,7 +68,7 @@ export const DEFAULT_BOOKMARKS = [
   {
     id: crypto.randomUUID(),
     ...DEFAULT_BOOKMARK,
-    name: 'www.alextc.es',
+    name: 'DEVELOPED BY',
     url: 'https://www.alextc.es',
     noBackground: false,
     backgroundColor: '#161b22',
