@@ -1,4 +1,5 @@
 import '../types/types.js'; // typedefs
+import { VERSION } from './config.js';
 
 /**
  * Applies the global theme variables to the document root element.
@@ -11,6 +12,11 @@ import '../types/types.js'; // typedefs
 export function applyGlobalTheme(settings = {}) {
   const root = document.documentElement;
   const theme = settings.theme || {};
+
+  root.style.setProperty(
+    '--version',
+    `"v${VERSION}"`
+  );
 
   root.style.setProperty(
     '--color-bg-body',
