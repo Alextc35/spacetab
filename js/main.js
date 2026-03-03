@@ -51,6 +51,11 @@ initApp();
 async function initApp() {
   if (DEBUG) { console.info('Initializing SpaceTab ' + VERSION + ' alfa'); console.time("Execution time"); }
   
+  document.documentElement.style.setProperty(
+    '--version',
+    `"v${VERSION}"`
+  );
+
   await initState();
   await initI18n();
 

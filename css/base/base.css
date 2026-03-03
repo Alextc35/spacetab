@@ -12,3 +12,39 @@ body {
 
   font-family: var(--font-family-body);
 }
+
+html.is-default-bg body {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(0,150,255,0.08), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255,0,150,0.08), transparent 40%),
+    linear-gradient(135deg, #0d0d0d, #111111);
+  background-size: cover;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+html.is-default-bg body::after {
+  content: "Spacetab";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  font-size: clamp(4rem, 10vw, 7rem);
+  font-weight: 800;
+  background: linear-gradient(90deg, #00c6ff, #ff00aa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  pointer-events: none;
+}
+
+html.is-default-bg body::before {
+  content: var(--version);
+  position: fixed;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, 140%);
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.55);
+  pointer-events: none;
+}

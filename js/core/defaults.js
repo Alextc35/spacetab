@@ -71,7 +71,19 @@ export const DEFAULT_BOOKMARKS = [
     name: 'www.alextc.es',
     url: 'https://www.alextc.es',
     noBackground: false,
-    backgroundColor: '#161b22'
+    backgroundColor: '#161b22',
+  },
+  {
+    id: crypto.randomUUID(),
+    ...DEFAULT_BOOKMARK,
+    name: 'banana',
+    backgroundImageUrl: 'https://cdn.osxdaily.com/wp-content/uploads/2013/07/dancing-banana.gif',
+    backgroundFavicon: false,
+    noBackground: false,
+    backgroundColor: '#eeff00',
+    showText: false,
+    showFavicon: false,
+    gx: 1
   }
 ];
 
@@ -87,8 +99,9 @@ export const DEFAULT_SETTINGS = {
   language: 'en',
 
   theme: {
-    backgroundColor: '#333333',
-    backgroundImageUrl: 'https://wallpapercave.com/wp/wp2730867.gif',
+    noBackground: true,
+    backgroundColor: '#ffffff',
+    backgroundImageUrl: null,
     backgroundImageUrlLocked: false
   },
 

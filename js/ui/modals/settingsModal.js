@@ -40,6 +40,8 @@ export function initSettingsModal() {
     const labelBookmarkBgFavicon = document.querySelector('label[for="settings-bookmark-background-favicon"]');
     const labelBookmarkInvertIcon = document.querySelector('label[for="settings-bookmark-invert-icon"]');
 
+    const noBgCheckbox = document.getElementById('settings-general-no-background');
+
     let bgController;
 
     let draftTheme = null;
@@ -95,7 +97,38 @@ export function initSettingsModal() {
         toggleBtn.style.display = hasImage ? 'block' : 'none';
     }
 
+function updateGeneralBackgroundStates() {
+    const noBg = noBgCheckbox.checked;
+    const hasImage = bgImageInput.value.trim() !== '';
+
+    noBgCheckbox.disabled = hasImage;
+
+    if (hasImage && noBgCheckbox.checked) {
+        noBgCheckbox.checked = false;
+        draftTheme.noBackground = false;
+    }
+
+    bgColorInput.disabled = noBg;
+    bgImageInput.disabled = noBg;
+
+    toggleBtn.disabled = noBg;
+    clearBgImageBtn.disabled = noBg;
+    copyBgImageBtn.disabled = noBg;
+
+    updatePreviewDraft();
+}
+
     function updatePreviewDraft() {
+        bgPreview.style.backgroundColor = '';
+        bgPreview.style.backgroundImage = '';
+
+        if (draftTheme.noBackground) {
+            bgPreview.classList.add('is-transparent');
+            return;
+        }
+
+        bgPreview.classList.remove('is-transparent');
+
         const image = draftTheme.backgroundImageUrl;
         const color = draftTheme.backgroundColor;
 
@@ -103,8 +136,6 @@ export function initSettingsModal() {
 
         if (image) {
             bgPreview.style.backgroundImage = `url(${image})`;
-        } else {
-            bgPreview.style.backgroundImage = 'none';
         }
     }
 
@@ -206,9 +237,11 @@ export function initSettingsModal() {
             bgController.setLocked(draftTheme.backgroundImageUrlLocked || false);
         }
 
+        noBgCheckbox.checked = draftTheme.noBackground || false;
         bgColorInput.value = draftTheme.backgroundColor;
         bgImageInput.value = draftTheme.backgroundImageUrl || '';
 
+        updateGeneralBackgroundStates();
         updateSaveButtonState();
         updateColorState();
         updatePreviewDraft();
@@ -277,6 +310,7 @@ export function initSettingsModal() {
 
         updatePreviewDraft();
         updateColorState();
+        updateGeneralBackgroundStates();
         updateSaveButtonState();
     });
 
@@ -291,6 +325,7 @@ export function initSettingsModal() {
 
         updateColorState();
         updatePreviewDraft();
+        updateGeneralBackgroundStates();
         updateSaveButtonState();
     });
 
@@ -401,6 +436,13 @@ export function initSettingsModal() {
         bookmarkInvertIcon.checked = draftBookmarkDefault.invertColorIcon;
 
         updateBookmarkDefaultStates();
+        updateSaveButtonState();
+    });
+
+    noBgCheckbox.addEventListener('change', () => {
+        draftTheme.noBackground = noBgCheckbox.checked;
+
+        updateGeneralBackgroundStates();
         updateSaveButtonState();
     });
 }

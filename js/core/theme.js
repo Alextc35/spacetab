@@ -10,20 +10,24 @@ import '../types/types.js'; // typedefs
  */
 export function applyGlobalTheme(settings = {}) {
   const root = document.documentElement;
-
   const theme = settings.theme || {};
 
   root.style.setProperty(
     '--color-bg-body',
-    theme.backgroundColor || '#000000'
+    theme.backgroundColor
   );
+
+  root.classList.remove('is-default-bg');
 
   if (theme.backgroundImageUrl) {
     root.style.setProperty(
       '--image-bg-body',
       `url("${theme.backgroundImageUrl}")`
     );
-  } else {
+  } else if (!theme.noBackground) {
     root.style.setProperty('--image-bg-body', 'none');
+    root.classList.remove('is-default-bg');
+  } else {
+    root.classList.add('is-default-bg');
   }
 }
