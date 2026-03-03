@@ -86,14 +86,14 @@
       "backgroundColor": "Color:",
       "backgroundImage": "Image URL:",
       "urlHidden": "URL hidden",
-      "resetBackground": "Reset",
-      "export": "Export",
-      "import": "Import",
-      "deleteAll": "Delete all bookmarks"
+      "resetBackground": "Reset"
     },
     "bookmark": {
       "title": "Bookmark Default",
-      "reset": "Reset default settings"
+      "reset": "Reset default settings",
+      "export": "Export",
+      "import": "Import",
+      "deleteAll": "Delete all bookmarks"
     },
     "languages": {
       "title": "Languages",
