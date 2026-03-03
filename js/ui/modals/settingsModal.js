@@ -330,19 +330,27 @@ function updateGeneralBackgroundStates() {
     });
 
     resetBgBtn.addEventListener('click', async () => {
-        const ok = await showAlert(t('alert.settings.reset'), { type: 'confirm' });
+        const ok = await showAlert(
+            t('alert.settings.reset'),
+            { type: 'confirm' }
+        );
         if (!ok) return;
 
         draftTheme = structuredClone(DEFAULT_SETTINGS.theme);
 
+        noBgCheckbox.checked = draftTheme.noBackground;
         bgColorInput.value = draftTheme.backgroundColor;
         bgImageInput.value = draftTheme.backgroundImageUrl || '';
 
         draftTheme.backgroundImageUrlLocked = false;
-        removeLockedState();
 
-        updatePreviewDraft();
+        if (bgController) {
+            bgController.setLocked(false);
+        }
+
+        updateGeneralBackgroundStates();
         updateColorState();
+        updatePreviewDraft();
         updateSaveButtonState();
     });
 
