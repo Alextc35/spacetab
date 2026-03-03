@@ -44,8 +44,8 @@ export function initSettingsModal() {
 
     let draftTheme = null;
     let draftLanguage = null;
-    let initialSnapshot = null;
     let draftBookmarkDefault = null;
+    let initialSnapshot = null;
 
     function updateBookmarkDefaultStates() {
         const hasImage = bookmarkBgImage.value.trim() !== '';
@@ -128,17 +128,26 @@ export function initSettingsModal() {
     }
 
     function hasChanges() {
-        const currentDraft = {
-            language: draftLanguage,
-            theme: draftTheme,
-            bookmarkDefault: draftBookmarkDefault
-        };
+        let changed = false;
 
-        return JSON.stringify(currentDraft) !== JSON.stringify(initialSnapshot);
+        if (draftLanguage !== initialSnapshot.language) changed = true;
+
+        const themeKeys = Object.keys(draftTheme);
+        themeKeys.forEach(k => {
+            if (draftTheme[k] !== initialSnapshot.theme[k]) changed = true;
+        });
+
+        const bookmarkKeys = Object.keys(draftBookmarkDefault);
+        bookmarkKeys.forEach(k => {
+            if (draftBookmarkDefault[k] !== initialSnapshot.bookmarkDefault[k]) changed = true;
+        });
+
+        return changed;
     }
 
     function updateSaveButtonState() {
         const changed = hasChanges();
+
         settingsSave.disabled = !changed;
         settingsSave.classList.toggle('is-hidden', !changed);
     }
@@ -155,12 +164,13 @@ export function initSettingsModal() {
     settingsBtn.addEventListener('click', () => {
         const { data: { settings } } = getState();
 
-        draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
         initialSnapshot = structuredClone(settings);
 
-        languageSelect.value = settings.language;
         draftTheme = structuredClone(settings.theme);
         draftLanguage = structuredClone(settings.language);
+        draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
+
+        languageSelect.value = settings.language;
 
         bookmarkBgColor.value = draftBookmarkDefault.backgroundColor;
         bookmarkBgImage.value = draftBookmarkDefault.backgroundImageUrl || '';
