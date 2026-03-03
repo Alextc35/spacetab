@@ -74,19 +74,25 @@ function getCurrentFormState() {
 }
 
 function buildDraft() {
+  const backgroundFavicon = modalBackgroundFavicon.checked;
+
   draft = {
     id: editingId,
     name: modalName.value.trim(),
     url: modalUrl.value.trim(),
     invertColorIcon: modalInvertColorIcon.checked,
-    invertColorBg: modalInvertColorBg.checked,
+    invertColorBg: backgroundFavicon ? false : modalInvertColorBg.checked,
     noBackground: modalNoBackground.checked,
     textColor: modalTextColor.value,
     showText: modalShowText.checked,
     backgroundColor: modalBackgroundColor.value,
-    backgroundImageUrl: modalBackgroundImage.value.trim() || null,
-    backgroundFavicon: modalBackgroundFavicon.checked,
-    showFavicon: modalShowFavicon.checked
+    backgroundImageUrl: backgroundFavicon
+      ? null
+      : modalBackgroundImage.value.trim() || null,
+    backgroundFavicon,
+    showFavicon: backgroundFavicon
+      ? false
+      : modalShowFavicon.checked
   };
 }
 
