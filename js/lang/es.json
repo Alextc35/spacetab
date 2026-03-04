@@ -36,8 +36,10 @@
       "cancel": "¿Descartar los cambios en la edición?"
     },
     "settings": {
-      "reset": "¿Restablecer la configuración de fondo?",
       "cancel": "¿Descartar los cambios en la configuración?",
+      "theme": {
+        "reset": "¿Restablecer la configuración del tema?"
+      },
       "bookmark": {
         "reset": "¿Restablecer el estilo del favorito?"
       }

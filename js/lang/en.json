@@ -36,8 +36,10 @@
       "cancel": "Discard edition changes?"
     },
     "settings": {
-      "reset": "Reset background settings?",
       "cancel": "Discard settings changes?",
+      "theme": {
+        "reset": "Reset theme settings?"
+      },
       "bookmark": {
         "reset": "Reset bookmark style?"
       }

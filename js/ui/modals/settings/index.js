@@ -1,5 +1,5 @@
 import { initBookmarkSection } from './bookmarkSection.js';
-import { initGeneralSection } from './generalSection.js';
+import { initThemeSection } from './themeSection.js';
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
 import { showAlert } from '../alertModal.js';
 import { changeLanguage, t } from '../../../core/i18n.js';
@@ -33,7 +33,7 @@ export function initSettingsModal() {
     settingsSave.classList.toggle('is-hidden', !changed);
   }
 
-  const generalSection = initGeneralSection({
+  const themeSection = initThemeSection({
     onRequestSaveStateUpdate: updateSaveButtonState
   });
 
@@ -83,7 +83,7 @@ export function initSettingsModal() {
 
     initDraft(settings);
 
-    generalSection.syncUI();
+    themeSection.syncUI();
     bookmarkSection.syncUI();
 
     languageSelect.value = getDraftLanguage();
