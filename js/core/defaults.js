@@ -78,6 +78,7 @@ export const DEFAULT_BOOKMARKS = [
     ...DEFAULT_BOOKMARK,
     name: 'banana',
     backgroundImageUrl: 'https://cdn.osxdaily.com/wp-content/uploads/2013/07/dancing-banana.gif',
+    backgroundImageUrlLocked: true,
     backgroundFavicon: false,
     noBackground: false,
     backgroundColor: '#eeff00',
