@@ -1,3 +1,4 @@
+import { initBookmarkSection } from './bookmarkSection.js';
 import { initGeneralSection } from './generalSection.js';
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
 import { showAlert } from '../alertModal.js';
@@ -5,21 +6,14 @@ import { changeLanguage, t } from '../../../core/i18n.js';
 import { flashSuccess } from '../../flash.js';
 import { getState } from '../../../core/store.js';
 import { updateSettings } from '../../../core/settings.js';
-
 import {
   initDraft,
   resetState,
   hasChanges,
   buildNewSettings,
-
   getDraftLanguage,
-  getDraftBookmarkDefault,
   getInitialSnapshot,
   setDraftLanguage,
-
-  setDraftBookmarkValue,
-
-  replaceDraftBookmarkDefault
 } from './settingsState.js';
 
 export function initSettingsModal() {
@@ -28,22 +22,6 @@ export function initSettingsModal() {
   const settingsSave = document.getElementById('settings-modal-save');
   const settingsCancel = document.getElementById('settings-modal-cancel');
   const languageSelect = document.getElementById('language-select');
-
-  const bookmarkBgColor = document.getElementById('settings-bookmark-background-color');
-  const bookmarkBgImage = document.getElementById('settings-bookmark-background-image');
-  const bookmarkNoBg = document.getElementById('settings-bookmark-no-background');
-  const bookmarkBgFavicon = document.getElementById('settings-bookmark-background-favicon');
-  const bookmarkInvertBg = document.getElementById('settings-bookmark-invert-bg');
-  const bookmarkShowText = document.getElementById('settings-bookmark-show-text');
-  const bookmarkTextColor = document.getElementById('settings-bookmark-text-color');
-  const bookmarkShowFavicon = document.getElementById('settings-bookmark-show-favicon');
-  const bookmarkInvertIcon = document.getElementById('settings-bookmark-invert-icon');
-  const bookmarkResetBtn = document.getElementById('settings-bookmark-reset');
-
-  const labelBookmarkInvertBg = document.querySelector('label[for="settings-bookmark-invert-bg"]');
-  const labelBookmarkShowFavicon = document.querySelector('label[for="settings-bookmark-show-favicon"]');
-  const labelBookmarkBgFavicon = document.querySelector('label[for="settings-bookmark-background-favicon"]');
-  const labelBookmarkInvertIcon = document.querySelector('label[for="settings-bookmark-invert-icon"]');
 
   /* ==================================================
      Helpers
@@ -59,27 +37,9 @@ export function initSettingsModal() {
     onRequestSaveStateUpdate: updateSaveButtonState
   });
 
-  function updateBookmarkDefaultStates() {
-    const draft = getDraftBookmarkDefault();
-    const hasImage =
-        typeof draft.backgroundImageUrl === 'string' &&
-        draft.backgroundImageUrl.trim() !== '';
-
-    bookmarkBgFavicon.disabled = hasImage;
-    bookmarkBgColor.disabled = draft.noBackground;
-    bookmarkTextColor.disabled = !draft.showText;
-
-    bookmarkBgImage.disabled = draft.backgroundFavicon;
-    bookmarkShowFavicon.disabled = draft.backgroundFavicon;
-
-    bookmarkInvertBg.disabled = draft.backgroundFavicon || !hasImage;
-    bookmarkInvertIcon.disabled = !draft.backgroundFavicon && !draft.showFavicon;
-
-    labelBookmarkInvertBg.classList.toggle('is-disabled', bookmarkInvertBg.disabled);
-    labelBookmarkShowFavicon.classList.toggle('is-disabled', bookmarkShowFavicon.disabled);
-    labelBookmarkBgFavicon.classList.toggle('is-disabled', bookmarkBgFavicon.disabled);
-    labelBookmarkInvertIcon.classList.toggle('is-disabled', bookmarkInvertIcon.disabled);
-  }
+  const bookmarkSection = initBookmarkSection({
+    onRequestSaveStateUpdate: updateSaveButtonState
+  });
 
   function activateTab(tabId) {
     document.querySelectorAll('#settings-modal .settings-modal-tab-btn')
@@ -124,22 +84,9 @@ export function initSettingsModal() {
     initDraft(settings);
 
     generalSection.syncUI();
-    const draftBookmark = getDraftBookmarkDefault();
+    bookmarkSection.syncUI();
 
     languageSelect.value = getDraftLanguage();
-
-    // Bookmark UI sync
-    bookmarkBgColor.value = draftBookmark.backgroundColor;
-    bookmarkBgImage.value = draftBookmark.backgroundImageUrl || '';
-    bookmarkNoBg.checked = draftBookmark.noBackground;
-    bookmarkBgFavicon.checked = draftBookmark.backgroundFavicon;
-    bookmarkInvertBg.checked = draftBookmark.invertColorBg;
-    bookmarkShowText.checked = draftBookmark.showText;
-    bookmarkTextColor.value = draftBookmark.textColor;
-    bookmarkShowFavicon.checked = draftBookmark.showFavicon;
-    bookmarkInvertIcon.checked = draftBookmark.invertColorIcon;
-
-    updateBookmarkDefaultStates();
 
     updateSaveButtonState();
 
@@ -188,95 +135,6 @@ export function initSettingsModal() {
   languageSelect.addEventListener('change', async () => {
     setDraftLanguage(languageSelect.value);
     await changeLanguage({ language: languageSelect.value });
-    updateSaveButtonState();
-  });
-
-
-  bookmarkBgColor.addEventListener('input', () => {
-    setDraftBookmarkValue('backgroundColor', bookmarkBgColor.value);
-    updateSaveButtonState();
-  });
-
-  bookmarkBgImage.addEventListener('input', () => {
-    setDraftBookmarkValue(
-      'backgroundImageUrl',
-      bookmarkBgImage.value.trim() || null
-    );
-    updateBookmarkDefaultStates();
-    updateSaveButtonState();
-  });
-
-  bookmarkNoBg.addEventListener('change', () => {
-    setDraftBookmarkValue('noBackground', bookmarkNoBg.checked);
-    updateBookmarkDefaultStates();
-    updateSaveButtonState();
-  });
-
-  bookmarkBgFavicon.addEventListener('change', () => {
-    const checked = bookmarkBgFavicon.checked;
-    setDraftBookmarkValue('backgroundFavicon', checked);
-
-    if (checked) {
-      bookmarkBgImage.value = '';
-      setDraftBookmarkValue('backgroundImageUrl', null);
-      setDraftBookmarkValue('showFavicon', false);
-      setDraftBookmarkValue('invertColorBg', false);
-    }
-
-    updateBookmarkDefaultStates();
-    updateSaveButtonState();
-  });
-
-  bookmarkInvertBg.addEventListener('change', () => {
-    setDraftBookmarkValue('invertColorBg', bookmarkInvertBg.checked);
-    updateSaveButtonState();
-  });
-
-  bookmarkShowText.addEventListener('change', () => {
-    setDraftBookmarkValue('showText', bookmarkShowText.checked);
-    updateBookmarkDefaultStates();
-    updateSaveButtonState();
-  });
-
-  bookmarkTextColor.addEventListener('input', () => {
-    setDraftBookmarkValue('textColor', bookmarkTextColor.value);
-    updateSaveButtonState();
-  });
-
-  bookmarkShowFavicon.addEventListener('change', () => {
-    setDraftBookmarkValue('showFavicon', bookmarkShowFavicon.checked);
-    updateBookmarkDefaultStates();
-    updateSaveButtonState();
-  });
-
-  bookmarkInvertIcon.addEventListener('change', () => {
-    setDraftBookmarkValue('invertColorIcon', bookmarkInvertIcon.checked);
-    updateSaveButtonState();
-  });
-
-  bookmarkResetBtn.addEventListener('click', async () => {
-    const ok = await showAlert(
-      t('alert.settings.bookmark.reset'),
-      { type: 'confirm' }
-    );
-
-    if (!ok) return;
-
-    replaceDraftBookmarkDefault(DEFAULT_SETTINGS.bookmarkDefault);
-
-    const draft = getDraftBookmarkDefault();
-
-    bookmarkBgColor.value = draft.backgroundColor;
-    bookmarkBgImage.value = draft.backgroundImageUrl || '';
-    bookmarkNoBg.checked = draft.noBackground;
-    bookmarkBgFavicon.checked = draft.backgroundFavicon;
-    bookmarkInvertBg.checked = draft.invertColorBg;
-    bookmarkShowText.checked = draft.showText;
-    bookmarkTextColor.value = draft.textColor;
-    bookmarkShowFavicon.checked = draft.showFavicon;
-    bookmarkInvertIcon.checked = draft.invertColorIcon;
-
-    updateBookmarkDefaultStates();
     updateSaveButtonState();
   });
 

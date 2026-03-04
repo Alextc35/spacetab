@@ -2,8 +2,6 @@ import { VERSION, DEBUG  } from './core/config.js';
 import { subscribe, hydrateStore } from './core/store.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
-import { deleteAllBookmarks } from './ui/bookmarkActions.js';
-import { initImportExportButtons } from './ui/bookmarkImportExport.js';
 import { renderBookmarks } from './ui/bookmarkRenderer.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
 import { initAddBookmarkModal, initEditBookmarkModal,
@@ -22,18 +20,6 @@ const addButton = document.getElementById('add-bookmark');
 
 /** @type {HTMLElement|null} */
 const toggleButton = document.getElementById('edit-toggle-mode');
-
-/** @type {HTMLElement|null} */
-const exportBtn = document.getElementById('export-btn');
-
-/** @type {HTMLElement|null} */
-const importBtn = document.getElementById('import-btn');
-
-/** @type {HTMLInputElement|null} */
-const importInput = document.getElementById('import-input');
-
-/** @type {HTMLElement|null} */
-const deleteAllBtn = document.getElementById('delete-all-btn');
 
 /* ======================= Bootstrap ======================= */
 
@@ -56,7 +42,6 @@ async function initApp() {
 
   initUI();
   initModals();
-  initImportExport();
 
   if (DEBUG) console.timeEnd("Execution time");
 }
@@ -93,15 +78,6 @@ function initModals() {
   initAlertModal();
   initAddBookmarkModal();
   initEditBookmarkModal();
-}
-
-/**
- * Initializes import/export functionality.
- */
-function initImportExport() {
-  initImportExportButtons(exportBtn, importInput);
-  deleteAllBtn.addEventListener('click', deleteAllBookmarks);
-  importBtn.addEventListener('click', () => importInput.click());
 }
 
 /* ======================= Store Reaction ======================= */
