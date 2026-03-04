@@ -22,7 +22,8 @@
     },
     "settings": {
       "saved": "Settings saved successfully",
-      "copied": "Value copied to clipboard"
+      "copied": "Value copied to clipboard",
+      "resetBg": "Theme restored"
     }
   },
   "alert": {

@@ -2,7 +2,7 @@ import { createLockableInputController } from '../helper/stateLocked.js';
 import { showAlert } from '../alertModal.js';
 import { t } from '../../../core/i18n.js';
 import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
-
+import { flashSuccess } from '../../flash.js';
 import {
   getDraftTheme,
   setDraftThemeValue,
@@ -192,6 +192,7 @@ export function initGeneralSection({
     updateColorState();
     updatePreview();
     onRequestSaveStateUpdate();
+    flashSuccess('flash.settings.resetBg');
   });
 
   /* ==================================================

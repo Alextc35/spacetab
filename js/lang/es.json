@@ -22,7 +22,8 @@
     },
     "settings": {
       "saved": "Configuración guardada correctamente",
-      "copied": "Valor copiado al portapapeles"
+      "copied": "Valor copiado al portapapeles",
+      "resetBg": "Tema restablecido"
     }
   },
   "alert": {
