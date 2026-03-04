@@ -1,25 +1,24 @@
-import { createLockableInputController } from '../helper/stateLocked.js';
+import { initGeneralSection } from './generalSection.js';
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
 import { showAlert } from '../alertModal.js';
 import { changeLanguage, t } from '../../../core/i18n.js';
 import { flashSuccess } from '../../flash.js';
 import { getState } from '../../../core/store.js';
 import { updateSettings } from '../../../core/settings.js';
-import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
 
 import {
   initDraft,
   resetState,
   hasChanges,
   buildNewSettings,
-  getDraftTheme,
+
   getDraftLanguage,
   getDraftBookmarkDefault,
   getInitialSnapshot,
   setDraftLanguage,
-  setDraftThemeValue,
+
   setDraftBookmarkValue,
-  replaceDraftTheme,
+
   replaceDraftBookmarkDefault
 } from './settingsState.js';
 
@@ -29,16 +28,6 @@ export function initSettingsModal() {
   const settingsSave = document.getElementById('settings-modal-save');
   const settingsCancel = document.getElementById('settings-modal-cancel');
   const languageSelect = document.getElementById('language-select');
-
-  const bgColorInput = document.getElementById('settings-modal-background-color');
-  const bgImageInput = document.getElementById('settings-modal-background-image');
-  const resetBgBtn = document.getElementById('settings-modal-reset-background');
-
-  const clearBgImageBtn = document.getElementById('settings-modal-clear-background-image');
-  const copyBgImageBtn = document.getElementById('settings-modal-copy-background-image');
-  const toggleBtn = document.getElementById('settings-modal-toggle-background-image');
-
-  const bgPreview = document.getElementById('settings-modal-background-preview');
 
   const bookmarkBgColor = document.getElementById('settings-bookmark-background-color');
   const bookmarkBgImage = document.getElementById('settings-bookmark-background-image');
@@ -56,10 +45,6 @@ export function initSettingsModal() {
   const labelBookmarkBgFavicon = document.querySelector('label[for="settings-bookmark-background-favicon"]');
   const labelBookmarkInvertIcon = document.querySelector('label[for="settings-bookmark-invert-icon"]');
 
-  const noBgCheckbox = document.getElementById('settings-general-no-background');
-
-  let bgController;
-
   /* ==================================================
      Helpers
   ================================================== */
@@ -70,61 +55,9 @@ export function initSettingsModal() {
     settingsSave.classList.toggle('is-hidden', !changed);
   }
 
-  function updatePreviewDraft() {
-    const draftTheme = getDraftTheme();
-
-    bgPreview.style.backgroundColor = '';
-    bgPreview.style.backgroundImage = '';
-
-    if (draftTheme.noBackground) {
-      bgPreview.classList.add('is-transparent');
-      return;
-    }
-
-    bgPreview.classList.remove('is-transparent');
-
-    bgPreview.style.backgroundColor = draftTheme.backgroundColor;
-
-    if (draftTheme.backgroundImageUrl) {
-      bgPreview.style.backgroundImage = `url(${draftTheme.backgroundImageUrl})`;
-    }
-  }
-
-  function updateColorState() {
-    const draftTheme = getDraftTheme();
-    const hasImage =
-        typeof draftTheme.backgroundImageUrl === 'string' &&
-        draftTheme.backgroundImageUrl.trim() !== '';
-    const isLocked = bgController?.isLocked?.() ?? false;
-
-    clearBgImageBtn.style.display = hasImage && !isLocked ? 'block' : 'none';
-    copyBgImageBtn.style.display = hasImage ? 'block' : 'none';
-    toggleBtn.style.display = hasImage ? 'block' : 'none';
-  }
-
-  function updateGeneralBackgroundStates() {
-    const draftTheme = getDraftTheme();
-    const hasImage =
-        typeof draftTheme.backgroundImageUrl === 'string' &&
-        draftTheme.backgroundImageUrl.trim() !== '';
-
-    noBgCheckbox.disabled = hasImage;
-
-    if (hasImage && noBgCheckbox.checked) {
-      noBgCheckbox.checked = false;
-      setDraftThemeValue('noBackground', false);
-    }
-
-    const noBg = noBgCheckbox.checked;
-
-    bgColorInput.disabled = noBg;
-    bgImageInput.disabled = noBg;
-    toggleBtn.disabled = noBg;
-    clearBgImageBtn.disabled = noBg;
-    copyBgImageBtn.disabled = noBg;
-
-    updatePreviewDraft();
-  }
+  const generalSection = initGeneralSection({
+    onRequestSaveStateUpdate: updateSaveButtonState
+  });
 
   function updateBookmarkDefaultStates() {
     const draft = getDraftBookmarkDefault();
@@ -190,7 +123,7 @@ export function initSettingsModal() {
 
     initDraft(settings);
 
-    const draftTheme = getDraftTheme();
+    generalSection.syncUI();
     const draftBookmark = getDraftBookmarkDefault();
 
     languageSelect.value = getDraftLanguage();
@@ -208,42 +141,6 @@ export function initSettingsModal() {
 
     updateBookmarkDefaultStates();
 
-    // General UI sync
-    noBgCheckbox.checked = draftTheme.noBackground || false;
-    bgColorInput.value = draftTheme.backgroundColor;
-    bgImageInput.value = draftTheme.backgroundImageUrl || '';
-
-    if (!bgController) {
-      bgController = createLockableInputController({
-        input: bgImageInput,
-        toggleBtn,
-        clearBtn: clearBgImageBtn,
-        copyBtn: copyBgImageBtn,
-        initialLocked: draftTheme.backgroundImageUrlLocked || false,
-        onChange: () => {
-          setDraftThemeValue(
-            'backgroundImageUrl',
-            bgImageInput.value.trim() || null
-          );
-
-          setDraftThemeValue(
-            'backgroundImageUrlLocked',
-            bgController?.isLocked() ?? false
-          );
-
-          updateGeneralBackgroundStates();
-          updateColorState();
-          updatePreviewDraft();
-          updateSaveButtonState();
-        }
-      });
-    } else {
-      bgController.setLocked(draftTheme.backgroundImageUrlLocked || false);
-    }
-
-    updateGeneralBackgroundStates();
-    updateColorState();
-    updatePreviewDraft();
     updateSaveButtonState();
 
     activateTab('settings-modal-tab-general');
@@ -294,32 +191,6 @@ export function initSettingsModal() {
     updateSaveButtonState();
   });
 
-  bgColorInput.addEventListener('input', () => {
-    if (bgColorInput.disabled) return;
-
-    setDraftThemeValue('backgroundColor', bgColorInput.value);
-
-    updatePreviewDraft();
-    updateSaveButtonState();
-  });
-
-  bgImageInput.addEventListener('input', () => {
-    setDraftThemeValue(
-      'backgroundImageUrl',
-      bgImageInput.value.trim() || null
-    );
-
-    updateGeneralBackgroundStates();
-    updateColorState();
-    updatePreviewDraft();
-    updateSaveButtonState();
-  });
-
-  noBgCheckbox.addEventListener('change', () => {
-    setDraftThemeValue('noBackground', noBgCheckbox.checked);
-    updateGeneralBackgroundStates();
-    updateSaveButtonState();
-  });
 
   bookmarkBgColor.addEventListener('input', () => {
     setDraftBookmarkValue('backgroundColor', bookmarkBgColor.value);
@@ -406,34 +277,6 @@ export function initSettingsModal() {
     bookmarkInvertIcon.checked = draft.invertColorIcon;
 
     updateBookmarkDefaultStates();
-    updateSaveButtonState();
-  });
-
-  resetBgBtn.addEventListener('click', async () => {
-    const ok = await showAlert(
-      t('alert.settings.reset'),
-      { type: 'confirm' }
-    );
-
-    if (!ok) return;
-
-    replaceDraftTheme(DEFAULT_SETTINGS.theme);
-
-    const draftTheme = getDraftTheme();
-
-    noBgCheckbox.checked = draftTheme.noBackground;
-    bgColorInput.value = draftTheme.backgroundColor;
-    bgImageInput.value = draftTheme.backgroundImageUrl || '';
-
-    setDraftThemeValue('backgroundImageUrlLocked', false);
-
-    if (bgController) {
-      bgController.setLocked(false);
-    }
-
-    updateGeneralBackgroundStates();
-    updateColorState();
-    updatePreviewDraft();
     updateSaveButtonState();
   });
 
