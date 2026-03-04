@@ -57,10 +57,29 @@ export function initSettingsModal() {
     id: 'settings',
     element: settingsModal,
     acceptOnEnter: false,
-    closeOnEsc: false,
+    closeOnEsc: true,
     closeOnOverlay: false,
     initialFocus: null
   });
+
+  async function handleCancelAttempt() {
+    if (!hasChanges()) {
+      closeModal();
+      return true;
+    }
+
+    const ok = await showAlert(
+      t('alert.settings.cancel'),
+      { type: 'confirm' }
+    );
+
+    if (!ok) return false;
+
+    await languageSection.restoreInitialLanguage();
+    resetState();
+    closeModal();
+    return true;
+  }
 
   /* ==================================================
      OPEN
@@ -78,30 +97,16 @@ export function initSettingsModal() {
     updateSaveButtonState();
 
     tabs.activate('settings-modal-tab-general');
-    openModal('settings');
+    openModal('settings', {
+      onCancel: handleCancelAttempt
+    });
   });
 
   /* ==================================================
      CANCEL / SAVE
   ================================================== */
 
-  settingsCancel.addEventListener('click', async () => {
-    if (!hasChanges()) {
-      closeModal();
-      return;
-    }
-
-    const ok = await showAlert(
-      t('alert.settings.cancel'),
-      { type: 'confirm' }
-    );
-
-    if (ok) {
-      await languageSection.restoreInitialLanguage();
-      resetState();
-      closeModal();
-    }
-  });
+  settingsCancel.addEventListener('click', handleCancelAttempt);
 
   settingsSave.addEventListener('click', () => {
     const newSettings = buildNewSettings();

@@ -124,7 +124,6 @@ export function registerModal({
         const active = getActive();
         if (active?.id === id) {
           active.onCancel?.();
-          closeModal();
         }
       });
     }
