@@ -89,11 +89,12 @@
       "urlHidden": "URL oculta",
       "resetBackground": "Restablecer tema",
       "export": "Exportar ajustes",
-      "import": "Importar ajustes"
+      "import": "Importar ajustes",
+      "resetSettings": "Restablecer ajustes"
     },
     "bookmark": {
       "title": "Favoritos por defecto",
-      "reset": "Restablecer valores por defecto",
+      "reset": "Restablecer favorito por defecto",
       "export": "Exportar favoritos",
       "import": "Importar favoritos",
       "deleteAll": "Borrar todos los favoritos"

@@ -89,11 +89,12 @@
       "urlHidden": "URL hidden",
       "resetBackground": "Reset theme",
       "export": "Export settings",
-      "import": "Import settings"
+      "import": "Import settings",
+      "resetSettings": "Reset settings"
     },
     "bookmark": {
-      "title": "Bookmark Default",
-      "reset": "Reset default settings",
+      "title": "Default bookmark",
+      "reset": "Reset default bookmark",
       "export": "Export bookmarks",
       "import": "Import bookmarks",
       "deleteAll": "Delete all bookmarks"
