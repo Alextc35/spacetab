@@ -87,7 +87,9 @@
       "backgroundColor": "Color:",
       "backgroundImage": "Imagen URL:",
       "urlHidden": "URL oculta",
-      "resetBackground": "Restablecer"
+      "resetBackground": "Restablecer tema",
+      "export": "Exportar ajustes",
+      "import": "Importar ajustes"
     },
     "bookmark": {
       "title": "Favoritos por defecto",

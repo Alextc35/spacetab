@@ -87,7 +87,9 @@
       "backgroundColor": "Color:",
       "backgroundImage": "Image URL:",
       "urlHidden": "URL hidden",
-      "resetBackground": "Reset"
+      "resetBackground": "Reset theme",
+      "export": "Export settings",
+      "import": "Import settings"
     },
     "bookmark": {
       "title": "Bookmark Default",
