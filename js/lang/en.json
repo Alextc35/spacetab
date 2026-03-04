@@ -92,8 +92,8 @@
     "bookmark": {
       "title": "Bookmark Default",
       "reset": "Reset default settings",
-      "export": "Export",
-      "import": "Import",
+      "export": "Export bookmarks",
+      "import": "Import bookmarks",
       "deleteAll": "Delete all bookmarks"
     },
     "languages": {

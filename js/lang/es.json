@@ -92,9 +92,9 @@
     "bookmark": {
       "title": "Favoritos por defecto",
       "reset": "Restablecer valores por defecto",
-      "export": "Exportar",
-      "import": "Importar",
-      "deleteAll": "Borrar todos los Bookmarks"
+      "export": "Exportar favoritos",
+      "import": "Importar favoritos",
+      "deleteAll": "Borrar todos los favoritos"
     },
     "languages": {
       "title": "Idiomas",
