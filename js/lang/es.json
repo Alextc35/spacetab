@@ -78,23 +78,29 @@
     "sections": {
       "general": "⚙️ General",
       "bookmark": "🔖 Favoritos",
+      "theme": "🖼️ Tema",
       "language": "🌐 Idiomas",
       "information": "ℹ️ Información"
     },
     "general": {
       "title": "General",
+      "subtitle": "Ajustes",
+      "export": "Exportar ajustes",
+      "import": "Importar ajustes",
+      "resetSettings": "Restablecer ajustes"
+    },
+    "theme": {
+      "title": "Tema",
       "subtitle": "Fondo de la página",
       "backgroundDefault": "Por defecto",
       "backgroundColor": "Color:",
       "backgroundImage": "Imagen URL:",
       "urlHidden": "URL oculta",
-      "resetBackground": "Restablecer tema",
-      "export": "Exportar ajustes",
-      "import": "Importar ajustes",
-      "resetSettings": "Restablecer ajustes"
+      "resetBackground": "Restablecer tema"
     },
     "bookmark": {
-      "title": "Favoritos por defecto",
+      "title": "Favoritos",
+      "subtitle": "Favorito por defecto",
       "reset": "Restablecer favorito por defecto",
       "export": "Exportar favoritos",
       "import": "Importar favoritos",

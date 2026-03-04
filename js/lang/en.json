@@ -77,24 +77,30 @@
   "settingsModal": {
     "sections": {
       "general": "⚙️ General",
+      "theme": "🖼️ Theme",
       "bookmark": "🔖 Bookmarks",
       "language": "🌐 Languages",
       "information": "ℹ️ Information"
     },
     "general": {
       "title": "General",
+      "subtitle": "Settings",
+      "export": "Export settings",
+      "import": "Import settings",
+      "resetSettings": "Reset settings"
+    },
+    "theme": {
+      "title": "Theme",
       "subtitle": "Page background",
       "backgroundDefault": "Default",
       "backgroundColor": "Color:",
       "backgroundImage": "Image URL:",
       "urlHidden": "URL hidden",
-      "resetBackground": "Reset theme",
-      "export": "Export settings",
-      "import": "Import settings",
-      "resetSettings": "Reset settings"
+      "resetBackground": "Reset theme"
     },
     "bookmark": {
-      "title": "Default bookmark",
+      "title": "Bookmarks",
+      "subtitle": "Default bookmark",
       "reset": "Reset default bookmark",
       "export": "Export bookmarks",
       "import": "Import bookmarks",

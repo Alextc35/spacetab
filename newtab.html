@@ -250,6 +250,9 @@
           <button data-tab="settings-modal-tab-general" class="settings-modal-tab-btn active" type="button"
             data-i18n="settingsModal.sections.general">⚙️ General
           </button>
+          <button data-tab="settings-modal-tab-theme" class="settings-modal-tab-btn active" type="button"
+            data-i18n="settingsModal.sections.theme">🖼️ Tema
+          </button>
           <button data-tab="settings-modal-tab-bookmark" class="settings-modal-tab-btn" type="button"
             data-i18n="settingsModal.sections.bookmark">🔖 Favoritos
           </button>
@@ -262,25 +265,49 @@
         </div>
 
         <div class="settings-modal-panel">
+
           <div id="settings-modal-tab-general" class="settings-modal-tab-content custom-scrollbar">
             <h2 data-i18n="settingsModal.general.title">General</h2>
 
-            <h3 data-i18n="settingsModal.general.subtitle">Fondo de la página</h3>
+            <h3 data-i18n="settingsModal.general.subtitle">Ajustes</h3>
 
             <div id="settings-modal-background-settings" class="modal-field">
+              <button id="export-btn-general" class="btn btn-info" type="button"
+                data-i18n="settingsModal.general.export">Exportar ajustes
+              </button>
+              <input id="import-input-general" class="is-hidden" type="file">
+
+              <button id="import-btn-general" class="btn btn-info" type="button"
+                data-i18n="settingsModal.general.import">Importar ajustes
+              </button>
+
+              <button id="reset-settings-btn-general" class="btn btn-danger" type="button"
+                data-i18n="settingsModal.general.resetSettings">Restablecer ajustes
+              </button>
+            </div>
+          </div>
+
+          <div id="settings-modal-tab-theme" 
+              class="settings-modal-tab-content is-hidden custom-scrollbar">
+
+            <h2 data-i18n="settingsModal.theme.title">Tema</h2>
+
+            <h3 data-i18n="settingsModal.theme.subtitle">Fondo de la página</h3>
+
+            <div id="settings-modal-background-theme" class="modal-field">
               <div class="checkbox-wrapper">
                 <input id="settings-general-background-default" type="checkbox">
                 <label for="settings-general-background-default"
-                  data-i18n="settingsModal.general.backgroundDefault">Por defecto
+                  data-i18n="settingsModal.theme.backgroundDefault">Por defecto
                 </label>
               </div>
               <label for="settings-modal-background-color"
-                data-i18n="settingsModal.general.backgroundColor">Color:
+                data-i18n="settingsModal.theme.backgroundColor">Color:
               </label>
               <input id="settings-modal-background-color" type="color">
 
               <label for="settings-modal-background-image"
-                data-i18n="settingsModal.general.backgroundImage">Imagen URL:
+                data-i18n="settingsModal.theme.backgroundImage">Imagen URL:
               </label>
               <div class="input-with-actions">
                 <input id="settings-modal-background-image" type="text" placeholder="https://...">
@@ -298,20 +325,7 @@
               <div id="settings-modal-background-preview" class="bg-preview"></div>
 
               <button id="settings-modal-reset-background" class="btn btn-secondary" type="button"
-                data-i18n="settingsModal.general.resetBackground">Restablecer tema
-              </button>
-
-              <button id="export-btn-general" class="btn btn-info" type="button"
-                data-i18n="settingsModal.general.export">Exportar
-              </button>
-              <input id="import-input-general" class="is-hidden" type="file">
-
-              <button id="import-btn-general" class="btn btn-info" type="button"
-                data-i18n="settingsModal.general.import">Importar
-              </button>
-
-              <button id="reset-settings-btn-general" class="btn btn-danger" type="button"
-                data-i18n="settingsModal.general.resetSettings">Restablecer ajustes
+                data-i18n="settingsModal.theme.resetBackground">Restablecer tema
               </button>
             </div>
           </div>
@@ -319,7 +333,9 @@
           <div id="settings-modal-tab-bookmark" 
               class="settings-modal-tab-content is-hidden custom-scrollbar">
 
-            <h2 data-i18n="settingsModal.bookmark.title">Favoritos por defecto</h2>
+            <h2 data-i18n="settingsModal.bookmark.title">Favoritos</h2>
+
+            <h3 data-i18n="settingsModal.bookmark.subtitle">Favorito por defecto</h3>
 
             <div class="modal-field">
               <div class="checkbox-wrapper">
