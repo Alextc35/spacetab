@@ -147,16 +147,7 @@ export function initBookmarkSection({
   });
 
   bookmarkBgFavicon.addEventListener('change', () => {
-    const checked = bookmarkBgFavicon.checked;
-    setDraftBookmarkValue('backgroundFavicon', checked);
-
-    if (checked) {
-      bookmarkBgImage.value = '';
-      setDraftBookmarkValue('backgroundImageUrl', null);
-      setDraftBookmarkValue('showFavicon', false);
-      setDraftBookmarkValue('invertColorBg', false);
-    }
-
+    setDraftBookmarkValue('backgroundFavicon', bookmarkBgFavicon.checked);
     updateStates();
     onRequestSaveStateUpdate();
   });
