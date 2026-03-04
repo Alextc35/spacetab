@@ -1,5 +1,6 @@
 import { initBookmarkSection } from './bookmarkSection.js';
 import { initLanguageSection } from './languageSection.js';
+import { initTabs } from './tabs.js';
 import { initThemeSection } from './themeSection.js';
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
 import { showAlert } from '../alertModal.js';
@@ -42,25 +43,11 @@ export function initSettingsModal() {
     onRequestSaveStateUpdate: updateSaveButtonState
   });
 
-  function activateTab(tabId) {
-    document.querySelectorAll('#settings-modal .settings-modal-tab-btn')
-      .forEach(b => b.classList.remove('active'));
-
-    document.querySelectorAll('#settings-modal .settings-modal-tab-content')
-      .forEach(tab => tab.style.display = 'none');
-
-    const btn = document.querySelector(
-      `#settings-modal .settings-modal-tab-btn[data-tab="${tabId}"]`
-    );
-
-    if (btn) btn.classList.add('active');
-
-    const content = document.getElementById(tabId);
-    if (content) {
-      content.style.display = 'block';
-      requestAnimationFrame(() => content.scrollTop = 0);
-    }
-  }
+  const tabs = initTabs({
+    rootSelector: '#settings-modal',
+    tabButtonSelector: '.settings-modal-tab-btn',
+    tabContentSelector: '.settings-modal-tab-content'
+  });
 
   /* ==================================================
      Modal registration
@@ -90,7 +77,7 @@ export function initSettingsModal() {
 
     updateSaveButtonState();
 
-    activateTab('settings-modal-tab-general');
+    tabs.activate('settings-modal-tab-general');
     openModal('settings');
   });
 
@@ -124,16 +111,4 @@ export function initSettingsModal() {
     resetState();
     closeModal();
   });
-
-    /* ==================================================
-    Tabs
-    ================================================== */
-
-    document
-    .querySelectorAll('#settings-modal .settings-modal-tab-btn')
-    .forEach(btn => {
-        btn.addEventListener('click', () => {
-        activateTab(btn.dataset.tab);
-        });
-    });
 }
