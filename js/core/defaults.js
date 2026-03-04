@@ -99,7 +99,7 @@ export const DEFAULT_SETTINGS = {
   language: 'en',
 
   theme: {
-    noBackground: true,
+    backgroundDefault: true,
     backgroundColor: '#ffffff',
     backgroundImageUrl: null,
     backgroundImageUrlLocked: false

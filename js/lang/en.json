@@ -83,6 +83,7 @@
     "general": {
       "title": "General",
       "subtitle": "Page background",
+      "backgroundDefault": "Default",
       "backgroundColor": "Color:",
       "backgroundImage": "Image URL:",
       "urlHidden": "URL hidden",

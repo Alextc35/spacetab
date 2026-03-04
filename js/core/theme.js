@@ -30,7 +30,7 @@ export function applyGlobalTheme(settings = {}) {
       '--image-bg-body',
       `url("${theme.backgroundImageUrl}")`
     );
-  } else if (!theme.noBackground) {
+  } else if (!theme.backgroundDefault) {
     root.style.setProperty('--image-bg-body', 'none');
     root.classList.remove('is-default-bg');
   } else {

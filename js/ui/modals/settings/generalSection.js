@@ -26,7 +26,7 @@ export function initGeneralSection({
   const toggleBtn = document.getElementById('settings-modal-toggle-background-image');
 
   const bgPreview = document.getElementById('settings-modal-background-preview');
-  const noBgCheckbox = document.getElementById('settings-general-no-background');
+  const bgDefault = document.getElementById('settings-general-background-default');
 
   let bgController;
 
@@ -44,7 +44,7 @@ export function initGeneralSection({
     bgPreview.style.backgroundColor = '';
     bgPreview.style.backgroundImage = '';
 
-    if (draft.noBackground) {
+    if (draft.backgroundDefault) {
       bgPreview.classList.add('is-transparent');
       return;
     }
@@ -72,20 +72,20 @@ export function initGeneralSection({
     const draft = getDraftTheme();
     const hasImage = hasImageValue(draft.backgroundImageUrl);
 
-    noBgCheckbox.disabled = hasImage;
+    bgDefault.disabled = hasImage;
 
-    if (hasImage && noBgCheckbox.checked) {
-      noBgCheckbox.checked = false;
-      setDraftThemeValue('noBackground', false);
+    if (hasImage && bgDefault.checked) {
+      bgDefault.checked = false;
+      setDraftThemeValue('backgroundDefault', false);
     }
 
-    const noBg = noBgCheckbox.checked;
+    const backgroundDefault = bgDefault.checked;
 
-    bgColorInput.disabled = noBg;
-    bgImageInput.disabled = noBg;
-    toggleBtn.disabled = noBg;
-    clearBgImageBtn.disabled = noBg;
-    copyBgImageBtn.disabled = noBg;
+    bgColorInput.disabled = backgroundDefault;
+    bgImageInput.disabled = backgroundDefault;
+    toggleBtn.disabled = backgroundDefault;
+    clearBgImageBtn.disabled = backgroundDefault;
+    copyBgImageBtn.disabled = backgroundDefault;
 
     updatePreview();
   }
@@ -97,7 +97,7 @@ export function initGeneralSection({
   function syncUI() {
     const draft = getDraftTheme();
 
-    noBgCheckbox.checked = draft.noBackground || false;
+    bgDefault.checked = draft.backgroundDefault || false;
     bgColorInput.value = draft.backgroundColor;
     bgImageInput.value = draft.backgroundImageUrl || '';
 
@@ -159,8 +159,8 @@ export function initGeneralSection({
     onRequestSaveStateUpdate();
   });
 
-  noBgCheckbox.addEventListener('change', () => {
-    setDraftThemeValue('noBackground', noBgCheckbox.checked);
+  bgDefault.addEventListener('change', () => {
+    setDraftThemeValue('backgroundDefault', bgDefault.checked);
 
     updateStates();
     onRequestSaveStateUpdate();
@@ -178,7 +178,7 @@ export function initGeneralSection({
 
     const draft = getDraftTheme();
 
-    noBgCheckbox.checked = draft.noBackground;
+    bgDefault.checked = draft.backgroundDefault;
     bgColorInput.value = draft.backgroundColor;
     bgImageInput.value = draft.backgroundImageUrl || '';
 
