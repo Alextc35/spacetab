@@ -70,6 +70,7 @@ export const DEFAULT_BOOKMARKS = [
     ...DEFAULT_BOOKMARK,
     name: 'DEVELOPED BY',
     url: 'https://www.alextc.es',
+    urlLocked: true,
     noBackground: false,
     backgroundColor: '#161b22',
   },
