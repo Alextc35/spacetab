@@ -17,16 +17,17 @@ export function initThemeSection({
      DOM
   ================================================== */
 
-  const bgColorInput = document.getElementById('settings-modal-background-color');
-  const bgImageInput = document.getElementById('settings-modal-background-image');
-  const resetBgBtn = document.getElementById('settings-modal-reset-background');
+  const bgDefault = document.getElementById('settings-theme-bg-default');
+  const labelBgDefault = document.querySelector('label[for="settings-theme-bg-default"]');
+  const bgColorInput = document.getElementById('settings-theme-bg-color');
+  const bgImageInput = document.getElementById('settings-theme-bg-image');
+  const resetBgBtn = document.getElementById('settings-theme-reset-bg');
 
-  const clearBgImageBtn = document.getElementById('settings-modal-clear-background-image');
-  const copyBgImageBtn = document.getElementById('settings-modal-copy-background-image');
-  const toggleBtn = document.getElementById('settings-modal-toggle-background-image');
+  const clearBgImageBtn = document.getElementById('settings-theme-clear-bg-image');
+  const copyBgImageBtn = document.getElementById('settings-theme-copy-bg-image');
+  const toggleBtn = document.getElementById('settings-theme-toggle-bg-image');
 
-  const bgPreview = document.getElementById('settings-modal-background-preview');
-  const bgDefault = document.getElementById('settings-general-background-default');
+  const bgPreview = document.getElementById('settings-theme-bg-preview');
 
   let bgController;
 
