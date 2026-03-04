@@ -74,6 +74,7 @@ export function initThemeSection({
     const hasImage = hasImageValue(draft.backgroundImageUrl);
 
     bgDefault.disabled = hasImage;
+    labelBgDefault.classList.toggle('is-disabled', bgDefault.disabled);
 
     if (hasImage && bgDefault.checked) {
       bgDefault.checked = false;
