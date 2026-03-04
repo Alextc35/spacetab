@@ -86,6 +86,7 @@ export function createLockableInputController({
 
   return {
     isLocked,
-    setLocked
+    setLocked,
+    refresh: updateUI
   };
 }
