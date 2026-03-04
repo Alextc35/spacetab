@@ -45,11 +45,11 @@ export function initGeneralSection({
     bgPreview.style.backgroundImage = '';
 
     if (draft.backgroundDefault) {
-      bgPreview.classList.add('is-transparent');
+      bgPreview.classList.add('is-transparent', 'is-disabled');
       return;
     }
 
-    bgPreview.classList.remove('is-transparent');
+    bgPreview.classList.remove('is-transparent', 'is-disabled');
 
     bgPreview.style.backgroundColor = draft.backgroundColor;
 
