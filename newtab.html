@@ -308,84 +308,86 @@
 
             <h2 data-i18n="settingsModal.bookmark.title">Favoritos por defecto</h2>
 
-            <div class="checkbox-wrapper">
-              <input id="settings-bookmark-no-background" type="checkbox">
-              <label for="settings-bookmark-no-background"
-                data-i18n="editModal.noBackground">Sin fondo
+            <div class="modal-field">
+              <div class="checkbox-wrapper">
+                <input id="settings-bookmark-no-background" type="checkbox">
+                <label for="settings-bookmark-no-background"
+                  data-i18n="editModal.noBackground">Sin fondo
+                </label>
+              </div>
+
+              <label data-i18n="editModal.backgroundColor">
+                Color del bookmark:
               </label>
-            </div>
+              <input id="settings-bookmark-background-color" type="color">
 
-            <label data-i18n="editModal.backgroundColor">
-              Color del bookmark:
-            </label>
-            <input id="settings-bookmark-background-color" type="color">
-
-            <label data-i18n="editModal.backgroundImage">
-              Imagen de fondo (URL):
-            </label>
-            <div class="input-with-actions">
-              <input id="settings-bookmark-background-image" type="text" placeholder="https://...">
-              <button id="settings-bookmark-toggle-bg" class="input-action input-toggle" type="button">🔓</button>
-              <button id="settings-bookmark-copy-bg" class="input-action input-copy" type="button">📋</button>
-              <button id="settings-bookmark-clear-bg" class="input-action input-clear" type="button">✕</button>
-            </div>
-
-            <div class="checkbox-wrapper">
-              <input id="settings-bookmark-background-favicon" type="checkbox">
-              <label for="settings-bookmark-background-favicon"
-                data-i18n="editModal.backgroundFavicon">Favicon como background
+              <label data-i18n="editModal.backgroundImage">
+                Imagen de fondo (URL):
               </label>
-            </div>
+              <div class="input-with-actions">
+                <input id="settings-bookmark-background-image" type="text" placeholder="https://...">
+                <button id="settings-bookmark-toggle-bg" class="input-action input-toggle" type="button">🔓</button>
+                <button id="settings-bookmark-copy-bg" class="input-action input-copy" type="button">📋</button>
+                <button id="settings-bookmark-clear-bg" class="input-action input-clear" type="button">✕</button>
+              </div>
 
-            <div class="checkbox-wrapper">
-              <input id="settings-bookmark-invert-bg" type="checkbox">
-              <label for="settings-bookmark-invert-bg"
-                data-i18n="editModal.invertColorBg">Invertir colores
+              <div class="checkbox-wrapper">
+                <input id="settings-bookmark-background-favicon" type="checkbox">
+                <label for="settings-bookmark-background-favicon"
+                  data-i18n="editModal.backgroundFavicon">Favicon como background
+                </label>
+              </div>
+
+              <div class="checkbox-wrapper">
+                <input id="settings-bookmark-invert-bg" type="checkbox">
+                <label for="settings-bookmark-invert-bg"
+                  data-i18n="editModal.invertColorBg">Invertir colores
+                </label>
+              </div>
+
+              <div class="checkbox-wrapper">
+                <input id="settings-bookmark-show-text" type="checkbox">
+                <label data-i18n="editModal.showText">
+                  Mostrar texto
+                </label>
+              </div>
+
+              <label data-i18n="editModal.textColor">
+                Color del texto:
               </label>
+              <input id="settings-bookmark-text-color" type="color">
+
+              <div class="checkbox-wrapper">
+                <input id="settings-bookmark-show-favicon" type="checkbox">
+                <label for="settings-bookmark-show-favicon"
+                  data-i18n="editModal.showFavicon">Mostrar favicon
+                </label>
+              </div>
+
+              <div class="checkbox-wrapper">
+                <input id="settings-bookmark-invert-icon" type="checkbox">
+                <label for="settings-bookmark-invert-icon"
+                  data-i18n="editModal.invertColorIcon">Invertir colores
+                </label>
+              </div>
+
+              <button id="settings-bookmark-reset" class="btn btn-secondary" type="button"
+                data-i18n="settingsModal.bookmark.reset">Restablecer valores por defecto
+              </button>
+
+              <button id="export-btn" class="btn btn-info" type="button"
+                data-i18n="settingsModal.bookmark.export">Exportar Favoritos
+              </button>
+              <input id="import-input" class="is-hidden" type="file">
+
+              <button id="import-btn" class="btn btn-info" type="button"
+                data-i18n="settingsModal.bookmark.import">Importar Favoritos
+              </button>
+
+              <button id="delete-all-btn" class="btn btn-danger" type="button"
+                data-i18n="settingsModal.bookmark.deleteAll">Borrar todos los Favoritos
+              </button>
             </div>
-
-            <div class="checkbox-wrapper">
-              <input id="settings-bookmark-show-text" type="checkbox">
-              <label data-i18n="editModal.showText">
-                Mostrar texto
-              </label>
-            </div>
-
-            <label data-i18n="editModal.textColor">
-              Color del texto:
-            </label>
-            <input id="settings-bookmark-text-color" type="color">
-
-            <div class="checkbox-wrapper">
-              <input id="settings-bookmark-show-favicon" type="checkbox">
-              <label for="settings-bookmark-show-favicon"
-                data-i18n="editModal.showFavicon">Mostrar favicon
-              </label>
-            </div>
-
-            <div class="checkbox-wrapper">
-              <input id="settings-bookmark-invert-icon" type="checkbox">
-              <label for="settings-bookmark-invert-icon"
-                data-i18n="editModal.invertColorIcon">Invertir colores
-              </label>
-            </div>
-
-            <button id="settings-bookmark-reset" class="btn btn-secondary" type="button"
-              data-i18n="settingsModal.bookmark.reset">Restablecer valores por defecto
-            </button>
-
-            <button id="export-btn" class="btn btn-info" type="button"
-              data-i18n="settingsModal.bookmark.export">Exportar Favoritos
-            </button>
-            <input id="import-input" class="is-hidden" type="file">
-
-            <button id="import-btn" class="btn btn-info" type="button"
-              data-i18n="settingsModal.bookmark.import">Importar Favoritos
-            </button>
-
-            <button id="delete-all-btn" class="btn btn-danger" type="button"
-              data-i18n="settingsModal.bookmark.deleteAll">Borrar todos los Favoritos
-            </button>
           </div>
 
           <div id="settings-modal-tab-lang" class="settings-modal-tab-content is-hidden custom-scrollbar">
