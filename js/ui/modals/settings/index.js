@@ -1,8 +1,8 @@
 import { initBookmarkSection } from './bookmarkSection.js';
+import { initLanguageSection } from './languageSection.js';
 import { initThemeSection } from './themeSection.js';
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
 import { showAlert } from '../alertModal.js';
-import { changeLanguage, t } from '../../../core/i18n.js';
 import { flashSuccess } from '../../flash.js';
 import { getState } from '../../../core/store.js';
 import { updateSettings } from '../../../core/settings.js';
@@ -10,18 +10,15 @@ import {
   initDraft,
   resetState,
   hasChanges,
-  buildNewSettings,
-  getDraftLanguage,
-  getInitialSnapshot,
-  setDraftLanguage,
+  buildNewSettings
 } from './settingsState.js';
+import { t } from '../../../core/i18n.js';
 
 export function initSettingsModal() {
   const settingsBtn = document.getElementById('settings');
   const settingsModal = document.getElementById('settings-modal');
   const settingsSave = document.getElementById('settings-modal-save');
   const settingsCancel = document.getElementById('settings-modal-cancel');
-  const languageSelect = document.getElementById('language-select');
 
   /* ==================================================
      Helpers
@@ -38,6 +35,10 @@ export function initSettingsModal() {
   });
 
   const bookmarkSection = initBookmarkSection({
+    onRequestSaveStateUpdate: updateSaveButtonState
+  });
+
+  const languageSection = initLanguageSection({
     onRequestSaveStateUpdate: updateSaveButtonState
   });
 
@@ -85,8 +86,7 @@ export function initSettingsModal() {
 
     themeSection.syncUI();
     bookmarkSection.syncUI();
-
-    languageSelect.value = getDraftLanguage();
+    languageSection.syncUI();
 
     updateSaveButtonState();
 
@@ -110,10 +110,7 @@ export function initSettingsModal() {
     );
 
     if (ok) {
-      await changeLanguage({
-        language: getInitialSnapshot().language
-      });
-
+      await languageSection.restoreInitialLanguage();
       resetState();
       closeModal();
     }
@@ -126,16 +123,6 @@ export function initSettingsModal() {
     flashSuccess('flash.settings.saved');
     resetState();
     closeModal();
-  });
-
-  /* ==================================================
-     Events
-  ================================================== */
-
-  languageSelect.addEventListener('change', async () => {
-    setDraftLanguage(languageSelect.value);
-    await changeLanguage({ language: languageSelect.value });
-    updateSaveButtonState();
   });
 
     /* ==================================================
