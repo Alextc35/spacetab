@@ -60,6 +60,38 @@ export function shouldSuppressGlobalEnter() {
 }
 
 document.addEventListener('keydown', (e) => {
+  const isTyping =
+    ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)
+    || document.activeElement?.isContentEditable;
+
+  if (!isTyping) {
+    for (const modalConfig of registry.values()) {
+      if (!modalConfig.shortcut) continue;
+
+      if (e.key === modalConfig.shortcut) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const active = getActive();
+
+        // If toggle enabled and this modal is active → cancel
+        if (
+          modalConfig.toggleWithShortcut &&
+          active?.id === modalConfig.id
+        ) {
+          active.onCancel?.();
+          return;
+        }
+
+        // If no modal open → trigger shortcut handler
+        if (!active) {
+          modalConfig.onShortcut?.();
+          return;
+        }
+      }
+    }
+  }
+  
   const modal = getActive();
   if (!modal) return;
 
@@ -102,7 +134,10 @@ export function registerModal({
   closeOnEsc = true,
   closeOnOverlay = true,
   acceptOnEnter = false,
-  initialFocus = null
+  initialFocus = null,
+  shortcut = null,
+  toggleWithShortcut = false,
+  onShortcut = null
 }) {
   if (!id || !element) {
     throw new Error('Modal must have id and element');
@@ -134,7 +169,10 @@ export function registerModal({
     element,
     closeOnEsc,
     acceptOnEnter,
-    initialFocus
+    initialFocus,
+    shortcut,
+    toggleWithShortcut,
+    onShortcut
   });
 }
 
