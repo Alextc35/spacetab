@@ -59,7 +59,10 @@ export function initSettingsModal() {
     acceptOnEnter: false,
     closeOnEsc: true,
     closeOnOverlay: false,
-    initialFocus: null
+    initialFocus: null,
+    shortcut: '.',
+    toggleWithShortcut: true,
+    onShortcut: () => settingsBtn.click()
   });
 
   async function handleCancelAttempt() {

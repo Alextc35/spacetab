@@ -110,12 +110,6 @@ function handleGlobalKeydown(e) {
 
   if (hasOpenModal()) return;
 
-  if (e.key === '.') {
-    e.preventDefault();
-    document.getElementById('settings')?.click();
-    return;
-  }
-
   if (e.code === 'Enter') {
     e.preventDefault();
     showAddBookmarkModal();
