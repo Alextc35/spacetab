@@ -5,7 +5,14 @@ export function renderBookmarkPreview(container, bookmark) {
 
   container.innerHTML = '';
 
-  const previewBookmark = createBookmarkElement(bookmark, {
+  const previewBookmarkData = {
+    ...bookmark,
+    showFavicon: bookmark.backgroundFavicon
+      ? false
+      : bookmark.showFavicon
+  };
+
+  const previewBookmark = createBookmarkElement(previewBookmarkData, {
     isEditing: false,
     isPreview: true
   });

@@ -60,7 +60,7 @@ export function initBookmarkSection({
   }
 
   function refreshPreview() {
-    updateSettingsPreview(getDraftBookmarkDefault());
+    updateSettingsPreview();
   }
 
   function hasImageValue(value) {
