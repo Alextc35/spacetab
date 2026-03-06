@@ -85,6 +85,7 @@ export function initSettingsModal() {
     if (!ok) return false;
 
     await languageSection.restoreInitialLanguage();
+    bookmarkSection.cancelChanges();
     resetState();
     closeModal();
     return true;

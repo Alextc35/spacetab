@@ -34,12 +34,11 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   const deleteAllBtn = document.getElementById('delete-all-btn');
 
   let editor;
+  let initialBookmarkDraft = structuredClone(getDraftBookmarkDefault());
 
   initImportExportButtons(exportBtn, importInput);
 
-  function syncEditor() {
-    const draft = structuredClone(getDraftBookmarkDefault());
-
+  function syncEditor(draft = structuredClone(getDraftBookmarkDefault())) {
     if (editor?.destroy) editor.destroy();
 
     editor = createBookmarkEditor({
@@ -69,19 +68,33 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   syncEditor();
 
   bookmarkResetBtn.addEventListener('click', async () => {
-    const ok = await showAlert(t('alert.settings.bookmark.reset'), { type: 'confirm' });
+    const ok = await showAlert(
+      t('alert.settings.bookmark.reset'),
+      { type: 'confirm' }
+    );
     if (!ok) return;
+
     replaceDraftBookmarkDefault({
       ...structuredClone(DEFAULT_SETTINGS.bookmarkDefault),
       name: 'Test',
       url: 'https://.internal'
     });
+
     syncEditor();
     onRequestSaveStateUpdate();
   });
 
+  async function cancelChanges() {
+    replaceDraftBookmarkDefault(structuredClone(initialBookmarkDraft));
+    syncEditor();
+    onRequestSaveStateUpdate();
+  }
+
   deleteAllBtn.addEventListener('click', deleteAllBookmarks);
   importBtn.addEventListener('click', () => importInput.click());
 
-  return { syncUI: () => editor?.syncUI() };
+  return { 
+    syncUI: () => editor?.syncUI(),
+    cancelChanges
+  };
 }
