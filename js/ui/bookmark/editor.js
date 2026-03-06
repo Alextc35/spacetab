@@ -1,33 +1,24 @@
 import { renderBookmarkPreview } from './preview.js';
 import { createLockableInputController } from '../modals/helper/stateLocked.js';
 
-export function createBookmarkEditor({
-  elements,
-  bookmark,
-  onChange
-}) {
+export function createBookmarkEditor({ elements, bookmark, onChange }) {
 
   const {
     preview,
     name,
     url,
-
     backgroundColor,
     backgroundImage,
     backgroundFavicon,
     noBackground,
     invertBg,
-
     showText,
     textColor,
-
     showFavicon,
     invertIcon,
-
     urlToggleBtn,
     urlCopyBtn,
     urlClearBtn,
-
     bgToggleBtn,
     bgCopyBtn,
     bgClearBtn
@@ -40,80 +31,35 @@ export function createBookmarkEditor({
      Helpers
   =============================== */
 
-  function hasImage(value) {
-    return typeof value === "string" && value.trim() !== "";
-  }
+  const hasImage = value => typeof value === "string" && value.trim() !== "";
 
-  function updatePreview() {
-    if (preview) {
-      renderBookmarkPreview(preview, bookmark);
-    }
-  }
+  const updatePreview = () => {
+    if (preview) renderBookmarkPreview(preview, bookmark);
+  };
 
-  function emitChange() {
+  const emitChange = () => {
     updatePreview();
     onChange?.(structuredClone(bookmark));
-  }
+  };
 
-  /* ===============================
-     State Rules
-  =============================== */
-
-  function updateStates() {
-
+  const updateStates = () => {
     const hasBgImage = hasImage(bookmark.backgroundImageUrl);
 
-    if (backgroundFavicon) {
-      backgroundFavicon.disabled = hasBgImage;
-    }
-
-    if (backgroundColor) {
-      backgroundColor.disabled = bookmark.noBackground;
-    }
-
-    if (textColor) {
-      textColor.disabled = !bookmark.showText;
-    }
-
-    if (backgroundImage) {
-      backgroundImage.disabled = bookmark.backgroundFavicon;
-    }
-
-    if (showFavicon) {
-      showFavicon.disabled = bookmark.backgroundFavicon;
-    }
-
-    if (invertBg) {
-      invertBg.disabled = bookmark.backgroundFavicon || !hasBgImage;
-    }
-
-    if (invertIcon) {
-      invertIcon.disabled = !bookmark.backgroundFavicon && !bookmark.showFavicon;
-    }
-  }
+    if (backgroundFavicon) backgroundFavicon.disabled = hasBgImage;
+    if (backgroundColor) backgroundColor.disabled = bookmark.noBackground;
+    if (textColor) textColor.disabled = !bookmark.showText;
+    if (backgroundImage) backgroundImage.disabled = bookmark.backgroundFavicon;
+    if (showFavicon) showFavicon.disabled = bookmark.backgroundFavicon;
+    if (invertBg) invertBg.disabled = bookmark.backgroundFavicon || !hasBgImage;
+    if (invertIcon) invertIcon.disabled = !bookmark.backgroundFavicon && !bookmark.showFavicon;
+    if (url) url.disabled = bookmark.urlLocked;
+  };
 
   /* ===============================
-    Lock Controller
+     Lock Controllers
   =============================== */
 
-  if (url && urlToggleBtn) {
-    urlController = createLockableInputController({
-      input: url,
-      toggleBtn: urlToggleBtn,
-      copyBtn: urlCopyBtn,
-      clearBtn: urlClearBtn,
-      initialLocked: bookmark.urlLocked ?? false,
-      onChange: () => {
-        bookmark.url = url.value.trim() || '';
-        bookmark.urlLocked = urlController?.isLocked() ?? false;
-
-        updateStates();
-        emitChange();
-      }
-    });
-  }
-
-  if (backgroundImage && bgToggleBtn) {
+  if (backgroundImage && bgToggleBtn && !bgController) {
     bgController = createLockableInputController({
       input: backgroundImage,
       toggleBtn: bgToggleBtn,
@@ -123,43 +69,39 @@ export function createBookmarkEditor({
       onChange: () => {
         bookmark.backgroundImageUrl = backgroundImage.value.trim() || null;
         bookmark.backgroundImageUrlLocked = bgController?.isLocked() ?? false;
-
         updateStates();
         emitChange();
       }
     });
   }
 
-  function refreshUrlController() {
-    if (urlController) {
-      urlController.setLocked(bookmark.urlLocked ?? false);
-      urlController.refresh?.();
-    }
+  if (url && urlToggleBtn && !urlController) {
+    urlController = createLockableInputController({
+      input: url,
+      toggleBtn: urlToggleBtn,
+      copyBtn: urlCopyBtn,
+      clearBtn: urlClearBtn,
+      initialLocked: bookmark.urlLocked ?? false,
+      onChange: () => {
+        bookmark.url = url.value.trim() || '';
+        bookmark.urlLocked = urlController?.isLocked() ?? false;
+        updateStates();
+        emitChange();
+      }
+    });
   }
 
-  function refreshBgController() {
-    if (bgController) {
-      bgController.setLocked(bookmark.backgroundImageUrlLocked ?? false);
-      bgController.refresh?.();
-    }
-  }
+  const refreshBgController = () => bgController?.refresh?.();
+  const refreshUrlController = () => urlController?.refresh?.();
 
   /* ===============================
      Bind Inputs
   =============================== */
 
   function bindInput(input, key, type = "input") {
-
     if (!input) return;
-
     input.addEventListener(type, () => {
-
-      if (input.type === "checkbox") {
-        bookmark[key] = input.checked;
-      } else {
-        bookmark[key] = input.value;
-      }
-
+      bookmark[key] = input.type === "checkbox" ? input.checked : input.value;
       updateStates();
       emitChange();
     });
@@ -167,18 +109,13 @@ export function createBookmarkEditor({
 
   bindInput(name, "name");
   bindInput(url, "url");
-
   bindInput(backgroundColor, "backgroundColor");
   bindInput(backgroundImage, "backgroundImageUrl");
-
   bindInput(backgroundFavicon, "backgroundFavicon", "change");
   bindInput(noBackground, "noBackground", "change");
-
   bindInput(invertBg, "invertColorBg", "change");
-
   bindInput(showText, "showText", "change");
   bindInput(textColor, "textColor");
-
   bindInput(showFavicon, "showFavicon", "change");
   bindInput(invertIcon, "invertColorIcon", "change");
 
@@ -186,46 +123,34 @@ export function createBookmarkEditor({
      Public API
   =============================== */
 
-  function syncUI() {
-
+  const syncUI = () => {
     if (name) name.value = bookmark.name ?? "";
     if (url) url.value = bookmark.url ?? "";
-
-    if (backgroundColor) backgroundColor.value = bookmark.backgroundColor;
+    if (backgroundColor) backgroundColor.value = bookmark.backgroundColor ?? "";
     if (backgroundImage) backgroundImage.value = bookmark.backgroundImageUrl ?? "";
-
-    if (backgroundFavicon) backgroundFavicon.checked = bookmark.backgroundFavicon;
-    if (noBackground) noBackground.checked = bookmark.noBackground;
-
-    if (invertBg) invertBg.checked = bookmark.invertColorBg;
-
-    if (showText) showText.checked = bookmark.showText;
-    if (textColor) textColor.value = bookmark.textColor;
-
-    if (showFavicon) showFavicon.checked = bookmark.showFavicon;
-    if (invertIcon) invertIcon.checked = bookmark.invertColorIcon;
+    if (backgroundFavicon) backgroundFavicon.checked = bookmark.backgroundFavicon ?? false;
+    if (noBackground) noBackground.checked = bookmark.noBackground ?? false;
+    if (invertBg) invertBg.checked = bookmark.invertColorBg ?? false;
+    if (showText) showText.checked = bookmark.showText ?? false;
+    if (textColor) textColor.value = bookmark.textColor ?? "";
+    if (showFavicon) showFavicon.checked = bookmark.showFavicon ?? false;
+    if (invertIcon) invertIcon.checked = bookmark.invertColorIcon ?? false;
 
     updateStates();
     updatePreview();
-    refreshUrlController();
     refreshBgController();
-  }
+    refreshUrlController();
+  };
 
-  function getState() {
-    return structuredClone(bookmark);
-  }
+  const getState = () => structuredClone(bookmark);
+  const setState = newState => { bookmark = structuredClone(newState); syncUI(); };
 
-  function setState(newState) {
-    bookmark = structuredClone(newState);
-    syncUI();
-  }
+  const destroy = () => {
+    bgController = null;
+    urlController = null;
+  };
 
   syncUI();
 
-  return {
-    syncUI,
-    updatePreview,
-    getState,
-    setState
-  };
+  return { syncUI, updatePreview, getState, setState, destroy, bgController, urlController };
 }

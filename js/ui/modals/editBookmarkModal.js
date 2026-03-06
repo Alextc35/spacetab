@@ -96,66 +96,46 @@ export function initEditBookmarkModal() {
 ===================================== */
 
 export function openModal(bookmarkId) {
-
   const state = getState();
-  const { bookmarks } = state.data;
-
-  const bookmark = bookmarks.find(b => b.id === bookmarkId);
-
+  const bookmark = state.data.bookmarks.find(b => b.id === bookmarkId);
   if (!bookmark) return;
 
   editingId = bookmarkId;
 
+  // Destruir editor anterior si existe
+  if (editor?.destroy) editor.destroy();
+
   editor = createBookmarkEditor({
-
     bookmark: structuredClone(bookmark),
-
     elements: {
-
       preview: previewContainer,
-
       name: modalName,
       url: modalUrl,
-
       backgroundColor: modalBackgroundColor,
       backgroundImage: modalBackgroundImage,
-
       backgroundFavicon: modalBackgroundFavicon,
       noBackground: modalNoBackground,
-
       invertBg: modalInvertColorBg,
-
       showText: modalShowText,
       textColor: modalTextColor,
-
       showFavicon: modalShowFavicon,
       invertIcon: modalInvertColorIcon,
-
       urlToggleBtn: modalUrlToggleBtn,
       urlCopyBtn: modalUrlCopyBtn,
       urlClearBtn: modalUrlClearBtn,
-
       bgToggleBtn: modalBgToggleBtn,
       bgCopyBtn: modalBgCopyBtn,
       bgClearBtn: modalBgClearBtn
-
     },
-
     onChange: updateSaveButtonState
-
   });
 
   initialSnapshot = editor.getState();
-
   updateSaveButtonState();
-
   activateTab('edit-bookmark-modal-tab-general');
   resetTabScroll();
-
   openManagedModal('edit-bookmark');
-
-}
-
+};
 
 /* =====================================
    Save
@@ -202,12 +182,10 @@ modalCancel.addEventListener('click', async () => {
 
 
 function closeEditModal() {
-
   editingId = null;
+  if (editor?.destroy) editor.destroy();
   editor = null;
-
   closeModal();
-
 }
 
 
