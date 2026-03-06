@@ -33,6 +33,11 @@ export function initBookmarkSection({
   const copyBtn = document.getElementById('settings-bookmark-copy-bg');
   const clearBtn = document.getElementById('settings-bookmark-clear-bg');
 
+  const labelBookmarkInvertBg = document.querySelector('label[for="settings-bookmark-invert-bg"]');
+  const labelBookmarkShowFavicon = document.querySelector('label[for="settings-bookmark-show-favicon"]');
+  const labelBookmarkBgFavicon = document.querySelector('label[for="settings-bookmark-background-favicon"]');
+  const labelBookmarkInvertIcon = document.querySelector('label[for="settings-bookmark-invert-icon"]');
+
   const exportBtn = document.getElementById('export-btn');
   const importBtn = document.getElementById('import-btn');
   const importInput = document.getElementById('import-input');
@@ -63,6 +68,11 @@ export function initBookmarkSection({
 
     bookmarkInvertBg.disabled = draft.backgroundFavicon || !hasImage;
     bookmarkInvertIcon.disabled = !draft.backgroundFavicon && !draft.showFavicon;
+
+    labelBookmarkInvertBg.classList.toggle('is-disabled', bookmarkInvertBg.disabled);
+    labelBookmarkShowFavicon.classList.toggle('is-disabled', bookmarkShowFavicon.disabled);
+    labelBookmarkBgFavicon.classList.toggle('is-disabled', bookmarkBgFavicon.disabled);
+    labelBookmarkInvertIcon.classList.toggle('is-disabled', bookmarkInvertIcon.disabled);
   }
 
   /* ==================================================
