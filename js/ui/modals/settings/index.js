@@ -49,6 +49,12 @@ export function initSettingsModal() {
     tabContentSelector: '.settings-modal-tab-content'
   });
 
+  const bookmarkTabs = initTabs({
+    rootSelector: '#settings-modal-tab-bookmark',
+    tabButtonSelector: '.edit-bookmark-modal-tab-btn',
+    tabContentSelector: '.edit-bookmark-modal-tab-content'
+  });
+
   /* ==================================================
      Modal registration
   ================================================== */
@@ -100,6 +106,8 @@ export function initSettingsModal() {
     updateSaveButtonState();
 
     tabs.activate('settings-modal-tab-general');
+    bookmarkTabs.activate('settings-bookmark-tab-style');
+    
     openModal('settings', {
       onCancel: handleCancelAttempt
     });

@@ -124,8 +124,8 @@ export const DEFAULT_SETTINGS = {
  */
 export const DEFAULT_STATE = {
   data: {
-    bookmarks: DEFAULT_BOOKMARKS,
-    settings: DEFAULT_SETTINGS
+    bookmarks: structuredClone(DEFAULT_BOOKMARKS),
+    settings: structuredClone(DEFAULT_SETTINGS)
   },
   ui: {
     isEditing: false

@@ -3,29 +3,36 @@ export function initTabs({
   tabButtonSelector,
   tabContentSelector,
   activeClass = 'active',
-  hiddenStyle = 'none'
+  hiddenClass = 'is-hidden'
 }) {
-  const root = document.querySelector(rootSelector);
 
+  const root = document.querySelector(rootSelector);
   if (!root) return;
 
   const buttons = root.querySelectorAll(tabButtonSelector);
   const contents = root.querySelectorAll(tabContentSelector);
 
   function activate(tabId) {
+
     buttons.forEach(btn => btn.classList.remove(activeClass));
-    contents.forEach(tab => tab.style.display = hiddenStyle);
+
+    contents.forEach(tab => {
+      tab.classList.add(hiddenClass);
+    });
 
     const btn = root.querySelector(
       `${tabButtonSelector}[data-tab="${tabId}"]`
     );
 
-    if (btn) btn.classList.add(activeClass);
+    if (btn) {
+      btn.classList.add(activeClass);
+    }
 
     const content = root.querySelector(`#${tabId}`);
 
     if (content) {
-      content.style.display = 'block';
+      content.classList.remove(hiddenClass);
+
       requestAnimationFrame(() => {
         content.scrollTop = 0;
       });
@@ -38,7 +45,6 @@ export function initTabs({
     });
   });
 
-  return {
-    activate
-  };
+  return { activate };
+
 }

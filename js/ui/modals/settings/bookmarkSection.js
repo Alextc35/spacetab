@@ -1,7 +1,7 @@
 import { createBookmarkEditor } from '../../bookmark/editor.js';
 import { showAlert } from '../alertModal.js';
 import { t } from '../../../core/i18n.js';
-import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
+import { DEFAULT_BOOKMARK_STYLE } from '../../../core/defaults.js';
 import { deleteAllBookmarks } from '../../bookmark/actions.js';
 import { initImportExportButtons } from '../../bookmark/importExport.js';
 import {
@@ -38,7 +38,7 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   initImportExportButtons(exportBtn, importInput);
 
   function syncEditor() {
-    const draft = getDraftBookmarkDefault();
+    const draft = structuredClone(getDraftBookmarkDefault());
 
     if (editor?.destroy) editor.destroy();
 
@@ -71,7 +71,11 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   bookmarkResetBtn.addEventListener('click', async () => {
     const ok = await showAlert(t('alert.settings.bookmark.reset'), { type: 'confirm' });
     if (!ok) return;
-    replaceDraftBookmarkDefault(DEFAULT_SETTINGS.bookmarkDefault);
+    replaceDraftBookmarkDefault({
+      ...structuredClone(DEFAULT_BOOKMARK_STYLE),
+      name: 'Test',
+      url: 'https://.internal'
+    });
     syncEditor();
     onRequestSaveStateUpdate();
   });

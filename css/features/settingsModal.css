@@ -148,12 +148,47 @@
 }
 
 .settings-bookmark-actions {
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 20px;
 }
 
 .settings-bookmark-actions .btn {
   width: 100%;
+}
+
+/* =========================================
+   SETTINGS BOOKMARK PREVIEW (COMPACT)
+========================================= */
+
+#settings-modal-tab-bookmark .edit-bookmark-modal-preview-panel {
+  width: 180px;
+  padding: 12px 16px;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+#settings-modal-tab-bookmark .edit-bookmark-modal-preview-panel h3 {
+  margin: 0;
+  font-size: 12px;
+  opacity: .6;
+}
+
+#settings-modal-tab-bookmark .bookmark-preview {
+  width: 150px;
+  height: 210px;
+}
+
+#settings-modal-tab-bookmark .edit-bookmark-modal-panel {
+  padding: 16px;
+}
+
+#settings-modal-tab-bookmark .edit-bookmark-modal-tab-content {
+  gap: 12px;
+}
+
+#settings-modal-tab-bookmark .edit-bookmark-modal-tab-content {
+  max-height: 210px;
+  overflow-y: auto;
 }
