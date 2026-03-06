@@ -21,7 +21,6 @@ export function initBookmarkSection({
 
   const preview = document.getElementById('settings-bookmark-preview');
 
-  const bookmarkName = document.getElementById('settings-bookmark-name');
   const bookmarkBgColor = document.getElementById('settings-bookmark-background-color');
   const bookmarkBgImage = document.getElementById('settings-bookmark-background-image');
   const bookmarkNoBg = document.getElementById('settings-bookmark-no-background');
@@ -95,6 +94,7 @@ export function initBookmarkSection({
     const draft = getDraftBookmarkDefault();
 
     draft.name = 'Test';
+    draft.url = 'https://.internal';
     bookmarkBgColor.value = draft.backgroundColor;
     bookmarkBgImage.value = draft.backgroundImageUrl || '';
     bookmarkNoBg.checked = draft.noBackground;

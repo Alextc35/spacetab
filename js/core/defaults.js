@@ -108,7 +108,9 @@ export const DEFAULT_SETTINGS = {
   },
 
   bookmarkDefault: {
-    ...DEFAULT_BOOKMARK_STYLE
+    ...DEFAULT_BOOKMARK_STYLE,
+    name: 'Test',
+    url: 'https://.internal'
   }
 };
 
