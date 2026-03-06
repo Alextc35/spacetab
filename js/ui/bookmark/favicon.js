@@ -1,4 +1,4 @@
-import '../types/types.js'; // typedefs
+import '../../types/types.js'; // typedefs
 
 /**
  * Creates a favicon image element for a bookmark.

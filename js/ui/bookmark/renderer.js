@@ -1,7 +1,7 @@
 import { getState } from '../../core/store.js';
 import { updateGridSize, getRowWidth, getRowHeight } from '../gridLayout.js';
 import { PADDING } from '../../core/config.js';
-import { createFavicon } from '../favicon.js';
+import { createFavicon } from './favicon.js';
 import { addDragAndResize } from './dragResize.js';
 import { addEditDeleteButtons } from './actions.js';
 
