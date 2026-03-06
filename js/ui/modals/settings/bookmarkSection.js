@@ -1,3 +1,4 @@
+import { renderBookmarkPreview } from '../../bookmark/preview.js';
 import { createLockableInputController } from '../helper/stateLocked.js';
 import { showAlert } from '../alertModal.js';
 import { t } from '../../../core/i18n.js';
@@ -18,6 +19,9 @@ export function initBookmarkSection({
      DOM
   ================================================== */
 
+  const preview = document.getElementById('settings-bookmark-preview');
+
+  const bookmarkName = document.getElementById('settings-bookmark-name');
   const bookmarkBgColor = document.getElementById('settings-bookmark-background-color');
   const bookmarkBgImage = document.getElementById('settings-bookmark-background-image');
   const bookmarkNoBg = document.getElementById('settings-bookmark-no-background');
@@ -51,6 +55,14 @@ export function initBookmarkSection({
      Helpers
   ================================================== */
 
+  function updateSettingsPreview(){
+    renderBookmarkPreview(preview, getDraftBookmarkDefault());
+  }
+
+  function refreshPreview() {
+    updateSettingsPreview(getDraftBookmarkDefault());
+  }
+
   function hasImageValue(value) {
     return typeof value === 'string' && value.trim() !== '';
   }
@@ -82,6 +94,7 @@ export function initBookmarkSection({
   function syncUI() {
     const draft = getDraftBookmarkDefault();
 
+    draft.name = 'Test';
     bookmarkBgColor.value = draft.backgroundColor;
     bookmarkBgImage.value = draft.backgroundImageUrl || '';
     bookmarkNoBg.checked = draft.noBackground;
@@ -120,6 +133,7 @@ export function initBookmarkSection({
     }
 
     updateStates();
+    updateSettingsPreview(draft);
   }
 
   /* ==================================================
@@ -128,6 +142,7 @@ export function initBookmarkSection({
 
   bookmarkBgColor.addEventListener('input', () => {
     setDraftBookmarkValue('backgroundColor', bookmarkBgColor.value);
+    refreshPreview();
     onRequestSaveStateUpdate();
   });
 
@@ -136,46 +151,54 @@ export function initBookmarkSection({
       'backgroundImageUrl',
       bookmarkBgImage.value.trim() || null
     );
+    refreshPreview();
     updateStates();
     onRequestSaveStateUpdate();
   });
 
   bookmarkNoBg.addEventListener('change', () => {
     setDraftBookmarkValue('noBackground', bookmarkNoBg.checked);
+    refreshPreview();
     updateStates();
     onRequestSaveStateUpdate();
   });
 
   bookmarkBgFavicon.addEventListener('change', () => {
     setDraftBookmarkValue('backgroundFavicon', bookmarkBgFavicon.checked);
+    refreshPreview();
     updateStates();
     onRequestSaveStateUpdate();
   });
 
   bookmarkInvertBg.addEventListener('change', () => {
     setDraftBookmarkValue('invertColorBg', bookmarkInvertBg.checked);
+    refreshPreview();
     onRequestSaveStateUpdate();
   });
 
   bookmarkShowText.addEventListener('change', () => {
     setDraftBookmarkValue('showText', bookmarkShowText.checked);
+    refreshPreview();
     updateStates();
     onRequestSaveStateUpdate();
   });
 
   bookmarkTextColor.addEventListener('input', () => {
     setDraftBookmarkValue('textColor', bookmarkTextColor.value);
+    refreshPreview();
     onRequestSaveStateUpdate();
   });
 
   bookmarkShowFavicon.addEventListener('change', () => {
     setDraftBookmarkValue('showFavicon', bookmarkShowFavicon.checked);
+    refreshPreview();
     updateStates();
     onRequestSaveStateUpdate();
   });
 
   bookmarkInvertIcon.addEventListener('change', () => {
     setDraftBookmarkValue('invertColorIcon', bookmarkInvertIcon.checked);
+    refreshPreview();
     onRequestSaveStateUpdate();
   });
 
@@ -189,6 +212,7 @@ export function initBookmarkSection({
 
     replaceDraftBookmarkDefault(DEFAULT_SETTINGS.bookmarkDefault);
     syncUI();
+    refreshPreview();
     onRequestSaveStateUpdate();
   });
 

@@ -223,7 +223,7 @@
 
         <div class="edit-bookmark-modal-preview-panel">
           <h3 data-i18n="editModal.preview">Preview</h3>
-          <div id="edit-bookmark-modal-preview"></div>
+          <div id="edit-bookmark-modal-preview" class="bookmark-preview"></div>
         </div>
       </div>
 
@@ -337,7 +337,13 @@
 
             <h3 data-i18n="settingsModal.bookmark.subtitle">Favorito por defecto</h3>
 
+            <div class="settings-bookmark-preview">
+              <h3>Preview</h3>
+              <div id="settings-bookmark-preview" class="bookmark-preview"></div>
+            </div>
+
             <div class="modal-field">
+              <input id="settings-bookmark-name" type="hidden">
               <div class="checkbox-wrapper">
                 <input id="settings-bookmark-no-background" type="checkbox">
                 <label for="settings-bookmark-no-background"

@@ -1,3 +1,4 @@
+import { renderBookmarkPreview } from '../bookmark/preview.js';
 import { createLockableInputController } from './helper/stateLocked.js';
 import { updateBookmarkById } from '../../core/bookmark.js';
 import { flashSuccess } from '../flash.js';
@@ -99,22 +100,7 @@ function buildDraft() {
 const previewContainer = document.getElementById('edit-bookmark-modal-preview');
 
 function renderPreview() {
-  if (!draft) return;
-
-  previewContainer.innerHTML = '';
-
-  const previewBookmark = createBookmarkElement(draft, {
-    isEditing: false,
-    isPreview: true
-  });
-
-  // Evitamos posicionamiento grid
-  previewBookmark.style.removeProperty('--x');
-  previewBookmark.style.removeProperty('--y');
-  previewBookmark.style.removeProperty('--w');
-  previewBookmark.style.removeProperty('--h');
-
-  previewContainer.appendChild(previewBookmark);
+  renderBookmarkPreview(previewContainer, draft);
 }
 
 function updatePreview() {
