@@ -1,4 +1,4 @@
-import '../types/types.js'; // typedefs
+import '../../types/types.js'; // typedefs
 
 /**
  * Determines whether a bookmark should be considered visually dark.

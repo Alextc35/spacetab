@@ -2,8 +2,8 @@ import { createLockableInputController } from '../helper/stateLocked.js';
 import { showAlert } from '../alertModal.js';
 import { t } from '../../../core/i18n.js';
 import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
-import { deleteAllBookmarks } from '../../bookmarkActions.js';
-import { initImportExportButtons } from '../../bookmarkImportExport.js';
+import { deleteAllBookmarks } from '../../bookmark/actions.js';
+import { initImportExportButtons } from '../../bookmark/importExport.js';
 
 import {
   getDraftBookmarkDefault,

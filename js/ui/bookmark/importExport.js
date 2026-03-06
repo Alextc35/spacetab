@@ -1,6 +1,6 @@
-import { DEBUG } from '../core/config.js';
-import { getState, setState } from '../core/store.js';
-import { flashSuccess, flashError } from './flash.js';
+import { DEBUG } from '../../core/config.js';
+import { getState, setState } from '../../core/store.js';
+import { flashSuccess, flashError } from '../flash.js';
 
 /**
  * Exports all current bookmarks as a JSON file.

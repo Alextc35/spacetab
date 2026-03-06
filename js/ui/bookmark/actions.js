@@ -1,10 +1,10 @@
-import '../types/types.js'; // typedefs
-import { deleteBookmarkById, clearBookmarks } from '../core/bookmark.js';
-import { t } from '../core/i18n.js';
-import { showAlert } from './modals/alertModal.js';
-import { openModal } from './modals/editBookmarkModal.js';
-import { isVisuallyDark } from './bookmarkUtils.js';
-import { flashSuccess, flashError } from './flash.js';
+import '../../types/types.js'; // typedefs
+import { deleteBookmarkById, clearBookmarks } from '../../core/bookmark.js';
+import { t } from '../../core/i18n.js';
+import { showAlert } from '../modals/alertModal.js';
+import { openModal } from '../modals/editBookmarkModal.js';
+import { isVisuallyDark } from './utils.js';
+import { flashSuccess, flashError } from '../flash.js';
 
 /**
  * Adds edit and delete action buttons to a bookmark element.

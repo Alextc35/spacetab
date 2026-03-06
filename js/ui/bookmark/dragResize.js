@@ -1,9 +1,9 @@
-import '../types/types.js'; // typedefs
-import { updateBookmarkById } from '../core/bookmark.js';
-import { GRID_COLS, GRID_ROWS, PADDING } from '../core/config.js';
-import { isAreaFree } from '../core/grid.js';
-import { getState } from '../core/store.js';
-import { confirmDeleteBookmark } from './bookmarkActions.js';
+import '../../types/types.js'; // typedefs
+import { updateBookmarkById } from '../../core/bookmark.js';
+import { GRID_COLS, GRID_ROWS, PADDING } from '../../core/config.js';
+import { isAreaFree } from '../../core/grid.js';
+import { getState } from '../../core/store.js';
+import { confirmDeleteBookmark } from './actions.js';
 
 let dragging = false;
 let resizing = false;

@@ -2,7 +2,7 @@ import { VERSION, DEBUG  } from './core/config.js';
 import { subscribe, hydrateStore } from './core/store.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
-import { renderBookmarks } from './ui/bookmarkRenderer.js';
+import { renderBookmarks } from './ui/bookmark/renderer.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
 import { initAddBookmarkModal, initEditBookmarkModal,
   initAlertModal, initSettingsModal } from './ui/modals/index.js';

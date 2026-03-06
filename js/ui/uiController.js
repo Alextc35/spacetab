@@ -1,5 +1,5 @@
 import { toggleEditing } from '../core/store.js';
-import { renderBookmarks } from './bookmarkRenderer.js';
+import { renderBookmarks } from './bookmark/renderer.js';
 import { flash } from './flash.js';
 import { t } from '../core/i18n.js';
 import { hasOpenModal, shouldSuppressGlobalEnter } from './modalManager.js';
