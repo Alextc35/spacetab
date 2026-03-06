@@ -24,6 +24,10 @@ export function createBookmarkEditor({
     showFavicon,
     invertIcon,
 
+    urlToggleBtn,
+    urlCopyBtn,
+    urlClearBtn,
+
     bgToggleBtn,
     bgCopyBtn,
     bgClearBtn
@@ -88,11 +92,40 @@ export function createBookmarkEditor({
   }
 
   /* ===============================
-     Lock Controller
+    URL Lock Controller
+  =============================== */
+
+  let urlController;
+
+  if (url && urlToggleBtn) {
+    urlController = createLockableInputController({
+      input: url,
+      toggleBtn: urlToggleBtn,
+      copyBtn: urlCopyBtn,
+      clearBtn: urlClearBtn,
+      initialLocked: bookmark.urlLocked ?? false,
+      onChange: () => {
+        bookmark.url = url.value.trim() || '';
+        bookmark.urlLocked = urlController?.isLocked() ?? false;
+
+        updateStates();
+        emitChange();
+      }
+    });
+  }
+
+  function refreshUrlController() {
+    if (urlController) {
+      urlController.setLocked(bookmark.urlLocked ?? false);
+      urlController.refresh?.();
+    }
+  }
+
+  /* ===============================
+    BG Lock Controller
   =============================== */
 
   if (backgroundImage && bgToggleBtn) {
-
     bgController = createLockableInputController({
       input: backgroundImage,
       toggleBtn: bgToggleBtn,
@@ -100,17 +133,20 @@ export function createBookmarkEditor({
       clearBtn: bgClearBtn,
       initialLocked: bookmark.backgroundImageUrlLocked ?? false,
       onChange: () => {
-
-        bookmark.backgroundImageUrl =
-          backgroundImage.value.trim() || null;
-
-        bookmark.backgroundImageUrlLocked =
-          bgController?.isLocked() ?? false;
+        bookmark.backgroundImageUrl = backgroundImage.value.trim() || null;
+        bookmark.backgroundImageUrlLocked = bgController?.isLocked() ?? false;
 
         updateStates();
         emitChange();
       }
     });
+  }
+
+  function refreshBgController() {
+    if (bgController) {
+      bgController.setLocked(bookmark.backgroundImageUrlLocked ?? false);
+      bgController.refresh?.();
+    }
   }
 
   /* ===============================
@@ -176,6 +212,9 @@ export function createBookmarkEditor({
 
     updateStates();
     updatePreview();
+
+    refreshUrlController();
+    refreshBgController();
   }
 
   function getState() {
