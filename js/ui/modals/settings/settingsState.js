@@ -1,4 +1,5 @@
 // settingsState.js
+import { getState, setState } from '../../../core/store.js'
 
 let draftTheme = null;
 let draftLanguage = null;
@@ -37,7 +38,10 @@ export function getDraftLanguage() {
 }
 
 export function getDraftBookmarkDefault() {
-  return draftBookmarkDefault;
+
+  const state = getState();
+
+  return state.data.settings?.bookmarkDefault ?? {};
 }
 
 export function getInitialSnapshot() {
