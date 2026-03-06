@@ -34,10 +34,15 @@ export function createBookmarkEditor({
   } = elements;
 
   let bgController;
+  let urlController;
 
   /* ===============================
      Helpers
   =============================== */
+
+  function hasImage(value) {
+    return typeof value === "string" && value.trim() !== "";
+  }
 
   function updatePreview() {
     if (preview) {
@@ -48,10 +53,6 @@ export function createBookmarkEditor({
   function emitChange() {
     updatePreview();
     onChange?.(structuredClone(bookmark));
-  }
-
-  function hasImage(value) {
-    return typeof value === "string" && value.trim() !== "";
   }
 
   /* ===============================
@@ -92,10 +93,8 @@ export function createBookmarkEditor({
   }
 
   /* ===============================
-    URL Lock Controller
+    Lock Controller
   =============================== */
-
-  let urlController;
 
   if (url && urlToggleBtn) {
     urlController = createLockableInputController({
@@ -114,17 +113,6 @@ export function createBookmarkEditor({
     });
   }
 
-  function refreshUrlController() {
-    if (urlController) {
-      urlController.setLocked(bookmark.urlLocked ?? false);
-      urlController.refresh?.();
-    }
-  }
-
-  /* ===============================
-    BG Lock Controller
-  =============================== */
-
   if (backgroundImage && bgToggleBtn) {
     bgController = createLockableInputController({
       input: backgroundImage,
@@ -140,6 +128,13 @@ export function createBookmarkEditor({
         emitChange();
       }
     });
+  }
+
+  function refreshUrlController() {
+    if (urlController) {
+      urlController.setLocked(bookmark.urlLocked ?? false);
+      urlController.refresh?.();
+    }
   }
 
   function refreshBgController() {
@@ -212,7 +207,6 @@ export function createBookmarkEditor({
 
     updateStates();
     updatePreview();
-
     refreshUrlController();
     refreshBgController();
   }
