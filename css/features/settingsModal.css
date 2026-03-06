@@ -163,7 +163,7 @@
 ========================================= */
 
 #settings-modal-tab-bookmark .edit-bookmark-modal-preview-panel {
-  width: 180px;
+  width: 200px;
   padding: 12px 16px;
   justify-content: flex-start;
   gap: 8px;
@@ -176,19 +176,16 @@
 }
 
 #settings-modal-tab-bookmark .bookmark-preview {
-  width: 150px;
+  width: 180px;
   height: 210px;
 }
 
 #settings-modal-tab-bookmark .edit-bookmark-modal-panel {
-  padding: 16px;
+  padding: 5px 5px 0 0; 
+  flex-direction: column;
+  overflow: hidden; 
 }
 
 #settings-modal-tab-bookmark .edit-bookmark-modal-tab-content {
-  gap: 12px;
-}
-
-#settings-modal-tab-bookmark .edit-bookmark-modal-tab-content {
-  max-height: 210px;
-  overflow-y: auto;
+  gap: 6px;
 }
