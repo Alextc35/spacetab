@@ -38,10 +38,8 @@ export function getDraftLanguage() {
 }
 
 export function getDraftBookmarkDefault() {
-
-  const state = getState();
-
-  return state.data.settings?.bookmarkDefault ?? {};
+  const { data: { settings } } = getState();
+  return draftBookmarkDefault ?? settings.bookmarkDefault;
 }
 
 export function getInitialSnapshot() {

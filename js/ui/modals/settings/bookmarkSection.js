@@ -1,7 +1,7 @@
 import { createBookmarkEditor } from '../../bookmark/editor.js';
 import { showAlert } from '../alertModal.js';
 import { t } from '../../../core/i18n.js';
-import { DEFAULT_BOOKMARK_STYLE } from '../../../core/defaults.js';
+import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
 import { deleteAllBookmarks } from '../../bookmark/actions.js';
 import { initImportExportButtons } from '../../bookmark/importExport.js';
 import {
@@ -72,7 +72,7 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
     const ok = await showAlert(t('alert.settings.bookmark.reset'), { type: 'confirm' });
     if (!ok) return;
     replaceDraftBookmarkDefault({
-      ...structuredClone(DEFAULT_BOOKMARK_STYLE),
+      ...structuredClone(DEFAULT_SETTINGS.bookmarkDefault),
       name: 'Test',
       url: 'https://.internal'
     });
