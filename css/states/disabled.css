@@ -1,5 +1,5 @@
 .is-disabled,
-:disabled {
+:disabled + label {
   opacity: 0.6 !important;
   cursor: not-allowed;
   position: relative;

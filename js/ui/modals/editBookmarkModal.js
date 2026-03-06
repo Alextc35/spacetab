@@ -14,23 +14,19 @@ const modalUrlToggleBtn = document.getElementById('edit-modal-toggle-url');
 const modalUrlCopyBtn = document.getElementById('edit-modal-copy-url');
 const modalUrlClearBtn = document.getElementById('edit-modal-clear-url');
 const modalInvertColorIcon = document.getElementById('edit-bookmark-modal-invert-color-icon');
-const labelModalInvertColorIcon = document.querySelector('label[for="edit-bookmark-modal-invert-color-icon"]');
 const modalInvertColorBg = document.getElementById('edit-bookmark-modal-invert-color-bg');
-const labelModalInvertColorBg = document.querySelector('label[for="edit-bookmark-modal-invert-color-bg"]');
 const modalSave = document.getElementById('edit-bookmark-modal-save');
 const modalCancel = document.getElementById('edit-bookmark-modal-cancel');
 const modalBackgroundColor = document.getElementById('edit-bookmark-modal-background-color');
 const modalNoBackground = document.getElementById('edit-bookmark-modal-no-background');
 const modalTextColor = document.getElementById('edit-bookmark-modal-text-color');
 const modalShowFavicon = document.getElementById('edit-bookmark-modal-show-favicon');
-const labelModalShowFavicon = document.querySelector('label[for="edit-bookmark-modal-show-favicon"]');
 const modalShowText = document.getElementById('edit-bookmark-modal-show-text');
 const modalBackgroundImage = document.getElementById('edit-bookmark-modal-background-image');
 const modalBgToggleBtn = document.getElementById('edit-modal-toggle-background-image');
 const modalBgCopyBtn = document.getElementById('edit-modal-copy-background-image');
 const modalBgClearBtn = document.getElementById('edit-modal-clear-background-image');
 const modalBackgroundFavicon = document.getElementById('edit-bookmark-modal-background-favicon');
-const labelModalBackgroundFavicon = document.querySelector('label[for="edit-bookmark-modal-background-favicon"]');
 
 let editingId = null;
 let draft = null;
@@ -239,30 +235,6 @@ function updateStates() {
   modalInvertColorBg.disabled = modalBackgroundFavicon.checked || !hasImage;
 
   modalInvertColorIcon.disabled = !modalBackgroundFavicon.checked && !modalShowFavicon.checked;
-
-  if (modalInvertColorBg.disabled) {
-    labelModalInvertColorBg.classList.add('is-disabled');
-  } else {
-    labelModalInvertColorBg.classList.remove('is-disabled');
-  }
-
-  if (modalShowFavicon.disabled) {
-    labelModalShowFavicon.classList.add('is-disabled');
-  } else {
-    labelModalShowFavicon.classList.remove('is-disabled');
-  }
-
-  if (modalBackgroundFavicon.disabled) {
-    labelModalBackgroundFavicon.classList.add('is-disabled');
-  } else {
-    labelModalBackgroundFavicon.classList.remove('is-disabled');
-  }
-
-  if (modalInvertColorIcon.disabled) {
-    labelModalInvertColorIcon.classList.add('is-disabled');
-  } else {
-    labelModalInvertColorIcon.classList.remove('is-disabled');
-  }
 }
 
 modalBackgroundImage.addEventListener('input', updateStates);
