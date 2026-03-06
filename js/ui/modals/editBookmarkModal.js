@@ -1,138 +1,81 @@
-import { renderBookmarkPreview } from '../bookmark/preview.js';
-import { createLockableInputController } from './helper/stateLocked.js';
+import { createBookmarkEditor } from '../bookmark/editor.js';
 import { updateBookmarkById } from '../../core/bookmark.js';
 import { flashSuccess } from '../flash.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 import { getState } from '../../core/store.js';
-import { createBookmarkElement } from '../bookmark/renderer.js';
 import { showAlert } from './alertModal.js';
 import { t } from '../../core/i18n.js';
 
 const editModal = document.getElementById('edit-bookmark-modal');
+
 const modalName = document.getElementById('edit-bookmark-modal-name');
 const modalUrl = document.getElementById('edit-bookmark-modal-url');
+
 const modalUrlToggleBtn = document.getElementById('edit-modal-toggle-url');
 const modalUrlCopyBtn = document.getElementById('edit-modal-copy-url');
 const modalUrlClearBtn = document.getElementById('edit-modal-clear-url');
+
 const modalInvertColorIcon = document.getElementById('edit-bookmark-modal-invert-color-icon');
-const labelModalInvertColorIcon = document.querySelector('label[for="edit-bookmark-modal-invert-color-icon"]');
 const modalInvertColorBg = document.getElementById('edit-bookmark-modal-invert-color-bg');
-const labelModalInvertColorBg = document.querySelector('label[for="edit-bookmark-modal-invert-color-bg"]');
-const modalSave = document.getElementById('edit-bookmark-modal-save');
-const modalCancel = document.getElementById('edit-bookmark-modal-cancel');
+
 const modalBackgroundColor = document.getElementById('edit-bookmark-modal-background-color');
 const modalNoBackground = document.getElementById('edit-bookmark-modal-no-background');
+
 const modalTextColor = document.getElementById('edit-bookmark-modal-text-color');
-const modalShowFavicon = document.getElementById('edit-bookmark-modal-show-favicon');
-const labelModalShowFavicon = document.querySelector('label[for="edit-bookmark-modal-show-favicon"]');
 const modalShowText = document.getElementById('edit-bookmark-modal-show-text');
+
+const modalShowFavicon = document.getElementById('edit-bookmark-modal-show-favicon');
+
 const modalBackgroundImage = document.getElementById('edit-bookmark-modal-background-image');
+
 const modalBgToggleBtn = document.getElementById('edit-modal-toggle-background-image');
 const modalBgCopyBtn = document.getElementById('edit-modal-copy-background-image');
 const modalBgClearBtn = document.getElementById('edit-modal-clear-background-image');
+
 const modalBackgroundFavicon = document.getElementById('edit-bookmark-modal-background-favicon');
-const labelModalBackgroundFavicon = document.querySelector('label[for="edit-bookmark-modal-background-favicon"]');
+
+const modalSave = document.getElementById('edit-bookmark-modal-save');
+const modalCancel = document.getElementById('edit-bookmark-modal-cancel');
+
+const previewContainer = document.getElementById('edit-bookmark-modal-preview');
 
 let editingId = null;
-let draft = null;
-let registered = false;
+let editor = null;
 let initialSnapshot = null;
-let previousShowFavicon = null;
-let urlController;
-let bgController;
+let registered = false;
 
-function resetTabScroll() {
-  const activeTab = editModal.querySelector('.edit-bookmark-modal-tab-content[style*="flex"]');
-  if (activeTab) activeTab.scrollTop = 0;
-}
 
-function updateSaveButtonState() {
-  const changed = hasChanges();
-  modalSave.disabled = !changed;
-  modalSave.classList.toggle('is-hidden', !changed);
+/* =====================================
+   Helpers
+===================================== */
+
+function getCurrentFormState() {
+  return editor?.getState() ?? {};
 }
 
 function hasChanges() {
   return JSON.stringify(getCurrentFormState()) !== JSON.stringify(initialSnapshot);
 }
 
-function getCurrentFormState() {
-  return {
-    name: modalName.value.trim(),
-    url: modalUrl.value.trim(),
-    urlLocked: urlController?.isLocked() ?? false,
-    invertColorIcon: modalInvertColorIcon.checked,
-    invertColorBg: modalInvertColorBg.checked,
-    noBackground: modalNoBackground.checked,
-    textColor: modalTextColor.value,
-    showText: modalShowText.checked,
-    backgroundColor: modalBackgroundColor.value,
-    backgroundImageUrl: modalBackgroundImage.value.trim() || null,
-    backgroundImageUrlLocked: bgController?.isLocked() ?? false,
-    backgroundFavicon: modalBackgroundFavicon.checked,
-    showFavicon: modalShowFavicon.checked,
-  };
+function updateSaveButtonState() {
+  const changed = hasChanges();
+
+  modalSave.disabled = !changed;
+  modalSave.classList.toggle('is-hidden', !changed);
 }
 
-function buildDraft() {
-  const backgroundFavicon = modalBackgroundFavicon.checked;
-
-  draft = {
-    id: editingId,
-    name: modalName.value.trim(),
-    url: modalUrl.value.trim(),
-    invertColorIcon: modalInvertColorIcon.checked,
-    invertColorBg: backgroundFavicon ? false : modalInvertColorBg.checked,
-    noBackground: modalNoBackground.checked,
-    textColor: modalTextColor.value,
-    showText: modalShowText.checked,
-    backgroundColor: modalBackgroundColor.value,
-    backgroundImageUrl: backgroundFavicon
-      ? null
-      : modalBackgroundImage.value.trim() || null,
-    backgroundFavicon,
-    showFavicon: backgroundFavicon
-      ? false
-      : modalShowFavicon.checked
-  };
+function resetTabScroll() {
+  const activeTab = editModal.querySelector('.edit-bookmark-modal-tab-content[style*="flex"]');
+  if (activeTab) activeTab.scrollTop = 0;
 }
 
-const previewContainer = document.getElementById('edit-bookmark-modal-preview');
 
-function renderPreview() {
-  renderBookmarkPreview(previewContainer, draft);
-}
-
-function updatePreview() {
-  buildDraft();
-  renderPreview();
-}
-
-[
-  modalName,
-  modalUrl,
-  modalInvertColorIcon,
-  modalInvertColorBg,
-  modalNoBackground,
-  modalTextColor,
-  modalShowText,
-  modalBackgroundColor,
-  modalBackgroundImage,
-  modalBackgroundFavicon,
-  modalShowFavicon
-].forEach(input => {
-  input.addEventListener('input', () => {
-    updatePreview();
-    updateSaveButtonState();
-  });
-
-  input.addEventListener('change', () => {
-    updatePreview();
-    updateSaveButtonState();
-  });
-});
+/* =====================================
+   Init Modal
+===================================== */
 
 export function initEditBookmarkModal() {
+
   if (registered) return;
   registered = true;
 
@@ -144,9 +87,16 @@ export function initEditBookmarkModal() {
     closeOnOverlay: false,
     initialFocus: modalName
   });
+
 }
 
+
+/* =====================================
+   Open Modal
+===================================== */
+
 export function openModal(bookmarkId) {
+
   const state = getState();
   const { bookmarks } = state.data;
 
@@ -156,179 +106,110 @@ export function openModal(bookmarkId) {
 
   editingId = bookmarkId;
 
-  modalName.value = bookmark.name;
-  modalUrl.value = bookmark.url;
-  modalInvertColorIcon.checked = !!bookmark.invertColorIcon;
-  modalInvertColorBg.checked = !!bookmark.invertColorBg;
-  modalBackgroundColor.value = bookmark.backgroundColor;
-  modalNoBackground.checked = !!bookmark.noBackground;
-  modalTextColor.value = bookmark.textColor;
-  modalShowText.checked = !!bookmark.showText;
-  modalShowFavicon.checked = !!bookmark.showFavicon;
-  modalBackgroundImage.value = bookmark.backgroundImageUrl || '';
-  modalBackgroundFavicon.checked = !!bookmark.backgroundFavicon;
+  editor = createBookmarkEditor({
 
-  if (!urlController) {
-    urlController = createLockableInputController({
-      input: modalUrl,
-      toggleBtn: modalUrlToggleBtn,
-      clearBtn: modalUrlClearBtn,
-      copyBtn: modalUrlCopyBtn,
-      initialLocked: !!bookmark.urlLocked,
-      onChange: () => {
-        updatePreview();
-        updateSaveButtonState();
-      }
-    });
-  } else {
-    urlController.setLocked(!!bookmark.urlLocked);
-  }
+    bookmark: structuredClone(bookmark),
 
-  if (!bgController) {
-    bgController = createLockableInputController({
-      input: modalBackgroundImage,
-      toggleBtn: modalBgToggleBtn,
-      clearBtn: modalBgClearBtn,
-      copyBtn: modalBgCopyBtn,
-      initialLocked: !!bookmark.backgroundImageUrlLocked,
-      onChange: () => {
-        updateStates();
-        updatePreview();
-        updateSaveButtonState();
-      }
-    });
-  } else {
-    bgController.setLocked(!!bookmark.backgroundImageUrlLocked);
-  }
+    elements: {
 
-  updateStates();
-  updatePreview();
+      preview: previewContainer,
+
+      name: modalName,
+      url: modalUrl,
+
+      backgroundColor: modalBackgroundColor,
+      backgroundImage: modalBackgroundImage,
+
+      backgroundFavicon: modalBackgroundFavicon,
+      noBackground: modalNoBackground,
+
+      invertBg: modalInvertColorBg,
+
+      showText: modalShowText,
+      textColor: modalTextColor,
+
+      showFavicon: modalShowFavicon,
+      invertIcon: modalInvertColorIcon,
+
+      urlToggleBtn: modalUrlToggleBtn,
+      urlCopyBtn: modalUrlCopyBtn,
+      urlClearBtn: modalUrlClearBtn,
+
+      bgToggleBtn: modalBgToggleBtn,
+      bgCopyBtn: modalBgCopyBtn,
+      bgClearBtn: modalBgClearBtn
+
+    },
+
+    onChange: updateSaveButtonState
+
+  });
+
+  initialSnapshot = editor.getState();
+
+  updateSaveButtonState();
+
   activateTab('edit-bookmark-modal-tab-general');
   resetTabScroll();
 
-  initialSnapshot = getCurrentFormState();
-  updateSaveButtonState();
-
   openManagedModal('edit-bookmark');
+
 }
 
-function updateStates() {
-  const hasImage = modalBackgroundImage.value.trim() !== '';
 
-  modalBackgroundFavicon.disabled = hasImage;
-  modalBackgroundColor.disabled = modalNoBackground.checked;
-  modalTextColor.disabled = !modalShowText.checked;
+/* =====================================
+   Save
+===================================== */
 
-  modalBackgroundImage.disabled = modalBackgroundFavicon.checked;
-  modalShowFavicon.disabled = modalBackgroundFavicon.checked;
+modalSave.addEventListener('click', () => {
 
-  modalInvertColorBg.disabled = modalBackgroundFavicon.checked || !hasImage;
-
-  modalInvertColorIcon.disabled = !modalBackgroundFavicon.checked && !modalShowFavicon.checked;
-
-  if (modalInvertColorBg.disabled) {
-    labelModalInvertColorBg.classList.add('is-disabled');
-  } else {
-    labelModalInvertColorBg.classList.remove('is-disabled');
-  }
-
-  if (modalShowFavicon.disabled) {
-    labelModalShowFavicon.classList.add('is-disabled');
-  } else {
-    labelModalShowFavicon.classList.remove('is-disabled');
-  }
-
-  if (modalBackgroundFavicon.disabled) {
-    labelModalBackgroundFavicon.classList.add('is-disabled');
-  } else {
-    labelModalBackgroundFavicon.classList.remove('is-disabled');
-  }
-
-  if (modalInvertColorIcon.disabled) {
-    labelModalInvertColorIcon.classList.add('is-disabled');
-  } else {
-    labelModalInvertColorIcon.classList.remove('is-disabled');
-  }
-}
-
-modalBackgroundImage.addEventListener('input', updateStates);
-modalNoBackground.addEventListener('change', updateStates);
-modalShowText.addEventListener('change', updateStates);
-modalShowFavicon.addEventListener('change', updateStates);
-
-modalBackgroundFavicon.addEventListener('change', () => {
-  if (modalBackgroundFavicon.checked) {
-    previousShowFavicon = modalShowFavicon.checked;
-
-    modalShowFavicon.checked = false;
-    modalInvertColorBg.checked = false;
-  } else {
-    if (previousShowFavicon !== null) {
-      modalShowFavicon.checked = previousShowFavicon;
-    }
-  }
-
-  updateStates();
-  updatePreview();
-  updateSaveButtonState();
-});
-
-modalSave.addEventListener('click', async () => {
   if (!editingId) return;
 
-  const updatedData = {
-    name: modalName.value.trim(),
-    url: modalUrl.value.trim(),
-    invertColorIcon: modalInvertColorIcon.checked,
-    invertColorBg: modalInvertColorBg.checked,
-    noBackground: modalNoBackground.checked,
-    textColor: modalTextColor.value,
-    showText: modalShowText.checked,
-    backgroundColor: modalBackgroundColor.value
-  };
-
-  if (modalBackgroundFavicon.checked) {
-    updatedData.backgroundFavicon = true;
-    updatedData.backgroundImageUrl = null;
-    updatedData.showFavicon = false;
-    updatedData.invertColorBg = false;
-  } else {
-    updatedData.backgroundFavicon = false;
-    updatedData.backgroundImageUrl =
-      modalBackgroundImage.value.trim() || null;
-    updatedData.showFavicon = modalShowFavicon.checked;
-  }
-  
-  updatedData.urlLocked = urlController?.isLocked() ?? false;
-  updatedData.backgroundImageUrlLocked = bgController?.isLocked() ?? false;
+  const updatedData = editor.getState();
 
   const bookmark = updateBookmarkById(editingId, updatedData);
 
-  if (bookmark) flashSuccess('flash.bookmark.updated');
+  if (bookmark) {
+    flashSuccess('flash.bookmark.updated');
+  }
 
   initialSnapshot = null;
 
   closeEditModal();
+
 });
 
+
+/* =====================================
+   Cancel
+===================================== */
+
 modalCancel.addEventListener('click', async () => {
+
   if (!hasChanges()) {
     closeEditModal();
     return;
   }
 
   const ok = await showAlert(
-    t('alert.bookmark.cancel'), 
+    t('alert.bookmark.cancel'),
     { type: 'confirm' }
   );
 
   if (ok) closeEditModal();
+
 });
 
+
 function closeEditModal() {
+
   editingId = null;
+  editor = null;
+
   closeModal();
+
 }
+
 
 /* =====================================
    Tabs Logic
@@ -338,18 +219,23 @@ const tabButtons = editModal.querySelectorAll('.edit-bookmark-modal-tab-btn');
 const tabContents = editModal.querySelectorAll('.edit-bookmark-modal-tab-content');
 
 function activateTab(tabId) {
+
   tabButtons.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === tabId);
   });
 
   tabContents.forEach(content => {
+
     const isActive = content.id === tabId;
+
     content.style.display = isActive ? 'flex' : 'none';
+
     if (isActive) content.scrollTop = 0;
+
   });
+
 }
 
-// Click listener
 tabButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     activateTab(btn.dataset.tab);
