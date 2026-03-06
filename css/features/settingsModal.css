@@ -102,3 +102,58 @@
   background-size: 16px 16px;
   background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
 }
+
+.settings-bookmark-layout {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
+.settings-bookmark-form {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.settings-bookmark-preview-panel {
+  position: sticky;
+  width: 260px;
+  flex-shrink: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  top: 20px;
+  gap: 12px;
+
+  border-left: 1px solid #222;
+  padding-left: 20px;
+}
+
+.settings-bookmark-preview-panel h3 {
+  font-size: 12px;
+  opacity: .6;
+  margin: 0;
+}
+
+.settings-bookmark-preview-panel .bookmark-preview {
+  width: 140px;
+  height: 140px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-bookmark-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.settings-bookmark-actions .btn {
+  width: 100%;
+}
