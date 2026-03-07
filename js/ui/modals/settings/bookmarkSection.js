@@ -1,5 +1,5 @@
 import { createBookmarkEditor } from '../../bookmark/editor.js';
-import { showAlert } from '../alertModal.js';
+import { showAlert } from '../alert.js';
 import { t } from '../../../core/i18n.js';
 import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
 import { deleteAllBookmarks } from '../../bookmark/actions.js';

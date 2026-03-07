@@ -1,7 +1,7 @@
 import '../../types/types.js'; // typedefs
 import { deleteBookmarkById, clearBookmarks } from '../../core/bookmark.js';
 import { t } from '../../core/i18n.js';
-import { showAlert } from '../modals/alertModal.js';
+import { showAlert } from '../modals/alert.js';
 import { openModal } from '../modals/editBookmark.js';
 import { isVisuallyDark } from './utils.js';
 import { flashSuccess, flashError } from '../flash.js';

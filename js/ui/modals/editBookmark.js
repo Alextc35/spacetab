@@ -3,7 +3,7 @@ import { updateBookmarkById } from '../../core/bookmark.js';
 import { flashSuccess } from '../flash.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 import { getState } from '../../core/store.js';
-import { showAlert } from './alertModal.js';
+import { showAlert } from './alert.js';
 import { t } from '../../core/i18n.js';
 import { initTabs } from '../tabs.js';
 

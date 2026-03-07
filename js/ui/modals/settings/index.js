@@ -3,7 +3,7 @@ import { initLanguageSection } from './languageSection.js';
 import { initTabs } from '../../tabs.js';
 import { initThemeSection } from './themeSection.js';
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
-import { showAlert } from '../alertModal.js';
+import { showAlert } from '../alert.js';
 import { flashSuccess } from '../../flash.js';
 import { getState } from '../../../core/store.js';
 import { updateSettings } from '../../../core/settings.js';
