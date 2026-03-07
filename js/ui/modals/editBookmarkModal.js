@@ -5,6 +5,7 @@ import { registerModal, openModal as openManagedModal, closeModal } from '../mod
 import { getState } from '../../core/store.js';
 import { showAlert } from './alertModal.js';
 import { t } from '../../core/i18n.js';
+import { initTabs } from '../tabs.js';
 
 const editModal = document.getElementById('edit-bookmark-modal');
 
@@ -43,7 +44,7 @@ let editingId = null;
 let editor = null;
 let initialSnapshot = null;
 let registered = false;
-
+let tabs;
 
 /* =====================================
    Helpers
@@ -78,6 +79,12 @@ export function initEditBookmarkModal() {
 
   if (registered) return;
   registered = true;
+
+  tabs = initTabs({
+    root: editModal,
+    tabButtonSelector: '.edit-bookmark-modal-tab-btn',
+    tabContentSelector: '.edit-bookmark-modal-tab-content'
+  });
 
   registerModal({
     id: 'edit-bookmark',
@@ -132,7 +139,7 @@ export function openModal(bookmarkId) {
 
   initialSnapshot = editor.getState();
   updateSaveButtonState();
-  activateTab('edit-bookmark-modal-tab-general');
+  tabs.activate('edit-bookmark-modal-tab-general');
   resetTabScroll();
   openManagedModal('edit-bookmark');
 };
@@ -192,30 +199,3 @@ function closeEditModal() {
 /* =====================================
    Tabs Logic
 ===================================== */
-
-const tabButtons = editModal.querySelectorAll('.edit-bookmark-modal-tab-btn');
-const tabContents = editModal.querySelectorAll('.edit-bookmark-modal-tab-content');
-
-function activateTab(tabId) {
-
-  tabButtons.forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tab === tabId);
-  });
-
-  tabContents.forEach(content => {
-
-    const isActive = content.id === tabId;
-
-    content.style.display = isActive ? 'flex' : 'none';
-
-    if (isActive) content.scrollTop = 0;
-
-  });
-
-}
-
-tabButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    activateTab(btn.dataset.tab);
-  });
-});

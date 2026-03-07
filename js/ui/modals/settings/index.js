@@ -1,6 +1,6 @@
 import { initBookmarkSection } from './bookmarkSection.js';
 import { initLanguageSection } from './languageSection.js';
-import { initTabs } from './tabs.js';
+import { initTabs } from '../../tabs.js';
 import { initThemeSection } from './themeSection.js';
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
 import { showAlert } from '../alertModal.js';
@@ -44,13 +44,13 @@ export function initSettingsModal() {
   });
 
   const tabs = initTabs({
-    rootSelector: '#settings-modal',
+    root: '#settings-modal',
     tabButtonSelector: '.settings-modal-tab-btn',
     tabContentSelector: '.settings-modal-tab-content'
   });
 
   const bookmarkTabs = initTabs({
-    rootSelector: '#settings-modal-tab-bookmark',
+    root: '#settings-modal-tab-bookmark',
     tabButtonSelector: '.edit-bookmark-modal-tab-btn',
     tabContentSelector: '.edit-bookmark-modal-tab-content'
   });

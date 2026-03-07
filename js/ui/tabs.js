@@ -1,16 +1,20 @@
 export function initTabs({
-  rootSelector,
+  root,
   tabButtonSelector,
   tabContentSelector,
   activeClass = 'active',
   hiddenClass = 'is-hidden'
 }) {
 
-  const root = document.querySelector(rootSelector);
-  if (!root) return;
+  const rootEl =
+    typeof root === 'string'
+      ? document.querySelector(root)
+      : root;
 
-  const buttons = root.querySelectorAll(tabButtonSelector);
-  const contents = root.querySelectorAll(tabContentSelector);
+  if (!rootEl) return;
+
+  const buttons = rootEl.querySelectorAll(tabButtonSelector);
+  const contents = rootEl.querySelectorAll(tabContentSelector);
 
   function activate(tabId) {
 
@@ -20,15 +24,13 @@ export function initTabs({
       tab.classList.add(hiddenClass);
     });
 
-    const btn = root.querySelector(
+    const btn = rootEl.querySelector(
       `${tabButtonSelector}[data-tab="${tabId}"]`
     );
 
-    if (btn) {
-      btn.classList.add(activeClass);
-    }
+    if (btn) btn.classList.add(activeClass);
 
-    const content = root.querySelector(`#${tabId}`);
+    const content = rootEl.querySelector(`#${tabId}`);
 
     if (content) {
       content.classList.remove(hiddenClass);
@@ -37,6 +39,7 @@ export function initTabs({
         content.scrollTop = 0;
       });
     }
+
   }
 
   buttons.forEach(btn => {

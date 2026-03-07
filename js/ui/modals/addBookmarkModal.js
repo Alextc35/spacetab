@@ -6,13 +6,14 @@ import { showAlert } from './alertModal.js';
 import { t } from '../../core/i18n.js';
 import { registerModal, openModal, closeModal } from '../modalManager.js';
 import { getState } from '../../core/store.js';
-
+import { initTabs } from '../tabs.js';
 import { createBookmarkEditor } from '../bookmark/editor.js';
 
 let modal;
 let modalSave;
 
 let editor;
+let tabs;
 let bookmarkDraft = {};
 
 let submitting = false;
@@ -30,7 +31,14 @@ export function initAddBookmarkModal() {
 
   modal = document.getElementById('add-bookmark-modal');
   modalSave = document.getElementById('add-bookmark-modal-save');
-  initTabs(modal);
+
+  tabs = initTabs({
+    root: modal,
+    tabButtonSelector: '.edit-bookmark-modal-tab-btn',
+    tabContentSelector: '.edit-bookmark-modal-tab-content'
+  });
+
+  tabs.activate('add-bookmark-tab-style');
 
   advancedToggle = modal.querySelector('#add-bookmark-advanced-toggle');
   advancedPanel = modal.querySelector('#add-bookmark-advanced');
@@ -152,13 +160,13 @@ export function showAddBookmarkModal() {
 
   updateSaveButtonState();
 
+  tabs.activate('add-bookmark-tab-style');
   if (advancedPanel) advancedPanel.classList.add('is-hidden');
   if (advancedToggle) advancedToggle.textContent = '⚙️ Opciones avanzadas';
-  
+
   openModal('add-bookmark', {
     onAccept: handleAccept
   });
-
 }
 
 /* =====================================================
@@ -260,30 +268,5 @@ async function handleAccept() {
   finally {
     submitting = false;
   }
-
-}
-
-function initTabs(container) {
-
-  const tabButtons = container.querySelectorAll('.edit-bookmark-modal-tab-btn');
-  const tabContents = container.querySelectorAll('.edit-bookmark-modal-tab-content');
-
-  tabButtons.forEach(btn => {
-
-    btn.addEventListener('click', () => {
-
-      const tabId = btn.dataset.tab;
-
-      tabButtons.forEach(b => b.classList.remove('active'));
-      tabContents.forEach(c => c.classList.add('is-hidden'));
-
-      btn.classList.add('active');
-
-      const tab = container.querySelector(`#${tabId}`);
-      if (tab) tab.classList.remove('is-hidden');
-
-    });
-
-  });
 
 }
