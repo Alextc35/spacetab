@@ -75,7 +75,7 @@ function resetTabScroll() {
    Init Modal
 ===================================== */
 
-export function initEditBookmarkModal() {
+export function initeditBookmark() {
 
   if (registered) return;
   registered = true;

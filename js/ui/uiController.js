@@ -3,7 +3,7 @@ import { renderBookmarks } from './bookmark/renderer.js';
 import { flash } from './flash.js';
 import { t } from '../core/i18n.js';
 import { hasOpenModal, shouldSuppressGlobalEnter } from './modalManager.js';
-import { showAddBookmarkModal } from './modals/index.js';
+import { showaddBookmark } from './modals/index.js';
 
 /** @type {HTMLElement|null} */
 let containerRef = null;
@@ -49,7 +49,7 @@ export function initUIController({
   window.addEventListener('resize', handleResize);
 
   addButtonRef.addEventListener('click', () =>
-    showAddBookmarkModal()
+    showaddBookmark()
   );
 
   toggleButtonRef?.addEventListener('click', toggleEditMode);
@@ -112,7 +112,7 @@ function handleGlobalKeydown(e) {
 
   if (e.code === 'Enter') {
     e.preventDefault();
-    showAddBookmarkModal();
+    showaddBookmark();
     return;
   }
 
