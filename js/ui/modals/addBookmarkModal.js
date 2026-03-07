@@ -17,23 +17,36 @@ let bookmarkDraft = {};
 
 let submitting = false;
 
+let advancedToggle;
+let advancedPanel;
+
+/* =====================================================
+   INIT
+===================================================== */
+
 export function initAddBookmarkModal() {
 
   if (modal) return;
 
   modal = document.getElementById('add-bookmark-modal');
   modalSave = document.getElementById('add-bookmark-modal-save');
+  initTabs(modal);
+
+  advancedToggle = modal.querySelector('#add-bookmark-advanced-toggle');
+  advancedPanel = modal.querySelector('#add-bookmark-advanced');
 
   const elements = {
+
     preview: modal.querySelector('#add-bookmark-preview'),
+
     name: modal.querySelector('#add-bookmark-modal-name'),
     url: modal.querySelector('#add-bookmark-modal-url'),
 
-    backgroundColor: modal.querySelector('#add-bookmark-bg-color'),
-    backgroundImage: modal.querySelector('#add-bookmark-bg-image'),
-    backgroundFavicon: modal.querySelector('#add-bookmark-bg-favicon'),
+    backgroundColor: modal.querySelector('#add-bookmark-background-color'),
+    backgroundImage: modal.querySelector('#add-bookmark-background-image'),
+    backgroundFavicon: modal.querySelector('#add-bookmark-background-favicon'),
 
-    noBackground: modal.querySelector('#add-bookmark-no-bg'),
+    noBackground: modal.querySelector('#add-bookmark-no-background'),
     invertBg: modal.querySelector('#add-bookmark-invert-bg'),
 
     showText: modal.querySelector('#add-bookmark-show-text'),
@@ -42,13 +55,14 @@ export function initAddBookmarkModal() {
     showFavicon: modal.querySelector('#add-bookmark-show-favicon'),
     invertIcon: modal.querySelector('#add-bookmark-invert-icon'),
 
-    urlToggleBtn: modal.querySelector('#add-bookmark-url-toggle'),
-    urlCopyBtn: modal.querySelector('#add-bookmark-url-copy'),
-    urlClearBtn: modal.querySelector('#add-bookmark-url-clear'),
+    urlToggleBtn: modal.querySelector('#add-modal-toggle-url'),
+    urlCopyBtn: modal.querySelector('#add-modal-copy-url'),
+    urlClearBtn: modal.querySelector('#add-modal-clear-url'),
 
-    bgToggleBtn: modal.querySelector('#add-bookmark-bg-toggle'),
-    bgCopyBtn: modal.querySelector('#add-bookmark-bg-copy'),
-    bgClearBtn: modal.querySelector('#add-bookmark-bg-clear')
+    bgToggleBtn: modal.querySelector('#add-modal-toggle-background-image'),
+    bgCopyBtn: modal.querySelector('#add-modal-copy-background-image'),
+    bgClearBtn: modal.querySelector('#add-modal-clear-background-image')
+
   };
 
   editor = createBookmarkEditor({
@@ -62,6 +76,28 @@ export function initAddBookmarkModal() {
   modal.querySelector('#add-bookmark-modal-cancel')
     .addEventListener('click', () => closeModal());
 
+  /* =====================================================
+     ADVANCED TOGGLE
+  ===================================================== */
+
+  if (advancedToggle && advancedPanel) {
+
+    advancedToggle.addEventListener('click', () => {
+
+      const hidden = advancedPanel.classList.toggle('is-hidden');
+
+      advancedToggle.textContent = hidden
+        ? '⚙️ Opciones avanzadas'
+        : '⬆ Ocultar opciones';
+
+    });
+
+  }
+
+  /* =====================================================
+     REGISTER MODAL
+  ===================================================== */
+
   registerModal({
     id: 'add-bookmark',
     element: modal,
@@ -71,22 +107,35 @@ export function initAddBookmarkModal() {
     initialFocus: elements.name
   });
 
+  /* =====================================================
+     KEYBOARD
+  ===================================================== */
+
   modal.addEventListener('keydown', (e) => {
+
     if (e.key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
       handleAccept();
     }
+
   });
 
   modal.addEventListener('keydown', (e) => {
+
     if (e.key === 'Escape') {
       e.preventDefault();
       e.stopPropagation();
       closeModal();
     }
+
   });
+
 }
+
+/* =====================================================
+   SHOW MODAL
+===================================================== */
 
 export function showAddBookmarkModal() {
 
@@ -94,7 +143,8 @@ export function showAddBookmarkModal() {
 
   const { data: { settings } } = getState();
 
-  bookmarkDraft = settings.bookmarkDefault;
+  bookmarkDraft = structuredClone(settings.bookmarkDefault);
+
   bookmarkDraft.name = '';
   bookmarkDraft.url = '';
 
@@ -102,10 +152,18 @@ export function showAddBookmarkModal() {
 
   updateSaveButtonState();
 
+  if (advancedPanel) advancedPanel.classList.add('is-hidden');
+  if (advancedToggle) advancedToggle.textContent = '⚙️ Opciones avanzadas';
+  
   openModal('add-bookmark', {
     onAccept: handleAccept
   });
+
 }
+
+/* =====================================================
+   SAVE BUTTON STATE
+===================================================== */
 
 function updateSaveButtonState() {
 
@@ -115,7 +173,12 @@ function updateSaveButtonState() {
 
   modalSave.disabled = !hasName;
   modalSave.classList.toggle('is-disabled', !hasName);
+
 }
+
+/* =====================================================
+   ACCEPT
+===================================================== */
 
 async function handleAccept() {
 
@@ -147,16 +210,20 @@ async function handleAccept() {
     let placed = false;
 
     for (let col = 0; col < maxCols && !placed; col++) {
+
       for (let row = 0; row < maxRows; row++) {
 
         if (isAreaFree(bookmarks, col, row, 1, 1)) {
+
           gx = col;
           gy = row;
           placed = true;
           break;
+
         }
 
       }
+
     }
 
     if (!placed) {
@@ -165,9 +232,13 @@ async function handleAccept() {
 
       await new Promise(requestAnimationFrame);
 
-      await showAlert(t('alert.bookmarks.no_space'), { type: 'info' });
+      await showAlert(
+        t('alert.bookmarks.no_space'),
+        { type: 'info' }
+      );
 
       return;
+
     }
 
     const created = await addBookmark({
@@ -178,11 +249,41 @@ async function handleAccept() {
       gy
     });
 
-    if (created) flashSuccess('flash.bookmark.added');
+    if (created) {
+      flashSuccess('flash.bookmark.added');
+    }
 
     closeModal();
 
-  } finally {
+  }
+
+  finally {
     submitting = false;
   }
+
+}
+
+function initTabs(container) {
+
+  const tabButtons = container.querySelectorAll('.edit-bookmark-modal-tab-btn');
+  const tabContents = container.querySelectorAll('.edit-bookmark-modal-tab-content');
+
+  tabButtons.forEach(btn => {
+
+    btn.addEventListener('click', () => {
+
+      const tabId = btn.dataset.tab;
+
+      tabButtons.forEach(b => b.classList.remove('active'));
+      tabContents.forEach(c => c.classList.add('is-hidden'));
+
+      btn.classList.add('active');
+
+      const tab = container.querySelector(`#${tabId}`);
+      if (tab) tab.classList.remove('is-hidden');
+
+    });
+
+  });
+
 }

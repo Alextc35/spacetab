@@ -63,13 +63,20 @@
 
   <div id="add-bookmark-modal" class="modal">
     <div class="modal-overlay"></div>
-    <div class="modal-card modal-sm">
+
+    <div class="modal-card modal-lg">
+
       <h2 data-i18n="addModal.title">➕ Añadir nuevo favorito</h2>
+
+      <!-- ========================================
+          BASIC FIELDS (modo rápido)
+      ======================================== -->
 
       <div class="modal-field">
         <label for="add-bookmark-modal-name"
           data-i18n="addModal.name">Nombre:
         </label>
+
         <input id="add-bookmark-modal-name" type="text" autofocus>
       </div>
 
@@ -77,17 +84,233 @@
         <label for="add-bookmark-modal-url"
           data-i18n="addModal.url">URL:
         </label>
-        <input id="add-bookmark-modal-url" type="url" placeholder="https://">
+
+        <div class="input-with-actions">
+          <input id="add-bookmark-modal-url" type="text" placeholder="https://">
+
+          <button id="add-modal-toggle-url"
+                  class="input-action input-toggle"
+                  type="button">
+            🔓
+          </button>
+
+          <button id="add-modal-copy-url"
+                  class="input-action input-copy"
+                  type="button">
+            📋
+          </button>
+
+          <button id="add-modal-clear-url"
+                  class="input-action input-clear"
+                  type="button">
+            ✕
+          </button>
+        </div>
       </div>
 
-      <div class="modal-actions">
-        <button id="add-bookmark-modal-cancel" class="btn btn-ghost" type="button"
-          data-i18n="buttons.cancel">Cancelar
-        </button>
-        <button id="add-bookmark-modal-save" class="btn btn-primary" type="button"
-          data-i18n="buttons.accept">Aceptar
-        </button>
+      <!-- ========================================
+          ADVANCED TOGGLE
+      ======================================== -->
+
+      <button id="add-bookmark-advanced-toggle"
+              class="btn btn-secondary"
+              type="button">
+        ⚙️ Opciones avanzadas
+      </button>
+
+      <!-- ========================================
+          ADVANCED PANEL
+      ======================================== -->
+
+      <div id="add-bookmark-advanced" class="is-hidden">
+
+        <!-- TABS -->
+
+        <div class="edit-bookmark-modal-tabs">
+
+          <button data-tab="add-bookmark-tab-style"
+                  class="edit-bookmark-modal-tab-btn active"
+                  type="button"
+                  data-i18n="editModal.sections.style">
+            Estilo
+          </button>
+
+          <button data-tab="add-bookmark-tab-text"
+                  class="edit-bookmark-modal-tab-btn"
+                  type="button"
+                  data-i18n="editModal.sections.text">
+            Texto
+          </button>
+
+          <button data-tab="add-bookmark-tab-icon"
+                  class="edit-bookmark-modal-tab-btn"
+                  type="button"
+                  data-i18n="editModal.sections.icon">
+            Icono
+          </button>
+
+        </div>
+
+        <div class="edit-bookmark-modal-layout">
+
+          <!-- LEFT PANEL -->
+
+          <div class="edit-bookmark-modal-panel">
+
+            <!-- STYLE -->
+
+            <div id="add-bookmark-tab-style"
+                class="modal-field edit-bookmark-modal-tab-content custom-scrollbar">
+
+              <div class="checkbox-wrapper">
+                <input id="add-bookmark-no-background" type="checkbox">
+                <label for="add-bookmark-no-background"
+                  data-i18n="editModal.noBackground">
+                  Sin fondo
+                </label>
+              </div>
+
+              <label for="add-bookmark-background-color"
+                data-i18n="editModal.backgroundColor">
+                Color del bookmark:
+              </label>
+
+              <input id="add-bookmark-background-color" type="color">
+
+              <label for="add-bookmark-background-image"
+                data-i18n="editModal.backgroundImage">
+                Imagen de fondo (URL):
+              </label>
+
+              <div class="input-with-actions">
+
+                <input id="add-bookmark-background-image"
+                      type="text"
+                      placeholder="https://...">
+
+                <button id="add-modal-toggle-background-image"
+                        class="input-action input-toggle"
+                        type="button">
+                  🔓
+                </button>
+
+                <button id="add-modal-copy-background-image"
+                        class="input-action input-copy"
+                        type="button">
+                  📋
+                </button>
+
+                <button id="add-modal-clear-background-image"
+                        class="input-action input-clear"
+                        type="button">
+                  ✕
+                </button>
+
+              </div>
+
+              <div class="checkbox-wrapper">
+                <input id="add-bookmark-background-favicon" type="checkbox">
+                <label for="add-bookmark-background-favicon"
+                  data-i18n="editModal.backgroundFavicon">
+                  Favicon como background
+                </label>
+              </div>
+
+              <div class="checkbox-wrapper">
+                <input id="add-bookmark-invert-bg" type="checkbox">
+                <label for="add-bookmark-invert-bg"
+                  data-i18n="editModal.invertColorBg">
+                  Invertir colores
+                </label>
+              </div>
+
+            </div>
+
+            <!-- TEXT -->
+
+            <div id="add-bookmark-tab-text"
+                class="modal-field edit-bookmark-modal-tab-content is-hidden custom-scrollbar">
+
+              <div class="checkbox-wrapper">
+                <input id="add-bookmark-show-text" type="checkbox" checked>
+                <label for="add-bookmark-show-text"
+                  data-i18n="editModal.showText">
+                  Mostrar texto
+                </label>
+              </div>
+
+              <label for="add-bookmark-text-color"
+                data-i18n="editModal.textColor">
+                Color del texto:
+              </label>
+
+              <input id="add-bookmark-text-color" type="color">
+
+            </div>
+
+            <!-- ICON -->
+
+            <div id="add-bookmark-tab-icon"
+                class="modal-field edit-bookmark-modal-tab-content is-hidden custom-scrollbar">
+
+              <div class="checkbox-wrapper">
+                <input id="add-bookmark-show-favicon" type="checkbox" checked>
+                <label for="add-bookmark-show-favicon"
+                  data-i18n="editModal.showFavicon">
+                  Mostrar favicon
+                </label>
+              </div>
+
+              <div class="checkbox-wrapper">
+                <input id="add-bookmark-invert-icon" type="checkbox">
+                <label for="add-bookmark-invert-icon"
+                  data-i18n="editModal.invertColorIcon">
+                  Invertir colores
+                </label>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- PREVIEW -->
+
+          <div class="edit-bookmark-modal-preview-panel">
+
+            <h3 data-i18n="editModal.preview">Preview</h3>
+
+            <div id="add-bookmark-preview"
+                class="bookmark-preview">
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
+
+      <!-- ========================================
+          ACTIONS
+      ======================================== -->
+
+      <div class="modal-actions">
+
+        <button id="add-bookmark-modal-cancel"
+                class="btn btn-ghost"
+                type="button"
+                data-i18n="buttons.cancel">
+          Cancelar
+        </button>
+
+        <button id="add-bookmark-modal-save"
+                class="btn btn-primary"
+                type="button"
+                data-i18n="buttons.accept">
+          Añadir
+        </button>
+
+      </div>
+
     </div>
   </div>
 
