@@ -21,6 +21,10 @@ let submitting = false;
 let advancedToggle;
 let advancedPanel;
 
+let urlClearBtn;
+let urlInput;
+let backgroundImage;
+
 /* =====================================================
    INIT
 ===================================================== */
@@ -73,6 +77,10 @@ export function initAddBookmarkModal() {
 
   };
 
+  urlClearBtn = elements.urlClearBtn;
+  urlInput = elements.url;
+  backgroundImage = elements.backgroundImage;
+
   editor = createBookmarkEditor({
     elements,
     bookmark: bookmarkDraft,
@@ -82,8 +90,24 @@ export function initAddBookmarkModal() {
   modalSave.addEventListener('click', handleAccept);
 
   modal.querySelector('#add-bookmark-modal-cancel')
-    .addEventListener('click', () => closeModal());
+    .addEventListener('click', handleCancel);
 
+  function handleCancel() {
+    const { data: { settings } } = getState();
+
+    const resetBookmark = structuredClone(settings.bookmarkDefault);
+    resetBookmark.name = '';
+    resetBookmark.url = '';
+    resetBookmark.urlLocked = false;
+
+    if (backgroundImage) backgroundImage.value = '';
+    if (urlClearBtn) urlClearBtn.click();
+    if (urlInput) urlInput.value = '';
+
+    editor.reset(resetBookmark);
+
+    closeModal();
+  }
   /* =====================================================
      ADVANCED TOGGLE
   ===================================================== */
@@ -112,7 +136,8 @@ export function initAddBookmarkModal() {
     acceptOnEnter: false,
     closeOnEsc: true,
     closeOnOverlay: true,
-    initialFocus: elements.name
+    initialFocus: elements.name,
+    onClose: handleCancel
   });
 
   /* =====================================================
@@ -155,8 +180,9 @@ export function showAddBookmarkModal() {
 
   bookmarkDraft.name = '';
   bookmarkDraft.url = '';
+  if (urlInput) urlInput.value = '';
 
-  editor.setState(bookmarkDraft);
+  editor.reset(bookmarkDraft);
 
   updateSaveButtonState();
 
@@ -249,7 +275,7 @@ async function handleAccept() {
 
     }
 
-    const created = await addBookmark({
+    const created = addBookmark({
       ...bookmark,
       name,
       url,
@@ -262,11 +288,8 @@ async function handleAccept() {
     }
 
     closeModal();
-
-  }
-
-  finally {
+  } finally {
     submitting = false;
+    if (backgroundImage) backgroundImage.value = '';
   }
-
 }

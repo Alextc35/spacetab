@@ -94,6 +94,21 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
   const refreshBgController = () => bgController?.refresh?.();
   const refreshUrlController = () => urlController?.refresh?.();
 
+  const reset = (newState = {}) => {
+
+    bookmark = structuredClone(newState);
+
+    if (urlController) {
+      urlController.setLocked?.(bookmark.urlLocked ?? false);
+    }
+
+    if (bgController) {
+      bgController.setLocked?.(bookmark.backgroundImageUrlLocked ?? false);
+    }
+
+    syncUI();
+  };
+
   /* ===============================
      Bind Inputs
   =============================== */
@@ -137,13 +152,13 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
     if (invertIcon) invertIcon.checked = bookmark.invertColorIcon ?? false;
 
     updateStates();
-    updatePreview();
     refreshBgController();
     refreshUrlController();
+    updatePreview();
   };
 
   const getState = () => structuredClone(bookmark);
-  const setState = newState => { bookmark = structuredClone(newState); syncUI(); };
+  const setState = newState => reset(newState);
 
   const destroy = () => {
     bgController = null;
@@ -152,5 +167,5 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
 
   syncUI();
 
-  return { syncUI, updatePreview, getState, setState, destroy, bgController, urlController };
+  return { syncUI, updatePreview, getState, setState, reset, destroy, bgController, urlController };
 }
