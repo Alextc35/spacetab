@@ -1,6 +1,8 @@
 import { renderBookmarkPreview } from './preview.js';
 import { createLockableInputController } from '../modals/helper/stateLocked.js';
 
+let syncing = false;
+
 export function createBookmarkEditor({ elements, bookmark, onChange }) {
 
   const {
@@ -67,6 +69,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
       clearBtn: bgClearBtn,
       initialLocked: bookmark.backgroundImageUrlLocked ?? false,
       onChange: () => {
+        if (syncing) return;
         bookmark.backgroundImageUrl = backgroundImage.value.trim() || null;
         bookmark.backgroundImageUrlLocked = bgController?.isLocked() ?? false;
         updateStates();
@@ -83,6 +86,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
       clearBtn: urlClearBtn,
       initialLocked: bookmark.urlLocked ?? false,
       onChange: () => {
+        if (syncing) return;
         bookmark.url = url.value.trim() || '';
         bookmark.urlLocked = urlController?.isLocked() ?? false;
         updateStates();
@@ -96,6 +100,8 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
 
   const reset = (newState = {}) => {
 
+    syncing = true;
+
     bookmark = structuredClone(newState);
 
     if (urlController) {
@@ -107,6 +113,8 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
     }
 
     syncUI();
+
+    syncing = false;
   };
 
   /* ===============================
@@ -116,6 +124,9 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
   function bindInput(input, key, type = "input") {
     if (!input) return;
     input.addEventListener(type, () => {
+
+      if (syncing) return;
+
       bookmark[key] = input.type === "checkbox" ? input.checked : input.value;
       updateStates();
       emitChange();
