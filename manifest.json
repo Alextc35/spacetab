@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Spacetab",
-  "version": "0.21.6",
+  "version": "0.21.7",
   "description": "Nueva pestaña con favoritos editables",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
