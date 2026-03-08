@@ -81,6 +81,10 @@ export function initaddBookmark() {
   urlInput = elements.url;
   backgroundImage = elements.backgroundImage;
 
+  const { data: { settings } } = getState();
+
+  bookmarkDraft = structuredClone(settings.bookmarkDefault);
+
   editor = createBookmarkEditor({
     elements,
     bookmark: bookmarkDraft,
