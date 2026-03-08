@@ -52,6 +52,30 @@ SpaceTab includes several internal UI systems designed to keep the interface mod
 
 ---
 
+## 📦 Installation
+
+### Manual installation
+
+1. Clone the repository
+
+```
+git clone https://github.com/Alextc35/spacetab.git
+```
+
+2. Open Chrome extensions page
+
+```
+chrome://extensions
+```
+
+3. Enable **Developer Mode**
+
+4. Click **Load unpacked**
+
+5. Select the `spacetab` folder
+
+---
+
 ## 🧩 How it works
 
 SpaceTab works like a **web desktop for bookmarks**.
@@ -242,30 +266,6 @@ This separation keeps the interface logic independent from the application state
 * Internationalization system (i18n)
 * Google Favicon API
 * Git
-
----
-
-## 📦 Installation
-
-### Manual installation
-
-1. Clone the repository
-
-```
-git clone https://github.com/Alextc35/spacetab.git
-```
-
-2. Open Chrome extensions page
-
-```
-chrome://extensions
-```
-
-3. Enable **Developer Mode**
-
-4. Click **Load unpacked**
-
-5. Select the `spacetab` folder
 
 ---
 
