@@ -1,6 +1,6 @@
 # SpaceTab
 
-Minimalist Chrome new tab extension to manage bookmarks in a fast and flexible way.
+Minimalist Chrome new tab extension to organize bookmarks in a visual grid workspace.
 
 ![version](https://img.shields.io/badge/version-0.21.8-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
@@ -12,7 +12,7 @@ SpaceTab replaces Chrome's default new tab page with a **clean and customizable 
 
 ---
 
-## 💡 Why SpaceTab?
+## 💡 Why another Chrome New Tab extension?
 
 Many bookmark tools become cluttered and slow over time.
 
