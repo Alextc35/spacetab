@@ -35,7 +35,21 @@ initApp();
  * 4. Initialize modals and import/export
  */
 async function initApp() {
-  if (DEBUG) { console.info('Initializing SpaceTab ' + VERSION + ' alfa'); console.time("Execution time"); }
+  if (DEBUG) {
+    console.time("Execution time");
+    const MAX_BYTES = 5 * 1024 * 1024; // 5MB
+
+    chrome.storage.local.getBytesInUse(null, (usedBytes) => {
+      const usedKB = (usedBytes / 1024).toFixed(2);
+      const maxKB = (MAX_BYTES / 1024).toFixed(2);
+
+      console.log(`${usedKB} KB / ${maxKB} KB`);
+
+      const percentage = ((usedBytes / MAX_BYTES) * 100).toFixed(2);
+      console.log(`Usage: ${percentage}%`);
+    });
+
+  }
 
   await initState();
   await initI18n();
@@ -43,7 +57,10 @@ async function initApp() {
   initUI();
   initModals();
 
-  if (DEBUG) console.timeEnd("Execution time");
+  if (DEBUG) {
+    console.info('Initializing SpaceTab ' + VERSION + ' alfa');
+    console.timeEnd("Execution time");
+  }
 }
 
 /* ======================= Init Sections ======================= */
