@@ -29,7 +29,7 @@ let backgroundImage;
    INIT
 ===================================================== */
 
-export function initaddBookmark() {
+export function initAddBookmark() {
 
   if (modal) return;
 
@@ -174,7 +174,7 @@ export function initaddBookmark() {
    SHOW MODAL
 ===================================================== */
 
-export function showaddBookmark() {
+export function showAddBookmark() {
 
   if (!modal) return;
 
