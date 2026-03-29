@@ -1,15 +1,16 @@
-import { addBookmark } from '../../core/bookmark.js';
-import { isAreaFree } from '../../core/grid.js';
-import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
-import { flashSuccess } from '../flash.js';
-import { showAlert } from './alert.js';
-import { t } from '../../core/i18n.js';
 import { registerModal, openModal, closeModal } from '../modalManager.js';
-import { getState } from '../../core/store.js';
+import { flashSuccess } from '../flash.js';
 import { initTabs } from '../tabs.js';
 import { createBookmarkEditor } from '../bookmark/editor.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 
-let modal;
+import { t } from '../../core/i18n.js';
+import { getState } from '../../core/store.js';
+import { addBookmark } from '../../core/bookmark.js';
+import { isAreaFree } from '../../core/grid.js';
+
+import { showAlert } from './alert.js';
+
 let modalSave;
 
 let editor;
@@ -30,50 +31,47 @@ let backgroundImage;
 ===================================================== */
 
 export function initAddBookmark() {
-
-  if (modal) return;
-
-  modal = document.getElementById('add-bookmark-modal');
+  const addBookmarkModal = document.getElementById('add-bookmark-modal');
   modalSave = document.getElementById('add-bookmark-modal-save');
 
   tabs = initTabs({
-    root: modal,
+    root: addBookmarkModal,
     tabButtonSelector: '.edit-bookmark-modal-tab-btn',
     tabContentSelector: '.edit-bookmark-modal-tab-content'
   });
 
   tabs.activate('add-bookmark-tab-style');
 
-  advancedToggle = modal.querySelector('#add-bookmark-advanced-toggle');
-  advancedPanel = modal.querySelector('#add-bookmark-advanced');
+  advancedToggle = addBookmarkModal.querySelector('#add-bookmark-advanced-toggle');
+  advancedPanel = addBookmarkModal.querySelector('#add-bookmark-advanced');
 
   const elements = {
 
-    preview: modal.querySelector('#add-bookmark-preview'),
+    preview: addBookmarkModal.querySelector('#add-bookmark-preview'),
 
-    name: modal.querySelector('#add-bookmark-modal-name'),
-    url: modal.querySelector('#add-bookmark-modal-url'),
+    name: addBookmarkModal.querySelector('#add-bookmark-modal-name'),
+    url: addBookmarkModal.querySelector('#add-bookmark-modal-url'),
 
-    backgroundColor: modal.querySelector('#add-bookmark-background-color'),
-    backgroundImage: modal.querySelector('#add-bookmark-background-image'),
-    backgroundFavicon: modal.querySelector('#add-bookmark-background-favicon'),
+    backgroundColor: addBookmarkModal.querySelector('#add-bookmark-background-color'),
+    backgroundImage: addBookmarkModal.querySelector('#add-bookmark-background-image'),
+    backgroundFavicon: addBookmarkModal.querySelector('#add-bookmark-background-favicon'),
 
-    noBackground: modal.querySelector('#add-bookmark-no-background'),
-    invertBg: modal.querySelector('#add-bookmark-invert-bg'),
+    noBackground: addBookmarkModal.querySelector('#add-bookmark-no-background'),
+    invertBg: addBookmarkModal.querySelector('#add-bookmark-invert-bg'),
 
-    showText: modal.querySelector('#add-bookmark-show-text'),
-    textColor: modal.querySelector('#add-bookmark-text-color'),
+    showText: addBookmarkModal.querySelector('#add-bookmark-show-text'),
+    textColor: addBookmarkModal.querySelector('#add-bookmark-text-color'),
 
-    showFavicon: modal.querySelector('#add-bookmark-show-favicon'),
-    invertIcon: modal.querySelector('#add-bookmark-invert-icon'),
+    showFavicon: addBookmarkModal.querySelector('#add-bookmark-show-favicon'),
+    invertIcon: addBookmarkModal.querySelector('#add-bookmark-invert-icon'),
 
-    urlToggleBtn: modal.querySelector('#add-modal-toggle-url'),
-    urlCopyBtn: modal.querySelector('#add-modal-copy-url'),
-    urlClearBtn: modal.querySelector('#add-modal-clear-url'),
+    urlToggleBtn: addBookmarkModal.querySelector('#add-modal-toggle-url'),
+    urlCopyBtn: addBookmarkModal.querySelector('#add-modal-copy-url'),
+    urlClearBtn: addBookmarkModal.querySelector('#add-modal-clear-url'),
 
-    bgToggleBtn: modal.querySelector('#add-modal-toggle-background-image'),
-    bgCopyBtn: modal.querySelector('#add-modal-copy-background-image'),
-    bgClearBtn: modal.querySelector('#add-modal-clear-background-image')
+    bgToggleBtn: addBookmarkModal.querySelector('#add-modal-toggle-background-image'),
+    bgCopyBtn: addBookmarkModal.querySelector('#add-modal-copy-background-image'),
+    bgClearBtn: addBookmarkModal.querySelector('#add-modal-clear-background-image')
 
   };
 
@@ -93,25 +91,8 @@ export function initAddBookmark() {
 
   modalSave.addEventListener('click', handleAccept);
 
-  modal.querySelector('#add-bookmark-modal-cancel')
+  addBookmarkModal.querySelector('#add-bookmark-modal-cancel')
     .addEventListener('click', handleCancel);
-
-  function handleCancel() {
-    const { data: { settings } } = getState();
-
-    const resetBookmark = structuredClone(settings.bookmarkDefault);
-    resetBookmark.name = '';
-    resetBookmark.url = '';
-    resetBookmark.urlLocked = false;
-
-    if (backgroundImage) backgroundImage.value = '';
-    if (urlClearBtn) urlClearBtn.click();
-    if (urlInput) urlInput.value = '';
-
-    editor.reset(resetBookmark);
-
-    closeModal();
-  }
   /* =====================================================
      ADVANCED TOGGLE
   ===================================================== */
@@ -136,47 +117,34 @@ export function initAddBookmark() {
 
   registerModal({
     id: 'add-bookmark',
-    element: modal,
-    acceptOnEnter: false,
+    element: addBookmarkModal,
     closeOnEsc: true,
     closeOnOverlay: true,
+    acceptOnEnter: false,
     initialFocus: elements.name,
-    onClose: handleCancel
+    shortcut: 'Enter',
+    toggleWithShortcut: true,
+    onShortcut: () => showAddBookmark(),
   });
 
   /* =====================================================
      KEYBOARD
   ===================================================== */
 
-  modal.addEventListener('keydown', (e) => {
-
+  addBookmarkModal.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
       handleAccept();
     }
-
   });
-
-  modal.addEventListener('keydown', (e) => {
-
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      e.stopPropagation();
-      closeModal();
-    }
-
-  });
-
 }
 
 /* =====================================================
    SHOW MODAL
 ===================================================== */
 
-export function showAddBookmark() {
-
-  if (!modal) return;
+function showAddBookmark() {
 
   const { data: { settings } } = getState();
 
@@ -195,7 +163,8 @@ export function showAddBookmark() {
   if (advancedToggle) advancedToggle.textContent = '⚙️ Opciones avanzadas';
 
   openModal('add-bookmark', {
-    onAccept: handleAccept
+    onAccept: handleAccept,
+    onCancel: handleCancel
   });
 }
 
@@ -296,4 +265,31 @@ async function handleAccept() {
     submitting = false;
     if (backgroundImage) backgroundImage.value = '';
   }
+}
+
+function resetAddBookmarkForm() {
+  const { data: { settings } } = getState();
+
+  const resetBookmark = structuredClone(settings.bookmarkDefault);
+  resetBookmark.name = '';
+  resetBookmark.url = '';
+  resetBookmark.urlLocked = false;
+
+  if (backgroundImage) backgroundImage.value = '';
+  if (urlClearBtn) urlClearBtn.click();
+  if (urlInput) urlInput.value = '';
+
+  editor.reset(resetBookmark);
+}
+
+async function handleCancel() {
+  const ok = await showAlert(
+    t('alert.bookmark.add.cancel'),
+    { type: 'confirm' }
+  );
+
+  if (!ok) return false;
+
+  resetAddBookmarkForm();
+  closeModal();
 }

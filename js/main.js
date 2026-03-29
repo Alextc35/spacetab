@@ -16,9 +16,6 @@ const container = document.getElementById('bookmark-container');
 const gridOverlay = document.getElementById('grid-overlay');
 
 /** @type {HTMLElement|null} */
-const addButton = document.getElementById('add-bookmark');
-
-/** @type {HTMLElement|null} */
 const toggleButton = document.getElementById('edit-toggle-mode');
 
 /* ======================= Bootstrap ======================= */
@@ -82,7 +79,6 @@ function initUI() {
   initUIController({
     container,
     gridOverlay,
-    addButton,
     toggleButton
   });
 }

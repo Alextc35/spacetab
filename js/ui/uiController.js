@@ -1,18 +1,16 @@
-import { toggleEditing } from '../core/store.js';
-import { renderBookmarks } from './bookmark/renderer.js';
-import { flash } from './flash.js';
 import { t } from '../core/i18n.js';
+import { toggleEditing } from '../core/store.js';
+
+import { renderBookmarks } from './bookmark/renderer.js';
+
 import { hasOpenModal, shouldSuppressGlobalEnter } from './modalManager.js';
-import { showAddBookmark } from './modals/index.js';
+import { flash } from './flash.js';
 
 /** @type {HTMLElement|null} */
 let containerRef = null;
 
 /** @type {HTMLElement|null} */
 let gridOverlayRef = null;
-
-/** @type {HTMLElement|null} */
-let addButtonRef = null;
 
 /** @type {HTMLElement|null} */
 let toggleButtonRef = null;
@@ -42,15 +40,10 @@ export function initUIController({
 }) {
   containerRef = container;
   gridOverlayRef = gridOverlay;
-  addButtonRef = addButton;
   toggleButtonRef = toggleButton;
 
   document.addEventListener('keydown', handleGlobalKeydown);
   window.addEventListener('resize', handleResize);
-
-  addButtonRef.addEventListener('click', () =>
-    showAddBookmark()
-  );
 
   toggleButtonRef?.addEventListener('click', toggleEditMode);
 }
@@ -109,12 +102,6 @@ function handleGlobalKeydown(e) {
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
   if (hasOpenModal()) return;
-
-  if (e.code === 'Enter') {
-    e.preventDefault();
-    showAddBookmark();
-    return;
-  }
 
   if (e.code === 'Space') {
     e.preventDefault();

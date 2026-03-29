@@ -32,6 +32,9 @@
       "no_space": "No space available for more bookmarks 😅"
     },
     "bookmark": {
+      "add": {
+        "cancel": "Discard new bookmark?"
+      },
       "confirmDelete": "Delete {{name}}",
       "cancel": "Discard edition changes?"
     },

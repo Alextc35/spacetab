@@ -1,3 +1,4 @@
+// ui/modals/settings/index.js
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
 import { flashSuccess } from '../../flash.js';
 import { initTabs } from '../../tabs.js';
@@ -61,16 +62,16 @@ export function initSettingsModal() {
   registerModal({
     id: 'settings',
     element: settingsModal,
-    acceptOnEnter: false,
     closeOnEsc: true,
     closeOnOverlay: false,
+    acceptOnEnter: false,
     initialFocus: null,
     shortcut: '.',
     toggleWithShortcut: true,
     onShortcut: () => settingsBtn.click()
   });
 
-  async function handleCancelAttempt() {
+  async function handleCancel() {
     if (!hasChanges()) {
       closeModal();
       return true;
@@ -109,7 +110,7 @@ export function initSettingsModal() {
     bookmarkTabs.activate('settings-bookmark-tab-style');
     
     openModal('settings', {
-      onCancel: handleCancelAttempt
+      onCancel: handleCancel
     });
   });
 
@@ -117,7 +118,7 @@ export function initSettingsModal() {
      CANCEL / SAVE
   ================================================== */
 
-  settingsCancel.addEventListener('click', handleCancelAttempt);
+  settingsCancel.addEventListener('click', handleCancel);
 
   settingsSave.addEventListener('click', () => {
     const newSettings = buildNewSettings();

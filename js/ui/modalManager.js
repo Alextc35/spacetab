@@ -168,6 +168,7 @@ export function registerModal({
     id,
     element,
     closeOnEsc,
+    closeOnOverlay,
     acceptOnEnter,
     initialFocus,
     shortcut,
@@ -202,13 +203,16 @@ export function openModal(id, {
 
   const previouslyFocused = document.activeElement;
 
-  stack.push({
+  const activeModal = {
     ...config,
-    onAccept,
-    onCancel,
     previouslyFocused,
     initialFocus: initialFocus || config.initialFocus
-  });
+  };
+
+  if (onAccept) activeModal.onAccept = onAccept;
+  if (onCancel) activeModal.onCancel = onCancel;
+
+  stack.push(activeModal);
 
   config.element.style.display = 'flex';
 
