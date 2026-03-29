@@ -1,19 +1,18 @@
-import { initBookmarkSection } from './bookmarkSection.js';
-import { initLanguageSection } from './languageSection.js';
-import { initTabs } from '../../tabs.js';
-import { initThemeSection } from './themeSection.js';
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
-import { showAlert } from '../alert.js';
 import { flashSuccess } from '../../flash.js';
+import { initTabs } from '../../tabs.js';
+
+import { t } from '../../../core/i18n.js';
 import { getState } from '../../../core/store.js';
 import { updateSettings } from '../../../core/settings.js';
-import {
-  initDraft,
-  resetState,
-  hasChanges,
-  buildNewSettings
-} from './settingsState.js';
-import { t } from '../../../core/i18n.js';
+
+import { showAlert } from '../alert.js';
+
+import { initGeneralSection } from './generalSection.js'; // TODO: implement general section
+import { initThemeSection } from './themeSection.js';
+import { initBookmarkSection } from './bookmarkSection.js';
+import { initLanguageSection } from './languageSection.js';
+import { initDraft, resetState, hasChanges, buildNewSettings } from './settingsState.js';
 
 export function initSettingsModal() {
   const settingsBtn = document.getElementById('settings');
@@ -31,18 +30,6 @@ export function initSettingsModal() {
     settingsSave.classList.toggle('is-hidden', !changed);
   }
 
-  const themeSection = initThemeSection({
-    onRequestSaveStateUpdate: updateSaveButtonState
-  });
-
-  const bookmarkSection = initBookmarkSection({
-    onRequestSaveStateUpdate: updateSaveButtonState
-  });
-
-  const languageSection = initLanguageSection({
-    onRequestSaveStateUpdate: updateSaveButtonState
-  });
-
   const tabs = initTabs({
     root: '#settings-modal',
     tabButtonSelector: '.settings-modal-tab-btn',
@@ -53,6 +40,18 @@ export function initSettingsModal() {
     root: '#settings-modal-tab-bookmark',
     tabButtonSelector: '.edit-bookmark-modal-tab-btn',
     tabContentSelector: '.edit-bookmark-modal-tab-content'
+  });
+
+  const themeSection = initThemeSection({
+    onRequestSaveStateUpdate: updateSaveButtonState
+  });
+
+  const bookmarkSection = initBookmarkSection({
+    onRequestSaveStateUpdate: updateSaveButtonState
+  });
+
+  const languageSection = initLanguageSection({
+    onRequestSaveStateUpdate: updateSaveButtonState
   });
 
   /* ==================================================

@@ -1,0 +1,1 @@
+export function initGeneralSection() {} // TODO: implement general section
