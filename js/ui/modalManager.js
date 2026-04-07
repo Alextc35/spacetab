@@ -39,26 +39,6 @@ export function hasOpenModal() {
   return stack.length > 0;
 }
 
-/**
- * Flag used to suppress the next global Enter key action.
- *
- * This prevents scenarios where:
- * - Enter closes a modal
- * - The same Enter propagates to a global handler
- *
- * @type {boolean}
- */
-let suppressNextGlobalEnter = false;
-
-/**
- * Returns whether the next global Enter should be ignored.
- *
- * @returns {boolean}
- */
-export function shouldSuppressGlobalEnter() {
-  return suppressNextGlobalEnter;
-}
-
 document.addEventListener('keydown', (e) => {
   const isTyping =
     ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)
@@ -104,11 +84,9 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && modal.acceptOnEnter) {
     e.preventDefault();
     e.stopPropagation();
-    suppressNextGlobalEnter = true;
     modal.onAccept?.();
 
     requestAnimationFrame(() => {
-      suppressNextGlobalEnter = false;
       modal.previouslyFocused?.focus?.();
     });
     return;
@@ -234,6 +212,4 @@ export function closeModal() {
   if (!modal) return;
 
   modal.element.style.display = 'none';
-
-  if (!suppressNextGlobalEnter) { modal.previouslyFocused?.focus?.(); }
 }
