@@ -15,20 +15,23 @@ const flashContainer = document.getElementById('flash-container');
  * @returns {void}
  */
 export function flash(message, type = 'info', duration = 3000) {
+  if (!flashContainer) return;
+
   while (flashContainer.children.length >= MAX_FLASHES) {
     flashContainer.firstElementChild.remove();
   }
-  const div = document.createElement('div');
-  div.className = `flash-message flash-${type}`;
-  div.textContent = t(message);
 
-  flashContainer.appendChild(div);
+  const flashMessage = document.createElement('div');
+  flashMessage.className = `flash-message flash-${type}`;
+  flashMessage.textContent = t(message);
 
-  requestAnimationFrame(() => div.classList.add('show'));
+  flashContainer.appendChild(flashMessage);
+
+  requestAnimationFrame(() => flashMessage.classList.add('show'));
 
   setTimeout(() => {
-    div.classList.remove('show');
-    div.addEventListener('transitionend', () => div.remove());
+    flashMessage.classList.remove('show');
+    flashMessage.addEventListener('transitionend', () => flashMessage.remove(), { once: true });
   }, duration);
 }
 
