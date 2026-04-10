@@ -10,7 +10,6 @@ import {
 } from './settingsState.js';
 
 export function initBookmarkSection({ onRequestSaveStateUpdate }) {
-
   const preview = document.getElementById('settings-bookmark-preview');
 
   const bookmarkBgColor = document.getElementById('settings-bookmark-background-color');

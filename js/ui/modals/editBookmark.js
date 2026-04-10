@@ -70,13 +70,11 @@ function resetTabScroll() {
   if (activeTab) activeTab.scrollTop = 0;
 }
 
-
 /* =====================================
    Init Modal
 ===================================== */
 
 export function initEditBookmark() {
-
   if (registered) return;
   registered = true;
 
@@ -94,9 +92,7 @@ export function initEditBookmark() {
     closeOnOverlay: false,
     initialFocus: modalName
   });
-
 }
-
 
 /* =====================================
    Open Modal
@@ -109,7 +105,7 @@ export function openModal(bookmarkId) {
 
   editingId = bookmarkId;
 
-  // Destruir editor anterior si existe
+  // Destroy previous editor if exists
   if (editor?.destroy) editor.destroy();
 
   editor = createBookmarkEditor({
@@ -149,7 +145,6 @@ export function openModal(bookmarkId) {
 ===================================== */
 
 modalSave.addEventListener('click', () => {
-
   if (!editingId) return;
 
   const updatedData = editor.getState();
@@ -163,16 +158,13 @@ modalSave.addEventListener('click', () => {
   initialSnapshot = null;
 
   closeEditModal();
-
 });
-
 
 /* =====================================
    Cancel
 ===================================== */
 
 modalCancel.addEventListener('click', async () => {
-
   if (!hasChanges()) {
     closeEditModal();
     return;
@@ -184,9 +176,7 @@ modalCancel.addEventListener('click', async () => {
   );
 
   if (ok) closeEditModal();
-
 });
-
 
 function closeEditModal() {
   editingId = null;
@@ -194,8 +184,3 @@ function closeEditModal() {
   editor = null;
   closeModal();
 }
-
-
-/* =====================================
-   Tabs Logic
-===================================== */
