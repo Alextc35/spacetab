@@ -4,7 +4,7 @@ import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { renderBookmarks } from './ui/bookmark/renderer.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
-import { initaddBookmark, initeditBookmark,
+import { initAddBookmark, initEditBookmark,
   initAlertModal, initSettingsModal } from './ui/modals/index.js';
 
 /* ======================= DOM References ======================= */
@@ -14,9 +14,6 @@ const container = document.getElementById('bookmark-container');
 
 /** @type {HTMLElement|null} */
 const gridOverlay = document.getElementById('grid-overlay');
-
-/** @type {HTMLElement|null} */
-const addButton = document.getElementById('add-bookmark');
 
 /** @type {HTMLElement|null} */
 const toggleButton = document.getElementById('edit-toggle-mode');
@@ -82,7 +79,6 @@ function initUI() {
   initUIController({
     container,
     gridOverlay,
-    addButton,
     toggleButton
   });
 }
@@ -93,8 +89,8 @@ function initUI() {
 function initModals() {
   initSettingsModal();
   initAlertModal();
-  initaddBookmark();
-  initeditBookmark();
+  initAddBookmark();
+  initEditBookmark();
 }
 
 /* ======================= Store Reaction ======================= */

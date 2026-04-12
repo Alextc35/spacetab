@@ -1,18 +1,16 @@
-import { toggleEditing } from '../core/store.js';
-import { renderBookmarks } from './bookmark/renderer.js';
-import { flash } from './flash.js';
 import { t } from '../core/i18n.js';
-import { hasOpenModal, shouldSuppressGlobalEnter } from './modalManager.js';
-import { showaddBookmark } from './modals/index.js';
+import { toggleEditing } from '../core/store.js';
+
+import { renderBookmarks } from './bookmark/renderer.js';
+
+import { hasOpenModal } from './modalManager.js';
+import { flash } from './flash.js';
 
 /** @type {HTMLElement|null} */
 let containerRef = null;
 
 /** @type {HTMLElement|null} */
 let gridOverlayRef = null;
-
-/** @type {HTMLElement|null} */
-let addButtonRef = null;
 
 /** @type {HTMLElement|null} */
 let toggleButtonRef = null;
@@ -37,20 +35,14 @@ let resizeTimeout = null;
 export function initUIController({
   container,
   gridOverlay,
-  addButton,
   toggleButton
 }) {
   containerRef = container;
   gridOverlayRef = gridOverlay;
-  addButtonRef = addButton;
   toggleButtonRef = toggleButton;
 
-  document.addEventListener('keydown', handleGlobalKeydown);
+  document.addEventListener('keydown', handleEditModeShortcut);
   window.addEventListener('resize', handleResize);
-
-  addButtonRef.addEventListener('click', () =>
-    showaddBookmark()
-  );
 
   toggleButtonRef?.addEventListener('click', toggleEditMode);
 }
@@ -85,39 +77,17 @@ async function toggleEditMode() {
 }
 
 /**
- * Handles global keyboard shortcuts.
+ * Handles the Space key shortcut to toggle edit mode.
  *
- * Shortcuts:
- * - "." → Open settings
- * - Enter → Open Add Bookmark modal
- * - Space → Toggle edit mode
+ * Does nothing while a modal is open.
  *
- * Suppresses:
- * - Active modal interactions
- * - Input/textarea typing contexts
- * - Modal-controlled Enter behavior
- *
- * @param {KeyboardEvent} e
+ * @param {KeyboardEvent} event
  */
-function handleGlobalKeydown(e) {
-  if (e.code === 'Enter' && shouldSuppressGlobalEnter()) {
-    e.preventDefault();
-    return;
-  }
-
-  const tag = document.activeElement?.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-
+function handleEditModeShortcut(event) {
   if (hasOpenModal()) return;
 
-  if (e.code === 'Enter') {
-    e.preventDefault();
-    showaddBookmark();
-    return;
-  }
-
-  if (e.code === 'Space') {
-    e.preventDefault();
+  if (event.code === 'Space') {
+    event.preventDefault();
     toggleButtonRef?.click();
   }
 }

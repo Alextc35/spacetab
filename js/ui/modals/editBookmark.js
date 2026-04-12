@@ -7,15 +7,27 @@ import { showAlert } from './alert.js';
 import { t } from '../../core/i18n.js';
 import { initTabs } from '../tabs.js';
 
+/**
+ * Root element for the edit bookmark modal.
+ */
 const editModal = document.getElementById('edit-bookmark-modal');
 
+/**
+ * Main form fields.
+ */
 const modalName = document.getElementById('edit-bookmark-modal-name');
 const modalUrl = document.getElementById('edit-bookmark-modal-url');
 
+/**
+ * URL lockable input controls.
+ */
 const modalUrlToggleBtn = document.getElementById('edit-modal-toggle-url');
 const modalUrlCopyBtn = document.getElementById('edit-modal-copy-url');
 const modalUrlClearBtn = document.getElementById('edit-modal-clear-url');
 
+/**
+ * Bookmark appearance toggles.
+ */
 const modalInvertColorIcon = document.getElementById('edit-bookmark-modal-invert-color-icon');
 const modalInvertColorBg = document.getElementById('edit-bookmark-modal-invert-color-bg');
 
@@ -27,6 +39,9 @@ const modalShowText = document.getElementById('edit-bookmark-modal-show-text');
 
 const modalShowFavicon = document.getElementById('edit-bookmark-modal-show-favicon');
 
+/**
+ * Background image controls.
+ */
 const modalBackgroundImage = document.getElementById('edit-bookmark-modal-background-image');
 
 const modalBgToggleBtn = document.getElementById('edit-modal-toggle-background-image');
@@ -35,29 +50,72 @@ const modalBgClearBtn = document.getElementById('edit-modal-clear-background-ima
 
 const modalBackgroundFavicon = document.getElementById('edit-bookmark-modal-background-favicon');
 
+/**
+ * Modal action buttons.
+ */
 const modalSave = document.getElementById('edit-bookmark-modal-save');
 const modalCancel = document.getElementById('edit-bookmark-modal-cancel');
 
+/**
+ * Live preview container used by the bookmark editor.
+ */
 const previewContainer = document.getElementById('edit-bookmark-modal-preview');
 
+/**
+ * Currently edited bookmark id.
+ */
 let editingId = null;
+
+/**
+ * Active bookmark editor instance.
+ */
 let editor = null;
+
+/**
+ * Snapshot of the initial bookmark state when the modal opens.
+ * Used for change detection.
+ */
 let initialSnapshot = null;
+
+/**
+ * Prevents modal initialization from running more than once.
+ */
 let registered = false;
+
+/**
+ * Tab controller for the edit modal.
+ */
 let tabs;
 
 /* =====================================
    Helpers
 ===================================== */
 
+/**
+ * Returns the current editor state.
+ *
+ * Falls back to an empty object when the editor is not available.
+ *
+ * @returns {Object}
+ */
 function getCurrentFormState() {
   return editor?.getState() ?? {};
 }
 
+/**
+ * Returns whether the current form state differs from the initial snapshot.
+ *
+ * @returns {boolean}
+ */
 function hasChanges() {
   return JSON.stringify(getCurrentFormState()) !== JSON.stringify(initialSnapshot);
 }
 
+/**
+ * Updates the save button state depending on whether the form changed.
+ *
+ * The save button is hidden and disabled when there are no changes.
+ */
 function updateSaveButtonState() {
   const changed = hasChanges();
 
@@ -65,18 +123,26 @@ function updateSaveButtonState() {
   modalSave.classList.toggle('is-hidden', !changed);
 }
 
+/**
+ * Resets the scroll position of the currently visible tab content.
+ */
 function resetTabScroll() {
   const activeTab = editModal.querySelector('.edit-bookmark-modal-tab-content[style*="flex"]');
   if (activeTab) activeTab.scrollTop = 0;
 }
 
-
 /* =====================================
    Init Modal
 ===================================== */
 
-export function initeditBookmark() {
-
+/**
+ * Initializes the edit bookmark modal once.
+ *
+ * Responsibilities:
+ * - initialize tab navigation
+ * - register the modal with the modal manager
+ */
+export function initEditBookmark() {
   if (registered) return;
   registered = true;
 
@@ -94,14 +160,24 @@ export function initeditBookmark() {
     closeOnOverlay: false,
     initialFocus: modalName
   });
-
 }
-
 
 /* =====================================
    Open Modal
 ===================================== */
 
+/**
+ * Opens the edit bookmark modal for the given bookmark id.
+ *
+ * Flow:
+ * - resolve the bookmark from store state
+ * - destroy any previous editor instance
+ * - create a fresh editor bound to the selected bookmark
+ * - capture the initial snapshot for change detection
+ * - reset UI state and open the modal
+ *
+ * @param {string} bookmarkId
+ */
 export function openModal(bookmarkId) {
   const state = getState();
   const bookmark = state.data.bookmarks.find(b => b.id === bookmarkId);
@@ -109,7 +185,10 @@ export function openModal(bookmarkId) {
 
   editingId = bookmarkId;
 
-  // Destruir editor anterior si existe
+  /**
+   * Destroy the previous editor instance before creating a new one
+   * to avoid stale state or duplicated bindings.
+   */
   if (editor?.destroy) editor.destroy();
 
   editor = createBookmarkEditor({
@@ -142,14 +221,23 @@ export function openModal(bookmarkId) {
   tabs.activate('edit-bookmark-modal-tab-general');
   resetTabScroll();
   openManagedModal('edit-bookmark');
-};
+}
 
 /* =====================================
    Save
 ===================================== */
 
+/**
+ * Saves the edited bookmark.
+ *
+ * Flow:
+ * - read the current editor state
+ * - persist changes by bookmark id
+ * - show success feedback
+ * - clear the snapshot
+ * - close the modal
+ */
 modalSave.addEventListener('click', () => {
-
   if (!editingId) return;
 
   const updatedData = editor.getState();
@@ -163,16 +251,20 @@ modalSave.addEventListener('click', () => {
   initialSnapshot = null;
 
   closeEditModal();
-
 });
-
 
 /* =====================================
    Cancel
 ===================================== */
 
+/**
+ * Handles modal cancellation.
+ *
+ * Behavior:
+ * - closes immediately if nothing changed
+ * - otherwise asks for confirmation before discarding edits
+ */
 modalCancel.addEventListener('click', async () => {
-
   if (!hasChanges()) {
     closeEditModal();
     return;
@@ -184,18 +276,16 @@ modalCancel.addEventListener('click', async () => {
   );
 
   if (ok) closeEditModal();
-
 });
 
-
+/**
+ * Closes the edit bookmark modal and clears editor state.
+ */
 function closeEditModal() {
   editingId = null;
+
   if (editor?.destroy) editor.destroy();
   editor = null;
+
   closeModal();
 }
-
-
-/* =====================================
-   Tabs Logic
-===================================== */

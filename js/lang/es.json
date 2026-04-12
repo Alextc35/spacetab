@@ -32,6 +32,9 @@
       "no_space": "No hay espacio disponible para más favoritos 😅"
     },
     "bookmark": {
+      "add": {
+        "cancel": "¿Descartar el nuevo favorito?"
+      },
       "confirmDelete": "Eliminar {{name}}",
       "cancel": "¿Descartar los cambios en la edición?"
     },

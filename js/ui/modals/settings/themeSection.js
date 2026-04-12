@@ -9,6 +9,20 @@ import {
   replaceDraftTheme
 } from './settingsState.js';
 
+/**
+ * Initializes the theme section inside the settings modal.
+ *
+ * This section is responsible for:
+ * - syncing draft theme values into the UI
+ * - managing background color / image / default background state
+ * - handling live preview updates
+ * - resetting theme background settings
+ *
+ * @param {Object} params
+ * @param {Function} params.onChange
+ * @param {Function} params.onRequestSaveStateUpdate - Callback used to refresh save-state indicators.
+ * @returns {{ syncUI: Function }}
+ */
 export function initThemeSection({
   onChange,
   onRequestSaveStateUpdate
@@ -17,28 +31,54 @@ export function initThemeSection({
      DOM
   ================================================== */
 
+  /**
+   * Background mode and appearance controls.
+   */
   const bgDefault = document.getElementById('settings-theme-bg-default');
   const labelBgDefault = document.querySelector('label[for="settings-theme-bg-default"]');
   const bgColorInput = document.getElementById('settings-theme-bg-color');
   const bgImageInput = document.getElementById('settings-theme-bg-image');
   const resetBgBtn = document.getElementById('settings-theme-reset-bg');
 
+  /**
+   * Lockable background-image controls.
+   */
   const clearBgImageBtn = document.getElementById('settings-theme-clear-bg-image');
   const copyBgImageBtn = document.getElementById('settings-theme-copy-bg-image');
   const toggleBtn = document.getElementById('settings-theme-toggle-bg-image');
 
+  /**
+   * Theme background preview element.
+   */
   const bgPreview = document.getElementById('settings-theme-bg-preview');
 
+  /**
+   * Controller used to manage the lockable background-image input.
+   */
   let bgController;
 
   /* ==================================================
      Internal helpers
   ================================================== */
 
+  /**
+   * Returns whether the provided value contains a non-empty image string.
+   *
+   * @param {string|null|undefined} value
+   * @returns {boolean}
+   */
   function hasImageValue(value) {
     return typeof value === 'string' && value.trim() !== '';
   }
 
+  /**
+   * Updates the theme background preview based on the current draft state.
+   *
+   * Behavior:
+   * - clears previous inline styles
+   * - shows a transparent/disabled state when default background is enabled
+   * - otherwise applies the selected background color and optional image
+   */
   function updatePreview() {
     const draft = getDraftTheme();
 
@@ -59,6 +99,10 @@ export function initThemeSection({
     }
   }
 
+  /**
+   * Updates visibility for background-image helper controls
+   * depending on whether an image exists and whether the field is locked.
+   */
   function updateColorState() {
     const draft = getDraftTheme();
     const hasImage = hasImageValue(draft.backgroundImageUrl);
@@ -69,6 +113,15 @@ export function initThemeSection({
     toggleBtn.style.display = hasImage ? 'block' : 'none';
   }
 
+  /**
+   * Updates enabled/disabled states across theme controls
+   * according to the current draft values.
+   *
+   * Rules:
+   * - default background cannot be enabled while a background image exists
+   * - when default background is enabled, color/image-related controls are disabled
+   * - preview is refreshed after state updates
+   */
   function updateStates() {
     const draft = getDraftTheme();
     const hasImage = hasImageValue(draft.backgroundImageUrl);
@@ -96,6 +149,12 @@ export function initThemeSection({
      Public sync (called from modal open)
   ================================================== */
 
+  /**
+   * Synchronizes the current draft theme state into the UI.
+   *
+   * This also initializes the lockable background-image controller
+   * the first time the section is synced.
+   */
   function syncUI() {
     const draft = getDraftTheme();
 
@@ -140,6 +199,10 @@ export function initThemeSection({
      Events
   ================================================== */
 
+  /**
+   * Updates the draft background color on input
+   * and refreshes preview/save-state indicators.
+   */
   bgColorInput.addEventListener('input', () => {
     if (bgColorInput.disabled) return;
 
@@ -149,6 +212,10 @@ export function initThemeSection({
     onRequestSaveStateUpdate();
   });
 
+  /**
+   * Updates the draft background image URL on input
+   * and refreshes related UI state, preview, and save-state indicators.
+   */
   bgImageInput.addEventListener('input', () => {
     setDraftThemeValue(
       'backgroundImageUrl',
@@ -161,6 +228,10 @@ export function initThemeSection({
     onRequestSaveStateUpdate();
   });
 
+  /**
+   * Toggles whether the theme should use the default background
+   * and refreshes dependent UI state.
+   */
   bgDefault.addEventListener('change', () => {
     setDraftThemeValue('backgroundDefault', bgDefault.checked);
 
@@ -168,6 +239,12 @@ export function initThemeSection({
     onRequestSaveStateUpdate();
   });
 
+  /**
+   * Resets theme background settings to defaults after confirmation.
+   *
+   * This also unlocks the background image field and refreshes
+   * the full section UI and preview.
+   */
   resetBgBtn.addEventListener('click', async () => {
     const ok = await showAlert(
       t('alert.settings.theme.reset'),
@@ -201,6 +278,9 @@ export function initThemeSection({
      API
   ================================================== */
 
+  /**
+   * Public API for the theme settings section.
+   */
   return {
     syncUI
   };

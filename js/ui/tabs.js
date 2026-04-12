@@ -1,3 +1,23 @@
+/**
+ * Initializes a tab interface inside a given root element.
+ *
+ * Finds tab buttons and tab content panels, then wires the buttons
+ * to show the matching panel when clicked.
+ *
+ * Behavior:
+ * - Resolves the root element from a selector or DOM node
+ * - Hides all tab panels before showing the selected one
+ * - Applies the active class to the selected tab button
+ * - Resets the selected panel scroll position to the top
+ *
+ * @param {Object} options
+ * @param {string|Element} options.root - Root selector or element containing the tabs.
+ * @param {string} options.tabButtonSelector - Selector for tab buttons inside the root.
+ * @param {string} options.tabContentSelector - Selector for tab content panels inside the root.
+ * @param {string} [options.activeClass='active'] - Class applied to the active tab button.
+ * @param {string} [options.hiddenClass='is-hidden'] - Class used to hide inactive tab panels.
+ * @returns {{ activate: (tabId: string) => void }|void} Tab controls, or nothing if the root is not found.
+ */
 export function initTabs({
   root,
   tabButtonSelector,
@@ -5,7 +25,6 @@ export function initTabs({
   activeClass = 'active',
   hiddenClass = 'is-hidden'
 }) {
-
   const rootEl =
     typeof root === 'string'
       ? document.querySelector(root)
@@ -17,29 +36,27 @@ export function initTabs({
   const contents = rootEl.querySelectorAll(tabContentSelector);
 
   function activate(tabId) {
-
     buttons.forEach(btn => btn.classList.remove(activeClass));
 
     contents.forEach(tab => {
       tab.classList.add(hiddenClass);
     });
 
-    const btn = rootEl.querySelector(
+    const button = rootEl.querySelector(
       `${tabButtonSelector}[data-tab="${tabId}"]`
     );
 
-    if (btn) btn.classList.add(activeClass);
+    if (button) button.classList.add(activeClass);
 
     const content = rootEl.querySelector(`#${tabId}`);
 
-    if (content) {
-      content.classList.remove(hiddenClass);
+    if (!content) return;
 
-      requestAnimationFrame(() => {
-        content.scrollTop = 0;
-      });
-    }
+    content.classList.remove(hiddenClass);
 
+    requestAnimationFrame(() => {
+      content.scrollTop = 0;
+    });
   }
 
   buttons.forEach(btn => {
@@ -49,5 +66,4 @@ export function initTabs({
   });
 
   return { activate };
-
 }
