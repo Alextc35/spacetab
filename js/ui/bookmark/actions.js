@@ -2,7 +2,7 @@ import '../../types/types.js'; // typedefs
 import { deleteBookmarkById, clearBookmarks } from '../../core/bookmark.js';
 import { t } from '../../core/i18n.js';
 import { showAlert } from '../modals/alert.js';
-import { openModal } from '../modals/editBookmark.js';
+import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { isVisuallyDark } from './utils.js';
 import { flashSuccess, flashError } from '../flash.js';
 
@@ -20,7 +20,7 @@ export function addEditDeleteButtons(container, bookmark) {
   const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
 
   const editBtn = createButton('✎', 'edit', themeClass, () => {
-    openModal(bookmark.id);
+    openEditBookmark(bookmark.id);
   });
 
   const delBtn = createButton('🗑', 'delete', themeClass, async () => {

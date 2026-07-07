@@ -4,7 +4,7 @@ import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { renderBookmarks } from './ui/bookmark/renderer.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
-import { initAddBookmark, initEditBookmark,
+import { initBookmarkModal,
   initAlertModal, initSettingsModal } from './ui/modals/index.js';
 
 /* ======================= DOM References ======================= */
@@ -89,8 +89,7 @@ function initUI() {
 function initModals() {
   initSettingsModal();
   initAlertModal();
-  initAddBookmark();
-  initEditBookmark();
+  initBookmarkModal();
 }
 
 /* ======================= Store Reaction ======================= */

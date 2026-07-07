@@ -57,15 +57,6 @@ export function initSettingsModal() {
   });
 
   /**
-   * Initializes the nested bookmark tabs inside the settings modal.
-   */
-  const bookmarkTabs = initTabs({
-    root: '#settings-modal-tab-bookmark',
-    tabButtonSelector: '.edit-bookmark-modal-tab-btn',
-    tabContentSelector: '.edit-bookmark-modal-tab-content'
-  });
-
-  /**
    * Initializes section controllers.
    *
    * Each section notifies this module whenever its draft state changes
@@ -161,7 +152,7 @@ export function initSettingsModal() {
     updateSaveButtonState();
 
     tabs.activate('settings-modal-tab-general');
-    bookmarkTabs.activate('settings-bookmark-tab-style');
+    bookmarkSection.activateDefaultTab();
     
     openModal('settings', {
       onCancel: handleCancel

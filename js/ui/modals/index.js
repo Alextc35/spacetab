@@ -1,5 +1,4 @@
 // ui/modals/index.js
 export { initAlertModal, showAlert } from './alert.js';
-export { initAddBookmark } from './addBookmark.js';
-export { initEditBookmark } from './editBookmark.js';
+export { initBookmarkModal, openAddBookmark, openEditBookmark } from './bookmarkModal.js';
 export { initSettingsModal } from './settings/index.js';

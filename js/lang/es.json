@@ -58,6 +58,7 @@
   },
   "buttons": {
     "save": "Guardar",
+    "add": "Añadir",
     "accept": "Aceptar",
     "cancel": "Cancelar"
   },
