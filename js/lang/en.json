@@ -1,5 +1,8 @@
 {
-  "title": "New tab",
+  "html": {
+    "title": "New tab"
+  },
+
   "flash": {
     "editMode": {
       "enabled": "Edit mode enabled",

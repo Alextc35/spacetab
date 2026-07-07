@@ -1,5 +1,8 @@
 {
-  "title": "Nueva pestaña",
+  "html": {
+    "title": "Nueva pestaña"
+  },
+  
   "flash": {
     "editMode": {
       "enabled": "Modo edición activado",
