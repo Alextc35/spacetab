@@ -182,7 +182,7 @@ test('persists the synchronized storage choice', async ({ page }) => {
   await expect(page.getByRole('radio', { name: /Synchronized/ })).toBeChecked();
 });
 
-test('duplicates and selects bookmarks in edit mode', async ({ page }) => {
+test('duplicates, selects and clears selection when edit mode closes', async ({ page }) => {
   await enableEditMode(page);
   const firstBookmark = page.locator('#bookmark-container > .bookmark').first();
   await openBookmarkActions(firstBookmark);
@@ -218,6 +218,11 @@ test('duplicates and selects bookmarks in edit mode', async ({ page }) => {
     const dockBox = await workspaceDock.boundingBox();
     return dockBox.y - (bulkBox.y + bulkBox.height);
   }).toBeGreaterThanOrEqual(0);
+
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '🔒' }).click();
+  await expect(bulkActions).toBeHidden();
+  await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
 });
 
 test('duplicates several selected bookmarks without overlaps', async ({ page }) => {

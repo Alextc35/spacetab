@@ -3,6 +3,7 @@ import { subscribe, hydrateStore, getStorageMode } from './core/store.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { renderBookmarks } from './ui/bookmark/renderer.js';
+import { clearBookmarkSelection } from './ui/bookmark/selection.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
 import { initWorkspaceToolbar } from './ui/workspaceToolbar.js';
 import { initBulkBookmarkActions } from './ui/bookmark/bulkActions.js';
@@ -135,6 +136,10 @@ function handleStateChange(state, prev) {
 
   const editingChanged =
     state.ui.isEditing !== prev.ui.isEditing;
+
+  if (editingChanged && !state.ui.isEditing) {
+    clearBookmarkSelection();
+  }
 
   if (settingsChanged) {
     applyGlobalTheme(state.data.settings);
