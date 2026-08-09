@@ -57,6 +57,9 @@
           <button data-tab="settings-modal-tab-general" class="settings-modal-tab-btn active" type="button"
             data-i18n="settingsModal.sections.general">⚙️ General
           </button>
+          <button data-tab="settings-modal-tab-sync" class="settings-modal-tab-btn" type="button"
+            data-i18n="settingsModal.sections.sync">☁️ Sincronización
+          </button>
           <button data-tab="settings-modal-tab-theme" class="settings-modal-tab-btn" type="button"
             data-i18n="settingsModal.sections.theme">🖼️ Tema
           </button>
@@ -85,6 +88,36 @@
               <button id="reset-settings-btn-general" class="btn btn-danger" type="button"
                 data-i18n="settingsModal.general.resetSettings">Restablecer ajustes
               </button>
+            </div>
+          </div>
+          <div id="settings-modal-tab-sync"
+            class="settings-modal-tab-content is-hidden custom-scrollbar">
+            <h2 data-i18n="settingsModal.sync.title">Sincronización</h2>
+            <p class="settings-section-description"
+              data-i18n="settingsModal.sync.description">Elige dónde guardar tu configuración y favoritos.</p>
+
+            <div class="storage-mode-options" role="radiogroup"
+              aria-label="Storage mode" data-i18n-aria-label="settingsModal.sync.ariaLabel">
+              <label class="storage-mode-option" for="storage-mode-local">
+                <input id="storage-mode-local" name="storage-mode" type="radio" value="local">
+                <span class="storage-mode-copy">
+                  <strong data-i18n="settingsModal.sync.local.title">Solo en este dispositivo</strong>
+                  <small data-i18n="settingsModal.sync.local.description">Los datos se guardan únicamente en este perfil local.</small>
+                </span>
+              </label>
+
+              <label class="storage-mode-option" for="storage-mode-sync">
+                <input id="storage-mode-sync" name="storage-mode" type="radio" value="sync">
+                <span class="storage-mode-copy">
+                  <strong data-i18n="settingsModal.sync.synced.title">Sincronizado</strong>
+                  <small data-i18n="settingsModal.sync.synced.description">Disponible en los navegadores conectados al mismo perfil sincronizado.</small>
+                </span>
+              </label>
+            </div>
+
+            <div class="storage-sync-notice">
+              <p data-i18n="settingsModal.sync.browserNotice">En Chrome utiliza la sincronización de tu cuenta de Google. En Brave utiliza Brave Sync.</p>
+              <p data-i18n="settingsModal.sync.existingNotice">Si ya existen datos sincronizados de Spacetab, se cargarán al guardar.</p>
             </div>
           </div>
           <div id="settings-modal-tab-theme" 

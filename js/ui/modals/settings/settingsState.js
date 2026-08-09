@@ -17,6 +17,12 @@ let draftLanguage = null;
 let draftBookmarkDefault = null;
 
 /**
+ * Per-device persistence mode selected in the settings modal.
+ * @type {'local'|'sync'|null}
+ */
+let draftStorageMode = null;
+
+/**
  * Snapshot of the original settings when the modal was opened.
  * Used for change detection and restore flows.
  */
@@ -33,13 +39,16 @@ let initialSnapshot = null;
  * allowing the user to edit values without immediately saving them.
  *
  * @param {Object} settings
+ * @param {'local'|'sync'} storageMode
  */
-export function initDraft(settings) {
+export function initDraft(settings, storageMode) {
   initialSnapshot = structuredClone(settings);
+  initialSnapshot.storageMode = storageMode;
 
   draftTheme = structuredClone(settings.theme);
   draftLanguage = settings.language;
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
+  draftStorageMode = storageMode;
 }
 
 /**
@@ -51,6 +60,7 @@ export function resetState() {
   draftTheme = null;
   draftLanguage = null;
   draftBookmarkDefault = null;
+  draftStorageMode = null;
   initialSnapshot = null;
 }
 
@@ -89,6 +99,15 @@ export function getDraftBookmarkDefault() {
 }
 
 /**
+ * Returns the selected per-device persistence mode.
+ *
+ * @returns {'local'|'sync'|null}
+ */
+export function getDraftStorageMode() {
+  return draftStorageMode;
+}
+
+/**
  * Returns the original settings snapshot captured when the modal opened.
  *
  * @returns {Object|null}
@@ -108,6 +127,15 @@ export function getInitialSnapshot() {
  */
 export function setDraftLanguage(language) {
   draftLanguage = language;
+}
+
+/**
+ * Updates the selected per-device persistence mode.
+ *
+ * @param {'local'|'sync'} storageMode
+ */
+export function setDraftStorageMode(storageMode) {
+  draftStorageMode = storageMode;
 }
 
 /**
@@ -174,6 +202,10 @@ export function replaceDraftBookmarkDefault(newBookmarkDefault) {
  */
 export function hasChanges() {
   if (!initialSnapshot) return false;
+
+  if (draftStorageMode !== initialSnapshot.storageMode) {
+    return true;
+  }
 
   // Check language changes
   if (draftLanguage !== initialSnapshot.language) {

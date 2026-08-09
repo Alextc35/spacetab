@@ -1,10 +1,14 @@
 // ui/modals/settings/index.js
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
-import { flashSuccess } from '../../flash.js';
+import { flashSuccess, flashError } from '../../flash.js';
 import { initTabs } from '../../tabs.js';
 
 import { t } from '../../../core/i18n.js';
-import { getState } from '../../../core/store.js';
+import {
+  changeStorageMode,
+  getState,
+  getStorageMode
+} from '../../../core/store.js';
 import { updateSettings } from '../../../core/settings.js';
 
 import { showAlert } from '../alert.js';
@@ -13,7 +17,14 @@ import { initGeneralSection } from './generalSection.js'; // TODO: implement gen
 import { initThemeSection } from './themeSection.js';
 import { initBookmarkSection } from './bookmarkSection.js';
 import { initLanguageSection } from './languageSection.js';
-import { initDraft, resetState, hasChanges, buildNewSettings } from './settingsState.js';
+import { initSyncSection } from './syncSection.js';
+import {
+  initDraft,
+  resetState,
+  hasChanges,
+  buildNewSettings,
+  getDraftStorageMode
+} from './settingsState.js';
 
 /**
  * Initializes the settings modal.
@@ -71,6 +82,10 @@ export function initSettingsModal() {
   });
 
   const languageSection = initLanguageSection({
+    onRequestSaveStateUpdate: updateSaveButtonState
+  });
+
+  const syncSection = initSyncSection({
     onRequestSaveStateUpdate: updateSaveButtonState
   });
 
@@ -143,11 +158,12 @@ export function initSettingsModal() {
   settingsBtn.addEventListener('click', () => {
     const { data: { settings } } = getState();
 
-    initDraft(settings);
+    initDraft(settings, getStorageMode());
 
     themeSection.syncUI();
     bookmarkSection.syncUI();
     languageSection.syncUI();
+    syncSection.syncUI();
 
     updateSaveButtonState();
 
@@ -178,12 +194,43 @@ export function initSettingsModal() {
    * - reset draft tracking
    * - close the modal
    */
-  settingsSave.addEventListener('click', () => {
+  settingsSave.addEventListener('click', async () => {
     const newSettings = buildNewSettings();
+    const currentStorageMode = getStorageMode();
+    const nextStorageMode = getDraftStorageMode();
 
-    updateSettings(newSettings);
-    flashSuccess('flash.settings.saved');
-    resetState();
-    closeModal();
+    settingsSave.disabled = true;
+
+    try {
+      if (nextStorageMode !== currentStorageMode) {
+        const currentData = getState().data;
+        const source = await changeStorageMode(nextStorageMode, {
+          ...currentData,
+          settings: newSettings
+        });
+
+        if (nextStorageMode === 'sync' && source === 'existing') {
+          flashSuccess('flash.sync.remoteLoaded');
+        } else if (nextStorageMode === 'sync') {
+          flashSuccess('flash.sync.enabled');
+        } else {
+          flashSuccess('flash.sync.localEnabled');
+        }
+      } else {
+        await updateSettings(newSettings);
+        flashSuccess('flash.settings.saved');
+      }
+
+      resetState();
+      closeModal();
+    } catch (err) {
+      console.error('[SETTINGS] Storage mode change failed:', err);
+      flashError(
+        err?.code === 'SYNC_QUOTA_EXCEEDED'
+          ? 'flash.sync.quotaError'
+          : 'flash.sync.error'
+      );
+      updateSaveButtonState();
+    }
   });
 }

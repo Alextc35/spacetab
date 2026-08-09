@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SpaceTab browser harness</title>
+    <link rel="stylesheet" href="../css/main.css">
+  </head>
+  <body>
+    <script type="module">
+      const listeners = [];
+
+      function createArea(areaName) {
+        const data = {};
+
+        function select(keys) {
+          if (keys === null || keys === undefined) return structuredClone(data);
+          const requested = Array.isArray(keys) ? keys : [keys];
+          return Object.fromEntries(
+            requested
+              .filter(key => Object.hasOwn(data, key))
+              .map(key => [key, structuredClone(data[key])])
+          );
+        }
+
+        return {
+          QUOTA_BYTES: areaName === 'sync' ? 102400 : 10485760,
+          get(keys, callback) { callback(select(keys)); },
+          getBytesInUse(_keys, callback) {
+            callback(new Blob([JSON.stringify(data)]).size);
+          },
+          set(items, callback) {
+            const changes = {};
+            for (const [key, value] of Object.entries(items)) {
+              changes[key] = { oldValue: data[key], newValue: value };
+              data[key] = structuredClone(value);
+            }
+            callback?.();
+            for (const listener of listeners) listener(changes, areaName);
+          },
+          remove(keys, callback) {
+            const changes = {};
+            for (const key of (Array.isArray(keys) ? keys : [keys])) {
+              if (!Object.hasOwn(data, key)) continue;
+              changes[key] = { oldValue: data[key] };
+              delete data[key];
+            }
+            callback?.();
+            for (const listener of listeners) listener(changes, areaName);
+          }
+        };
+      }
+
+      globalThis.chrome = {
+        runtime: {
+          lastError: null,
+          getManifest: () => ({ version: '0.1.0' }),
+          getURL: path => new URL(`../${path}`, location.href).href
+        },
+        storage: {
+          local: createArea('local'),
+          sync: createArea('sync'),
+          onChanged: {
+            addListener(listener) { listeners.push(listener); }
+          }
+        }
+      };
+
+      const source = await fetch('../newtab.html').then(response => response.text());
+      const parsed = new DOMParser().parseFromString(source, 'text/html');
+      document.body.replaceChildren(...parsed.body.children);
+      await import('../js/main.js');
+    </script>
+  </body>
+</html>

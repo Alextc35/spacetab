@@ -27,6 +27,13 @@
       "saved": "Configuración guardada correctamente",
       "copied": "Valor copiado al portapapeles",
       "resetBg": "Tema restablecido"
+    },
+    "sync": {
+      "enabled": "Sincronización activada",
+      "localEnabled": "Modo local activado",
+      "remoteLoaded": "Datos sincronizados cargados",
+      "error": "No se pudo cambiar el modo de almacenamiento",
+      "quotaError": "Los datos superan el espacio disponible para sincronización"
     }
   },
   "alert": {
@@ -86,6 +93,7 @@
   "settingsModal": {
     "sections": {
       "general": "⚙️ General",
+      "sync": "☁️ Sincronización",
       "bookmark": "🔖 Favoritos",
       "theme": "🖼️ Tema",
       "language": "🌐 Idiomas",
@@ -97,6 +105,21 @@
       "export": "Exportar ajustes",
       "import": "Importar ajustes",
       "resetSettings": "Restablecer ajustes"
+    },
+    "sync": {
+      "title": "Sincronización",
+      "description": "Elige dónde guardar tu configuración y favoritos.",
+      "ariaLabel": "Modo de almacenamiento",
+      "local": {
+        "title": "Solo en este dispositivo",
+        "description": "Los datos se guardan únicamente en este perfil local."
+      },
+      "synced": {
+        "title": "Sincronizado",
+        "description": "Disponible en los navegadores conectados al mismo perfil sincronizado."
+      },
+      "browserNotice": "En Chrome utiliza la sincronización de tu cuenta de Google. En Brave utiliza Brave Sync.",
+      "existingNotice": "Si ya existen datos sincronizados de Spacetab, se cargarán al guardar."
     },
     "theme": {
       "title": "Tema",

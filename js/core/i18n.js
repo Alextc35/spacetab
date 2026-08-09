@@ -77,13 +77,15 @@ function applyI18n(root = document, params = {}) {
   const lang = settings.language || 'en';
   document.documentElement.lang = lang;
 
-  const elements = root.querySelectorAll('[data-i18n]');
+  const elements = root.querySelectorAll('[data-i18n], [data-i18n-aria-label]');
 
   elements.forEach(el => {
-    const key = el.dataset.i18n;
+    const key = el.dataset.i18nAriaLabel || el.dataset.i18n;
     const text = t(key, params);
 
-    if (el.placeholder !== undefined && el.tagName === 'INPUT') {
+    if (el.dataset.i18nAriaLabel) {
+      el.setAttribute('aria-label', text);
+    } else if (el.placeholder !== undefined && el.tagName === 'INPUT') {
       el.placeholder = text;
     } else {
       el.textContent = text;
