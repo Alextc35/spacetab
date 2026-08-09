@@ -175,7 +175,7 @@
 .bookmark-actions {
   position: absolute;
   top: 8px;
-  right: 8px;
+  left: 50%;
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(2, 32px);
@@ -186,6 +186,7 @@
   background: rgba(10, 14, 22, .28);
   box-shadow: 0 8px 22px rgba(0, 0, 0, .18);
   backdrop-filter: blur(8px);
+  transform: translateX(-50%);
 }
 
 .bookmark-btn {

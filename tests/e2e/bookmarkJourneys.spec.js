@@ -120,10 +120,15 @@ test('duplicates and selects bookmarks in edit mode', async ({ page }) => {
   const deleteBox = await firstBookmark.getByRole('button', { name: 'Delete bookmark' }).boundingBox();
   const selectBox = await firstBookmark.getByRole('button', { name: 'Select bookmark' }).boundingBox();
   const duplicateBox = await firstBookmark.getByRole('button', { name: 'Duplicate bookmark' }).boundingBox();
+  const bookmarkBox = await firstBookmark.boundingBox();
+  const actionPanelBox = await firstBookmark.locator('.bookmark-actions').boundingBox();
 
   expect(Math.abs(editBox.y - deleteBox.y)).toBeLessThan(2);
   expect(Math.abs(selectBox.y - duplicateBox.y)).toBeLessThan(2);
   expect(selectBox.y).toBeGreaterThan(editBox.y);
+  expect(Math.abs(
+    actionPanelBox.x + actionPanelBox.width / 2 - (bookmarkBox.x + bookmarkBox.width / 2)
+  )).toBeLessThan(2);
 
   await page.getByRole('button', { name: 'Duplicate bookmark' }).first().click();
   await expect(page.getByRole('link', { name: /DEVELOPED BY \(copy\)/ })).toBeVisible();
