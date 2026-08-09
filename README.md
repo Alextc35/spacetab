@@ -38,7 +38,8 @@ Instead of a long bookmark list, your favorite websites become a **visual worksp
 * Keyboard shortcuts
 * Favicon preview
 * Multi-language support (English / Spanish)
-* Local storage only (no external services)
+* Optional browser-profile synchronization
+* No SpaceTab backend or external account handling
 
 ### Built-in UI systems
 
@@ -258,6 +259,34 @@ This separation keeps the interface logic independent from the application state
 
 ---
 
+## ☁️ Local and synchronized storage
+
+SpaceTab starts in **Local** mode, preserving the behavior of previous versions.
+From **Settings → Sync**, users can choose between:
+
+* **Only on this device** — settings and bookmarks use `chrome.storage.local`.
+* **Synchronized** — settings and bookmarks use the browser-managed `chrome.storage.sync` area.
+
+In Chrome, synchronized storage follows the Chrome profile / Google Account sync
+configuration. In Brave, it follows the browser's own sync implementation. No
+OAuth client, Google API credentials, or SpaceTab server are required.
+
+When Sync is enabled for the first time, current local data is uploaded. If the
+profile already contains synchronized SpaceTab data, that data is loaded instead
+of being overwritten. Returning to Local mode creates a local copy and leaves
+the synchronized copy untouched.
+
+Chrome limits synchronized extension data to approximately 100 KB in total and
+8 KB per item. SpaceTab stores its payload in quota-safe chunks and reports when
+the total limit is exceeded.
+
+> For synchronization across devices, every installation must have the same
+> extension ID. A Chrome Web Store release provides that automatically. Unpacked
+> development installations need a stable manifest key or another consistent
+> packaging workflow.
+
+---
+
 ## 🛠 Tech Stack
 
 * Vanilla JavaScript
@@ -284,7 +313,7 @@ Currently supported languages:
 ### Planned Features
 
 * Bookmark folders
-* Sync support
+* Advanced synchronization conflict controls
 * Multi-select drag
 * More theme customization
 * Chrome Web Store release
@@ -310,8 +339,10 @@ SpaceTab is built with privacy in mind.
 
 * No tracking
 * No analytics
-* No external services
-* All data is stored locally using Chrome Storage
+* No SpaceTab-operated backend
+* Local mode keeps data only in the browser profile
+* Sync mode delegates storage and transport to the browser's sync service
+* The developer cannot access synchronized user data
 
 ---
 
