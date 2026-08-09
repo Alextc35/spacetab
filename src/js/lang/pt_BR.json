@@ -1,0 +1,243 @@
+{
+  "html": {
+    "title": "Nova guia"
+  },
+  "flash": {
+    "editMode": {
+      "enabled": "Modo de edição ativado",
+      "disabled": "Modo de edição desativado"
+    },
+    "bookmark": {
+      "added": "Favorito adicionado com sucesso",
+      "deleted": "Favorito excluído com sucesso",
+      "deleteError": "Erro ao excluir o favorito",
+      "notFound": "Favorito não encontrado",
+      "updated": "Favorito atualizado com sucesso",
+      "duplicated": "Favorito duplicado com sucesso"
+    },
+    "history": {
+      "undone": "Alteração desfeita",
+      "redone": "Alteração refeita"
+    },
+    "bookmarks": {
+      "deletedAll": "Todos os favoritos foram excluídos com sucesso",
+      "deleteAllError": "Erro ao excluir os favoritos",
+      "exported": "Favoritos exportados com sucesso",
+      "exportError": "Erro ao exportar os favoritos",
+      "imported": "Favoritos importados com sucesso",
+      "importError": "Erro ao importar os favoritos",
+      "presetApplied": "Estilo aplicado à seleção",
+      "duplicatedSelected": "Favoritos selecionados duplicados",
+      "deletedSelected": "Favoritos selecionados excluídos",
+      "moved": "Favoritos movidos para o espaço escolhido"
+    },
+    "settings": {
+      "saved": "Configurações salvas com sucesso",
+      "copied": "Valor copiado para a área de transferência",
+      "resetBg": "Tema restaurado"
+    },
+    "sync": {
+      "enabled": "Sincronização ativada",
+      "localEnabled": "Modo local ativado",
+      "remoteLoaded": "Dados sincronizados carregados",
+      "error": "Não foi possível alterar o modo de armazenamento",
+      "quotaError": "Os dados excedem o espaço disponível para sincronização"
+    },
+    "backup": {
+      "exported": "Backup exportado com sucesso",
+      "exportError": "Não foi possível exportar o backup",
+      "imported": "Backup restaurado com sucesso",
+      "importError": "Não foi possível restaurar o backup"
+    }
+  },
+  "alert": {
+    "bookmarks": {
+      "confirmDeleteAll": "Excluir todos os favoritos?",
+      "confirmDeleteSelected": "Excluir {{count}} favoritos selecionados?",
+      "duplicateNoSpace": "{{count}} favoritos não puderam ser duplicados porque não havia espaço.",
+      "moveNoSpace": "{{count}} favoritos não puderam ser movidos porque não havia espaço.",
+      "no_space": "Não há espaço disponível para mais favoritos 😅"
+    },
+    "bookmark": {
+      "add": {
+        "cancel": "Descartar o novo favorito?"
+      },
+      "confirmDelete": "Excluir {{name}}",
+      "cancel": "Descartar as alterações da edição?"
+    },
+    "settings": {
+      "cancel": "Descartar as alterações nas configurações?",
+      "reset": "Restaurar todas as configurações? Os favoritos não serão excluídos.",
+      "theme": {
+        "reset": "Restaurar as configurações do tema?"
+      },
+      "bookmark": {
+        "reset": "Restaurar o estilo do favorito?"
+      }
+    },
+    "backup": {
+      "import": "Restaurar este backup? Isso substituirá os favoritos e as configurações atuais."
+    }
+  },
+  "addModal": {
+    "title": "➕ Adicionar novo favorito",
+    "name": "Nome:",
+    "url": "URL:"
+  },
+  "buttons": {
+    "save": "Salvar",
+    "add": "Adicionar",
+    "accept": "Aceitar",
+    "cancel": "Cancelar",
+    "close": "Fechar"
+  },
+  "workspace": {
+    "ariaLabel": "Controles do espaço de trabalho",
+    "current": "Espaço de trabalho",
+    "main": "Principal",
+    "search": "Buscar favoritos",
+    "add": "Criar espaço de trabalho",
+    "delete": "Excluir espaço de trabalho",
+    "undo": "Desfazer",
+    "redo": "Refazer",
+    "prompt": "Nome do novo espaço de trabalho",
+    "namePlaceholder": "Trabalho, lazer…",
+    "confirmDelete": "Excluir «{{name}}» e todos os seus favoritos ({{count}})? Se quiser mantê-los, mova-os antes para Principal ou para outro espaço."
+  },
+  "search": {
+    "title": "Buscar favoritos",
+    "inputLabel": "Buscar por nome ou URL",
+    "placeholder": "Nome ou URL",
+    "empty": "Nenhum favorito encontrado.",
+    "noUrl": "Sem URL"
+  },
+  "bulk": {
+    "ariaLabel": "Ações dos favoritos selecionados",
+    "selected": "{{count}} selecionados",
+    "move": "Mover para o espaço",
+    "applyPreset": "Aplicar estilo predefinido",
+    "duplicate": "Duplicar seleção",
+    "delete": "Excluir",
+    "clear": "Cancelar seleção"
+  },
+  "bookmarkActions": {
+    "openMenu": "Mostrar ações do favorito",
+    "menuLabel": "Ações do favorito",
+    "edit": "Editar favorito",
+    "duplicate": "Duplicar favorito",
+    "select": "Selecionar favorito",
+    "delete": "Excluir favorito",
+    "copySuffix": "cópia"
+  },
+  "validation": {
+    "preset": {
+      "name": "Digite um nome para salvar o estilo."
+    },
+    "name": {
+      "required": "Digite um nome para o favorito."
+    },
+    "url": {
+      "invalid": "A URL não é válida.",
+      "unsupportedProtocol": "Este tipo de URL não é permitido."
+    },
+    "backgroundImageUrl": {
+      "invalid": "A URL da imagem não é válida.",
+      "unsupportedProtocol": "Este tipo de imagem não é permitido."
+    }
+  },
+  "editModal": {
+    "title": "Editar favorito",
+    "name": "Nome:",
+    "url": "URL:",
+    "backgroundImage": "Imagem de fundo (URL):",
+    "backgroundFavicon": "Usar favicon como fundo",
+    "invertColorBg": "Inverter cores",
+    "noBackground": "Sem fundo",
+    "backgroundColor": "Cor do favorito:",
+    "showText": "Mostrar texto",
+    "textColor": "Cor do texto:",
+    "showFavicon": "Mostrar favicon",
+    "invertColorIcon": "Inverter cores",
+    "sections": {
+      "general": "Geral",
+      "style": "Estilo",
+      "text": "Texto",
+      "icon": "Ícone"
+    },
+    "preview": "Pré-visualização",
+    "previewName": "Prévia"
+  },
+  "settingsModal": {
+    "sections": {
+      "general": "⚙️ Geral",
+      "sync": "☁️ Sincronização",
+      "bookmark": "🔖 Favoritos",
+      "theme": "🖼️ Tema",
+      "language": "🌐 Idiomas",
+      "information": "ℹ️ Informações"
+    },
+    "general": {
+      "title": "Geral",
+      "subtitle": "Configurações",
+      "export": "Exportar backup",
+      "import": "Restaurar backup",
+      "resetSettings": "Restaurar configurações"
+    },
+    "sync": {
+      "title": "Sincronização",
+      "description": "Escolha onde salvar suas configurações e favoritos.",
+      "ariaLabel": "Modo de armazenamento",
+      "local": {
+        "title": "Somente neste dispositivo",
+        "description": "Os dados são salvos apenas neste perfil local."
+      },
+      "synced": {
+        "title": "Sincronizado",
+        "description": "Disponível nos navegadores conectados ao mesmo perfil sincronizado."
+      },
+      "browserNotice": "No Chrome, utiliza a sincronização da sua conta Google. No Brave, utiliza o Brave Sync.",
+      "existingNotice": "Se já existirem dados sincronizados do Spacetab, eles serão carregados ao salvar.",
+      "status": {
+        "idle": "Os dados estão prontos.",
+        "saving": "Salvando alterações…",
+        "saved": "Todas as alterações foram salvas.",
+        "error": "Não foi possível salvar as últimas alterações."
+      }
+    },
+    "theme": {
+      "title": "Tema",
+      "subtitle": "Fundo da página",
+      "backgroundDefault": "Padrão",
+      "backgroundColor": "Cor:",
+      "backgroundImage": "URL da imagem:",
+      "urlHidden": "URL oculta",
+      "resetBackground": "Restaurar tema"
+    },
+    "bookmark": {
+      "title": "Favoritos",
+      "subtitle": "Favorito padrão",
+      "reset": "Restaurar favorito padrão",
+      "export": "Exportar favoritos",
+      "import": "Importar favoritos",
+      "deleteAll": "Excluir todos os favoritos",
+      "presets": {
+        "title": "Biblioteca de estilos",
+        "name": "Nome do estilo",
+        "saved": "Estilos salvos",
+        "save": "Salvar estilo",
+        "apply": "Usar",
+        "delete": "Excluir",
+        "empty": "Não há estilos salvos"
+      }
+    },
+    "languages": {
+      "title": "Idiomas",
+      "text": "Selecione o idioma da interface:"
+    },
+    "information": {
+      "title": "Informações",
+      "version": "Versão: {{VERSION}}-beta",
+      "author": "Autor: @alextc35"
+    }
+  }
+}
