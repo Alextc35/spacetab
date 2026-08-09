@@ -1,0 +1,243 @@
+{
+  "html": {
+    "title": "Nueva pestaña"
+  },
+  "flash": {
+    "editMode": {
+      "enabled": "Modo de edición activado",
+      "disabled": "Modo de edición desactivado"
+    },
+    "bookmark": {
+      "added": "Marcador agregado correctamente",
+      "deleted": "Marcador eliminado correctamente",
+      "deleteError": "Error al eliminar el marcador",
+      "notFound": "Marcador no encontrado",
+      "updated": "Marcador actualizado correctamente",
+      "duplicated": "Marcador duplicado correctamente"
+    },
+    "history": {
+      "undone": "Cambio deshecho",
+      "redone": "Cambio rehecho"
+    },
+    "bookmarks": {
+      "deletedAll": "Todos los marcadores se eliminaron correctamente",
+      "deleteAllError": "Error al eliminar los marcadores",
+      "exported": "Marcadores exportados correctamente",
+      "exportError": "Error al exportar los marcadores",
+      "imported": "Marcadores importados correctamente",
+      "importError": "Error al importar los marcadores",
+      "presetApplied": "Estilo aplicado a la selección",
+      "duplicatedSelected": "Marcadores seleccionados duplicados",
+      "deletedSelected": "Marcadores seleccionados eliminados",
+      "moved": "Marcadores movidos al espacio seleccionado"
+    },
+    "settings": {
+      "saved": "Configuración guardada correctamente",
+      "copied": "Valor copiado al portapapeles",
+      "resetBg": "Tema restablecido"
+    },
+    "sync": {
+      "enabled": "Sincronización activada",
+      "localEnabled": "Modo local activado",
+      "remoteLoaded": "Datos sincronizados cargados",
+      "error": "No se pudo cambiar el modo de almacenamiento",
+      "quotaError": "Los datos superan el espacio disponible para la sincronización"
+    },
+    "backup": {
+      "exported": "Copia de seguridad exportada correctamente",
+      "exportError": "No se pudo exportar la copia de seguridad",
+      "imported": "Copia de seguridad restaurada correctamente",
+      "importError": "No se pudo restaurar la copia de seguridad"
+    }
+  },
+  "alert": {
+    "bookmarks": {
+      "confirmDeleteAll": "¿Eliminar todos los marcadores?",
+      "confirmDeleteSelected": "¿Eliminar {{count}} marcadores seleccionados?",
+      "duplicateNoSpace": "{{count}} marcadores no se pudieron duplicar porque no había espacio.",
+      "moveNoSpace": "{{count}} marcadores no se pudieron mover porque no había espacio.",
+      "no_space": "No hay espacio disponible para más marcadores 😅"
+    },
+    "bookmark": {
+      "add": {
+        "cancel": "¿Descartar el nuevo marcador?"
+      },
+      "confirmDelete": "Eliminar {{name}}",
+      "cancel": "¿Descartar los cambios de la edición?"
+    },
+    "settings": {
+      "cancel": "¿Descartar los cambios de la configuración?",
+      "reset": "¿Restablecer toda la configuración? Los marcadores no se eliminarán.",
+      "theme": {
+        "reset": "¿Restablecer la configuración del tema?"
+      },
+      "bookmark": {
+        "reset": "¿Restablecer el estilo del marcador?"
+      }
+    },
+    "backup": {
+      "import": "¿Restaurar esta copia? Reemplazará los marcadores y la configuración actuales."
+    }
+  },
+  "addModal": {
+    "title": "➕ Agregar nuevo marcador",
+    "name": "Nombre:",
+    "url": "URL:"
+  },
+  "buttons": {
+    "save": "Guardar",
+    "add": "Agregar",
+    "accept": "Aceptar",
+    "cancel": "Cancelar",
+    "close": "Cerrar"
+  },
+  "workspace": {
+    "ariaLabel": "Controles del espacio de trabajo",
+    "current": "Espacio de trabajo",
+    "main": "Principal",
+    "search": "Buscar marcadores",
+    "add": "Crear espacio de trabajo",
+    "delete": "Eliminar espacio de trabajo",
+    "undo": "Deshacer",
+    "redo": "Rehacer",
+    "prompt": "Nombre del nuevo espacio de trabajo",
+    "namePlaceholder": "Trabajo, ocio…",
+    "confirmDelete": "¿Eliminar «{{name}}» y todos sus marcadores ({{count}})? Si quieres conservarlos, muévelos antes a Principal o a otro espacio."
+  },
+  "search": {
+    "title": "Buscar marcadores",
+    "inputLabel": "Buscar por nombre o URL",
+    "placeholder": "Nombre o URL",
+    "empty": "No se encontraron marcadores.",
+    "noUrl": "Sin URL"
+  },
+  "bulk": {
+    "ariaLabel": "Acciones de los marcadores seleccionados",
+    "selected": "{{count}} seleccionados",
+    "move": "Mover al espacio",
+    "applyPreset": "Aplicar estilo predeterminado",
+    "duplicate": "Duplicar selección",
+    "delete": "Eliminar",
+    "clear": "Cancelar selección"
+  },
+  "bookmarkActions": {
+    "openMenu": "Mostrar acciones del marcador",
+    "menuLabel": "Acciones del marcador",
+    "edit": "Editar marcador",
+    "duplicate": "Duplicar marcador",
+    "select": "Seleccionar marcador",
+    "delete": "Eliminar marcador",
+    "copySuffix": "copia"
+  },
+  "validation": {
+    "preset": {
+      "name": "Escribe un nombre para guardar el estilo."
+    },
+    "name": {
+      "required": "Escribe un nombre para el marcador."
+    },
+    "url": {
+      "invalid": "La URL no es válida.",
+      "unsupportedProtocol": "Este tipo de URL no está permitido."
+    },
+    "backgroundImageUrl": {
+      "invalid": "La URL de la imagen no es válida.",
+      "unsupportedProtocol": "Este tipo de imagen no está permitido."
+    }
+  },
+  "editModal": {
+    "title": "Editar marcador",
+    "name": "Nombre:",
+    "url": "URL:",
+    "backgroundImage": "Imagen de fondo (URL):",
+    "backgroundFavicon": "Usar favicon como fondo",
+    "invertColorBg": "Invertir colores",
+    "noBackground": "Sin fondo",
+    "backgroundColor": "Color del marcador:",
+    "showText": "Mostrar texto",
+    "textColor": "Color del texto:",
+    "showFavicon": "Mostrar favicon",
+    "invertColorIcon": "Invertir colores",
+    "sections": {
+      "general": "General",
+      "style": "Estilo",
+      "text": "Texto",
+      "icon": "Ícono"
+    },
+    "preview": "Vista previa",
+    "previewName": "Vista previa"
+  },
+  "settingsModal": {
+    "sections": {
+      "general": "⚙️ General",
+      "sync": "☁️ Sincronización",
+      "bookmark": "🔖 Marcadores",
+      "theme": "🖼️ Tema",
+      "language": "🌐 Idiomas",
+      "information": "ℹ️ Información"
+    },
+    "general": {
+      "title": "General",
+      "subtitle": "Configuración",
+      "export": "Exportar copia de seguridad",
+      "import": "Restaurar copia de seguridad",
+      "resetSettings": "Restablecer configuración"
+    },
+    "sync": {
+      "title": "Sincronización",
+      "description": "Elige dónde guardar tu configuración y tus marcadores.",
+      "ariaLabel": "Modo de almacenamiento",
+      "local": {
+        "title": "Solo en este dispositivo",
+        "description": "Los datos se guardan únicamente en este perfil local."
+      },
+      "synced": {
+        "title": "Sincronizado",
+        "description": "Disponible en los navegadores conectados al mismo perfil sincronizado."
+      },
+      "browserNotice": "En Chrome utiliza la sincronización de tu cuenta de Google. En Brave utiliza Brave Sync.",
+      "existingNotice": "Si ya existen datos sincronizados de Spacetab, se cargarán al guardar.",
+      "status": {
+        "idle": "Los datos están listos.",
+        "saving": "Guardando cambios…",
+        "saved": "Todos los cambios están guardados.",
+        "error": "No se pudieron guardar los últimos cambios."
+      }
+    },
+    "theme": {
+      "title": "Tema",
+      "subtitle": "Fondo de la página",
+      "backgroundDefault": "Predeterminado",
+      "backgroundColor": "Color:",
+      "backgroundImage": "URL de la imagen:",
+      "urlHidden": "URL oculta",
+      "resetBackground": "Restablecer tema"
+    },
+    "bookmark": {
+      "title": "Marcadores",
+      "subtitle": "Marcador predeterminado",
+      "reset": "Restablecer marcador predeterminado",
+      "export": "Exportar marcadores",
+      "import": "Importar marcadores",
+      "deleteAll": "Eliminar todos los marcadores",
+      "presets": {
+        "title": "Biblioteca de estilos",
+        "name": "Nombre del estilo",
+        "saved": "Estilos guardados",
+        "save": "Guardar estilo",
+        "apply": "Usar",
+        "delete": "Eliminar",
+        "empty": "No hay estilos guardados"
+      }
+    },
+    "languages": {
+      "title": "Idiomas",
+      "text": "Selecciona el idioma de la interfaz:"
+    },
+    "information": {
+      "title": "Información",
+      "version": "Versión: {{VERSION}}-beta",
+      "author": "Autor: @alextc35"
+    }
+  }
+}
