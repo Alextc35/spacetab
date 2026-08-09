@@ -1,24 +1,41 @@
 #workspace-toolbar {
   position: fixed;
-  top: 12px;
+  bottom: 0;
   left: 50%;
   z-index: var(--z-floating-menu);
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px;
+  max-width: calc(100vw - 24px);
+  padding: 12px 8px 8px;
   border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 12px;
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
   background: rgba(15, 20, 31, .82);
   box-shadow: 0 8px 30px rgba(0, 0, 0, .28);
   backdrop-filter: blur(12px);
+  transform: translate(-50%, calc(100% - 14px));
+  opacity: .72;
+  transition: transform .28s ease, opacity .2s ease, box-shadow .2s ease;
+  will-change: transform;
+}
+
+#workspace-toolbar::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  width: 42px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(238, 243, 255, .55);
   transform: translateX(-50%);
-  opacity: .55;
-  transition: opacity .2s ease;
 }
 
 #workspace-toolbar:hover,
 #workspace-toolbar:focus-within {
+  box-shadow: 0 -10px 32px rgba(0, 0, 0, .32);
+  transform: translate(-50%, 0);
   opacity: 1;
 }
 
@@ -53,6 +70,12 @@
   width: 1px;
   height: 20px;
   background: rgba(255, 255, 255, .14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #workspace-toolbar {
+    transition: none;
+  }
 }
 
 .bulk-actions {

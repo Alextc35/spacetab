@@ -7,6 +7,24 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
 });
 
+test('reveals the bottom workspace dock on hover and keyboard focus', async ({ page }) => {
+  const toolbar = page.getByRole('navigation', { name: 'Workspace controls' });
+  const viewportHeight = page.viewportSize().height;
+
+  await expect(toolbar).toHaveCSS('bottom', '0px');
+  await expect.poll(async () => (await toolbar.boundingBox()).y)
+    .toBeGreaterThan(viewportHeight - 20);
+
+  await toolbar.hover();
+  await expect.poll(async () => (await toolbar.boundingBox()).y)
+    .toBeLessThan(viewportHeight - 40);
+
+  await page.mouse.move(0, 0);
+  await page.getByRole('combobox', { name: 'Workspace' }).focus();
+  await expect.poll(async () => (await toolbar.boundingBox()).y)
+    .toBeLessThan(viewportHeight - 40);
+});
+
 test('creates, edits and persists a bookmark after reload', async ({ page }) => {
   await page.getByRole('button', { name: '➕' }).click();
   await page.locator('#bookmark-modal-form-name').fill('OpenAI');
