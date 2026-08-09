@@ -25,6 +25,23 @@ test('reveals the bottom workspace dock on hover and keyboard focus', async ({ p
     .toBeLessThan(viewportHeight - 40);
 });
 
+test('reveals the left action dock on hover and keyboard focus', async ({ page }) => {
+  const menu = page.locator('#floating-menu');
+  const viewportHeight = page.viewportSize().height;
+
+  await expect.poll(async () => (await menu.boundingBox()).x).toBeLessThan(-40);
+
+  await page.mouse.move(5, viewportHeight / 2);
+  await expect.poll(async () => (await menu.boundingBox()).x).toBeGreaterThanOrEqual(0);
+  await page.getByRole('button', { name: '➕' }).hover();
+  await expect(page.getByRole('button', { name: '➕' }))
+    .toHaveCSS('background-color', 'rgba(22, 163, 74, 0.82)');
+
+  await page.mouse.move(page.viewportSize().width / 2, viewportHeight / 2);
+  await page.getByRole('button', { name: '✎' }).focus();
+  await expect.poll(async () => (await menu.boundingBox()).x).toBeGreaterThanOrEqual(0);
+});
+
 test('creates, edits and persists a bookmark after reload', async ({ page }) => {
   await page.getByRole('button', { name: '➕' }).click();
   await page.locator('#bookmark-modal-form-name').fill('OpenAI');
