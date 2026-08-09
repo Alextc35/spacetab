@@ -37,9 +37,7 @@ export function deleteBookmarkGroup(groupId) {
 
   setState({
     data: {
-      bookmarks: bookmarks.map(bookmark => (
-        bookmark.groupId === groupId ? { ...bookmark, groupId: null } : bookmark
-      )),
+      bookmarks: bookmarks.filter(bookmark => bookmark.groupId !== groupId),
       settings: {
         ...settings,
         bookmarkGroups: settings.bookmarkGroups.filter(group => group.id !== groupId),

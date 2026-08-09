@@ -101,7 +101,7 @@
     "redo": "Rehacer",
     "prompt": "Nombre del nuevo espacio de trabajo",
     "namePlaceholder": "Trabajo, ocio…",
-    "confirmDelete": "¿Eliminar este espacio? Sus favoritos volverán al espacio Principal."
+    "confirmDelete": "¿Eliminar «{{name}}» y todos sus favoritos ({{count}})? Si quieres conservarlos, muévelos antes a Principal o a otro espacio."
   },
   "search": {
     "title": "Buscar favoritos",

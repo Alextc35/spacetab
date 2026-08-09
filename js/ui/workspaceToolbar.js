@@ -3,7 +3,7 @@ import {
   deleteBookmarkGroup,
   setActiveBookmarkGroup
 } from '../core/bookmarkGroups.js';
-import { redoBookmarks, subscribe, undoBookmarks } from '../core/store.js';
+import { getState, redoBookmarks, subscribe, undoBookmarks } from '../core/store.js';
 import { t } from '../core/i18n.js';
 import { flash } from './flash.js';
 import { showAlert, showPrompt } from './modals/alert.js';
@@ -32,7 +32,15 @@ export function initWorkspaceToolbar() {
   });
   deleteButton.addEventListener('click', async () => {
     if (!select.value) return;
-    const confirmed = await showAlert(t('workspace.confirmDelete'), { type: 'confirm' });
+    const { bookmarks, settings } = getState().data;
+    const group = settings.bookmarkGroups.find(item => item.id === select.value);
+    if (!group) return;
+
+    const bookmarkCount = bookmarks.filter(bookmark => bookmark.groupId === group.id).length;
+    const confirmed = await showAlert(t('workspace.confirmDelete', {
+      name: group.name,
+      count: bookmarkCount
+    }), { type: 'confirm' });
     if (confirmed) deleteBookmarkGroup(select.value);
   });
   undoButton.addEventListener('click', async () => {

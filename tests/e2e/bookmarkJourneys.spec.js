@@ -60,6 +60,34 @@ test('creates a workspace and finds bookmarks across workspaces', async ({ page 
   await expect(page.getByRole('option', { name: /Work dashboard/ })).toContainText('Work');
 });
 
+test('warns before deleting a workspace and removes its bookmarks', async ({ page }) => {
+  const workspaceDock = page.getByRole('navigation', { name: 'Workspace controls' });
+
+  await workspaceDock.hover();
+  await page.getByRole('button', { name: 'Create workspace' }).click();
+  await page.getByPlaceholder('Work, leisure…').fill('Temporary');
+  await page.getByRole('button', { name: 'Accept' }).click();
+
+  await page.getByRole('button', { name: '➕' }).click();
+  await page.locator('#bookmark-modal-form-name').fill('Temporary bookmark');
+  await page.locator('#bookmark-modal-form-url').fill('temporary.example');
+  await page.getByRole('button', { name: 'Add', exact: true }).click();
+
+  await workspaceDock.hover();
+  await page.getByRole('button', { name: 'Delete workspace' }).click();
+  await expect(page.getByRole('heading', { name: /Delete “Temporary”/ }))
+    .toContainText('move them to Main or another workspace first');
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await expect(page.getByRole('link', { name: /Temporary bookmark/ })).toBeVisible();
+
+  await workspaceDock.hover();
+  await page.getByRole('button', { name: 'Delete workspace' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();
+
+  await expect(page.getByRole('combobox', { name: 'Workspace' })).toHaveValue('');
+  await expect(page.getByRole('link', { name: /Temporary bookmark/ })).toHaveCount(0);
+});
+
 test('saves a named appearance preset', async ({ page }) => {
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🔖 Bookmarks' }).click();

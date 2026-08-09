@@ -101,7 +101,7 @@
     "redo": "Redo",
     "prompt": "Name the new workspace",
     "namePlaceholder": "Work, leisure…",
-    "confirmDelete": "Delete this workspace? Its bookmarks will return to Main."
+    "confirmDelete": "Delete “{{name}}” and all its bookmarks ({{count}})? To keep them, move them to Main or another workspace first."
   },
   "search": {
     "title": "Search bookmarks",
