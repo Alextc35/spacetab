@@ -5,10 +5,10 @@ grid workspace.
 
 ![Chrome Extension](https://img.shields.io/badge/Chrome_Extension-Manifest_V3-4285F4?logo=googlechrome)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript)
-![version](https://img.shields.io/badge/version-0.1.2_beta-blue)
+![version](https://img.shields.io/badge/version-0.1.3_beta-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
-**Current release: 0.1.2 beta.**
+**Current release: 0.1.3 beta.**
 
 ![demo](assets/gif/demo.gif)
 
@@ -23,7 +23,7 @@ items on a desktop without relying on a SpaceTab account or backend.
 * Named appearance presets
 * Independent bookmark workspaces
 * Global search palette (`/` or `Ctrl/Cmd + K`)
-* Multi-select, bulk styling, moving and deletion
+* Multi-select, bulk styling, moving, duplication and deletion
 * Duplicate, undo and redo actions
 * Themes, favicon previews and English/Spanish UI
 * Versioned bookmark import/export and complete backups
