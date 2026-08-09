@@ -2,15 +2,6 @@ import { renderBookmarkPreview } from './preview.js';
 import { createLockableInputController } from '../modals/helper/stateLocked.js';
 
 /**
- * Synchronization flag used to prevent update loops
- * while syncing state into the UI and vice versa.
- *
- * Note: since this lives at module scope, it would be shared
- * across multiple editor instances if they ever coexist.
- */
-let syncing = false;
-
-/**
  * Creates a bookmark editor that keeps form inputs,
  * bookmark state, and live preview in sync.
  *
@@ -21,6 +12,9 @@ let syncing = false;
  * @returns {Object} Public editor API.
  */
 export function createBookmarkEditor({ elements, bookmark, onChange }) {
+  let syncing = false;
+  const abortController = new AbortController();
+  const eventOptions = { signal: abortController.signal };
   const {
     preview,
     name,
@@ -109,6 +103,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
       copyBtn: bgCopyBtn,
       clearBtn: bgClearBtn,
       initialLocked: bookmark.backgroundImageUrlLocked ?? false,
+      signal: abortController.signal,
       onChange: () => {
         if (syncing) return;
 
@@ -132,6 +127,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
       copyBtn: urlCopyBtn,
       clearBtn: urlClearBtn,
       initialLocked: bookmark.urlLocked ?? false,
+      signal: abortController.signal,
       onChange: () => {
         if (syncing) return;
 
@@ -196,13 +192,11 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
 
       updateStates();
       emitChange();
-    });
+    }, eventOptions);
   }
 
   bindInput(name, "name");
-  bindInput(url, "url");
   bindInput(backgroundColor, "backgroundColor");
-  bindInput(backgroundImage, "backgroundImageUrl");
   bindInput(backgroundFavicon, "backgroundFavicon", "change");
   bindInput(noBackground, "noBackground", "change");
   bindInput(invertBg, "invertColorBg", "change");
@@ -253,11 +247,12 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
   const setState = newState => reset(newState);
 
   /**
-   * Clears controller references.
-   *
-   * Note: this does not currently remove DOM event listeners.
+   * Removes every event listener owned by this editor instance.
    */
   const destroy = () => {
+    abortController.abort();
+    bgController?.destroy?.();
+    urlController?.destroy?.();
     bgController = null;
     urlController = null;
   };

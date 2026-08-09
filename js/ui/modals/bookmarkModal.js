@@ -1,12 +1,13 @@
-import { createBookmarkForm } from '../bookmark/form.js';
+import { createBookmarkEditorPanel } from '../bookmark/panel.js';
 import { addBookmark, updateBookmarkById } from '../../core/bookmark.js';
+import { createBookmarkDraft } from '../../core/bookmarkModel.js';
 import { flashSuccess } from '../flash.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 import { getState } from '../../core/store.js';
 import { showAlert } from './alert.js';
 import { t } from '../../core/i18n.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
-import { isAreaFree } from '../../core/grid.js';
+import { findFirstFreeSlot } from '../../core/grid.js';
 
 const modal = document.getElementById('edit-bookmark-modal');
 const modalTitle = modal.querySelector('h2');
@@ -19,11 +20,8 @@ let mode = null;
 /** @type {string|null} */
 let editingId = null;
 
-/** @type {ReturnType<typeof createBookmarkForm>|null} */
+/** @type {ReturnType<typeof createBookmarkEditorPanel>|null} */
 let form = null;
-
-/** @type {Object|null} */
-let initialSnapshot = null;
 
 let submitting = false;
 let registered = false;
@@ -37,11 +35,11 @@ export function initBookmarkModal() {
 
   const host = document.getElementById('bookmark-modal-form-host');
 
-  form = createBookmarkForm({
+  form = createBookmarkEditorPanel({
     host,
     idPrefix: 'bookmark-modal-form',
-    showGeneral: true,
-    bookmark: {},
+    mode: 'create',
+    value: {},
     onChange: updateSaveButtonState
   });
 
@@ -77,10 +75,7 @@ export function initBookmarkModal() {
  */
 export function openAddBookmark() {
   const { data: { settings } } = getState();
-  const draft = structuredClone(settings.bookmarkDefault);
-  draft.name = '';
-  draft.url = '';
-  draft.urlLocked = false;
+  const draft = createBookmarkDraft({ preset: settings.bookmarkDefault });
 
   openBookmarkModal('add', draft);
 }
@@ -108,12 +103,12 @@ export { openEditBookmark as openModal };
  */
 function openBookmarkModal(nextMode, bookmark) {
   mode = nextMode;
+  form.setMode(nextMode === 'add' ? 'create' : 'edit');
 
   modalTitle.textContent = t(nextMode === 'add' ? 'addModal.title' : 'editModal.title');
   modalSave.textContent = t(nextMode === 'add' ? 'buttons.add' : 'buttons.save');
 
   form.reset(bookmark);
-  initialSnapshot = nextMode === 'edit' ? form.getState() : null;
 
   updateSaveButtonState();
   form.activateDefaultTab();
@@ -129,7 +124,7 @@ function getCurrentFormState() {
 }
 
 function hasChanges() {
-  return JSON.stringify(getCurrentFormState()) !== JSON.stringify(initialSnapshot);
+  return form?.isDirty() ?? false;
 }
 
 function updateSaveButtonState() {
@@ -161,35 +156,20 @@ async function handleAddAccept() {
   submitting = true;
 
   try {
-    const bookmark = form.getState();
-    const name = bookmark.name.trim();
-    const url = bookmark.url.trim();
-
-    if (!name) {
-      submitting = false;
-      return;
-    }
+    const validation = form.validate();
+    if (!validation.isValid) return;
+    const bookmark = validation.value;
 
     const { data: { bookmarks } } = getState();
     const maxRows = getMaxVisibleRows();
     const maxCols = getMaxVisibleCols();
 
-    let gx = 0;
-    let gy = 0;
-    let placed = false;
+    const position = findFirstFreeSlot(bookmarks, {
+      columns: maxCols,
+      rows: maxRows
+    });
 
-    for (let col = 0; col < maxCols && !placed; col++) {
-      for (let row = 0; row < maxRows; row++) {
-        if (isAreaFree(bookmarks, col, row, 1, 1)) {
-          gx = col;
-          gy = row;
-          placed = true;
-          break;
-        }
-      }
-    }
-
-    if (!placed) {
+    if (!position) {
       closeBookmarkModal();
 
       await new Promise(requestAnimationFrame);
@@ -198,7 +178,7 @@ async function handleAddAccept() {
       return;
     }
 
-    const created = addBookmark({ ...bookmark, name, url, gx, gy });
+    const created = addBookmark({ ...bookmark, ...position });
 
     if (created) {
       flashSuccess('flash.bookmark.added');
@@ -216,14 +196,14 @@ async function handleAddAccept() {
 function handleEditAccept() {
   if (!editingId || !hasChanges()) return;
 
-  const updatedData = form.getState();
-  const bookmark = updateBookmarkById(editingId, updatedData);
+  const validation = form.validate();
+  if (!validation.isValid) return;
+  const bookmark = updateBookmarkById(editingId, validation.value);
 
   if (bookmark) {
     flashSuccess('flash.bookmark.updated');
   }
 
-  initialSnapshot = null;
   closeBookmarkModal();
 }
 
@@ -256,21 +236,11 @@ async function handleCancel() {
 
 function resetAddForm() {
   const { data: { settings } } = getState();
-  const resetBookmark = structuredClone(settings.bookmarkDefault);
-  resetBookmark.name = '';
-  resetBookmark.url = '';
-  resetBookmark.urlLocked = false;
-
-  if (form.elements.backgroundImage) form.elements.backgroundImage.value = '';
-  form.elements.urlClearBtn?.click();
-  if (form.elements.url) form.elements.url.value = '';
-
-  form.reset(resetBookmark);
+  form.reset(createBookmarkDraft({ preset: settings.bookmarkDefault }));
 }
 
 function closeBookmarkModal() {
   mode = null;
   editingId = null;
-  initialSnapshot = null;
   closeModal();
 }

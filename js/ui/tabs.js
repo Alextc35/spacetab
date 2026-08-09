@@ -16,14 +16,16 @@
  * @param {string} options.tabContentSelector - Selector for tab content panels inside the root.
  * @param {string} [options.activeClass='active'] - Class applied to the active tab button.
  * @param {string} [options.hiddenClass='is-hidden'] - Class used to hide inactive tab panels.
- * @returns {{ activate: (tabId: string) => void }|void} Tab controls, or nothing if the root is not found.
+ * @param {AbortSignal} [options.signal] - Optional parent lifecycle signal.
+ * @returns {{ activate: (tabId: string) => void, destroy: () => void }|void} Tab controls, or nothing if the root is not found.
  */
 export function initTabs({
   root,
   tabButtonSelector,
   tabContentSelector,
   activeClass = 'active',
-  hiddenClass = 'is-hidden'
+  hiddenClass = 'is-hidden',
+  signal
 }) {
   const rootEl =
     typeof root === 'string'
@@ -31,6 +33,10 @@ export function initTabs({
       : root;
 
   if (!rootEl) return;
+
+  const abortController = new AbortController();
+  const eventOptions = { signal: abortController.signal };
+  signal?.addEventListener('abort', () => abortController.abort(), { once: true });
 
   const buttons = rootEl.querySelectorAll(tabButtonSelector);
   const contents = rootEl.querySelectorAll(tabContentSelector);
@@ -62,8 +68,8 @@ export function initTabs({
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
       activate(btn.dataset.tab);
-    });
+    }, eventOptions);
   });
 
-  return { activate };
+  return { activate, destroy: () => abortController.abort() };
 }

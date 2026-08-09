@@ -1,4 +1,4 @@
-import { createBookmarkForm } from '../../bookmark/form.js';
+import { createBookmarkEditorPanel } from '../../bookmark/panel.js';
 import { showAlert } from '../alert.js';
 import { t } from '../../../core/i18n.js';
 import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
@@ -24,7 +24,7 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   const deleteAllBtn = document.getElementById('delete-all-btn');
   const host = document.getElementById('settings-bookmark-form-host');
 
-  /** @type {ReturnType<typeof createBookmarkForm>|null} */
+  /** @type {ReturnType<typeof createBookmarkEditorPanel>|null} */
   let form = null;
 
   /** @type {Object|null} */
@@ -32,11 +32,11 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
 
   initImportExportButtons(exportBtn, importInput);
 
-  form = createBookmarkForm({
+  form = createBookmarkEditorPanel({
     host,
     idPrefix: 'settings-bookmark-form',
-    showGeneral: false,
-    bookmark: structuredClone(getDraftBookmarkDefault()),
+    mode: 'preset',
+    value: structuredClone(getDraftBookmarkDefault()),
     onChange: (state) => {
       replaceDraftBookmarkDefault(state);
       onRequestSaveStateUpdate();
@@ -50,11 +50,7 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
     );
     if (!ok) return;
 
-    replaceDraftBookmarkDefault({
-      ...structuredClone(DEFAULT_SETTINGS.bookmarkDefault),
-      name: 'Test',
-      url: 'https://.internal'
-    });
+    replaceDraftBookmarkDefault(structuredClone(DEFAULT_SETTINGS.bookmarkDefault));
 
     form.reset(getDraftBookmarkDefault());
     onRequestSaveStateUpdate();

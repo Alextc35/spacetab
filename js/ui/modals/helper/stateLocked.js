@@ -11,7 +11,8 @@ import { flashSuccess } from "../../flash.js";
  * @param {HTMLElement} [config.copyBtn]
  * @param {boolean} [config.initialLocked=false]
  * @param {Function} [config.onChange]
- * @returns {{ isLocked: () => boolean, setLocked: (v: boolean) => void }}
+ * @param {AbortSignal} [config.signal]
+ * @returns {{ isLocked: () => boolean, setLocked: (v: boolean) => void, destroy: () => void }}
  */
 export function createLockableInputController({
   input,
@@ -19,9 +20,14 @@ export function createLockableInputController({
   clearBtn,
   copyBtn,
   initialLocked = false,
-  onChange = () => {}
+  onChange = () => {},
+  signal
 }) {
   let locked = initialLocked;
+  const abortController = new AbortController();
+  const eventOptions = { signal: abortController.signal };
+
+  signal?.addEventListener('abort', () => abortController.abort(), { once: true });
 
   function updateUI() {
     const hasValue = input.value.trim() !== '';
@@ -58,7 +64,7 @@ export function createLockableInputController({
   // Events
   toggleBtn.addEventListener('click', () => {
     setLocked(!locked);
-  });
+  }, eventOptions);
 
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
@@ -66,7 +72,7 @@ export function createLockableInputController({
       input.value = '';
       updateUI();
       onChange();
-    });
+    }, eventOptions);
   }
 
   if (copyBtn) {
@@ -74,19 +80,20 @@ export function createLockableInputController({
       if (!input.value) return;
       await navigator.clipboard.writeText(input.value);
       flashSuccess('flash.settings.copied');
-    });
+    }, eventOptions);
   }
 
   input.addEventListener('input', () => {
     updateUI();
     onChange();
-  });
+  }, eventOptions);
 
   updateUI();
 
   return {
     isLocked,
     setLocked,
-    refresh: updateUI
+    refresh: updateUI,
+    destroy: () => abortController.abort()
   };
 }

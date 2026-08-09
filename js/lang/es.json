@@ -69,6 +69,19 @@
     "accept": "Aceptar",
     "cancel": "Cancelar"
   },
+  "validation": {
+    "name": {
+      "required": "Escribe un nombre para el favorito."
+    },
+    "url": {
+      "invalid": "La URL no es válida.",
+      "unsupportedProtocol": "Este tipo de URL no está permitido."
+    },
+    "backgroundImageUrl": {
+      "invalid": "La URL de la imagen no es válida.",
+      "unsupportedProtocol": "Este tipo de imagen no está permitido."
+    }
+  },
   "editModal": {
     "title": "Editar Favorito",
     "name": "Nombre:",
@@ -88,7 +101,8 @@
       "text": "Texto",
       "icon": "Icon"
     },
-    "preview": "Previsualizador"
+    "preview": "Previsualizador",
+    "previewName": "Vista previa"
   },
   "settingsModal": {
     "sections": {

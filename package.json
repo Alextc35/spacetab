@@ -1,0 +1,16 @@
+{
+  "name": "spacetab",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:dom",
+    "test:unit": "node --test tests/*.test.mjs",
+    "test:dom": "vitest run",
+    "check": "npm test"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "vitest": "^4.1.10"
+  }
+}

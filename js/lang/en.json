@@ -69,6 +69,19 @@
     "accept": "Accept",
     "cancel": "Cancel"
   },
+  "validation": {
+    "name": {
+      "required": "Enter a name for the bookmark."
+    },
+    "url": {
+      "invalid": "The URL is not valid.",
+      "unsupportedProtocol": "This URL type is not allowed."
+    },
+    "backgroundImageUrl": {
+      "invalid": "The image URL is not valid.",
+      "unsupportedProtocol": "This image type is not allowed."
+    }
+  },
   "editModal": {
     "title": "Edit Bookmark",
     "name": "Name:",
@@ -88,7 +101,8 @@
       "text": "Text",
       "icon": "Icon"
     },
-    "preview": "Preview"
+    "preview": "Preview",
+    "previewName": "Preview"
   },
   "settingsModal": {
     "sections": {

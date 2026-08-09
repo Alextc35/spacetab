@@ -165,6 +165,17 @@ input[type="color"] {
   margin-top: 16px;
 }
 
+.field-error {
+  margin: -2px 0 4px;
+  color: #ff8a8a;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+[aria-invalid="true"] {
+  border-color: #ff6b6b !important;
+}
+
 .btn {
   padding: 8px 14px;
   border-radius: 8px;
