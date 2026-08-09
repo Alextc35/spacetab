@@ -43,6 +43,7 @@ test('creates, edits and persists a bookmark after reload', async ({ page }) => 
 });
 
 test('creates a workspace and finds bookmarks across workspaces', async ({ page }) => {
+  await page.getByRole('navigation', { name: 'Workspace controls' }).hover();
   await page.getByRole('button', { name: 'Create workspace' }).click();
   await page.getByPlaceholder('Work, leisure…').fill('Work');
   await page.getByRole('button', { name: 'Accept' }).click();
@@ -53,6 +54,7 @@ test('creates a workspace and finds bookmarks across workspaces', async ({ page 
   await page.locator('#bookmark-modal-form-url').fill('work.example');
   await page.getByRole('button', { name: 'Add', exact: true }).click();
 
+  await page.getByRole('navigation', { name: 'Workspace controls' }).hover();
   await page.getByRole('button', { name: 'Search bookmarks' }).click();
   await page.getByPlaceholder('Name or URL').fill('Work dashboard');
   await expect(page.getByRole('option', { name: /Work dashboard/ })).toContainText('Work');
