@@ -1,6 +1,7 @@
 import '../types/types.js'; // typedefs
 import { getState, setState } from './store.js';
 import {
+  applyBookmarkPreset,
   createBookmarkDraft,
   normalizeBookmark as normalizeBookmarkValue,
   validateBookmarkDraft
@@ -94,6 +95,88 @@ export function deleteBookmarkById(bookmarkId) {
 export function clearBookmarks() {
   setState({ data: { bookmarks: [] } });
   return true;
+}
+
+/**
+ * Updates several bookmarks in one state transition and one undo step.
+ *
+ * @param {Iterable<string>} bookmarkIds
+ * @param {(bookmark: Bookmark) => Partial<Bookmark>} updater
+ * @returns {Bookmark[]}
+ */
+export function updateBookmarksByIds(bookmarkIds, updater) {
+  const ids = new Set(bookmarkIds);
+  if (!ids.size) return [];
+
+  const { data: { bookmarks } } = getState();
+  const changed = [];
+  const updated = bookmarks.map(bookmark => {
+    if (!ids.has(bookmark.id)) return bookmark;
+
+    const candidate = {
+      ...bookmark,
+      ...updater(structuredClone(bookmark))
+    };
+    const validation = validateBookmarkDraft(candidate);
+    if (!validation.isValid) return bookmark;
+
+    const nextBookmark = normalizeBookmarkValue({
+      ...candidate,
+      ...validation.value
+    });
+    changed.push(nextBookmark);
+    return nextBookmark;
+  });
+
+  if (changed.length) setState({ data: { bookmarks: updated } });
+  return changed;
+}
+
+/** @param {Iterable<string>} bookmarkIds */
+export function deleteBookmarksByIds(bookmarkIds) {
+  const ids = new Set(bookmarkIds);
+  if (!ids.size) return 0;
+  const { data: { bookmarks } } = getState();
+  const updated = bookmarks.filter(bookmark => !ids.has(bookmark.id));
+  const deletedCount = bookmarks.length - updated.length;
+  if (deletedCount) setState({ data: { bookmarks: updated } });
+  return deletedCount;
+}
+
+/**
+ * Applies appearance only, preserving identity and layout.
+ *
+ * @param {Iterable<string>} bookmarkIds
+ * @param {BookmarkPreset} preset
+ */
+export function applyPresetToBookmarks(bookmarkIds, preset) {
+  return updateBookmarksByIds(bookmarkIds, bookmark => (
+    applyBookmarkPreset(bookmark, preset)
+  ));
+}
+
+/**
+ * Duplicates a bookmark into a caller-selected free position.
+ *
+ * @param {string} bookmarkId
+ * @param {{gx: number, gy: number}} position
+ * @param {string} [nameSuffix='copy']
+ * @returns {Bookmark|null}
+ */
+export function duplicateBookmarkById(bookmarkId, position, nameSuffix = 'copy') {
+  const bookmark = getState().data.bookmarks.find(item => item.id === bookmarkId);
+  if (!bookmark || !position) return null;
+
+  const duplicate = structuredClone(bookmark);
+  delete duplicate.id;
+  delete duplicate.createdAt;
+  delete duplicate.updatedAt;
+
+  return addBookmark({
+    ...duplicate,
+    ...position,
+    name: `${bookmark.name} (${nameSuffix})`
+  });
 }
 
 export { createBookmarkDraft };

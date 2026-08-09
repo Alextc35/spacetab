@@ -4,8 +4,10 @@ import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { renderBookmarks } from './ui/bookmark/renderer.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
+import { initWorkspaceToolbar } from './ui/workspaceToolbar.js';
+import { initBulkBookmarkActions } from './ui/bookmark/bulkActions.js';
 import { initBookmarkModal,
-  initAlertModal, initSettingsModal } from './ui/modals/index.js';
+  initAlertModal, initSearchModal, initSettingsModal } from './ui/modals/index.js';
 
 /* ======================= DOM References ======================= */
 
@@ -44,6 +46,8 @@ async function initApp() {
 
   initUI();
   initModals();
+  initWorkspaceToolbar();
+  initBulkBookmarkActions();
 
   if (DEBUG) {
     console.info('Initializing SpaceTab ' + VERSION + ' alfa');
@@ -95,8 +99,9 @@ function initUI() {
  * Initializes all modal components.
  */
 function initModals() {
-  initSettingsModal();
   initAlertModal();
+  initSearchModal();
+  initSettingsModal();
   initBookmarkModal();
 }
 

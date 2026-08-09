@@ -8,6 +8,7 @@
  * @property {number} gy
  * @property {number} w
  * @property {number} h
+ * @property {string|null} groupId
  * @property {string|null} backgroundImageUrl
  * @property {boolean} backgroundImageUrlLocked
  * @property {boolean} backgroundFavicon
@@ -49,6 +50,9 @@
  * @property {string|null} theme.backgroundImageUrl
  * @property {boolean} theme.backgroundImageUrlLocked
  * @property {BookmarkPreset} bookmarkDefault
+ * @property {Array<{id: string, name: string, style: BookmarkPreset}>} bookmarkPresets
+ * @property {Array<{id: string, name: string}>} bookmarkGroups
+ * @property {string|null} activeBookmarkGroupId
  */
 
 /**

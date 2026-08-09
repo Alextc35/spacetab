@@ -16,6 +16,9 @@ let draftLanguage = null;
  */
 let draftBookmarkDefault = null;
 
+/** Named appearance presets edited alongside the default preset. */
+let draftBookmarkPresets = null;
+
 /**
  * Per-device persistence mode selected in the settings modal.
  * @type {'local'|'sync'|null}
@@ -48,6 +51,7 @@ export function initDraft(settings, storageMode) {
   draftTheme = structuredClone(settings.theme);
   draftLanguage = settings.language;
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
+  draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
   draftStorageMode = storageMode;
 }
 
@@ -60,6 +64,7 @@ export function resetState() {
   draftTheme = null;
   draftLanguage = null;
   draftBookmarkDefault = null;
+  draftBookmarkPresets = null;
   draftStorageMode = null;
   initialSnapshot = null;
 }
@@ -96,6 +101,11 @@ export function getDraftLanguage() {
 export function getDraftBookmarkDefault() {
   const { data: { settings } } = getState();
   return draftBookmarkDefault ?? settings.bookmarkDefault;
+}
+
+export function getDraftBookmarkPresets() {
+  const { data: { settings } } = getState();
+  return draftBookmarkPresets ?? settings.bookmarkPresets ?? [];
 }
 
 /**
@@ -186,11 +196,16 @@ export function replaceDraftBookmarkDefault(newBookmarkDefault) {
   draftBookmarkDefault = structuredClone(newBookmarkDefault);
 }
 
+export function replaceDraftBookmarkPresets(presets) {
+  draftBookmarkPresets = structuredClone(presets);
+}
+
 /** Replaces every editable settings draft while preserving the mode choice. */
 export function replaceDraftSettings(settings) {
   draftTheme = structuredClone(settings.theme);
   draftLanguage = settings.language;
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
+  draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
 }
 
 /* ==================================================
@@ -210,12 +225,22 @@ export function replaceDraftSettings(settings) {
 export function hasChanges() {
   if (!initialSnapshot) return false;
 
-  return JSON.stringify({
+  const draftComparable = {
     storageMode: draftStorageMode,
     language: draftLanguage,
     theme: draftTheme,
-    bookmarkDefault: draftBookmarkDefault
-  }) !== JSON.stringify(initialSnapshot);
+    bookmarkDefault: draftBookmarkDefault,
+    bookmarkPresets: draftBookmarkPresets
+  };
+  const initialComparable = {
+    storageMode: initialSnapshot.storageMode,
+    language: initialSnapshot.language,
+    theme: initialSnapshot.theme,
+    bookmarkDefault: initialSnapshot.bookmarkDefault,
+    bookmarkPresets: initialSnapshot.bookmarkPresets ?? []
+  };
+
+  return JSON.stringify(draftComparable) !== JSON.stringify(initialComparable);
 }
 
 /* ==================================================
@@ -234,6 +259,9 @@ export function buildNewSettings() {
   return {
     language: draftLanguage,
     theme: structuredClone(draftTheme),
-    bookmarkDefault: structuredClone(draftBookmarkDefault)
+    bookmarkDefault: structuredClone(draftBookmarkDefault),
+    bookmarkPresets: structuredClone(draftBookmarkPresets),
+    bookmarkGroups: structuredClone(initialSnapshot?.bookmarkGroups ?? []),
+    activeBookmarkGroupId: initialSnapshot?.activeBookmarkGroupId ?? null
   };
 }

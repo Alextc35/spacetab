@@ -4,6 +4,7 @@ import { PADDING } from '../../core/config.js';
 import { createFavicon } from './favicon.js';
 import { addDragAndResize } from './dragResize.js';
 import { addEditDeleteButtons } from './actions.js';
+import { isBookmarkSelected } from './selection.js';
 
 /**
  * Renders all bookmarks into the given container element.
@@ -22,16 +23,21 @@ export function renderBookmarks(container) {
   if (!container) return;
 
   const state = getState();
-  const { data: { bookmarks } } = state;
+  const { data: { bookmarks, settings } } = state;
   const { ui: { isEditing } } = state;
+  const visibleBookmarks = bookmarks.filter(
+    bookmark => (bookmark.groupId ?? null) === settings.activeBookmarkGroupId
+  );
 
   updateGridSize(container);
   container.innerHTML = '';
 
-  bookmarks.forEach((bookmark) => {
+  visibleBookmarks.forEach((bookmark) => {
     const div = document.createElement('div');
     div.className = 'bookmark';
+    div.dataset.bookmarkId = bookmark.id;
     div.classList.toggle('is-editing', isEditing);
+    div.classList.toggle('is-selected', isBookmarkSelected(bookmark.id));
 
     applyBookmarkStyle(container, div, bookmark);
     createBookmarkContent(div, bookmark, isEditing);

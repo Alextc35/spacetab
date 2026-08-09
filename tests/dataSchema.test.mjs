@@ -71,3 +71,38 @@ test('rejects data written by a future schema', () => {
     error => error.code === 'UNSUPPORTED_DATA_VERSION'
   );
 });
+
+test('normalizes named presets and workspace references', () => {
+  const migrated = migratePersistedData({
+    bookmarks: [{ id: 'grouped', name: 'Grouped', groupId: 'work' }],
+    settings: {
+      ...DEFAULT_SETTINGS,
+      bookmarkPresets: [{
+        id: 'dark',
+        name: '  Dark  ',
+        style: { backgroundColor: '#111111', name: 'ignored' }
+      }],
+      bookmarkGroups: [{ id: 'work', name: ' Work ' }],
+      activeBookmarkGroupId: 'work'
+    }
+  });
+
+  assert.equal(migrated.bookmarks[0].groupId, 'work');
+  assert.deepEqual(migrated.settings.bookmarkGroups, [{ id: 'work', name: 'Work' }]);
+  assert.equal(migrated.settings.activeBookmarkGroupId, 'work');
+  assert.equal(migrated.settings.bookmarkPresets[0].name, 'Dark');
+  assert.equal(migrated.settings.bookmarkPresets[0].style.name, undefined);
+});
+
+test('falls back to the main workspace when the active group is missing', () => {
+  const migrated = migratePersistedData({
+    bookmarks: [],
+    settings: {
+      ...DEFAULT_SETTINGS,
+      bookmarkGroups: [],
+      activeBookmarkGroupId: 'missing'
+    }
+  });
+
+  assert.equal(migrated.settings.activeBookmarkGroupId, null);
+});

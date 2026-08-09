@@ -5,6 +5,7 @@
 @import './layout/bookmarkContainer.css';
 @import './layout/gridOverlay.css';
 @import './layout/floatingMenu.css';
+@import './layout/workspaceToolbar.css';
 
 @import './components/bookmark.css';
 @import './components/modal.css';
@@ -13,6 +14,7 @@
 
 @import './features/editModal.css';
 @import './features/settingsModal.css';
+@import './features/searchModal.css';
 
 @import './states/disabled.css';
 @import './states/hidden.css';

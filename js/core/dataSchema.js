@@ -39,15 +39,27 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
     : {};
   const now = Date.now();
 
+  const bookmarkGroups = normalizeBookmarkGroups(rawSettings.bookmarkGroups);
+  const bookmarkGroupIds = new Set(bookmarkGroups.map(group => group.id));
+  const activeBookmarkGroupId = bookmarkGroups.some(
+    group => group.id === rawSettings.activeBookmarkGroupId
+  ) ? rawSettings.activeBookmarkGroupId : null;
+
   return {
     schemaVersion: DATA_SCHEMA_VERSION,
     bookmarks: rawBookmarks
       .filter(bookmark => bookmark && typeof bookmark === 'object')
-      .map((bookmark, index) => normalizeBookmark(bookmark, {
-        now,
-        touchUpdatedAt: false,
-        idFactory: () => `migrated-${now}-${index}`
-      })),
+      .map((bookmark, index) => {
+        const normalized = normalizeBookmark(bookmark, {
+          now,
+          touchUpdatedAt: false,
+          idFactory: () => `migrated-${now}-${index}`
+        });
+        normalized.groupId = bookmarkGroupIds.has(normalized.groupId)
+          ? normalized.groupId
+          : null;
+        return normalized;
+      }),
     settings: {
       ...structuredClone(DEFAULT_SETTINGS),
       ...rawSettings,
@@ -57,9 +69,43 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
           ? rawSettings.theme
           : {})
       },
-      bookmarkDefault: normalizeBookmarkPreset(rawSettings.bookmarkDefault)
+      bookmarkDefault: normalizeBookmarkPreset(rawSettings.bookmarkDefault),
+      bookmarkPresets: normalizeNamedPresets(rawSettings.bookmarkPresets),
+      bookmarkGroups,
+      activeBookmarkGroupId
     }
   };
+}
+
+function normalizeNamedPresets(value) {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter(preset => preset && typeof preset === 'object')
+    .map((preset, index) => ({
+      id: typeof preset.id === 'string' && preset.id.trim()
+        ? preset.id
+        : `preset-${index + 1}`,
+      name: typeof preset.name === 'string' && preset.name.trim()
+        ? preset.name.trim()
+        : `Preset ${index + 1}`,
+      style: normalizeBookmarkPreset(preset.style ?? preset)
+    }));
+}
+
+function normalizeBookmarkGroups(value) {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter(group => group && typeof group === 'object')
+    .map((group, index) => ({
+      id: typeof group.id === 'string' && group.id.trim()
+        ? group.id
+        : `workspace-${index + 1}`,
+      name: typeof group.name === 'string' && group.name.trim()
+        ? group.name.trim()
+        : `Workspace ${index + 1}`
+    }));
 }
 
 /**

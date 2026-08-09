@@ -38,6 +38,7 @@ export const DEFAULT_BOOKMARK_STRUCTURE = {
   gy: 0,
   w: 1,
   h: 1,
+  groupId: null,
 
   createdAt: 0,
   updatedAt: 0
@@ -111,7 +112,11 @@ export const DEFAULT_SETTINGS = {
 
   bookmarkDefault: {
     ...DEFAULT_BOOKMARK_STYLE
-  }
+  },
+
+  bookmarkPresets: [],
+  bookmarkGroups: [],
+  activeBookmarkGroupId: null
 };
 
 /**

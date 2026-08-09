@@ -13,7 +13,12 @@
       "deleted": "Favorito eliminado correctamente",
       "deleteError": "Error al eliminar el favorito",
       "notFound": "Favorito no encontrado",
-      "updated": "Favorito actualizado correctamente"
+      "updated": "Favorito actualizado correctamente",
+      "duplicated": "Favorito duplicado correctamente"
+    },
+    "history": {
+      "undone": "Cambio deshecho",
+      "redone": "Cambio rehecho"
     },
     "bookmarks": {
       "deletedAll": "Todos los favoritos eliminados correctamente",
@@ -21,7 +26,10 @@
       "exported": "Favoritos exportados correctamente",
       "exportError": "Error al exportar los favoritos",
       "imported": "Favoritos importados correctamente",
-      "importError": "Error al importar los favoritos"
+      "importError": "Error al importar los favoritos",
+      "presetApplied": "Estilo aplicado a la selección",
+      "deletedSelected": "Favoritos seleccionados eliminados",
+      "moved": "Favoritos movidos al espacio elegido"
     },
     "settings": {
       "saved": "Configuración guardada correctamente",
@@ -45,6 +53,8 @@
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "¿Eliminar todos los favoritos?",
+      "confirmDeleteSelected": "¿Eliminar {{count}} favoritos seleccionados?",
+      "moveNoSpace": "{{count}} favoritos no se pudieron mover porque no había espacio.",
       "no_space": "No hay espacio disponible para más favoritos 😅"
     },
     "bookmark": {
@@ -77,9 +87,48 @@
     "save": "Guardar",
     "add": "Añadir",
     "accept": "Aceptar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "close": "Cerrar"
+  },
+  "workspace": {
+    "ariaLabel": "Controles del espacio de trabajo",
+    "current": "Espacio de trabajo",
+    "main": "Principal",
+    "search": "Buscar favoritos",
+    "add": "Crear espacio de trabajo",
+    "delete": "Eliminar espacio de trabajo",
+    "undo": "Deshacer",
+    "redo": "Rehacer",
+    "prompt": "Nombre del nuevo espacio de trabajo",
+    "namePlaceholder": "Trabajo, ocio…",
+    "confirmDelete": "¿Eliminar este espacio? Sus favoritos volverán al espacio Principal."
+  },
+  "search": {
+    "title": "Buscar favoritos",
+    "inputLabel": "Buscar por nombre o URL",
+    "placeholder": "Nombre o URL",
+    "empty": "No se encontraron favoritos.",
+    "noUrl": "Sin URL"
+  },
+  "bulk": {
+    "ariaLabel": "Acciones de favoritos seleccionados",
+    "selected": "{{count}} seleccionados",
+    "move": "Mover al espacio",
+    "applyPreset": "Aplicar estilo predeterminado",
+    "delete": "Eliminar",
+    "clear": "Cancelar selección"
+  },
+  "bookmarkActions": {
+    "edit": "Editar favorito",
+    "duplicate": "Duplicar favorito",
+    "select": "Seleccionar favorito",
+    "delete": "Eliminar favorito",
+    "copySuffix": "copia"
   },
   "validation": {
+    "preset": {
+      "name": "Escribe un nombre para guardar el preset."
+    },
     "name": {
       "required": "Escribe un nombre para el favorito."
     },
@@ -167,6 +216,15 @@
       "export": "Exportar favoritos",
       "import": "Importar favoritos",
       "deleteAll": "Borrar todos los favoritos"
+      ,"presets": {
+        "title": "Biblioteca de estilos",
+        "name": "Nombre del preset",
+        "saved": "Presets guardados",
+        "save": "Guardar preset",
+        "apply": "Usar",
+        "delete": "Eliminar",
+        "empty": "No hay presets guardados"
+      }
     },
     "languages": {
       "title": "Idiomas",

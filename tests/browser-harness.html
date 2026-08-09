@@ -10,7 +10,9 @@
       const listeners = [];
 
       function createArea(areaName) {
-        const data = {};
+        const storageKey = `spacetab-test-${areaName}`;
+        const data = JSON.parse(sessionStorage.getItem(storageKey) || '{}');
+        const persist = () => sessionStorage.setItem(storageKey, JSON.stringify(data));
 
         function select(keys) {
           if (keys === null || keys === undefined) return structuredClone(data);
@@ -34,6 +36,7 @@
               changes[key] = { oldValue: data[key], newValue: value };
               data[key] = structuredClone(value);
             }
+            persist();
             callback?.();
             for (const listener of listeners) listener(changes, areaName);
           },
@@ -44,6 +47,7 @@
               changes[key] = { oldValue: data[key] };
               delete data[key];
             }
+            persist();
             callback?.();
             for (const listener of listeners) listener(changes, areaName);
           }

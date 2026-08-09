@@ -8,6 +8,30 @@
 <body>
   <div id="bookmark-container"></div>
 
+  <nav id="workspace-toolbar" aria-label="Workspace controls" data-i18n-aria-label="workspace.ariaLabel">
+    <button id="search-bookmarks" type="button" data-i18n-aria-label="workspace.search" aria-label="Search">⌕</button>
+    <label class="is-hidden" for="workspace-select" data-i18n="workspace.current">Workspace</label>
+    <select id="workspace-select"></select>
+    <button id="workspace-add" type="button" data-i18n-aria-label="workspace.add" aria-label="Add workspace">＋</button>
+    <button id="workspace-delete" type="button" data-i18n-aria-label="workspace.delete" aria-label="Delete workspace">−</button>
+    <span class="workspace-toolbar-divider" aria-hidden="true"></span>
+    <button id="history-undo" type="button" data-i18n-aria-label="workspace.undo" aria-label="Undo">↶</button>
+    <button id="history-redo" type="button" data-i18n-aria-label="workspace.redo" aria-label="Redo">↷</button>
+  </nav>
+
+  <div id="bulk-actions" class="bulk-actions is-hidden" role="toolbar"
+    data-i18n-aria-label="bulk.ariaLabel" aria-label="Selected bookmark actions">
+    <strong id="bulk-selection-count"></strong>
+    <label class="is-hidden" for="bulk-workspace-select" data-i18n="bulk.move">Mover</label>
+    <select id="bulk-workspace-select"></select>
+    <button id="bulk-apply-preset" class="btn btn-secondary" type="button"
+      data-i18n="bulk.applyPreset">Aplicar estilo predeterminado</button>
+    <button id="bulk-delete" class="btn btn-danger" type="button"
+      data-i18n="bulk.delete">Eliminar</button>
+    <button id="bulk-clear" class="btn btn-ghost" type="button"
+      data-i18n="bulk.clear">Cancelar selección</button>
+  </div>
+
   <div id="floating-menu">
     <button id="edit-toggle-mode" type="button">✎</button>
     <button id="add-bookmark" type="button">➕</button>
@@ -22,6 +46,7 @@
     <div class="modal-overlay"></div>
     <div class="modal-card modal-sm">
       <h2 id="alert-modal-title">Alerta</h2>
+      <input id="alert-modal-input" class="alert-modal-input is-hidden" type="text" maxlength="60">
       <div class="modal-actions">
         <button id="alert-modal-cancel" class="btn btn-ghost" type="button"
           data-i18n="buttons.cancel">Cancelar
@@ -29,6 +54,21 @@
         <button id="alert-modal-accept" class="btn btn-primary" type="button"
           data-i18n="buttons.accept">Aceptar
         </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="search-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-card modal-search">
+      <h2 id="search-modal-title" data-i18n="search.title">Buscar favoritos</h2>
+      <label class="is-hidden" for="search-modal-input" data-i18n="search.inputLabel">Buscar</label>
+      <input id="search-modal-input" type="search" autocomplete="off"
+        data-i18n="search.placeholder" placeholder="Nombre o URL">
+      <div id="search-modal-results" class="search-results custom-scrollbar" role="listbox"></div>
+      <div class="modal-actions">
+        <button id="search-modal-close" class="btn btn-ghost" type="button"
+          data-i18n="buttons.close">Cerrar</button>
       </div>
     </div>
   </div>
@@ -162,6 +202,26 @@
             <h2 data-i18n="settingsModal.bookmark.title">Favoritos</h2>
             <h3 data-i18n="settingsModal.bookmark.subtitle">Favorito por defecto</h3>
             <div id="settings-bookmark-form-host"></div>
+            <section class="preset-library" aria-labelledby="preset-library-title">
+              <h3 id="preset-library-title" data-i18n="settingsModal.bookmark.presets.title">Presets</h3>
+              <div class="preset-create-row">
+                <label class="is-hidden" for="settings-preset-name"
+                  data-i18n="settingsModal.bookmark.presets.name">Nombre del preset</label>
+                <input id="settings-preset-name" type="text" maxlength="40"
+                  data-i18n="settingsModal.bookmark.presets.name" placeholder="Nombre del preset">
+                <button id="settings-preset-save" class="btn btn-primary" type="button"
+                  data-i18n="settingsModal.bookmark.presets.save">Guardar preset</button>
+              </div>
+              <div class="preset-manage-row">
+                <label class="is-hidden" for="settings-preset-select"
+                  data-i18n="settingsModal.bookmark.presets.saved">Presets guardados</label>
+                <select id="settings-preset-select" aria-label="Saved presets"></select>
+                <button id="settings-preset-apply" class="btn btn-secondary" type="button"
+                  data-i18n="settingsModal.bookmark.presets.apply">Usar</button>
+                <button id="settings-preset-delete" class="btn btn-danger" type="button"
+                  data-i18n="settingsModal.bookmark.presets.delete">Eliminar</button>
+              </div>
+            </section>
             <div class="settings-bookmark-actions">
               <button id="settings-bookmark-reset"
                       class="btn btn-secondary"

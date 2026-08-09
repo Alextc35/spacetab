@@ -20,11 +20,7 @@ let btnAccept;
  * Cancel button element.
  */
 let btnCancel;
-
-/**
- * Pending promise resolver for the currently open alert.
- */
-let currentResolve = null;
+let inputEl;
 
 /**
  * Active accept handler for the currently displayed alert.
@@ -52,6 +48,7 @@ export function initAlertModal() {
   titleEl = modal.querySelector('#alert-modal-title');
   btnCancel = modal.querySelector('#alert-modal-cancel');
   btnAccept = modal.querySelector('#alert-modal-accept');
+  inputEl = modal.querySelector('#alert-modal-input');
 
   /**
    * Ensure the alert modal stays above other modals when needed.
@@ -107,8 +104,6 @@ export function showAlert(text, options = {}) {
   const { type = 'confirm' } = options;
 
   return new Promise((resolveResult) => {
-    currentResolve = resolveResult;
-
     /**
      * Update modal content and button labels.
      */
@@ -117,6 +112,8 @@ export function showAlert(text, options = {}) {
     btnAccept.textContent = t('buttons.accept');
     btnCancel.textContent = t('buttons.cancel');
     btnCancel.style.display = type === 'info' ? 'none' : 'inline-block';
+    inputEl.classList.add('is-hidden');
+    inputEl.removeAttribute('aria-invalid');
 
     /**
      * Resolve the alert as accepted and close the modal.
@@ -146,14 +143,42 @@ export function showAlert(text, options = {}) {
 }
 
 /**
- * Resolves the currently pending alert promise, if any,
- * and clears the stored resolver reference.
+ * Displays a small accessible text prompt using the managed alert dialog.
  *
- * @param {boolean} result
+ * @param {string} text
+ * @param {{value?: string, placeholder?: string}} [options]
+ * @returns {Promise<string|null>}
  */
-function resolveResult(result) {
-  if (!currentResolve) return;
+export function showPrompt(text, { value = '', placeholder = '' } = {}) {
+  return new Promise(resolve => {
+    titleEl.textContent = text;
+    inputEl.value = value;
+    inputEl.placeholder = placeholder;
+    inputEl.classList.remove('is-hidden');
+    inputEl.removeAttribute('aria-invalid');
+    btnAccept.textContent = t('buttons.accept');
+    btnCancel.textContent = t('buttons.cancel');
+    btnCancel.style.display = 'inline-block';
 
-  currentResolve(result);
-  currentResolve = null;
+    activeAccept = () => {
+      const result = inputEl.value.trim();
+      if (!result) {
+        inputEl.setAttribute('aria-invalid', 'true');
+        inputEl.focus();
+        return;
+      }
+      resolve(result);
+      closeModal();
+    };
+    activeCancel = () => {
+      resolve(null);
+      closeModal();
+    };
+
+    openModal('alert', {
+      onAccept: activeAccept,
+      onCancel: activeCancel,
+      initialFocus: inputEl
+    });
+  });
 }

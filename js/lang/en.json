@@ -13,7 +13,12 @@
       "deleted": "Bookmark deleted successfully",
       "deleteError": "Failed to delete bookmark",
       "notFound": "Bookmark not found",
-      "updated": "Bookmark updated successfully"
+      "updated": "Bookmark updated successfully",
+      "duplicated": "Bookmark duplicated successfully"
+    },
+    "history": {
+      "undone": "Change undone",
+      "redone": "Change redone"
     },
     "bookmarks": {
       "deletedAll": "All bookmarks deleted successfully",
@@ -21,7 +26,10 @@
       "exported": "Bookmarks exported successfully",
       "exportError": "Failed to export bookmarks",
       "imported": "Bookmarks imported successfully",
-      "importError": "Failed to import bookmarks"
+      "importError": "Failed to import bookmarks",
+      "presetApplied": "Style applied to the selection",
+      "deletedSelected": "Selected bookmarks deleted",
+      "moved": "Bookmarks moved to the selected workspace"
     },
     "settings": {
       "saved": "Settings saved successfully",
@@ -45,6 +53,8 @@
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "Delete all bookmarks?",
+      "confirmDeleteSelected": "Delete {{count}} selected bookmarks?",
+      "moveNoSpace": "{{count}} bookmarks could not be moved because there was no room.",
       "no_space": "No space available for more bookmarks 😅"
     },
     "bookmark": {
@@ -77,9 +87,48 @@
     "save": "Save",
     "add": "Add",
     "accept": "Accept",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "workspace": {
+    "ariaLabel": "Workspace controls",
+    "current": "Workspace",
+    "main": "Main",
+    "search": "Search bookmarks",
+    "add": "Create workspace",
+    "delete": "Delete workspace",
+    "undo": "Undo",
+    "redo": "Redo",
+    "prompt": "Name the new workspace",
+    "namePlaceholder": "Work, leisure…",
+    "confirmDelete": "Delete this workspace? Its bookmarks will return to Main."
+  },
+  "search": {
+    "title": "Search bookmarks",
+    "inputLabel": "Search by name or URL",
+    "placeholder": "Name or URL",
+    "empty": "No bookmarks found.",
+    "noUrl": "No URL"
+  },
+  "bulk": {
+    "ariaLabel": "Selected bookmark actions",
+    "selected": "{{count}} selected",
+    "move": "Move to workspace",
+    "applyPreset": "Apply default style",
+    "delete": "Delete",
+    "clear": "Clear selection"
+  },
+  "bookmarkActions": {
+    "edit": "Edit bookmark",
+    "duplicate": "Duplicate bookmark",
+    "select": "Select bookmark",
+    "delete": "Delete bookmark",
+    "copySuffix": "copy"
   },
   "validation": {
+    "preset": {
+      "name": "Enter a name to save the preset."
+    },
     "name": {
       "required": "Enter a name for the bookmark."
     },
@@ -167,6 +216,15 @@
       "export": "Export bookmarks",
       "import": "Import bookmarks",
       "deleteAll": "Delete all bookmarks"
+      ,"presets": {
+        "title": "Style library",
+        "name": "Preset name",
+        "saved": "Saved presets",
+        "save": "Save preset",
+        "apply": "Use",
+        "delete": "Delete",
+        "empty": "No saved presets"
+      }
     },
     "languages": {
       "title": "Languages",

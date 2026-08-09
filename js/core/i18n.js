@@ -72,7 +72,7 @@ export function t(key, params = {}) {
  * @param {Object<string, string|number>} [params={}] - Interpolation parameters.
  * @returns {void}
  */
-function applyI18n(root = document, params = {}) {
+export function applyI18n(root = document, params = {}) {
   const { data: { settings } } = getState();
   const lang = settings.language || 'en';
   document.documentElement.lang = lang;

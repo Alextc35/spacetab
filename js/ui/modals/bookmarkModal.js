@@ -75,7 +75,10 @@ export function initBookmarkModal() {
  */
 export function openAddBookmark() {
   const { data: { settings } } = getState();
-  const draft = createBookmarkDraft({ preset: settings.bookmarkDefault });
+  const draft = createBookmarkDraft({
+    preset: settings.bookmarkDefault,
+    bookmark: { groupId: settings.activeBookmarkGroupId }
+  });
 
   openBookmarkModal('add', draft);
 }
@@ -161,10 +164,13 @@ async function handleAddAccept() {
     const bookmark = validation.value;
 
     const { data: { bookmarks } } = getState();
+    const groupBookmarks = bookmarks.filter(
+      item => (item.groupId ?? null) === (bookmark.groupId ?? null)
+    );
     const maxRows = getMaxVisibleRows();
     const maxCols = getMaxVisibleCols();
 
-    const position = findFirstFreeSlot(bookmarks, {
+    const position = findFirstFreeSlot(groupBookmarks, {
       columns: maxCols,
       rows: maxRows
     });
@@ -236,7 +242,10 @@ async function handleCancel() {
 
 function resetAddForm() {
   const { data: { settings } } = getState();
-  form.reset(createBookmarkDraft({ preset: settings.bookmarkDefault }));
+  form.reset(createBookmarkDraft({
+    preset: settings.bookmarkDefault,
+    bookmark: { groupId: settings.activeBookmarkGroupId }
+  }));
 }
 
 function closeBookmarkModal() {

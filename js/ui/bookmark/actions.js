@@ -1,10 +1,18 @@
 import '../../types/types.js'; // typedefs
-import { deleteBookmarkById, clearBookmarks } from '../../core/bookmark.js';
+import {
+  clearBookmarks,
+  deleteBookmarkById,
+  duplicateBookmarkById
+} from '../../core/bookmark.js';
+import { findFirstFreeSlot } from '../../core/grid.js';
+import { getState } from '../../core/store.js';
 import { t } from '../../core/i18n.js';
 import { showAlert } from '../modals/alert.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { isVisuallyDark } from './utils.js';
 import { flashSuccess, flashError } from '../flash.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
+import { toggleBookmarkSelection } from './selection.js';
 
 /**
  * Adds edit and delete action buttons to a bookmark element.
@@ -23,11 +31,48 @@ export function addEditDeleteButtons(container, bookmark) {
     openEditBookmark(bookmark.id);
   });
 
+  const duplicateBtn = createButton('⧉', 'duplicate', themeClass, async () => {
+    await duplicateBookmark(bookmark);
+  });
+
+  const selectBtn = createButton('✓', 'select', themeClass, () => {
+    const selected = toggleBookmarkSelection(bookmark.id);
+    container.classList.toggle('is-selected', selected);
+  });
+
   const delBtn = createButton('🗑', 'delete', themeClass, async () => {
     await confirmDeleteBookmark(bookmark);
   });
 
-  container.append(editBtn, delBtn);
+  editBtn.setAttribute('aria-label', t('bookmarkActions.edit'));
+  duplicateBtn.setAttribute('aria-label', t('bookmarkActions.duplicate'));
+  selectBtn.setAttribute('aria-label', t('bookmarkActions.select'));
+  delBtn.setAttribute('aria-label', t('bookmarkActions.delete'));
+  container.append(selectBtn, duplicateBtn, editBtn, delBtn);
+}
+
+async function duplicateBookmark(bookmark) {
+  const bookmarks = getState().data.bookmarks.filter(
+    item => (item.groupId ?? null) === (bookmark.groupId ?? null)
+  );
+  const position = findFirstFreeSlot(bookmarks, {
+    columns: getMaxVisibleCols(),
+    rows: getMaxVisibleRows(),
+    w: bookmark.w,
+    h: bookmark.h
+  });
+
+  if (!position) {
+    await showAlert(t('alert.bookmarks.no_space'), { type: 'info' });
+    return;
+  }
+
+  const duplicate = duplicateBookmarkById(
+    bookmark.id,
+    position,
+    t('bookmarkActions.copySuffix')
+  );
+  if (duplicate) flashSuccess('flash.bookmark.duplicated');
 }
 
 /**

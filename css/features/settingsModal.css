@@ -158,6 +158,33 @@
   width: 100%;
 }
 
+.preset-library {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.preset-create-row,
+.preset-manage-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.preset-create-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.preset-library :is(input, select) {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #1c1c1c;
+  color: #fff;
+}
+
 .settings-section-description {
   color: #aaa;
   font-size: 13px;

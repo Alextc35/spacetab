@@ -2,6 +2,12 @@ import '../../types/types.js'; // typedefs
 import { updateBookmarkById } from '../../core/bookmark.js';
 import { GRID_COLS, GRID_ROWS, PADDING } from '../../core/config.js';
 import { isAreaFree } from '../../core/grid.js';
+
+function getBookmarksInGroup(groupId) {
+  return getState().data.bookmarks.filter(
+    bookmark => (bookmark.groupId ?? null) === (groupId ?? null)
+  );
+}
 import { getState } from '../../core/store.js';
 import { confirmDeleteBookmark } from './actions.js';
 
@@ -83,7 +89,7 @@ export function addDragAndResize(container, div, bookmark) {
 
     if (
       isAreaFree(
-        getState().data.bookmarks,
+        getBookmarksInGroup(bookmark.groupId),
         newGX,
         newGY,
         bookmark.w,
@@ -221,7 +227,7 @@ function handleResize(container, e, div, bookmark, side) {
 
     if (
       isAreaFree(
-        getState().data.bookmarks,
+        getBookmarksInGroup(bookmark.groupId),
         newGX,
         newGY,
         newW,

@@ -1,0 +1,82 @@
+#workspace-toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  z-index: var(--z-floating-menu);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 12px;
+  background: rgba(15, 20, 31, .82);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .28);
+  backdrop-filter: blur(12px);
+  transform: translateX(-50%);
+  opacity: .55;
+  transition: opacity .2s ease;
+}
+
+#workspace-toolbar:hover,
+#workspace-toolbar:focus-within {
+  opacity: 1;
+}
+
+#workspace-toolbar :is(button, select) {
+  min-height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #eef3ff;
+}
+
+#workspace-toolbar button {
+  min-width: 32px;
+  cursor: pointer;
+}
+
+#workspace-toolbar button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, .12);
+}
+
+#workspace-toolbar button:disabled {
+  cursor: default;
+  opacity: .3;
+}
+
+#workspace-select {
+  max-width: 180px;
+  padding: 0 8px;
+}
+
+.workspace-toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, .14);
+}
+
+.bulk-actions {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  z-index: var(--z-floating-menu);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 12px;
+  background: rgba(15, 20, 31, .94);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, .4);
+  transform: translateX(-50%);
+}
+
+.bulk-actions select {
+  max-width: 150px;
+  padding: 7px 9px;
+  border: 1px solid #38445a;
+  border-radius: 8px;
+  background: #181d27;
+  color: #fff;
+}

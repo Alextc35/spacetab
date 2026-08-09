@@ -3,7 +3,7 @@ import {
   normalizeBookmarkPreset,
   validateBookmarkDraft
 } from '../../core/bookmarkModel.js';
-import { t } from '../../core/i18n.js';
+import { applyI18n, t } from '../../core/i18n.js';
 import { createBookmarkEditor } from './editor.js';
 import { initTabs } from '../tabs.js';
 
@@ -43,6 +43,7 @@ export function createBookmarkEditorPanel({
   const root = template.content.firstElementChild.cloneNode(true);
   root.dataset.editorMode = currentMode;
   host.replaceChildren(root);
+  applyI18n(root);
 
   const panels = Object.fromEntries(ALL_SECTIONS.map(section => [
     section,
