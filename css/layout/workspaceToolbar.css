@@ -81,7 +81,7 @@
 .bulk-actions {
   position: fixed;
   left: 50%;
-  bottom: 18px;
+  bottom: 68px;
   z-index: var(--z-floating-menu);
   display: flex;
   align-items: center;

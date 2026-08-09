@@ -89,6 +89,15 @@ test('duplicates and selects bookmarks in edit mode', async ({ page }) => {
   await expect(page.getByRole('link', { name: /DEVELOPED BY \(copy\)/ })).toBeVisible();
 
   await page.getByRole('button', { name: 'Select bookmark' }).last().click();
-  await expect(page.getByRole('toolbar', { name: 'Selected bookmark actions' })).toBeVisible();
+  const bulkActions = page.getByRole('toolbar', { name: 'Selected bookmark actions' });
+  const workspaceDock = page.getByRole('navigation', { name: 'Workspace controls' });
+  await expect(bulkActions).toBeVisible();
   await expect(page.getByText('1 selected')).toBeVisible();
+
+  await workspaceDock.hover();
+  await expect.poll(async () => {
+    const bulkBox = await bulkActions.boundingBox();
+    const dockBox = await workspaceDock.boundingBox();
+    return dockBox.y - (bulkBox.y + bulkBox.height);
+  }).toBeGreaterThanOrEqual(0);
 });
