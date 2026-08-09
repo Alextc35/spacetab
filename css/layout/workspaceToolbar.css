@@ -103,3 +103,8 @@
   background: #181d27;
   color: #fff;
 }
+
+#bulk-selection-count {
+  color: #eef3ff;
+  white-space: nowrap;
+}
