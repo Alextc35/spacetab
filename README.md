@@ -8,8 +8,6 @@ grid workspace.
 ![version](https://img.shields.io/badge/version-0.2.0_beta-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
-**Current release: 0.1.3 beta.**
-
 ![demo](assets/gifs/demo.gif)
 
 SpaceTab replaces the browser's default new tab with a private, customizable
