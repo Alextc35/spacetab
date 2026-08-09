@@ -1,7 +1,7 @@
 import '../types/types.js'; // typedefs
 import { DEBUG } from './config.js';
 import { DEFAULT_STATE } from './defaults.js';
-import { storage } from './storage.js';
+import { storage, STORAGE_MODES } from './storage.js';
 
 /**
  * Global application state.
@@ -15,6 +15,15 @@ let state = structuredClone(DEFAULT_STATE);
  * @type {boolean}
  */
 let isHydrating = true;
+
+/** @type {ReturnType<typeof setTimeout>|null} */
+let storageRefreshTimer = null;
+
+/** @type {(() => void)|null} */
+let unsubscribeFromStorage = null;
+
+/** @type {Promise<void>} */
+let persistenceQueue = Promise.resolve();
 
 /**
  * List of subscribed listeners executed on every state change.
@@ -74,16 +83,22 @@ export async function setState(partial) {
       state.data.bookmarks !== prevState.data.bookmarks ||
       state.data.settings !== prevState.data.settings
     ) {
+      const dataToPersist = structuredClone(state.data);
+
       try {
-        await storage.set({
-          bookmarks: state.data.bookmarks,
-          settings: state.data.settings
-        });
+        persistenceQueue = persistenceQueue
+          .catch(() => undefined)
+          .then(() => storage.set({
+            bookmarks: dataToPersist.bookmarks,
+            settings: dataToPersist.settings
+          }));
+
+        await persistenceQueue;
 
         if (DEBUG) {
           console.log('[STORE] Persisted to storage:', {
-            bookmarks: state.data.bookmarks,
-            settings: state.data.settings
+            bookmarks: dataToPersist.bookmarks,
+            settings: dataToPersist.settings
           });
         }
       } catch (err) {
@@ -95,6 +110,37 @@ export async function setState(partial) {
   notify(state, prevState);
 
   if (DEBUG) console.groupEnd();
+}
+
+/**
+ * Returns the persistence mode selected on this device.
+ *
+ * @returns {'local'|'sync'}
+ */
+export function getStorageMode() {
+  return storage.getMode();
+}
+
+/**
+ * Switches between device-only and browser-synchronized persistence.
+ *
+ * When synchronized data already exists, it becomes the active state. When it
+ * does not exist, the current state is migrated to sync storage. Switching
+ * back to local keeps a local copy and leaves remote data untouched.
+ *
+ * @param {'local'|'sync'} mode
+ * @param {PersistedData} [nextData=state.data]
+ * @returns {Promise<'unchanged'|'existing'|'migrated'>}
+ */
+export async function changeStorageMode(mode, nextData = state.data) {
+  if (!Object.values(STORAGE_MODES).includes(mode)) {
+    throw new TypeError(`Unsupported storage mode: ${mode}`);
+  }
+
+  await persistenceQueue.catch(() => undefined);
+  const result = await storage.changeMode(mode, nextData);
+  replacePersistedData(result.data);
+  return result.source;
 }
 
 /**
@@ -137,11 +183,13 @@ export async function toggleEditing() {
  * @returns {Promise<void>}
  */
 export async function hydrateStore() {
+  await storage.initialize();
   const persisted = await storage.get(null);
 
   await setState({ data: persisted });
 
   finishHydration();
+  subscribeToStorageChanges();
 }
 
 /**
@@ -150,6 +198,48 @@ export async function hydrateStore() {
  * will be persisted automatically.
  */
 function finishHydration() { isHydrating = false; }
+
+/**
+ * Replaces persisted state without writing it back to storage.
+ * Used for changes received from another tab or synchronized device.
+ *
+ * @param {PersistedData} data
+ */
+function replacePersistedData(data) {
+  if (JSON.stringify(state.data) === JSON.stringify(data)) return;
+
+  const prevState = state;
+  state = {
+    ...state,
+    data: structuredClone(data)
+  };
+
+  notify(state, prevState);
+}
+
+/**
+ * Keeps open SpaceTab pages up to date when another tab or device changes the
+ * active storage area. Closely grouped chunk events are collapsed into one
+ * refresh.
+ */
+function subscribeToStorageChanges() {
+  if (unsubscribeFromStorage) return;
+
+  unsubscribeFromStorage = storage.subscribe(() => {
+    if (storageRefreshTimer) clearTimeout(storageRefreshTimer);
+
+    storageRefreshTimer = setTimeout(async () => {
+      storageRefreshTimer = null;
+
+      try {
+        const persisted = await storage.get(null);
+        replacePersistedData(persisted);
+      } catch (err) {
+        console.error('[STORE] Storage refresh failed:', err);
+      }
+    }, 50);
+  });
+}
 
 /**
  * Notifies all subscribed listeners about a state change.

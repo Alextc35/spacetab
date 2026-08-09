@@ -27,9 +27,9 @@ export async function loadSettings(defaultSettings) {
  * a partial settings object into the existing settings.
  *
  * @param {Partial<Settings>} partial - Partial settings to update.
- * @returns {Settings} The updated settings object.
+ * @returns {Promise<Settings>} The updated settings object.
  */
-export function updateSettings(partial) {
+export async function updateSettings(partial) {
   const { data: { settings } } = getState();
 
   const updated = {
@@ -37,7 +37,7 @@ export function updateSettings(partial) {
     ...partial
   };
 
-  setState({ data: { settings: updated } });
+  await setState({ data: { settings: updated } });
 
   return updated;
 }

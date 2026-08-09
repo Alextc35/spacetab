@@ -1,5 +1,5 @@
 import { VERSION, DEBUG  } from './core/config.js';
-import { subscribe, hydrateStore } from './core/store.js';
+import { subscribe, hydrateStore, getStorageMode } from './core/store.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { renderBookmarks } from './ui/bookmark/renderer.js';
@@ -34,21 +34,12 @@ initApp();
 async function initApp() {
   if (DEBUG) {
     console.time("Execution time");
-    const MAX_BYTES = 5 * 1024 * 1024; // 5MB
-
-    chrome.storage.local.getBytesInUse(null, (usedBytes) => {
-      const usedKB = (usedBytes / 1024).toFixed(2);
-      const maxKB = (MAX_BYTES / 1024).toFixed(2);
-
-      console.log(`${usedKB} KB / ${maxKB} KB`);
-
-      const percentage = ((usedBytes / MAX_BYTES) * 100).toFixed(2);
-      console.log(`Usage: ${percentage}%`);
-    });
-
   }
 
   await initState();
+
+  if (DEBUG) logStorageUsage();
+
   await initI18n();
 
   initUI();
@@ -58,6 +49,23 @@ async function initApp() {
     console.info('Initializing SpaceTab ' + VERSION + ' alfa');
     console.timeEnd("Execution time");
   }
+}
+
+/**
+ * Logs usage for the storage area selected on this device.
+ */
+function logStorageUsage() {
+  const mode = getStorageMode();
+  const storageArea = chrome.storage[mode];
+  const maxBytes = storageArea.QUOTA_BYTES;
+
+  storageArea.getBytesInUse(null, usedBytes => {
+    const usedKB = (usedBytes / 1024).toFixed(2);
+    const maxKB = (maxBytes / 1024).toFixed(2);
+    const percentage = ((usedBytes / maxBytes) * 100).toFixed(2);
+
+    console.log(`[STORAGE] ${mode}: ${usedKB} KB / ${maxKB} KB (${percentage}%)`);
+  });
 }
 
 /* ======================= Init Sections ======================= */
