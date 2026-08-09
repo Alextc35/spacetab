@@ -2,7 +2,6 @@
   "html": {
     "title": "Nueva pestaña"
   },
-  
   "flash": {
     "editMode": {
       "enabled": "Modo edición activado",
@@ -22,7 +21,7 @@
     },
     "bookmarks": {
       "deletedAll": "Todos los favoritos eliminados correctamente",
-      "deleteAllError": "Error al eliminar los bookmarks",
+      "deleteAllError": "Error al eliminar los favoritos",
       "exported": "Favoritos exportados correctamente",
       "exportError": "Error al exportar los favoritos",
       "imported": "Favoritos importados correctamente",
@@ -132,7 +131,7 @@
   },
   "validation": {
     "preset": {
-      "name": "Escribe un nombre para guardar el preset."
+      "name": "Escribe un nombre para guardar el estilo."
     },
     "name": {
       "required": "Escribe un nombre para el favorito."
@@ -147,14 +146,14 @@
     }
   },
   "editModal": {
-    "title": "Editar Favorito",
+    "title": "Editar favorito",
     "name": "Nombre:",
     "url": "URL:",
     "backgroundImage": "Imagen de fondo (URL):",
-    "backgroundFavicon": "Favicon como background",
+    "backgroundFavicon": "Usar favicon como fondo",
     "invertColorBg": "Invertir colores",
     "noBackground": "Sin fondo",
-    "backgroundColor": "Color del bookmark:",
+    "backgroundColor": "Color del favorito:",
     "showText": "Mostrar texto",
     "textColor": "Color del texto:",
     "showFavicon": "Mostrar favicon",
@@ -163,9 +162,9 @@
       "general": "General",
       "style": "Estilo",
       "text": "Texto",
-      "icon": "Icon"
+      "icon": "Icono"
     },
-    "preview": "Previsualizador",
+    "preview": "Previsualización",
     "previewName": "Vista previa"
   },
   "settingsModal": {
@@ -210,7 +209,7 @@
       "subtitle": "Fondo de la página",
       "backgroundDefault": "Por defecto",
       "backgroundColor": "Color:",
-      "backgroundImage": "Imagen URL:",
+      "backgroundImage": "URL de la imagen:",
       "urlHidden": "URL oculta",
       "resetBackground": "Restablecer tema"
     },
@@ -223,12 +222,12 @@
       "deleteAll": "Borrar todos los favoritos",
       "presets": {
         "title": "Biblioteca de estilos",
-        "name": "Nombre del preset",
-        "saved": "Presets guardados",
-        "save": "Guardar preset",
+        "name": "Nombre del estilo",
+        "saved": "Estilos guardados",
+        "save": "Guardar estilo",
         "apply": "Usar",
         "delete": "Eliminar",
-        "empty": "No hay presets guardados"
+        "empty": "No hay estilos guardados"
       }
     },
     "languages": {
