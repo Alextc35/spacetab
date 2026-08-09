@@ -25,6 +25,12 @@ let unsubscribeFromStorage = null;
 /** @type {Promise<void>} */
 let persistenceQueue = Promise.resolve();
 
+const HISTORY_LIMIT = 50;
+/** @type {Bookmark[][]} */
+const undoStack = [];
+/** @type {Bookmark[][]} */
+const redoStack = [];
+
 /**
  * List of subscribed listeners executed on every state change.
  * @type {Array<(state: AppState, prevState: AppState|null) => void>}
@@ -47,8 +53,16 @@ export function getState() {
  * @param {Partial<AppState>} partial
  * @returns {Promise<void>}
  */
-export async function setState(partial) {
+export async function setState(partial, { recordHistory = true } = {}) {
   const prevState = state;
+  const bookmarksWillChange = partial.data?.bookmarks !== undefined
+    && partial.data.bookmarks !== state.data.bookmarks;
+
+  if (!isHydrating && recordHistory && bookmarksWillChange) {
+    undoStack.push(structuredClone(state.data.bookmarks));
+    if (undoStack.length > HISTORY_LIMIT) undoStack.shift();
+    redoStack.length = 0;
+  }
 
   state = {
     data: {
@@ -57,7 +71,11 @@ export async function setState(partial) {
     },
     ui: {
       ...state.ui,
-      ...(partial.ui || {})
+      ...(partial.ui || {}),
+      history: {
+        canUndo: undoStack.length > 0,
+        canRedo: redoStack.length > 0
+      }
     }
   };
 
@@ -84,6 +102,11 @@ export async function setState(partial) {
       state.data.settings !== prevState.data.settings
     ) {
       const dataToPersist = structuredClone(state.data);
+      state.ui.persistence = {
+        status: 'saving',
+        error: null,
+        updatedAt: state.ui.persistence?.updatedAt ?? null
+      };
 
       try {
         persistenceQueue = persistenceQueue
@@ -94,6 +117,11 @@ export async function setState(partial) {
           }));
 
         await persistenceQueue;
+        state.ui.persistence = {
+          status: 'saved',
+          error: null,
+          updatedAt: Date.now()
+        };
 
         if (DEBUG) {
           console.log('[STORE] Persisted to storage:', {
@@ -103,6 +131,11 @@ export async function setState(partial) {
         }
       } catch (err) {
         console.error('[STORE] Storage persist failed:', err);
+        state.ui.persistence = {
+          status: 'error',
+          error: err?.message || 'Storage persistence failed',
+          updatedAt: Date.now()
+        };
       }
     }
   }
@@ -110,6 +143,38 @@ export async function setState(partial) {
   notify(state, prevState);
 
   if (DEBUG) console.groupEnd();
+}
+
+/**
+ * Restores the previous bookmark collection. Settings and UI state are not
+ * included so an accidental shortcut cannot revert synchronization choices.
+ *
+ * @returns {Promise<boolean>}
+ */
+export async function undoBookmarks() {
+  const previous = undoStack.pop();
+  if (!previous) return false;
+
+  redoStack.push(structuredClone(state.data.bookmarks));
+  await setState({ data: { bookmarks: previous } }, { recordHistory: false });
+  return true;
+}
+
+/** @returns {Promise<boolean>} */
+export async function redoBookmarks() {
+  const next = redoStack.pop();
+  if (!next) return false;
+
+  undoStack.push(structuredClone(state.data.bookmarks));
+  await setState({ data: { bookmarks: next } }, { recordHistory: false });
+  return true;
+}
+
+/** Clears transient undo history after hydration or a full data replacement. */
+export function clearBookmarkHistory() {
+  undoStack.length = 0;
+  redoStack.length = 0;
+  state.ui.history = { canUndo: false, canRedo: false };
 }
 
 /**
@@ -189,6 +254,7 @@ export async function hydrateStore() {
   await setState({ data: persisted });
 
   finishHydration();
+  clearBookmarkHistory();
   subscribeToStorageChanges();
 }
 
@@ -213,6 +279,8 @@ function replacePersistedData(data) {
     ...state,
     data: structuredClone(data)
   };
+
+  clearBookmarkHistory();
 
   notify(state, prevState);
 }

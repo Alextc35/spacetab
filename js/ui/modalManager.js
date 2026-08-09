@@ -75,6 +75,11 @@ document.addEventListener('keydown', (e) => {
   const modal = getActive();
   if (!modal) return;
 
+  if (e.key === 'Tab') {
+    trapFocus(e, modal.element);
+    return;
+  }
+
   if (e.key === 'Escape' && modal.closeOnEsc) {
     e.preventDefault();
     e.stopPropagation();
@@ -85,10 +90,6 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     e.stopPropagation();
     modal.onAccept?.();
-
-    requestAnimationFrame(() => {
-      modal.previouslyFocused?.focus?.();
-    });
     return;
   }
 });
@@ -127,8 +128,17 @@ export function registerModal({
   }
 
   element.dataset.modalId = id;
-  element.style.display = 'none';
+  element.hidden = true;
+  element.classList.remove('is-open');
   element.tabIndex = -1;
+  element.setAttribute('role', 'dialog');
+  element.setAttribute('aria-modal', 'true');
+
+  const heading = element.querySelector('h1, h2, h3');
+  if (heading) {
+    heading.id ||= `${id}-title`;
+    element.setAttribute('aria-labelledby', heading.id);
+  }
 
   if (closeOnOverlay) {
     const overlay = element.querySelector('.modal-overlay');
@@ -192,10 +202,12 @@ export function openModal(id, {
 
   stack.push(activeModal);
 
-  config.element.style.display = 'flex';
+  config.element.hidden = false;
+  config.element.classList.add('is-open');
+  syncPageAccessibility();
 
   const focusEl =
-    initialFocus
+    activeModal.initialFocus
     || config.element.querySelector('[autofocus]')
     || config.element;
 
@@ -211,5 +223,59 @@ export function closeModal() {
   const modal = stack.pop();
   if (!modal) return;
 
-  modal.element.style.display = 'none';
+  modal.element.classList.remove('is-open');
+  modal.element.hidden = true;
+  syncPageAccessibility();
+
+  const nextModal = getActive();
+  const focusTarget = nextModal?.initialFocus
+    || nextModal?.element.querySelector('[autofocus]')
+    || (modal.previouslyFocused?.isConnected ? modal.previouslyFocused : null)
+    || nextModal?.element;
+
+  requestAnimationFrame(() => focusTarget?.focus?.());
+}
+
+function trapFocus(event, modalElement) {
+  const focusable = Array.from(modalElement.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )).filter(element => !element.hidden && !element.classList.contains('is-hidden'));
+
+  if (!focusable.length) {
+    event.preventDefault();
+    modalElement.focus();
+    return;
+  }
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+function syncPageAccessibility() {
+  const activeElement = getActive()?.element ?? null;
+
+  for (const child of document.body.children) {
+    if (child.matches('script, template')) continue;
+
+    const shouldBeInert = Boolean(activeElement)
+      && child !== activeElement
+      && !child.contains(activeElement);
+
+    if (shouldBeInert) {
+      child.inert = true;
+      child.setAttribute('aria-hidden', 'true');
+      child.dataset.modalInert = 'true';
+    } else if (child.dataset.modalInert === 'true') {
+      child.inert = false;
+      child.removeAttribute('aria-hidden');
+      delete child.dataset.modalInert;
+    }
+  }
 }

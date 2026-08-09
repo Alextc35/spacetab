@@ -75,6 +75,7 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   return {
     syncUI,
     cancelChanges,
+    validate: () => form.validate(),
     activateDefaultTab: () => form.activateDefaultTab()
   };
 }

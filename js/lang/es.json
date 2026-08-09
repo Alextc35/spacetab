@@ -34,6 +34,12 @@
       "remoteLoaded": "Datos sincronizados cargados",
       "error": "No se pudo cambiar el modo de almacenamiento",
       "quotaError": "Los datos superan el espacio disponible para sincronización"
+    },
+    "backup": {
+      "exported": "Copia de seguridad exportada correctamente",
+      "exportError": "No se pudo exportar la copia de seguridad",
+      "imported": "Copia de seguridad restaurada correctamente",
+      "importError": "No se pudo restaurar la copia de seguridad"
     }
   },
   "alert": {
@@ -50,12 +56,16 @@
     },
     "settings": {
       "cancel": "¿Descartar los cambios en la configuración?",
+      "reset": "¿Restablecer todos los ajustes? Los favoritos no se borrarán.",
       "theme": {
         "reset": "¿Restablecer la configuración del tema?"
       },
       "bookmark": {
         "reset": "¿Restablecer el estilo del favorito?"
       }
+    },
+    "backup": {
+      "import": "¿Restaurar esta copia? Reemplazará los favoritos y ajustes actuales."
     }
   },
   "addModal": {
@@ -116,8 +126,8 @@
     "general": {
       "title": "General",
       "subtitle": "Ajustes",
-      "export": "Exportar ajustes",
-      "import": "Importar ajustes",
+      "export": "Exportar copia de seguridad",
+      "import": "Restaurar copia de seguridad",
       "resetSettings": "Restablecer ajustes"
     },
     "sync": {
@@ -134,6 +144,12 @@
       },
       "browserNotice": "En Chrome utiliza la sincronización de tu cuenta de Google. En Brave utiliza Brave Sync.",
       "existingNotice": "Si ya existen datos sincronizados de Spacetab, se cargarán al guardar."
+      ,"status": {
+        "idle": "Los datos están listos.",
+        "saving": "Guardando cambios…",
+        "saved": "Todos los cambios están guardados.",
+        "error": "No se pudieron guardar los últimos cambios."
+      }
     },
     "theme": {
       "title": "Tema",

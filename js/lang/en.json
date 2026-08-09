@@ -34,6 +34,12 @@
       "remoteLoaded": "Synchronized data loaded",
       "error": "The storage mode could not be changed",
       "quotaError": "The data exceeds the available synchronization storage"
+    },
+    "backup": {
+      "exported": "Backup exported successfully",
+      "exportError": "The backup could not be exported",
+      "imported": "Backup restored successfully",
+      "importError": "The backup could not be restored"
     }
   },
   "alert": {
@@ -50,12 +56,16 @@
     },
     "settings": {
       "cancel": "Discard settings changes?",
+      "reset": "Reset all settings? Bookmarks will not be deleted.",
       "theme": {
         "reset": "Reset theme settings?"
       },
       "bookmark": {
         "reset": "Reset bookmark style?"
       }
+    },
+    "backup": {
+      "import": "Restore this backup? It will replace current bookmarks and settings."
     }
   },
   "addModal": {
@@ -116,8 +126,8 @@
     "general": {
       "title": "General",
       "subtitle": "Settings",
-      "export": "Export settings",
-      "import": "Import settings",
+      "export": "Export backup",
+      "import": "Restore backup",
       "resetSettings": "Reset settings"
     },
     "sync": {
@@ -134,6 +144,12 @@
       },
       "browserNotice": "Chrome uses synchronization from your Google Account. Brave uses Brave Sync.",
       "existingNotice": "If synchronized SpaceTab data already exists, it will be loaded when you save."
+      ,"status": {
+        "idle": "Data is ready.",
+        "saving": "Saving changes…",
+        "saved": "All changes are saved.",
+        "error": "The latest changes could not be saved."
+      }
     },
     "theme": {
       "title": "Theme",

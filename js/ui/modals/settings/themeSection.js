@@ -213,22 +213,6 @@ export function initThemeSection({
   });
 
   /**
-   * Updates the draft background image URL on input
-   * and refreshes related UI state, preview, and save-state indicators.
-   */
-  bgImageInput.addEventListener('input', () => {
-    setDraftThemeValue(
-      'backgroundImageUrl',
-      bgImageInput.value.trim() || null
-    );
-
-    updateStates();
-    updateColorState();
-    updatePreview();
-    onRequestSaveStateUpdate();
-  });
-
-  /**
    * Toggles whether the theme should use the default background
    * and refreshes dependent UI state.
    */

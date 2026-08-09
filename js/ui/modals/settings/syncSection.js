@@ -2,6 +2,8 @@ import {
   getDraftStorageMode,
   setDraftStorageMode
 } from './settingsState.js';
+import { subscribe } from '../../../core/store.js';
+import { t } from '../../../core/i18n.js';
 
 /**
  * Initializes the Local/Sync persistence selector.
@@ -17,6 +19,14 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   const modeInputs = Array.from(
     document.querySelectorAll('input[name="storage-mode"]')
   );
+  const persistenceStatus = document.getElementById('storage-persistence-status');
+
+  subscribe(state => {
+    const persistence = state.ui.persistence;
+    if (!persistenceStatus || !persistence) return;
+    persistenceStatus.dataset.status = persistence.status;
+    persistenceStatus.textContent = t(`settingsModal.sync.status.${persistence.status}`);
+  });
 
   function syncUI() {
     const selectedMode = getDraftStorageMode();

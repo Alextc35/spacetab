@@ -78,6 +78,26 @@ export function createBackupEnvelope(data) {
 }
 
 /**
+ * Creates a portable, versioned bookmarks-only document.
+ *
+ * @param {Bookmark[]} bookmarks
+ * @returns {{format: string, schemaVersion: number, exportedAt: string, bookmarks: Bookmark[]}}
+ */
+export function createBookmarksEnvelope(bookmarks) {
+  const normalized = migratePersistedData({
+    bookmarks,
+    settings: DEFAULT_SETTINGS
+  }, { useDefaultsWhenEmpty: false });
+
+  return {
+    format: 'spacetab-bookmarks',
+    schemaVersion: DATA_SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    bookmarks: normalized.bookmarks
+  };
+}
+
+/**
  * Accepts current backups and the legacy bookmarks-only array.
  *
  * @param {*} payload
@@ -103,4 +123,23 @@ export function parseBackupPayload(payload, currentData = DEFAULT_STATE.data) {
   const error = new Error('Invalid SpaceTab backup.');
   error.code = 'INVALID_BACKUP';
   throw error;
+}
+
+/**
+ * Reads bookmark-only exports, legacy arrays and complete backups while keeping
+ * the current settings untouched.
+ *
+ * @param {*} payload
+ * @param {PersistedData} currentData
+ * @returns {Bookmark[]}
+ */
+export function parseBookmarksPayload(payload, currentData = DEFAULT_STATE.data) {
+  if (payload?.format === 'spacetab-bookmarks' && Array.isArray(payload.bookmarks)) {
+    return migratePersistedData({
+      ...currentData,
+      bookmarks: payload.bookmarks
+    }, { useDefaultsWhenEmpty: false }).bookmarks;
+  }
+
+  return parseBackupPayload(payload, currentData).bookmarks;
 }

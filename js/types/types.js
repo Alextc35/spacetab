@@ -61,6 +61,8 @@
 /**
  * @typedef {Object} UIState
  * @property {boolean} isEditing
+ * @property {{status: 'idle'|'saving'|'saved'|'error', error: string|null, updatedAt: number|null}} persistence
+ * @property {{canUndo: boolean, canRedo: boolean}} history
  */
 
 /**

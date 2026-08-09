@@ -1,6 +1,11 @@
 import { DEBUG } from '../../core/config.js';
 import { getState, setState } from '../../core/store.js';
+import {
+  createBookmarksEnvelope,
+  parseBookmarksPayload
+} from '../../core/dataSchema.js';
 import { flashSuccess, flashError } from '../flash.js';
+import { downloadJson } from '../backup.js';
 
 /**
  * Exports all current bookmarks as a JSON file.
@@ -13,17 +18,7 @@ import { flashSuccess, flashError } from '../flash.js';
 export function exportBookmarks() {
   try {
     const { data: { bookmarks } } = getState();
-    const dataStr = JSON.stringify(bookmarks, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'bookmarks.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadJson(createBookmarksEnvelope(bookmarks), 'spacetab-bookmarks.json');
 
     if (DEBUG) console.log('Bookmarks exported:', bookmarks);
 
@@ -43,30 +38,21 @@ export function exportBookmarks() {
  * @param {File} file - JSON file containing bookmarks data.
  * @returns {void}
  */
-export function importBookmarks(file) {
+export async function importBookmarks(file) {
   if (!file) return flashError('flash.bookmarks.importError');
 
-  const reader = new FileReader();
+  try {
+    const payload = JSON.parse(await file.text());
+    const currentData = getState().data;
+    const bookmarks = parseBookmarksPayload(payload, currentData);
+    await setState({ data: { bookmarks } });
 
-  reader.onload = (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-
-      if (!Array.isArray(data)) throw new Error('Invalid bookmarks file');
-
-      setState({ data: { bookmarks: data } });
-
-      if (DEBUG) console.log('Bookmarks imported:', data);
-
-      flashSuccess('flash.bookmarks.imported');
-
-    } catch (err) {
-      console.error(err);
-      flashError('flash.bookmarks.importError');
-    }
-  };
-
-  reader.readAsText(file);
+    if (DEBUG) console.log('Bookmarks imported:', bookmarks);
+    flashSuccess('flash.bookmarks.imported');
+  } catch (err) {
+    console.error(err);
+    flashError('flash.bookmarks.importError');
+  }
 }
 
 /**
@@ -78,9 +64,9 @@ export function importBookmarks(file) {
  */
 export function initImportExportButtons(exportBtn, importInput) {
   exportBtn.addEventListener('click', exportBookmarks);
-  importInput.addEventListener('change', (e) => {
+  importInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
-    importBookmarks(file);
+    await importBookmarks(file);
     importInput.value = '';
   });
 }

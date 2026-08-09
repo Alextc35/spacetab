@@ -3,8 +3,10 @@ import test from 'node:test';
 
 import {
   createBackupEnvelope,
+  createBookmarksEnvelope,
   migratePersistedData,
-  parseBackupPayload
+  parseBackupPayload,
+  parseBookmarksPayload
 } from '../js/core/dataSchema.js';
 import { DATA_SCHEMA_VERSION, DEFAULT_SETTINGS } from '../js/core/defaults.js';
 
@@ -49,6 +51,18 @@ test('keeps compatibility with the old bookmarks-only export', () => {
   assert.equal(restored.bookmarks[0].id, 'legacy');
   assert.equal(restored.bookmarks[0].url, 'https://legacy.test');
   assert.deepEqual(restored.settings, current.settings);
+});
+
+test('round-trips a versioned bookmarks-only export without replacing settings', () => {
+  const current = migratePersistedData({ bookmarks: [], settings: DEFAULT_SETTINGS });
+  const envelope = createBookmarksEnvelope([
+    { id: 'portable', name: 'Portable', url: 'portable.test' }
+  ]);
+  const bookmarks = parseBookmarksPayload(envelope, current);
+
+  assert.equal(envelope.format, 'spacetab-bookmarks');
+  assert.equal(bookmarks[0].id, 'portable');
+  assert.equal(bookmarks[0].url, 'https://portable.test');
 });
 
 test('rejects data written by a future schema', () => {

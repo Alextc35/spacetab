@@ -186,6 +186,13 @@ export function replaceDraftBookmarkDefault(newBookmarkDefault) {
   draftBookmarkDefault = structuredClone(newBookmarkDefault);
 }
 
+/** Replaces every editable settings draft while preserving the mode choice. */
+export function replaceDraftSettings(settings) {
+  draftTheme = structuredClone(settings.theme);
+  draftLanguage = settings.language;
+  draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
+}
+
 /* ==================================================
    CHANGE DETECTION
 ================================================== */
@@ -203,32 +210,12 @@ export function replaceDraftBookmarkDefault(newBookmarkDefault) {
 export function hasChanges() {
   if (!initialSnapshot) return false;
 
-  if (draftStorageMode !== initialSnapshot.storageMode) {
-    return true;
-  }
-
-  // Check language changes
-  if (draftLanguage !== initialSnapshot.language) {
-    return true;
-  }
-
-  // Check theme changes
-  const themeKeys = Object.keys(draftTheme || {});
-  for (const key of themeKeys) {
-    if (draftTheme[key] !== initialSnapshot.theme[key]) {
-      return true;
-    }
-  }
-
-  // Check bookmark default changes
-  const bookmarkKeys = Object.keys(draftBookmarkDefault || {});
-  for (const key of bookmarkKeys) {
-    if (draftBookmarkDefault[key] !== initialSnapshot.bookmarkDefault[key]) {
-      return true;
-    }
-  }
-
-  return false;
+  return JSON.stringify({
+    storageMode: draftStorageMode,
+    language: draftLanguage,
+    theme: draftTheme,
+    bookmarkDefault: draftBookmarkDefault
+  }) !== JSON.stringify(initialSnapshot);
 }
 
 /* ==================================================

@@ -3,7 +3,8 @@ import { registerModal, openModal, closeModal } from '../../modalManager.js';
 import { flashSuccess, flashError } from '../../flash.js';
 import { initTabs } from '../../tabs.js';
 
-import { t } from '../../../core/i18n.js';
+import { changeLanguage, t } from '../../../core/i18n.js';
+import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
 import {
   changeStorageMode,
   getState,
@@ -23,7 +24,8 @@ import {
   resetState,
   hasChanges,
   buildNewSettings,
-  getDraftStorageMode
+  getDraftStorageMode,
+  replaceDraftSettings
 } from './settingsState.js';
 
 /**
@@ -87,6 +89,21 @@ export function initSettingsModal() {
 
   const syncSection = initSyncSection({
     onRequestSaveStateUpdate: updateSaveButtonState
+  });
+
+  initGeneralSection({
+    onResetSettings: async () => {
+      replaceDraftSettings(DEFAULT_SETTINGS);
+      themeSection.syncUI();
+      bookmarkSection.syncUI();
+      languageSection.syncUI();
+      await changeLanguage(DEFAULT_SETTINGS);
+      updateSaveButtonState();
+    },
+    onBackupImported: () => {
+      resetState();
+      closeModal();
+    }
   });
 
   /* ==================================================
@@ -195,6 +212,12 @@ export function initSettingsModal() {
    * - close the modal
    */
   settingsSave.addEventListener('click', async () => {
+    const bookmarkValidation = bookmarkSection.validate();
+    if (!bookmarkValidation.isValid) {
+      tabs.activate('settings-modal-tab-bookmark');
+      return;
+    }
+
     const newSettings = buildNewSettings();
     const currentStorageMode = getStorageMode();
     const nextStorageMode = getDraftStorageMode();

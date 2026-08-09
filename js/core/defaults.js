@@ -129,6 +129,15 @@ export const DEFAULT_STATE = {
     settings: structuredClone(DEFAULT_SETTINGS)
   },
   ui: {
-    isEditing: false
+    isEditing: false,
+    persistence: {
+      status: 'idle',
+      error: null,
+      updatedAt: null
+    },
+    history: {
+      canUndo: false,
+      canRedo: false
+    }
   }
 };
