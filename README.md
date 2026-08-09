@@ -10,7 +10,7 @@ grid workspace.
 
 **Current release: 0.1.3 beta.**
 
-![demo](assets/gif/demo.gif)
+![demo](assets/gifs/demo.gif)
 
 SpaceTab replaces the browser's default new tab with a private, customizable
 visual bookmark workspace. Bookmarks can be placed, resized and styled like
