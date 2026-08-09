@@ -2,7 +2,6 @@
   "html": {
     "title": "New tab"
   },
-
   "flash": {
     "editMode": {
       "enabled": "Edit mode enabled",
@@ -35,28 +34,28 @@
     "settings": {
       "saved": "Settings saved successfully",
       "copied": "Value copied to clipboard",
-      "resetBg": "Theme restored"
+      "resetBg": "Theme reset"
     },
     "sync": {
-      "enabled": "Synchronization enabled",
+      "enabled": "Sync enabled",
       "localEnabled": "Local mode enabled",
-      "remoteLoaded": "Synchronized data loaded",
-      "error": "The storage mode could not be changed",
-      "quotaError": "The data exceeds the available synchronization storage"
+      "remoteLoaded": "Synced data loaded",
+      "error": "Could not change storage mode",
+      "quotaError": "The data exceeds the available sync storage"
     },
     "backup": {
       "exported": "Backup exported successfully",
-      "exportError": "The backup could not be exported",
+      "exportError": "Could not export the backup",
       "imported": "Backup restored successfully",
-      "importError": "The backup could not be restored"
+      "importError": "Could not restore the backup"
     }
   },
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "Delete all bookmarks?",
       "confirmDeleteSelected": "Delete {{count}} selected bookmarks?",
-      "duplicateNoSpace": "{{count}} bookmarks could not be duplicated because there was no room.",
-      "moveNoSpace": "{{count}} bookmarks could not be moved because there was no room.",
+      "duplicateNoSpace": "{{count}} bookmarks could not be duplicated because there was not enough space.",
+      "moveNoSpace": "{{count}} bookmarks could not be moved because there was not enough space.",
       "no_space": "No space available for more bookmarks 😅"
     },
     "bookmark": {
@@ -64,7 +63,7 @@
         "cancel": "Discard new bookmark?"
       },
       "confirmDelete": "Delete {{name}}",
-      "cancel": "Discard edition changes?"
+      "cancel": "Discard changes?"
     },
     "settings": {
       "cancel": "Discard settings changes?",
@@ -77,7 +76,7 @@
       }
     },
     "backup": {
-      "import": "Restore this backup? It will replace current bookmarks and settings."
+      "import": "Restore this backup? It will replace your current bookmarks and settings."
     }
   },
   "addModal": {
@@ -101,7 +100,7 @@
     "delete": "Delete workspace",
     "undo": "Undo",
     "redo": "Redo",
-    "prompt": "Name the new workspace",
+    "prompt": "Enter a name for the new workspace",
     "namePlaceholder": "Work, leisure…",
     "confirmDelete": "Delete “{{name}}” and all its bookmarks ({{count}})? To keep them, move them to Main or another workspace first."
   },
@@ -147,7 +146,7 @@
     }
   },
   "editModal": {
-    "title": "Edit Bookmark",
+    "title": "Edit bookmark",
     "name": "Name:",
     "url": "URL:",
     "backgroundImage": "Background image (URL):",
@@ -185,24 +184,24 @@
       "resetSettings": "Reset settings"
     },
     "sync": {
-      "title": "Synchronization",
+      "title": "Sync",
       "description": "Choose where to store your settings and bookmarks.",
       "ariaLabel": "Storage mode",
       "local": {
-        "title": "Only on this device",
+        "title": "This device only",
         "description": "Data is stored only in this local browser profile."
       },
       "synced": {
-        "title": "Synchronized",
-        "description": "Available in browsers connected to the same synchronized profile."
+        "title": "Synced",
+        "description": "Available in browsers connected to the same synced profile."
       },
-      "browserNotice": "Chrome uses synchronization from your Google Account. Brave uses Brave Sync.",
-      "existingNotice": "If synchronized SpaceTab data already exists, it will be loaded when you save.",
+      "browserNotice": "Chrome uses your Google Account sync. Brave uses Brave Sync.",
+      "existingNotice": "If synced SpaceTab data already exists, it will be loaded when you save.",
       "status": {
         "idle": "Data is ready.",
         "saving": "Saving changes…",
         "saved": "All changes are saved.",
-        "error": "The latest changes could not be saved."
+        "error": "Could not save the latest changes."
       }
     },
     "theme": {
@@ -233,7 +232,7 @@
     },
     "languages": {
       "title": "Languages",
-      "text": "Select interface language:"
+      "text": "Select the interface language:"
     },
     "information": {
       "title": "Information",
