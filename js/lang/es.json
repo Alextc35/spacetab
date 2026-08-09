@@ -192,8 +192,8 @@
         "description": "Disponible en los navegadores conectados al mismo perfil sincronizado."
       },
       "browserNotice": "En Chrome utiliza la sincronización de tu cuenta de Google. En Brave utiliza Brave Sync.",
-      "existingNotice": "Si ya existen datos sincronizados de Spacetab, se cargarán al guardar."
-      ,"status": {
+      "existingNotice": "Si ya existen datos sincronizados de Spacetab, se cargarán al guardar.",
+      "status": {
         "idle": "Los datos están listos.",
         "saving": "Guardando cambios…",
         "saved": "Todos los cambios están guardados.",
@@ -215,8 +215,8 @@
       "reset": "Restablecer favorito por defecto",
       "export": "Exportar favoritos",
       "import": "Importar favoritos",
-      "deleteAll": "Borrar todos los favoritos"
-      ,"presets": {
+      "deleteAll": "Borrar todos los favoritos",
+      "presets": {
         "title": "Biblioteca de estilos",
         "name": "Nombre del preset",
         "saved": "Presets guardados",

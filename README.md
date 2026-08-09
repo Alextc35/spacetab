@@ -1,6 +1,7 @@
 # SpaceTab
 
-Minimalist Chrome new tab extension to organize bookmarks in a visual grid workspace.
+Minimalist Chrome/Brave new-tab extension for organizing bookmarks in a visual
+grid workspace.
 
 ![Chrome Extension](https://img.shields.io/badge/Chrome_Extension-Manifest_V3-4285F4?logo=googlechrome)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript)
@@ -9,343 +10,175 @@ Minimalist Chrome new tab extension to organize bookmarks in a visual grid works
 
 ![demo](assets/gif/demo.gif)
 
-SpaceTab replaces Chrome's default new tab page with a **clean and customizable visual bookmark workspace**, allowing you to move, resize, and organize your bookmarks visually — like a desktop for your favorite websites.
+SpaceTab replaces the browser's default new tab with a private, customizable
+visual bookmark workspace. Bookmarks can be placed, resized and styled like
+items on a desktop without relying on a SpaceTab account or backend.
 
----
+## Features
 
-## 💡 Why another Chrome New Tab extension?
-
-Many bookmark tools become cluttered and slow over time.
-
-SpaceTab focuses on:
-
-* Visual organization
-* Fast interaction
-* Minimal interface
-* Complete privacy
-
-Instead of a long bookmark list, your favorite websites become a **visual workspace**.
-
----
-
-## ✨ Features
-
-* Drag and resize bookmarks freely
-* Grid-based bookmark layout
-* Custom themes
-* Bookmark preview and editor
-* Import / Export bookmarks
-* Keyboard shortcuts
-* Favicon preview
-* Multi-language support (English / Spanish)
+* Free drag and resize on a collision-aware grid
+* Shared panel for creating, editing and defining default bookmark styles
+* Named appearance presets
+* Independent bookmark workspaces
+* Global search palette (`/` or `Ctrl/Cmd + K`)
+* Multi-select, bulk styling, moving and deletion
+* Duplicate, undo and redo actions
+* Themes, favicon previews and English/Spanish UI
+* Versioned bookmark import/export and complete backups
 * Optional browser-profile synchronization
-* No SpaceTab backend or external account handling
+* Accessible modal focus management and keyboard navigation
 
-### Built-in UI systems
+## Installation
 
-SpaceTab includes several internal UI systems designed to keep the interface modular:
+1. Clone the repository:
 
-* **Flash notification system** for quick feedback messages
-* **Alert modal system** for confirmations and alerts
-* **Modal Manager** to control modal lifecycle
-* **Tabs system** for modal navigation
-* **Bookmark renderer and preview system**
-* **Global application state store**
+   ```sh
+   git clone https://github.com/Alextc35/spacetab.git
+   ```
 
----
+2. Open `chrome://extensions` or `brave://extensions`.
+3. Enable **Developer Mode**.
+4. Choose **Load unpacked** and select the `spacetab` folder.
 
-## 📦 Installation
+## Bookmark and grid model
 
-### Manual installation
+Each bookmark owns identity, grid layout and appearance:
 
-1. Clone the repository
-
-```
-git clone https://github.com/Alextc35/spacetab.git
-```
-
-2. Open Chrome extensions page
-
-```
-chrome://extensions
-```
-
-3. Enable **Developer Mode**
-
-4. Click **Load unpacked**
-
-5. Select the `spacetab` folder
-
----
-
-## 🧩 How it works
-
-SpaceTab works like a **web desktop for bookmarks**.
-
-Instead of a traditional bookmark list, you can:
-
-* Place bookmarks anywhere on a grid
-* Resize bookmarks to emphasize important sites
-* Customize appearance (background, favicon, text)
-* Organize your browsing environment visually
-
-Each bookmark acts like a **visual shortcut to a website**.
-
----
-
-## 📐 Grid System
-
-Bookmarks are placed on a grid layout.
-
-Each bookmark has grid coordinates:
-
-```
-gx → column
-gy → row
-w → width
-h → height
-```
-
-The grid system ensures:
-
-* bookmarks cannot overlap
-* resizing respects available space
-* new bookmarks are placed in the first available position
-
-Grid calculations are handled in:
-
-```
-core/grid.js
-ui/gridLayout.js
-```
-
----
-
-## 🔖 Bookmark System
-
-Each bookmark contains:
-
-* position in the grid
-* size within the grid
-* visual configuration
-* metadata
-
-Example structure:
-
-```
+```js
 {
+  id: "…",
   name: "GitHub",
   url: "https://github.com",
   gx: 0,
   gy: 0,
   w: 1,
   h: 1,
-  backgroundColor: "#000",
+  groupId: null,
+  backgroundColor: "#000000",
   backgroundImageUrl: null,
   showFavicon: true
 }
 ```
 
-Bookmark logic is split into:
+An appearance preset never contains bookmark identity, timestamps, workspace or
+grid coordinates. New bookmarks combine an empty identity with the active
+preset and are placed in the first available cell of the current workspace.
 
-```
-core/bookmark.js      → bookmark data logic
-ui/bookmark/renderer  → rendering bookmarks
-ui/bookmark/dragResize → moving and resizing
-ui/bookmark/editor    → editing bookmarks
-```
+## Architecture
 
----
+SpaceTab uses vanilla JavaScript modules with a small dependency direction:
 
-## 🏗 Architecture
-
-SpaceTab follows a **modular architecture written in Vanilla JavaScript**.
-
-The codebase is separated into three main layers.
-
-### Core
-
-Application logic and state management.
-
-```
-core
- ├─ bookmark.js
- ├─ config.js
- ├─ defaults.js
- ├─ grid.js
- ├─ settings.js
- ├─ storage.js
- ├─ store.js
- └─ theme.js
+```text
+Core domain and versioned schema
+              ↓
+Store and browser persistence
+              ↓
+Use-case/modal controllers
+              ↓
+Reusable UI components and renderers
 ```
 
-Responsibilities:
+Important modules:
 
-* bookmark data logic
-* grid calculations
-* global state management
-* storage persistence
-* configuration and settings
+```text
+js/core/bookmarkModel.js       drafts, presets, normalization, validation
+js/core/dataSchema.js          migrations and import/export envelopes
+js/core/bookmark.js            bookmark commands and batch operations
+js/core/bookmarkGroups.js      workspace commands
+js/core/store.js               state, persistence status and undo/redo
+js/core/storage.js             local/sync storage and quota-safe chunking
 
----
-
-### UI
-
-Responsible for rendering and user interaction.
-
-```
-ui
- ├─ uiController.js
- ├─ gridLayout.js
- ├─ flash.js
- ├─ modalManager.js
- ├─ tabs.js
- │
- ├─ bookmark
- │   ├─ renderer.js
- │   ├─ dragResize.js
- │   ├─ preview.js
- │   ├─ editor.js
- │   ├─ favicon.js
- │   └─ importExport.js
- │
- └─ modals
-     ├─ addBookmark.js
-     ├─ editBookmark.js
-     ├─ alert.js
-     └─ settings
+js/ui/bookmark/panel.js        reusable create/edit/preset panel
+js/ui/bookmark/renderer.js     production and preview rendering
+js/ui/bookmark/bulkActions.js  multi-selection workflows
+js/ui/modalManager.js          modal stack and focus management
 ```
 
-Responsibilities:
+The bookmark panel does not import the store, calculate grid placement or
+perform persistence. Controllers decide what saving means. See
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the complete boundary guide.
 
-* rendering bookmarks
-* managing modals
-* handling drag and resize interactions
-* coordinating UI updates
+## Local and synchronized storage
 
----
+SpaceTab starts in **Local** mode. From **Settings → Sync**, users can select:
 
-### Internationalization
+* **Only on this device** — data uses `chrome.storage.local`.
+* **Synchronized** — data uses the browser-managed `chrome.storage.sync` area.
 
-```
-lang
- ├─ en.json
- └─ es.json
-```
+Chrome follows the Chrome profile / Google Account sync configuration. Brave
+uses Brave Sync. SpaceTab does not operate an OAuth client, account system or
+server and cannot access synchronized user data.
 
-SpaceTab includes a simple i18n system that allows the interface to be translated easily.
-
----
-
-## 🔄 Application Flow
-
-The general application flow is:
-
-```
-User interaction
-      ↓
-UI controllers
-      ↓
-Store (global state)
-      ↓
-Core logic
-      ↓
-Storage persistence
-      ↓
-UI re-render
-```
-
-This separation keeps the interface logic independent from the application state.
-
----
-
-## ☁️ Local and synchronized storage
-
-SpaceTab starts in **Local** mode, preserving the behavior of previous versions.
-From **Settings → Sync**, users can choose between:
-
-* **Only on this device** — settings and bookmarks use `chrome.storage.local`.
-* **Synchronized** — settings and bookmarks use the browser-managed `chrome.storage.sync` area.
-
-In Chrome, synchronized storage follows the Chrome profile / Google Account sync
-configuration. In Brave, it follows the browser's own sync implementation. No
-OAuth client, Google API credentials, or SpaceTab server are required.
-
-When Sync is enabled for the first time, current local data is uploaded. If the
-profile already contains synchronized SpaceTab data, that data is loaded instead
-of being overwritten. Returning to Local mode creates a local copy and leaves
+When Sync is enabled for the first time, local data is uploaded if the profile
+does not already contain SpaceTab data. Existing synchronized data wins to avoid
+accidental overwrites. Returning to Local mode creates a local copy and leaves
 the synchronized copy untouched.
 
-Chrome limits synchronized extension data to approximately 100 KB in total and
-8 KB per item. SpaceTab stores its payload in quota-safe chunks and reports when
-the total limit is exceeded.
+Chrome's sync quotas are handled by splitting the versioned payload into safe
+chunks. SpaceTab reports quota/persistence errors and shows the current save
+status in Settings.
 
-> For synchronization across devices, every installation must have the same
-> extension ID. A Chrome Web Store release provides that automatically. Unpacked
-> development installations need a stable manifest key or another consistent
-> packaging workflow.
+> Cross-device sync requires the same extension ID on every installation. A
+> Chrome Web Store release provides this automatically. Development installs
+> need a stable manifest key or consistent packaging workflow.
 
----
+## Keyboard and organization
 
-## 🛠 Tech Stack
+* `Space` toggles edit mode when no modal is open.
+* `Enter` opens the create-bookmark panel.
+* `.` opens Settings.
+* `/` or `Ctrl/Cmd + K` opens global search.
+* `Ctrl/Cmd + Z` undoes the latest bookmark operation.
+* `Ctrl/Cmd + Shift + Z` redoes it.
 
-* Vanilla JavaScript
-* Chrome Extension APIs
-* Chrome Storage API
-* Modular CSS architecture
-* Internationalization system (i18n)
-* Google Favicon API
-* Git
+Workspaces maintain independent layouts. Search covers every workspace, and
+moving selected bookmarks finds free target cells before making changes.
 
----
+## Development and tests
 
-## 🌍 Languages
+Install exact development dependencies and run the standard quality gate:
 
-Currently supported languages:
+```sh
+npm ci
+npm run check
+```
 
-* English
-* Spanish
+Run browser journeys:
 
----
+```sh
+npx playwright install chromium
+npm run test:e2e
+```
 
-## 🚀 Roadmap
+The optional unpacked-extension smoke test needs a Chromium-family executable:
 
-### Planned Features
+```sh
+SPACETAB_BROWSER_PATH="/path/to/browser" npm run test:extension
+```
 
-* Bookmark folders
-* Advanced synchronization conflict controls
-* Multi-select drag
-* More theme customization
-* Chrome Web Store release
+Pull requests run lint, Node/Vitest tests and Playwright journeys through GitHub
+Actions. Read [CONTRIBUTING.md](CONTRIBUTING.md) before structural changes.
 
----
+## Languages
 
-## 🤝 Contributing
+English and Spanish are currently supported through `js/lang/en.json` and
+`js/lang/es.json`.
 
-Contributions are welcome.
+## Roadmap
 
-If you want to improve SpaceTab:
+* Revision and conflict recovery for simultaneous synchronized edits
+* Additional theme controls and shareable preset packs
+* More import sources
+* Chrome Web Store packaging and release
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Open a Pull Request
+## Privacy
 
----
-
-## 🔒 Privacy
-
-SpaceTab is built with privacy in mind.
-
-* No tracking
-* No analytics
+* No tracking or analytics
 * No SpaceTab-operated backend
-* Local mode keeps data only in the browser profile
-* Sync mode delegates storage and transport to the browser's sync service
-* The developer cannot access synchronized user data
+* Local mode stays inside the browser profile
+* Sync mode delegates storage and transport to the browser
+* The developer cannot access synchronized data
 
----
+## License
 
-## 📜 License
-
-This project is licensed under the MIT License.
+SpaceTab is released under the [MIT License](LICENSE).

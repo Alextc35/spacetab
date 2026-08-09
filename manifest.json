@@ -10,11 +10,5 @@
   "icons": {
     "48": "icon/icon-48.png",
     "128": "icon/icon-128.png"
-  },
-  "web_accesible_resources": [
-    {
-      "resources": ["js/*.js", "js/core/*.js", "js/ui/*.js", "css/*.css"],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  }
 }

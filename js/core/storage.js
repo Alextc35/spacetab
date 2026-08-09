@@ -1,5 +1,4 @@
 import '../types/types.js'; // typedefs
-import { DEFAULT_STATE } from './defaults.js';
 import { migratePersistedData } from './dataSchema.js';
 
 export const STORAGE_MODES = Object.freeze({
@@ -19,17 +18,6 @@ let initialized = false;
 
 /** @type {Set<() => void>} */
 const changeListeners = new Set();
-
-/**
- * Default persisted values.
- * Guarantees a fully valid persisted structure.
- * @type {PersistedData}
- */
-const DEFAULT_PERSISTED_DATA = {
-  schemaVersion: DEFAULT_STATE.data.schemaVersion,
-  bookmarks: DEFAULT_STATE.data.bookmarks,
-  settings: DEFAULT_STATE.data.settings
-};
 
 /**
  * Converts callback-based chrome.storage calls into promises.

@@ -192,8 +192,8 @@
         "description": "Available in browsers connected to the same synchronized profile."
       },
       "browserNotice": "Chrome uses synchronization from your Google Account. Brave uses Brave Sync.",
-      "existingNotice": "If synchronized SpaceTab data already exists, it will be loaded when you save."
-      ,"status": {
+      "existingNotice": "If synchronized SpaceTab data already exists, it will be loaded when you save.",
+      "status": {
         "idle": "Data is ready.",
         "saving": "Saving changes…",
         "saved": "All changes are saved.",
@@ -215,8 +215,8 @@
       "reset": "Reset default bookmark",
       "export": "Export bookmarks",
       "import": "Import bookmarks",
-      "deleteAll": "Delete all bookmarks"
-      ,"presets": {
+      "deleteAll": "Delete all bookmarks",
+      "presets": {
         "title": "Style library",
         "name": "Preset name",
         "saved": "Saved presets",

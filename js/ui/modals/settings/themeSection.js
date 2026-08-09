@@ -19,12 +19,10 @@ import {
  * - resetting theme background settings
  *
  * @param {Object} params
- * @param {Function} params.onChange
  * @param {Function} params.onRequestSaveStateUpdate - Callback used to refresh save-state indicators.
  * @returns {{ syncUI: Function }}
  */
 export function initThemeSection({
-  onChange,
   onRequestSaveStateUpdate
 }) {
   /* ==================================================

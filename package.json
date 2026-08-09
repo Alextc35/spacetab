@@ -9,10 +9,14 @@
     "test:dom": "vitest run",
     "test:e2e": "playwright test",
     "test:extension": "node tests/extension-smoke.mjs",
-    "check": "npm test"
+    "lint": "eslint .",
+    "check": "npm run lint && npm test"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
+    "eslint": "^10.8.1",
+    "globals": "^17.9.0",
     "jsdom": "^29.1.1",
     "vitest": "^4.1.10"
   }

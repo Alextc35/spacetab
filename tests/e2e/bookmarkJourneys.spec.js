@@ -43,6 +43,7 @@ test('creates a workspace and finds bookmarks across workspaces', async ({ page 
 test('saves a named appearance preset', async ({ page }) => {
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeHidden();
   await page.getByRole('textbox', { name: 'Preset name' }).fill('Dark');
   await page.getByRole('button', { name: 'Save preset' }).click();
   await expect(page.getByRole('combobox', { name: 'Saved presets' })).toHaveValue(/.+/);
@@ -51,4 +52,25 @@ test('saves a named appearance preset', async ({ page }) => {
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
   await expect(page.getByRole('combobox', { name: 'Saved presets' })).toContainText('Dark');
+});
+
+test('persists the synchronized storage choice', async ({ page }) => {
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await page.getByRole('radio', { name: /Synchronized/ }).check();
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await expect(page.getByRole('radio', { name: /Synchronized/ })).toBeChecked();
+});
+
+test('duplicates and selects bookmarks in edit mode', async ({ page }) => {
+  await page.getByRole('button', { name: '✎' }).click();
+  await page.getByRole('button', { name: 'Duplicate bookmark' }).first().click();
+  await expect(page.getByRole('link', { name: /DEVELOPED BY \(copy\)/ })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Select bookmark' }).last().click();
+  await expect(page.getByRole('toolbar', { name: 'Selected bookmark actions' })).toBeVisible();
+  await expect(page.getByText('1 selected')).toBeVisible();
 });
