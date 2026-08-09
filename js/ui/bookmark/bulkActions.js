@@ -1,6 +1,7 @@
 import {
   applyPresetToBookmarks,
-  deleteBookmarksByIds
+  deleteBookmarksByIds,
+  duplicateBookmarksByIds
 } from '../../core/bookmark.js';
 import { moveBookmarksToGroup } from '../../core/bookmarkGroups.js';
 import { subscribe } from '../../core/store.js';
@@ -28,6 +29,24 @@ export function initBulkBookmarkActions() {
     applyPresetToBookmarks(ids, currentState.data.settings.bookmarkDefault);
     clearBookmarkSelection();
     flashSuccess('flash.bookmarks.presetApplied');
+  });
+  document.getElementById('bulk-duplicate').addEventListener('click', async () => {
+    const ids = getSelectedBookmarkIds();
+    if (!ids.length) return;
+
+    const result = duplicateBookmarksByIds(ids, {
+      columns: getMaxVisibleCols(),
+      rows: getMaxVisibleRows(),
+      nameSuffix: t('bookmarkActions.copySuffix')
+    });
+    clearBookmarkSelection();
+
+    if (result.duplicates.length) flashSuccess('flash.bookmarks.duplicatedSelected');
+    if (result.skipped) {
+      await showAlert(t('alert.bookmarks.duplicateNoSpace', { count: result.skipped }), {
+        type: 'info'
+      });
+    }
   });
   document.getElementById('bulk-delete').addEventListener('click', async () => {
     const ids = getSelectedBookmarkIds();

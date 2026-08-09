@@ -28,6 +28,7 @@
       "imported": "Bookmarks imported successfully",
       "importError": "Failed to import bookmarks",
       "presetApplied": "Style applied to the selection",
+      "duplicatedSelected": "Selected bookmarks duplicated",
       "deletedSelected": "Selected bookmarks deleted",
       "moved": "Bookmarks moved to the selected workspace"
     },
@@ -54,6 +55,7 @@
     "bookmarks": {
       "confirmDeleteAll": "Delete all bookmarks?",
       "confirmDeleteSelected": "Delete {{count}} selected bookmarks?",
+      "duplicateNoSpace": "{{count}} bookmarks could not be duplicated because there was no room.",
       "moveNoSpace": "{{count}} bookmarks could not be moved because there was no room.",
       "no_space": "No space available for more bookmarks 😅"
     },
@@ -115,6 +117,7 @@
     "selected": "{{count}} selected",
     "move": "Move to workspace",
     "applyPreset": "Apply default style",
+    "duplicate": "Duplicate selection",
     "delete": "Delete",
     "clear": "Clear selection"
   },

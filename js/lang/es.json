@@ -28,6 +28,7 @@
       "imported": "Favoritos importados correctamente",
       "importError": "Error al importar los favoritos",
       "presetApplied": "Estilo aplicado a la selección",
+      "duplicatedSelected": "Favoritos seleccionados clonados",
       "deletedSelected": "Favoritos seleccionados eliminados",
       "moved": "Favoritos movidos al espacio elegido"
     },
@@ -54,6 +55,7 @@
     "bookmarks": {
       "confirmDeleteAll": "¿Eliminar todos los favoritos?",
       "confirmDeleteSelected": "¿Eliminar {{count}} favoritos seleccionados?",
+      "duplicateNoSpace": "{{count}} favoritos no se pudieron clonar porque no había espacio.",
       "moveNoSpace": "{{count}} favoritos no se pudieron mover porque no había espacio.",
       "no_space": "No hay espacio disponible para más favoritos 😅"
     },
@@ -115,6 +117,7 @@
     "selected": "{{count}} seleccionados",
     "move": "Mover al espacio",
     "applyPreset": "Aplicar estilo predeterminado",
+    "duplicate": "Clonar selección",
     "delete": "Eliminar",
     "clear": "Cancelar selección"
   },

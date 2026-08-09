@@ -6,6 +6,7 @@ import {
   normalizeBookmark as normalizeBookmarkValue,
   validateBookmarkDraft
 } from './bookmarkModel.js';
+import { findFirstFreeSlot } from './grid.js';
 
 /**
  * Adds a new bookmark to the application state.
@@ -164,15 +165,76 @@ export function applyPresetToBookmarks(bookmarkIds, preset) {
  * @returns {Bookmark|null}
  */
 export function duplicateBookmarkById(bookmarkId, position, nameSuffix = 'copy') {
-  const bookmark = getState().data.bookmarks.find(item => item.id === bookmarkId);
+  const { data: { bookmarks } } = getState();
+  const bookmark = bookmarks.find(item => item.id === bookmarkId);
   if (!bookmark || !position) return null;
 
+  const duplicate = createBookmarkDuplicate(bookmark, position, nameSuffix);
+  setState({ data: { bookmarks: [...bookmarks, duplicate] } });
+  return duplicate;
+}
+
+/**
+ * Duplicates several bookmarks in one state transition. Each copy is placed in
+ * the first free slot of its source workspace and immediately reserves that
+ * slot for the next copy.
+ *
+ * @param {Iterable<string>} bookmarkIds
+ * @param {Object} bounds
+ * @param {number} bounds.columns
+ * @param {number} bounds.rows
+ * @param {string} [bounds.nameSuffix='copy']
+ * @returns {{duplicates: Bookmark[], skipped: number}}
+ */
+export function duplicateBookmarksByIds(bookmarkIds, {
+  columns,
+  rows,
+  nameSuffix = 'copy'
+} = {}) {
+  const ids = new Set(bookmarkIds);
+  if (!ids.size) return { duplicates: [], skipped: 0 };
+
+  const { data: { bookmarks } } = getState();
+  const sources = bookmarks.filter(bookmark => ids.has(bookmark.id));
+  const occupied = [...bookmarks];
+  const duplicates = [];
+  let skipped = 0;
+
+  for (const bookmark of sources) {
+    const groupBookmarks = occupied.filter(item => (
+      (item.groupId ?? null) === (bookmark.groupId ?? null)
+    ));
+    const position = findFirstFreeSlot(groupBookmarks, {
+      columns,
+      rows,
+      w: bookmark.w,
+      h: bookmark.h
+    });
+
+    if (!position) {
+      skipped += 1;
+      continue;
+    }
+
+    const duplicate = createBookmarkDuplicate(bookmark, position, nameSuffix);
+    duplicates.push(duplicate);
+    occupied.push(duplicate);
+  }
+
+  if (duplicates.length) {
+    setState({ data: { bookmarks: [...bookmarks, ...duplicates] } });
+  }
+
+  return { duplicates, skipped };
+}
+
+function createBookmarkDuplicate(bookmark, position, nameSuffix) {
   const duplicate = structuredClone(bookmark);
   delete duplicate.id;
   delete duplicate.createdAt;
   delete duplicate.updatedAt;
 
-  return addBookmark({
+  return normalizeBookmarkValue({
     ...duplicate,
     ...position,
     name: `${bookmark.name} (${nameSuffix})`

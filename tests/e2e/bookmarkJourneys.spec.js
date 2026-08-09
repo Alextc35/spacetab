@@ -141,3 +141,32 @@ test('duplicates and selects bookmarks in edit mode', async ({ page }) => {
     return dockBox.y - (bulkBox.y + bulkBox.height);
   }).toBeGreaterThanOrEqual(0);
 });
+
+test('duplicates several selected bookmarks without overlaps', async ({ page }) => {
+  await page.getByRole('button', { name: '✎' }).click();
+  const bookmarks = page.locator('#bookmark-container > .bookmark');
+
+  await bookmarks.nth(0).getByRole('button', { name: 'Select bookmark' }).click();
+  await bookmarks.nth(1).getByRole('button', { name: 'Select bookmark' }).click();
+  await expect(page.getByText('2 selected')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Duplicate selection' }).click();
+
+  await expect(bookmarks).toHaveCount(4);
+  await expect(page.getByRole('link', { name: /DEVELOPED BY \(copy\)/ })).toBeVisible();
+  await expect(page.getByRole('toolbar', { name: 'Selected bookmark actions' })).toBeHidden();
+
+  const boxes = await bookmarks.evaluateAll(elements => elements.map(element => {
+    const rect = element.getBoundingClientRect();
+    return { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom };
+  }));
+  for (let index = 0; index < boxes.length; index += 1) {
+    for (let comparison = index + 1; comparison < boxes.length; comparison += 1) {
+      const first = boxes[index];
+      const second = boxes[comparison];
+      const separated = first.right <= second.left || second.right <= first.left
+        || first.bottom <= second.top || second.bottom <= first.top;
+      expect(separated).toBe(true);
+    }
+  }
+});
