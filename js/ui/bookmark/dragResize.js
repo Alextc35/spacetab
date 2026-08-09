@@ -49,7 +49,7 @@ export function addDragAndResize(container, div, bookmark) {
       return;
     }
 
-    if (e.target.closest('.bookmark-btn, .resizer')) return;
+    if (e.target.closest('.bookmark-actions, .resizer')) return;
 
     if (e.button !== 0) return;
 

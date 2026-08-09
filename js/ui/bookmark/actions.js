@@ -26,6 +26,8 @@ import { toggleBookmarkSelection } from './selection.js';
  */
 export function addEditDeleteButtons(container, bookmark) {
   const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
+  const actions = document.createElement('div');
+  actions.className = 'bookmark-actions';
 
   const editBtn = createButton('✎', 'edit', themeClass, () => {
     openEditBookmark(bookmark.id);
@@ -48,7 +50,8 @@ export function addEditDeleteButtons(container, bookmark) {
   duplicateBtn.setAttribute('aria-label', t('bookmarkActions.duplicate'));
   selectBtn.setAttribute('aria-label', t('bookmarkActions.select'));
   delBtn.setAttribute('aria-label', t('bookmarkActions.delete'));
-  container.append(selectBtn, duplicateBtn, editBtn, delBtn);
+  actions.append(editBtn, delBtn, selectBtn, duplicateBtn);
+  container.append(actions);
 }
 
 async function duplicateBookmark(bookmark) {
@@ -87,6 +90,7 @@ async function duplicateBookmark(bookmark) {
 function createButton(text, type, themeClass, onClick) {
   const btn = document.createElement('button');
   btn.className = `bookmark-btn ${type} ${themeClass}`;
+  btn.type = 'button';
   btn.textContent = text;
   btn.addEventListener('click', e => { e.stopPropagation(); onClick(); });
   return btn;

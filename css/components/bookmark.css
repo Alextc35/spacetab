@@ -172,44 +172,76 @@
   }
 }
 
-.bookmark-btn {
+.bookmark-actions {
   position: absolute;
-  top: 5px;
-  width: 25px;
-  height: 25px;
-  border-radius: 5px;
-  border: none;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, 32px);
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 12px;
+  background: rgba(10, 14, 22, .28);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .18);
+  backdrop-filter: blur(8px);
+}
+
+.bookmark-btn {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 9px;
   cursor: pointer;
-  font-size: 0.8em;
-
-  &.edit {
-    right: 35px;
-  }
-
-  &.duplicate {
-    right: 65px;
-  }
-
-  &.select {
-    right: 95px;
-  }
-
-  &.delete {
-    right: 5px;
-  }
+  font-size: .9rem;
+  line-height: 1;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .18);
+  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
 
   &.is-dark {
-    background: #fff;
-    color: #000;
+    background: rgba(255, 255, 255, .94);
+    color: #111827;
   }
 
   &.is-light {
-    background: #222;
-    color: #fff;
+    background: rgba(20, 27, 42, .92);
+    color: #f8fafc;
   }
 
   &:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.08);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, .28);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 2px;
+  }
+
+  &.delete:hover {
+    background: #dc3545;
+    color: #fff;
+  }
+
+  &.select:hover {
+    background: #2563eb;
+    color: #fff;
+  }
+
+  &.duplicate:hover {
+    background: #7c3aed;
+    color: #fff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bookmark-btn {
+    transition: none;
   }
 }
 

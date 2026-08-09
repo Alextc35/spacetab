@@ -115,6 +115,16 @@ test('persists the synchronized storage choice', async ({ page }) => {
 
 test('duplicates and selects bookmarks in edit mode', async ({ page }) => {
   await page.getByRole('button', { name: '✎' }).click();
+  const firstBookmark = page.locator('.bookmark').first();
+  const editBox = await firstBookmark.getByRole('button', { name: 'Edit bookmark' }).boundingBox();
+  const deleteBox = await firstBookmark.getByRole('button', { name: 'Delete bookmark' }).boundingBox();
+  const selectBox = await firstBookmark.getByRole('button', { name: 'Select bookmark' }).boundingBox();
+  const duplicateBox = await firstBookmark.getByRole('button', { name: 'Duplicate bookmark' }).boundingBox();
+
+  expect(Math.abs(editBox.y - deleteBox.y)).toBeLessThan(2);
+  expect(Math.abs(selectBox.y - duplicateBox.y)).toBeLessThan(2);
+  expect(selectBox.y).toBeGreaterThan(editBox.y);
+
   await page.getByRole('button', { name: 'Duplicate bookmark' }).first().click();
   await expect(page.getByRole('link', { name: /DEVELOPED BY \(copy\)/ })).toBeVisible();
 
