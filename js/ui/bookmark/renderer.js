@@ -268,6 +268,7 @@ function createSmallIcon(bookmark) {
  */
 function createTextSpan(bookmark) {
   const span = document.createElement('span');
+  span.className = 'bookmark-title';
   span.textContent = bookmark.name || '';
   span.style.color = 'var(--color-text-bookmark)';
   return span;

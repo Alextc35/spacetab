@@ -58,6 +58,19 @@ test('reveals the left action dock on hover and keyboard focus', async ({ page }
   await expect.poll(async () => (await menu.boundingBox()).x).toBeGreaterThanOrEqual(0);
 });
 
+test('keeps long bookmark titles centered and truncated inside their card', async ({ page }) => {
+  const bookmark = page.locator('#bookmark-container > .bookmark').first();
+  const title = bookmark.locator('.bookmark-title');
+  const bookmarkBox = await bookmark.boundingBox();
+  const titleBox = await title.boundingBox();
+
+  await expect(title).toHaveCSS('text-align', 'center');
+  await expect(title).toHaveCSS('text-overflow', 'ellipsis');
+  expect(await title.evaluate(element => element.scrollWidth > element.clientWidth)).toBe(true);
+  expect(titleBox.x).toBeGreaterThanOrEqual(bookmarkBox.x);
+  expect(titleBox.x + titleBox.width).toBeLessThanOrEqual(bookmarkBox.x + bookmarkBox.width);
+});
+
 test('previews and pins bookmark actions from the top-left trigger', async ({ page }) => {
   await enableEditMode(page);
   const bookmark = page.locator('#bookmark-container > .bookmark').first();
