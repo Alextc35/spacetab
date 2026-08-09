@@ -1,5 +1,6 @@
 import '../types/types.js'; // typedefs
 import { DEFAULT_STATE } from './defaults.js';
+import { migratePersistedData } from './dataSchema.js';
 
 export const STORAGE_MODES = Object.freeze({
   LOCAL: 'local',
@@ -25,6 +26,7 @@ const changeListeners = new Set();
  * @type {PersistedData}
  */
 const DEFAULT_PERSISTED_DATA = {
+  schemaVersion: DEFAULT_STATE.data.schemaVersion,
   bookmarks: DEFAULT_STATE.data.bookmarks,
   settings: DEFAULT_STATE.data.settings
 };
@@ -57,30 +59,7 @@ function callStorage(area, method, value) {
  * @returns {PersistedData}
  */
 function normalizePersistedData(data) {
-  const defaultSettings = DEFAULT_PERSISTED_DATA.settings;
-  const settings = data?.settings;
-
-  return {
-    bookmarks: Array.isArray(data?.bookmarks)
-      ? structuredClone(data.bookmarks)
-      : structuredClone(DEFAULT_PERSISTED_DATA.bookmarks),
-    settings: {
-      ...structuredClone(defaultSettings),
-      ...(settings && typeof settings === 'object' ? settings : {}),
-      theme: {
-        ...structuredClone(defaultSettings.theme),
-        ...(settings?.theme && typeof settings.theme === 'object'
-          ? settings.theme
-          : {})
-      },
-      bookmarkDefault: {
-        ...structuredClone(defaultSettings.bookmarkDefault),
-        ...(settings?.bookmarkDefault && typeof settings.bookmarkDefault === 'object'
-          ? settings.bookmarkDefault
-          : {})
-      }
-    }
-  };
+  return migratePersistedData(data);
 }
 
 /**
@@ -150,14 +129,19 @@ async function readLocalData() {
   const result = await callStorage(
     chrome.storage.local,
     'get',
-    ['bookmarks', 'settings']
+    ['schemaVersion', 'bookmarks', 'settings']
   );
 
-  if (result.bookmarks === undefined && result.settings === undefined) {
+  if (
+    result.schemaVersion === undefined &&
+    result.bookmarks === undefined &&
+    result.settings === undefined
+  ) {
     return null;
   }
 
   return {
+    schemaVersion: result.schemaVersion,
     bookmarks: result.bookmarks,
     settings: result.settings
   };
@@ -173,17 +157,22 @@ async function readSyncData() {
   const header = await callStorage(
     chrome.storage.sync,
     'get',
-    [SYNC_META_KEY, 'bookmarks', 'settings']
+    [SYNC_META_KEY, 'schemaVersion', 'bookmarks', 'settings']
   );
 
   const meta = header[SYNC_META_KEY];
 
   if (!meta) {
-    if (header.bookmarks === undefined && header.settings === undefined) {
+    if (
+      header.schemaVersion === undefined &&
+      header.bookmarks === undefined &&
+      header.settings === undefined
+    ) {
       return null;
     }
 
     return {
+      schemaVersion: header.schemaVersion,
       bookmarks: header.bookmarks,
       settings: header.settings
     };
@@ -237,7 +226,7 @@ async function writeSyncData(data) {
   const previous = await callStorage(
     chrome.storage.sync,
     'get',
-    [SYNC_META_KEY, 'bookmarks', 'settings']
+    [SYNC_META_KEY, 'schemaVersion', 'bookmarks', 'settings']
   );
   const previousChunkCount = previous[SYNC_META_KEY]?.chunkCount ?? 0;
 
@@ -267,7 +256,7 @@ async function writeSyncData(data) {
     )
     : [];
 
-  const legacyKeys = ['bookmarks', 'settings'].filter(
+  const legacyKeys = ['schemaVersion', 'bookmarks', 'settings'].filter(
     key => previous[key] !== undefined
   );
   const keysToRemove = [...staleKeys, ...legacyKeys];
@@ -454,9 +443,12 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
   const changedKeys = Object.keys(changes);
   const isApplicationChange = activeMode === STORAGE_MODES.LOCAL
-    ? changedKeys.some(key => key === 'bookmarks' || key === 'settings')
+    ? changedKeys.some(key => (
+        key === 'schemaVersion' || key === 'bookmarks' || key === 'settings'
+      ))
     : changedKeys.some(key => (
         key === SYNC_META_KEY ||
+        key === 'schemaVersion' ||
         key === 'bookmarks' ||
         key === 'settings' ||
         key.startsWith(SYNC_CHUNK_PREFIX)

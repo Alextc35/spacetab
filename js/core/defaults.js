@@ -1,10 +1,12 @@
 import '../types/types.js'; // typedefs
 
+export const DATA_SCHEMA_VERSION = 2;
+
 /**
  * Default visual style for a bookmark.
  * Contains only appearance-related properties.
  *
- * @type {Bookmark}
+ * @type {BookmarkPreset}
  */
 export const DEFAULT_BOOKMARK_STYLE = {
   backgroundImageUrl: null,
@@ -108,9 +110,7 @@ export const DEFAULT_SETTINGS = {
   },
 
   bookmarkDefault: {
-    ...DEFAULT_BOOKMARK_STYLE,
-    name: 'Test',
-    url: 'https:.internal'
+    ...DEFAULT_BOOKMARK_STYLE
   }
 };
 
@@ -124,6 +124,7 @@ export const DEFAULT_SETTINGS = {
  */
 export const DEFAULT_STATE = {
   data: {
+    schemaVersion: DATA_SCHEMA_VERSION,
     bookmarks: structuredClone(DEFAULT_BOOKMARKS),
     settings: structuredClone(DEFAULT_SETTINGS)
   },

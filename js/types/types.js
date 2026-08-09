@@ -23,15 +23,37 @@
  */
 
 /**
+ * @typedef {Omit<Bookmark, 'id'> & {id?: string}} BookmarkDraft
+ */
+
+/**
+ * @typedef {Object} BookmarkPreset
+ * @property {string|null} backgroundImageUrl
+ * @property {boolean} backgroundImageUrlLocked
+ * @property {boolean} backgroundFavicon
+ * @property {boolean} invertColorBg
+ * @property {boolean} noBackground
+ * @property {string} backgroundColor
+ * @property {boolean} showText
+ * @property {string} textColor
+ * @property {boolean} showFavicon
+ * @property {boolean} invertColorIcon
+ */
+
+/**
  * @typedef {Object} Settings
+ * @property {'en'|'es'} language
  * @property {Object} theme
+ * @property {boolean} theme.backgroundDefault
  * @property {string} theme.backgroundColor
  * @property {string|null} theme.backgroundImageUrl
  * @property {boolean} theme.backgroundImageUrlLocked
+ * @property {BookmarkPreset} bookmarkDefault
  */
 
 /**
  * @typedef {Object} DataState
+ * @property {number} schemaVersion
  * @property {Bookmark[]} bookmarks
  * @property {Settings} settings
  */
@@ -52,5 +74,5 @@
  */
 
 /**
- * @typedef {Pick<AppState['data'], 'bookmarks' | 'settings'>} PersistedData
+ * @typedef {Pick<AppState['data'], 'schemaVersion' | 'bookmarks' | 'settings'>} PersistedData
  */

@@ -1,6 +1,10 @@
 import '../types/types.js'; // typedefs
 import { getState, setState } from './store.js';
-import { DEFAULT_BOOKMARK } from './defaults.js';
+import {
+  createBookmarkDraft,
+  normalizeBookmark as normalizeBookmarkValue,
+  validateBookmarkDraft
+} from './bookmarkModel.js';
 
 /**
  * Adds a new bookmark to the application state.
@@ -12,9 +16,13 @@ import { DEFAULT_BOOKMARK } from './defaults.js';
  * @returns {Bookmark} The created bookmark.
  */
 export function addBookmark(data) {
-  const { data: { bookmarks } } = getState();
+  const { data: { bookmarks, settings } } = getState();
+  const validation = validateBookmarkDraft(data);
+  if (!validation.isValid) return null;
 
-  const bookmark = normalizeBookmark(data);
+  const bookmark = normalizeBookmarkValue(validation.value, {
+    preset: settings.bookmarkDefault
+  });
   const updated = [...bookmarks, bookmark];
 
   setState({ data: { bookmarks: updated } });
@@ -40,9 +48,15 @@ export function updateBookmarkById(bookmarkId, updatedData) {
   const updated = bookmarks.map(b => {
     if (b.id !== bookmarkId) return b;
 
-    updatedBookmark = normalizeBookmark({
+    const validation = validateBookmarkDraft({
       ...b,
       ...updatedData
+    });
+
+    if (!validation.isValid) return b;
+    updatedBookmark = normalizeBookmarkValue({
+      ...b,
+      ...validation.value
     });
 
     return updatedBookmark;
@@ -82,27 +96,4 @@ export function clearBookmarks() {
   return true;
 }
 
-/**
- * Normalizes a bookmark object by ensuring all required
- * properties are present and assigning default values
- * where needed.
- *
- * @param {Partial<Bookmark>} [bookmark={}] - Partial bookmark data.
- * @returns {Bookmark} A fully normalized bookmark object.
- */
-function normalizeBookmark(bookmark = {}) {
-  const now = Date.now();
-  const isNew = !bookmark.id;
-  const { data: { settings } } = getState();
-
-  return {
-    ...DEFAULT_BOOKMARK,
-    ...(isNew ? settings.bookmarkDefault : null),
-    ...bookmark,
-    id: bookmark.id ?? crypto.randomUUID(),
-    createdAt: isNew
-      ? now
-      : bookmark.createdAt ?? now,
-    updatedAt: now
-  };
-}
+export { createBookmarkDraft };

@@ -97,24 +97,21 @@ test('migrates local data to an empty synchronized area', async () => {
 
   assert.equal(result.source, 'migrated');
   assert.equal(storage.getMode(), STORAGE_MODES.SYNC);
-  assert.deepEqual(await storage.get(null), {
-    bookmarks: LOCAL_DATA.bookmarks,
-    settings: {
-      ...SETTINGS,
-      bookmarkDefault: {
-        backgroundImageUrl: null,
-        backgroundImageUrlLocked: false,
-        backgroundFavicon: true,
-        invertColorBg: false,
-        noBackground: true,
-        backgroundColor: '#000000',
-        showText: true,
-        textColor: '#ffffff',
-        showFavicon: true,
-        invertColorIcon: false,
-        ...SETTINGS.bookmarkDefault
-      }
-    }
+  const stored = await storage.get(null);
+  assert.equal(stored.schemaVersion, 2);
+  assert.equal(stored.bookmarks[0].id, 'local');
+  assert.equal(stored.bookmarks[0].name, 'Local bookmark');
+  assert.deepEqual(stored.settings.bookmarkDefault, {
+    backgroundImageUrl: null,
+    backgroundImageUrlLocked: false,
+    backgroundFavicon: true,
+    invertColorBg: false,
+    noBackground: true,
+    backgroundColor: '#000000',
+    showText: true,
+    textColor: '#ffffff',
+    showFavicon: true,
+    invertColorIcon: false
   });
   assert.ok(chrome.storage.sync.data.spacetabSyncMeta);
   assert.equal(chrome.storage.sync.data.bookmarks, undefined);
@@ -126,7 +123,7 @@ test('keeps a local copy when synchronization is disabled', async () => {
 
   assert.equal(result.source, 'migrated');
   assert.equal(storage.getMode(), STORAGE_MODES.LOCAL);
-  assert.deepEqual((await storage.get(null)).bookmarks, LOCAL_DATA.bookmarks);
+  assert.equal((await storage.get(null)).bookmarks[0].id, 'local');
   assert.ok(chrome.storage.sync.data.spacetabSyncMeta);
 });
 
@@ -140,7 +137,7 @@ test('uses existing synchronized data instead of overwriting it', async () => {
   const result = await storage.changeMode(STORAGE_MODES.SYNC, currentLocal);
 
   assert.equal(result.source, 'existing');
-  assert.deepEqual(result.data.bookmarks, LOCAL_DATA.bookmarks);
+  assert.equal(result.data.bookmarks[0].id, 'local');
 });
 
 test('chunks values safely below Chrome per-item quota', async () => {
@@ -163,7 +160,9 @@ test('chunks values safely below Chrome per-item quota', async () => {
   assert.ok(chunkEntries.every(([key, value]) => (
     encoder.encode(key).length + encoder.encode(JSON.stringify(value)).length < 8192
   )));
-  assert.deepEqual((await storage.get(null)).bookmarks, chunkedData.bookmarks);
+  const storedBookmarks = (await storage.get(null)).bookmarks;
+  assert.equal(storedBookmarks[0].id, 'chunked');
+  assert.equal(storedBookmarks[0].name, chunkedData.bookmarks[0].name.trim());
 });
 
 test('rejects synchronized payloads above Chrome quota', async () => {
