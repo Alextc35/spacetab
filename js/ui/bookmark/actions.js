@@ -26,8 +26,21 @@ import { toggleBookmarkSelection } from './selection.js';
  */
 export function addEditDeleteButtons(container, bookmark) {
   const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
+  const menu = document.createElement('div');
+  menu.className = 'bookmark-action-menu';
+
+  const toggle = document.createElement('button');
+  toggle.className = `bookmark-actions-toggle ${themeClass}`;
+  toggle.type = 'button';
+  toggle.textContent = '•••';
+  toggle.setAttribute('aria-label', t('bookmarkActions.openMenu'));
+
   const actions = document.createElement('div');
   actions.className = 'bookmark-actions';
+  actions.id = `bookmark-actions-${bookmark.id}`;
+  actions.setAttribute('role', 'group');
+  actions.setAttribute('aria-label', t('bookmarkActions.menuLabel'));
+  toggle.setAttribute('aria-controls', actions.id);
 
   const editBtn = createButton('✎', 'edit', themeClass, () => {
     openEditBookmark(bookmark.id);
@@ -51,7 +64,68 @@ export function addEditDeleteButtons(container, bookmark) {
   selectBtn.setAttribute('aria-label', t('bookmarkActions.select'));
   delBtn.setAttribute('aria-label', t('bookmarkActions.delete'));
   actions.append(editBtn, delBtn, selectBtn, duplicateBtn);
-  container.append(actions);
+  menu.append(toggle, actions);
+  container.append(menu);
+  initBookmarkActionMenu(container, menu, toggle, actions);
+}
+
+function initBookmarkActionMenu(container, menu, toggle, actions) {
+  let isPinned = false;
+  let closeTimer = null;
+
+  const setOpen = open => {
+    menu.classList.toggle('is-open', open);
+    container.classList.toggle('has-open-actions', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-pressed', String(isPinned));
+    actions.setAttribute('aria-hidden', String(!open));
+    actions.toggleAttribute('inert', !open);
+  };
+
+  const openTemporarily = () => {
+    clearTimeout(closeTimer);
+    setOpen(true);
+  };
+
+  const scheduleClose = () => {
+    clearTimeout(closeTimer);
+    if (isPinned) return;
+
+    closeTimer = setTimeout(() => {
+      if (!menu.matches(':hover') && !menu.contains(document.activeElement)) {
+        setOpen(false);
+      }
+    }, 140);
+  };
+
+  menu.addEventListener('mouseenter', openTemporarily);
+  menu.addEventListener('mouseleave', scheduleClose);
+  menu.addEventListener('focusin', openTemporarily);
+  menu.addEventListener('focusout', event => {
+    if (!menu.contains(event.relatedTarget)) scheduleClose();
+  });
+
+  toggle.addEventListener('click', event => {
+    event.stopPropagation();
+    isPinned = !isPinned;
+    setOpen(true);
+
+    if (!isPinned) {
+      toggle.blur();
+      scheduleClose();
+    }
+  });
+
+  menu.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    event.stopPropagation();
+    isPinned = false;
+    if (menu.contains(document.activeElement)) document.activeElement.blur();
+    setOpen(false);
+  });
+
+  setOpen(false);
 }
 
 async function duplicateBookmark(bookmark) {

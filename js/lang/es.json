@@ -122,6 +122,8 @@
     "clear": "Cancelar selección"
   },
   "bookmarkActions": {
+    "openMenu": "Mostrar acciones del favorito",
+    "menuLabel": "Acciones del favorito",
     "edit": "Editar favorito",
     "duplicate": "Duplicar favorito",
     "select": "Seleccionar favorito",

@@ -7,6 +7,22 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
 });
 
+async function revealSideDock(page) {
+  const menu = page.locator('#floating-menu');
+  await page.mouse.move(5, page.viewportSize().height / 2);
+  await expect.poll(async () => (await menu.boundingBox()).x).toBeGreaterThanOrEqual(0);
+}
+
+async function enableEditMode(page) {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '✎' }).click();
+}
+
+async function openBookmarkActions(bookmark) {
+  await bookmark.getByRole('button', { name: 'Show bookmark actions' }).hover();
+  await expect(bookmark.locator('.bookmark-actions')).toBeVisible();
+}
+
 test('reveals the bottom workspace dock on hover and keyboard focus', async ({ page }) => {
   const toolbar = page.getByRole('navigation', { name: 'Workspace controls' });
   const viewportHeight = page.viewportSize().height;
@@ -42,7 +58,35 @@ test('reveals the left action dock on hover and keyboard focus', async ({ page }
   await expect.poll(async () => (await menu.boundingBox()).x).toBeGreaterThanOrEqual(0);
 });
 
+test('previews and pins bookmark actions from the top-left trigger', async ({ page }) => {
+  await enableEditMode(page);
+  const bookmark = page.locator('#bookmark-container > .bookmark').first();
+  const toggle = bookmark.getByRole('button', { name: 'Show bookmark actions' });
+  const actions = bookmark.locator('.bookmark-actions');
+
+  await expect(toggle).toBeVisible();
+  await expect(actions).toBeHidden();
+
+  await toggle.hover();
+  await expect(actions).toBeVisible();
+  await actions.getByRole('button', { name: 'Edit bookmark' }).hover();
+  await expect(actions).toBeVisible();
+
+  await page.mouse.move(page.viewportSize().width / 2, page.viewportSize().height / 2);
+  await expect(actions).toBeHidden();
+
+  await toggle.click();
+  await page.mouse.move(page.viewportSize().width / 2, page.viewportSize().height / 2);
+  await expect(actions).toBeVisible();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+
+  await page.keyboard.press('Escape');
+  await expect(actions).toBeHidden();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+});
+
 test('creates, edits and persists a bookmark after reload', async ({ page }) => {
+  await revealSideDock(page);
   await page.getByRole('button', { name: '➕' }).click();
   await page.locator('#bookmark-modal-form-name').fill('OpenAI');
   await page.locator('#bookmark-modal-form-url').fill('openai.com');
@@ -52,8 +96,10 @@ test('creates, edits and persists a bookmark after reload', async ({ page }) => 
   await page.reload();
   await expect(page.getByRole('link', { name: /OpenAI/ })).toBeVisible();
 
-  await page.getByRole('button', { name: '✎' }).click();
-  await page.getByRole('button', { name: 'Edit bookmark' }).last().click();
+  await enableEditMode(page);
+  const newBookmark = page.locator('#bookmark-container > .bookmark').last();
+  await openBookmarkActions(newBookmark);
+  await newBookmark.getByRole('button', { name: 'Edit bookmark' }).click();
   await page.locator('#bookmark-modal-form-name').fill('OpenAI Docs');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByRole('link', { name: /OpenAI Docs/ })).toBeVisible();
@@ -66,6 +112,7 @@ test('creates a workspace and finds bookmarks across workspaces', async ({ page 
   await page.getByRole('button', { name: 'Accept' }).click();
   await expect(page.getByRole('combobox', { name: 'Workspace' })).toHaveValue(/.+/);
 
+  await revealSideDock(page);
   await page.getByRole('button', { name: '➕' }).click();
   await page.locator('#bookmark-modal-form-name').fill('Work dashboard');
   await page.locator('#bookmark-modal-form-url').fill('work.example');
@@ -85,6 +132,7 @@ test('warns before deleting a workspace and removes its bookmarks', async ({ pag
   await page.getByPlaceholder('Work, leisure…').fill('Temporary');
   await page.getByRole('button', { name: 'Accept' }).click();
 
+  await revealSideDock(page);
   await page.getByRole('button', { name: '➕' }).click();
   await page.locator('#bookmark-modal-form-name').fill('Temporary bookmark');
   await page.locator('#bookmark-modal-form-url').fill('temporary.example');
@@ -106,6 +154,7 @@ test('warns before deleting a workspace and removes its bookmarks', async ({ pag
 });
 
 test('saves a named appearance preset', async ({ page }) => {
+  await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeHidden();
@@ -114,43 +163,50 @@ test('saves a named appearance preset', async ({ page }) => {
   await expect(page.getByRole('combobox', { name: 'Saved presets' })).toHaveValue(/.+/);
   await page.getByRole('button', { name: 'Save', exact: true }).click();
 
+  await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
   await expect(page.getByRole('combobox', { name: 'Saved presets' })).toContainText('Dark');
 });
 
 test('persists the synchronized storage choice', async ({ page }) => {
+  await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '☁️ Sync' }).click();
   await page.getByRole('radio', { name: /Synchronized/ }).check();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
 
+  await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '☁️ Sync' }).click();
   await expect(page.getByRole('radio', { name: /Synchronized/ })).toBeChecked();
 });
 
 test('duplicates and selects bookmarks in edit mode', async ({ page }) => {
-  await page.getByRole('button', { name: '✎' }).click();
-  const firstBookmark = page.locator('.bookmark').first();
+  await enableEditMode(page);
+  const firstBookmark = page.locator('#bookmark-container > .bookmark').first();
+  await openBookmarkActions(firstBookmark);
   const editBox = await firstBookmark.getByRole('button', { name: 'Edit bookmark' }).boundingBox();
   const deleteBox = await firstBookmark.getByRole('button', { name: 'Delete bookmark' }).boundingBox();
   const selectBox = await firstBookmark.getByRole('button', { name: 'Select bookmark' }).boundingBox();
   const duplicateBox = await firstBookmark.getByRole('button', { name: 'Duplicate bookmark' }).boundingBox();
-  const bookmarkBox = await firstBookmark.boundingBox();
+  const toggleBox = await firstBookmark.getByRole(
+    'button',
+    { name: 'Show bookmark actions' }
+  ).boundingBox();
   const actionPanelBox = await firstBookmark.locator('.bookmark-actions').boundingBox();
 
   expect(Math.abs(editBox.y - deleteBox.y)).toBeLessThan(2);
   expect(Math.abs(selectBox.y - duplicateBox.y)).toBeLessThan(2);
   expect(selectBox.y).toBeGreaterThan(editBox.y);
-  expect(Math.abs(
-    actionPanelBox.x + actionPanelBox.width / 2 - (bookmarkBox.x + bookmarkBox.width / 2)
-  )).toBeLessThan(2);
+  expect(actionPanelBox.x).toBeGreaterThan(toggleBox.x + toggleBox.width);
 
-  await page.getByRole('button', { name: 'Duplicate bookmark' }).first().click();
+  await firstBookmark.getByRole('button', { name: 'Duplicate bookmark' }).click();
   await expect(page.getByRole('link', { name: /DEVELOPED BY \(copy\)/ })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Select bookmark' }).last().click();
+  const duplicatedBookmark = page.locator('#bookmark-container > .bookmark').last();
+  await openBookmarkActions(duplicatedBookmark);
+  await duplicatedBookmark.getByRole('button', { name: 'Select bookmark' }).click();
   const bulkActions = page.getByRole('toolbar', { name: 'Selected bookmark actions' });
   const workspaceDock = page.getByRole('navigation', { name: 'Workspace controls' });
   await expect(bulkActions).toBeVisible();
@@ -165,10 +221,12 @@ test('duplicates and selects bookmarks in edit mode', async ({ page }) => {
 });
 
 test('duplicates several selected bookmarks without overlaps', async ({ page }) => {
-  await page.getByRole('button', { name: '✎' }).click();
+  await enableEditMode(page);
   const bookmarks = page.locator('#bookmark-container > .bookmark');
 
+  await openBookmarkActions(bookmarks.nth(0));
   await bookmarks.nth(0).getByRole('button', { name: 'Select bookmark' }).click();
+  await openBookmarkActions(bookmarks.nth(1));
   await bookmarks.nth(1).getByRole('button', { name: 'Select bookmark' }).click();
   await expect(page.getByText('2 selected')).toBeVisible();
 

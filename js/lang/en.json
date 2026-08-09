@@ -122,6 +122,8 @@
     "clear": "Clear selection"
   },
   "bookmarkActions": {
+    "openMenu": "Show bookmark actions",
+    "menuLabel": "Bookmark actions",
     "edit": "Edit bookmark",
     "duplicate": "Duplicate bookmark",
     "select": "Select bookmark",
