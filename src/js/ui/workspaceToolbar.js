@@ -62,13 +62,6 @@ export function initWorkspaceToolbar() {
   });
 
   document.addEventListener('keydown', event => {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-      if (hasOpenModal()) return;
-      event.preventDefault();
-      openSearchModal();
-      return;
-    }
-
     if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z') return;
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
     event.preventDefault();
