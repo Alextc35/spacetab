@@ -20,10 +20,10 @@ items on a desktop without relying on a SpaceTab account or backend.
 * Shared panel for creating, editing and defining default bookmark styles
 * Named appearance presets
 * Independent bookmark workspaces
-* Global search palette (`/` or `Ctrl/Cmd + K`)
+* Global search palette (`/`)
 * Multi-select, bulk styling, moving, duplication and deletion
 * Duplicate, undo and redo actions
-* Themes, favicon previews and English/Spanish UI
+* Themes, favicon previews and English/Spanish/Brazilian UI
 * Versioned bookmark import/export and complete backups
 * Optional browser-profile synchronization
 * Accessible modal focus management and keyboard navigation
@@ -127,7 +127,7 @@ status in Settings.
 * `Space` toggles edit mode when no modal is open.
 * `Enter` opens the create-bookmark panel.
 * `.` opens Settings.
-* `/` or `Ctrl/Cmd + K` opens global search.
+* `/` opens global search.
 * `Ctrl/Cmd + Z` undoes the latest bookmark operation.
 * `Ctrl/Cmd + Shift + Z` redoes it.
 
@@ -161,8 +161,12 @@ Actions. Read [CONTRIBUTING.md](CONTRIBUTING.md) before structural changes.
 
 ## Languages
 
-English and Spanish are currently supported through `js/lang/en.json` and
-`js/lang/es.json`.
+English, Spanish, Latin American Spanish, and Brazilian Portuguese are currently supported through:
+
+* `js/lang/en.json`
+* `js/lang/es.json`
+* `js/lang/es_419.json`
+* `js/lang/pt_BR.json`
 
 ## Roadmap
 
