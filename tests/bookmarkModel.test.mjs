@@ -8,8 +8,8 @@ import {
   normalizeBookmarkPreset,
   normalizeBookmarkUrl,
   validateBookmarkDraft
-} from '../js/core/bookmarkModel.js';
-import { findFirstFreeSlot, isAreaFree } from '../js/core/grid.js';
+} from '../src/js/core/bookmarkModel.js';
+import { findFirstFreeSlot, isAreaFree } from '../src/js/core/grid.js';
 
 test('a preset contains appearance fields only', () => {
   const preset = normalizeBookmarkPreset({

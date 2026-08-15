@@ -6,7 +6,7 @@ import {
   pruneBookmarkSelection,
   subscribeToBookmarkSelection,
   toggleBookmarkSelection
-} from '../../js/ui/bookmark/selection.js';
+} from '../../src/js/ui/bookmark/selection.js';
 
 beforeEach(() => clearBookmarkSelection());
 

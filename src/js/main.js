@@ -7,8 +7,9 @@ import { clearBookmarkSelection } from './ui/bookmark/selection.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
 import { initWorkspaceToolbar } from './ui/workspaceToolbar.js';
 import { initBulkBookmarkActions } from './ui/bookmark/bulkActions.js';
+import { initFolderController } from './ui/folder/controller.js';
 import { initBookmarkModal,
-  initAlertModal, initSearchModal, initSettingsModal } from './ui/modals/index.js';
+  initAlertModal, initFolderModal, initSearchModal, initSettingsModal } from './ui/modals/index.js';
 
 /* ======================= DOM References ======================= */
 
@@ -44,11 +45,13 @@ async function initApp() {
   if (DEBUG) logStorageUsage();
 
   await initI18n();
+  subscribe(handleStateChange);
 
   initUI();
   initModals();
   initWorkspaceToolbar();
   initBulkBookmarkActions();
+  initFolderController();
 
   if (DEBUG) {
     console.info('Initializing SpaceTab ' + VERSION + ' alfa');
@@ -82,7 +85,6 @@ function logStorageUsage() {
  */
 async function initState() {
   await hydrateStore();
-  subscribe(handleStateChange);
 }
 
 /**
@@ -102,6 +104,7 @@ function initUI() {
 function initModals() {
   initAlertModal();
   initSearchModal();
+  initFolderModal();
   initSettingsModal();
   initBookmarkModal();
 }
@@ -122,7 +125,6 @@ function initModals() {
 function handleStateChange(state, prev) {
   if (!prev) {
     applyGlobalTheme(state.data.settings);
-    changeLanguage(state.data.settings);
     updateEditUI(state.ui.isEditing);
     renderBookmarks(container);
     return;
@@ -133,6 +135,9 @@ function handleStateChange(state, prev) {
 
   const bookmarksChanged =
     state.data.bookmarks !== prev.data.bookmarks;
+
+  const foldersChanged =
+    state.data.folders !== prev.data.folders;
 
   const editingChanged =
     state.ui.isEditing !== prev.ui.isEditing;
@@ -146,7 +151,7 @@ function handleStateChange(state, prev) {
     changeLanguage(state.data.settings)
   }
 
-  if (settingsChanged || bookmarksChanged || editingChanged) {
+  if (settingsChanged || bookmarksChanged || foldersChanged || editingChanged) {
     renderBookmarks(container);
   }
 

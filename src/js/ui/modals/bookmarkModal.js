@@ -8,6 +8,7 @@ import { showAlert } from './alert.js';
 import { t } from '../../core/i18n.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { findFirstFreeSlot } from '../../core/grid.js';
+import { getOccupiedGridItems } from '../../core/bookmark.js';
 
 const modal = document.getElementById('edit-bookmark-modal');
 const modalTitle = modal.querySelector('h2');
@@ -163,14 +164,11 @@ async function handleAddAccept() {
     if (!validation.isValid) return;
     const bookmark = validation.value;
 
-    const { data: { bookmarks } } = getState();
-    const groupBookmarks = bookmarks.filter(
-      item => (item.groupId ?? null) === (bookmark.groupId ?? null)
-    );
+    const groupItems = getOccupiedGridItems(bookmark.groupId);
     const maxRows = getMaxVisibleRows();
     const maxCols = getMaxVisibleCols();
 
-    const position = findFirstFreeSlot(groupBookmarks, {
+    const position = findFirstFreeSlot(groupItems, {
       columns: maxCols,
       rows: maxRows
     });

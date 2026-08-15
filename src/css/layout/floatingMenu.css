@@ -75,6 +75,10 @@
   background: rgba(22, 163, 74, .82);
 }
 
+#floating-menu #add-folder:hover {
+  background: rgba(14, 116, 144, .88);
+}
+
 #floating-menu #settings:hover {
   background: rgba(124, 58, 237, .82);
 }

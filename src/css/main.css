@@ -15,6 +15,7 @@
 @import './features/editModal.css';
 @import './features/settingsModal.css';
 @import './features/searchModal.css';
+@import './features/folderModal.css';
 
 @import './states/disabled.css';
 @import './states/hidden.css';

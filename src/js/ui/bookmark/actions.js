@@ -13,6 +13,7 @@ import { isVisuallyDark } from './utils.js';
 import { flashSuccess, flashError } from '../flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { toggleBookmarkSelection } from './selection.js';
+import { getGridItemsInGroup } from '../../core/bookmarkFolders.js';
 
 /**
  * Adds edit and delete action buttons to a bookmark element.
@@ -42,20 +43,20 @@ export function addEditDeleteButtons(container, bookmark) {
   actions.setAttribute('aria-label', t('bookmarkActions.menuLabel'));
   toggle.setAttribute('aria-controls', actions.id);
 
-  const editBtn = createButton('✎', 'edit', themeClass, () => {
+  const editBtn = createBookmarkActionButton('✎', 'edit', themeClass, () => {
     openEditBookmark(bookmark.id);
   });
 
-  const duplicateBtn = createButton('⧉', 'duplicate', themeClass, async () => {
+  const duplicateBtn = createBookmarkActionButton('⧉', 'duplicate', themeClass, async () => {
     await duplicateBookmark(bookmark);
   });
 
-  const selectBtn = createButton('✓', 'select', themeClass, () => {
+  const selectBtn = createBookmarkActionButton('✓', 'select', themeClass, () => {
     const selected = toggleBookmarkSelection(bookmark.id);
     container.classList.toggle('is-selected', selected);
   });
 
-  const delBtn = createButton('🗑', 'delete', themeClass, async () => {
+  const delBtn = createBookmarkActionButton('🗑', 'delete', themeClass, async () => {
     await confirmDeleteBookmark(bookmark);
   });
 
@@ -69,7 +70,7 @@ export function addEditDeleteButtons(container, bookmark) {
   initBookmarkActionMenu(container, menu, toggle, actions);
 }
 
-function initBookmarkActionMenu(container, menu, toggle, actions) {
+export function initBookmarkActionMenu(container, menu, toggle, actions) {
   let isPinned = false;
   let closeTimer = null;
 
@@ -129,10 +130,8 @@ function initBookmarkActionMenu(container, menu, toggle, actions) {
 }
 
 async function duplicateBookmark(bookmark) {
-  const bookmarks = getState().data.bookmarks.filter(
-    item => (item.groupId ?? null) === (bookmark.groupId ?? null)
-  );
-  const position = findFirstFreeSlot(bookmarks, {
+  const data = getState().data;
+  const position = findFirstFreeSlot(getGridItemsInGroup(data, bookmark.groupId), {
     columns: getMaxVisibleCols(),
     rows: getMaxVisibleRows(),
     w: bookmark.w,
@@ -161,7 +160,7 @@ async function duplicateBookmark(bookmark) {
  * @param {() => void} onClick - Click handler function.
  * @returns {HTMLButtonElement} The created button element.
  */
-function createButton(text, type, themeClass, onClick) {
+export function createBookmarkActionButton(text, type, themeClass, onClick) {
   const btn = document.createElement('button');
   btn.className = `bookmark-btn ${type} ${themeClass}`;
   btn.type = 'button';

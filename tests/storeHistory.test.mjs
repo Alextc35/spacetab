@@ -39,21 +39,28 @@ const {
   redoBookmarks,
   setState,
   undoBookmarks
-} = await import('../js/core/store.js');
+} = await import('../src/js/core/store.js');
 
 test('bookmark history supports undo and redo as persisted state changes', async () => {
   await hydrateStore();
   const initialBookmarks = getState().data.bookmarks;
+  const initialFolders = getState().data.folders;
   const replacement = [{ id: 'replacement', name: 'Replacement' }];
+  const replacementFolders = [{
+    id: 'folder', name: 'Folder', gx: 0, gy: 0, w: 1, h: 1, groupId: null
+  }];
 
-  await setState({ data: { bookmarks: replacement } });
+  await setState({ data: { bookmarks: replacement, folders: replacementFolders } });
   assert.equal(getState().ui.history.canUndo, true);
   assert.deepEqual(getState().data.bookmarks, replacement);
+  assert.deepEqual(getState().data.folders, replacementFolders);
 
   assert.equal(await undoBookmarks(), true);
   assert.deepEqual(getState().data.bookmarks, initialBookmarks);
+  assert.deepEqual(getState().data.folders, initialFolders);
   assert.equal(getState().ui.history.canRedo, true);
 
   assert.equal(await redoBookmarks(), true);
   assert.deepEqual(getState().data.bookmarks, replacement);
+  assert.deepEqual(getState().data.folders, replacementFolders);
 });

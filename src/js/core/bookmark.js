@@ -7,6 +7,7 @@ import {
   validateBookmarkDraft
 } from './bookmarkModel.js';
 import { findFirstFreeSlot } from './grid.js';
+import { getGridItemsInGroup } from './bookmarkFolders.js';
 
 /**
  * Adds a new bookmark to the application state.
@@ -43,7 +44,8 @@ export function addBookmark(data) {
  * @returns {Bookmark|null} The updated bookmark, or null if not found.
  */
 export function updateBookmarkById(bookmarkId, updatedData) {
-  const { data: { bookmarks } } = getState();
+  const { data } = getState();
+  const { bookmarks } = data;
 
   let updatedBookmark = null;
 
@@ -78,7 +80,8 @@ export function updateBookmarkById(bookmarkId, updatedData) {
  * @returns {boolean} True if the bookmark was removed, false otherwise.
  */
 export function deleteBookmarkById(bookmarkId) {
-  const { data: { bookmarks } } = getState();
+  const { data } = getState();
+  const { bookmarks } = data;
 
   const updated = bookmarks.filter(b => b.id !== bookmarkId);
   if (updated.length === bookmarks.length) return false;
@@ -194,9 +197,13 @@ export function duplicateBookmarksByIds(bookmarkIds, {
   const ids = new Set(bookmarkIds);
   if (!ids.size) return { duplicates: [], skipped: 0 };
 
-  const { data: { bookmarks } } = getState();
+  const { data } = getState();
+  const { bookmarks } = data;
   const sources = bookmarks.filter(bookmark => ids.has(bookmark.id));
-  const occupied = [...bookmarks];
+  const occupied = [
+    ...bookmarks.filter(bookmark => !bookmark.folderId),
+    ...data.folders
+  ];
   const duplicates = [];
   let skipped = 0;
 
@@ -237,8 +244,19 @@ function createBookmarkDuplicate(bookmark, position, nameSuffix) {
   return normalizeBookmarkValue({
     ...duplicate,
     ...position,
+    folderId: null,
     name: `${bookmark.name} (${nameSuffix})`
   });
+}
+
+/**
+ * Returns every item reserving a cell in a workspace.
+ * Kept here as a bookmark-facing helper for placement controllers.
+ *
+ * @param {string|null} groupId
+ */
+export function getOccupiedGridItems(groupId) {
+  return getGridItemsInGroup(getState().data, groupId);
 }
 
 export { createBookmarkDraft };

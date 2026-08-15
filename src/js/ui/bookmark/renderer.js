@@ -1,10 +1,11 @@
 import { getState } from '../../core/store.js';
-import { updateGridSize, getRowWidth, getRowHeight } from '../gridLayout.js';
-import { PADDING } from '../../core/config.js';
+import { updateGridSize } from '../gridLayout.js';
 import { createFavicon } from './favicon.js';
 import { addDragAndResize } from './dragResize.js';
 import { addEditDeleteButtons } from './actions.js';
 import { isBookmarkSelected } from './selection.js';
+import { applyGridItemPosition } from '../gridItemLayout.js';
+import { createFolderElement } from '../folder/renderer.js';
 
 /**
  * Renders all bookmarks into the given container element.
@@ -23,10 +24,14 @@ export function renderBookmarks(container) {
   if (!container) return;
 
   const state = getState();
-  const { data: { bookmarks, settings } } = state;
+  const { data: { bookmarks, folders, settings } } = state;
   const { ui: { isEditing } } = state;
   const visibleBookmarks = bookmarks.filter(
-    bookmark => (bookmark.groupId ?? null) === settings.activeBookmarkGroupId
+    bookmark => !bookmark.folderId
+      && (bookmark.groupId ?? null) === settings.activeBookmarkGroupId
+  );
+  const visibleFolders = folders.filter(
+    folder => (folder.groupId ?? null) === settings.activeBookmarkGroupId
   );
 
   updateGridSize(container);
@@ -55,6 +60,15 @@ export function renderBookmarks(container) {
     });
 
     container.appendChild(div);
+  });
+
+  visibleFolders.forEach(folder => {
+    container.appendChild(createFolderElement({
+      container,
+      folder,
+      bookmarks: bookmarks.filter(bookmark => bookmark.folderId === folder.id),
+      isEditing
+    }));
   });
 }
 
@@ -95,7 +109,7 @@ export function createBookmarkElement(bookmark, options = {}) {
  * @returns {void}
  */
 function applyBookmarkStyle(container, div, bookmark) {
-  if (container) applyBookmarkPosition(container, div, bookmark);
+  if (container) applyGridItemPosition(container, div, bookmark);
   resetBookmarkVisualState(div);
   applyBackgroundStyle(div, bookmark);
   applyTextStyle(div, bookmark);
@@ -113,16 +127,6 @@ function applyBookmarkStyle(container, div, bookmark) {
  * @param {Bookmark} bookmark - Bookmark data object containing grid position (gx, gy) and size (w, h).
  * @returns {void}
  */
-function applyBookmarkPosition(container, div, bookmark) {
-  const rowWidth = getRowWidth(container);
-  const rowHeight = getRowHeight(container);
-
-  div.style.setProperty('--x', bookmark.gx * rowWidth + 'px');
-  div.style.setProperty('--y', bookmark.gy * rowHeight + 'px');
-  div.style.setProperty('--w', bookmark.w * rowWidth - PADDING + 'px');
-  div.style.setProperty('--h', bookmark.h * rowHeight - PADDING + 'px');
-}
-
 /**
  * Resets visual state and CSS variables before applying new styles.
  *

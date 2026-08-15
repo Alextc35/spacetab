@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 let createBookmarkEditorPanel;
-const newTabHtml = readFileSync(join(process.cwd(), 'newtab.html'), 'utf8');
+const newTabHtml = readFileSync(join(process.cwd(), 'src/newtab.html'), 'utf8');
 
 beforeAll(async () => {
   globalThis.chrome = createChromeMock();
@@ -13,7 +13,7 @@ beforeAll(async () => {
     .replace(/^.*?<html[^>]*>/s, '')
     .replace(/<\/html>.*$/s, '');
 
-  ({ createBookmarkEditorPanel } = await import('../../js/ui/bookmark/panel.js'));
+  ({ createBookmarkEditorPanel } = await import('../../src/js/ui/bookmark/panel.js'));
 });
 
 beforeEach(() => {

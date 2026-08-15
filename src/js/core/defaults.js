@@ -1,6 +1,6 @@
 import '../types/types.js'; // typedefs
 
-export const DATA_SCHEMA_VERSION = 2;
+export const DATA_SCHEMA_VERSION = 3;
 
 /**
  * Default visual style for a bookmark.
@@ -39,6 +39,7 @@ export const DEFAULT_BOOKMARK_STRUCTURE = {
   w: 1,
   h: 1,
   groupId: null,
+  folderId: null,
 
   createdAt: 0,
   updatedAt: 0
@@ -131,6 +132,7 @@ export const DEFAULT_STATE = {
   data: {
     schemaVersion: DATA_SCHEMA_VERSION,
     bookmarks: structuredClone(DEFAULT_BOOKMARKS),
+    folders: [],
     settings: structuredClone(DEFAULT_SETTINGS)
   },
   ui: {

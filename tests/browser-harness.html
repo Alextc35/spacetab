@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>SpaceTab browser harness</title>
-    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../src/css/main.css">
   </head>
   <body>
     <script type="module">
@@ -69,10 +69,10 @@
         }
       };
 
-      const source = await fetch('../newtab.html').then(response => response.text());
+      const source = await fetch('../src/newtab.html').then(response => response.text());
       const parsed = new DOMParser().parseFromString(source, 'text/html');
       document.body.replaceChildren(...parsed.body.children);
-      await import('../js/main.js');
+      await import('../src/js/main.js');
     </script>
   </body>
 </html>

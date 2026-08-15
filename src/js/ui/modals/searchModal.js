@@ -36,8 +36,9 @@ export function openSearchModal() {
 
 function renderResults() {
   const query = input.value.trim().toLocaleLowerCase();
-  const { data: { bookmarks, settings } } = getState();
+  const { data: { bookmarks, folders, settings } } = getState();
   const groups = new Map(settings.bookmarkGroups.map(group => [group.id, group.name]));
+  const folderNames = new Map(folders.map(folder => [folder.id, folder.name]));
   const matches = bookmarks
     .filter(bookmark => !query || `${bookmark.name} ${bookmark.url}`.toLocaleLowerCase().includes(query))
     .sort((a, b) => b.updatedAt - a.updatedAt)
@@ -63,7 +64,12 @@ function renderResults() {
     name.textContent = bookmark.name;
     const detail = document.createElement('small');
     const workspace = groups.get(bookmark.groupId) ?? t('workspace.main');
-    detail.textContent = `${workspace} · ${bookmark.url || t('search.noUrl')}`;
+    const folder = folderNames.get(bookmark.folderId);
+    detail.textContent = [
+      workspace,
+      folder ? t('search.inFolder', { name: folder }) : null,
+      bookmark.url || t('search.noUrl')
+    ].filter(Boolean).join(' · ');
     link.append(name, detail);
     results.append(link);
   }

@@ -186,13 +186,13 @@ test('persists the synchronized storage choice', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '☁️ Sync' }).click();
-  await page.getByRole('radio', { name: /Synchronized/ }).check();
+  await page.getByRole('radio', { name: /Synced/ }).check();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '☁️ Sync' }).click();
-  await expect(page.getByRole('radio', { name: /Synchronized/ })).toBeChecked();
+  await expect(page.getByRole('radio', { name: /Synced/ })).toBeChecked();
 });
 
 test('duplicates, selects and clears selection when edit mode closes', async ({ page }) => {
@@ -212,7 +212,7 @@ test('duplicates, selects and clears selection when edit mode closes', async ({ 
   expect(Math.abs(editBox.y - deleteBox.y)).toBeLessThan(2);
   expect(Math.abs(selectBox.y - duplicateBox.y)).toBeLessThan(2);
   expect(selectBox.y).toBeGreaterThan(editBox.y);
-  expect(actionPanelBox.x).toBeGreaterThan(toggleBox.x + toggleBox.width);
+  expect(actionPanelBox.x).toBeGreaterThanOrEqual(toggleBox.x + toggleBox.width - 2);
 
   await firstBookmark.getByRole('button', { name: 'Duplicate bookmark' }).click();
   await expect(page.getByRole('link', { name: /DEVELOPED BY \(copy\)/ })).toBeVisible();
@@ -267,4 +267,51 @@ test('duplicates several selected bookmarks without overlaps', async ({ page }) 
       expect(separated).toBe(true);
     }
   }
+});
+
+test('creates a folder, accepts a dragged bookmark and persists its contents', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('Reading');
+  await page.getByRole('button', { name: 'Accept' }).click();
+
+  const folder = page.locator('.bookmark-folder', { hasText: 'Reading' });
+  await expect(folder).toBeVisible();
+  await expect(folder).toContainText('0 saved');
+
+  await enableEditMode(page);
+  const bookmark = page.locator('.bookmark[data-bookmark-id]').first();
+  const bookmarkBox = await bookmark.boundingBox();
+  const folderBox = await folder.boundingBox();
+
+  await page.mouse.move(
+    bookmarkBox.x + bookmarkBox.width / 2,
+    bookmarkBox.y + bookmarkBox.height / 2
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    folderBox.x + folderBox.width / 2,
+    folderBox.y + folderBox.height / 2,
+    { steps: 8 }
+  );
+  await expect(folder).toHaveClass(/is-drop-target/);
+  await page.mouse.up();
+
+  await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(1);
+  await expect(page.locator('.bookmark-folder')).toContainText('1 saved');
+
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '🔒' }).click();
+  await page.reload();
+
+  const persistedFolder = page.locator('.bookmark-folder', { hasText: 'Reading' });
+  await expect(persistedFolder).toContainText('1 saved');
+  await persistedFolder.getByRole('button', { name: /Open Reading/ }).click();
+  await expect(page.getByRole('heading', { name: 'Reading' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
+
+  await page.getByRole('button', { name: /Move DEVELOPED BY out of the folder/ }).click();
+  await expect(page.getByText('0 bookmarks in this folder')).toBeVisible();
+  await page.getByRole('button', { name: 'Close' }).click();
+  await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
 });

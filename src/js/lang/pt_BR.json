@@ -15,6 +15,13 @@
       "updated": "Favorito atualizado com sucesso",
       "duplicated": "Favorito duplicado com sucesso"
     },
+    "folder": {
+      "created": "Pasta criada",
+      "renamed": "Pasta renomeada",
+      "deleted": "Pasta e favoritos excluídos",
+      "bookmarkAdded": "Favorito adicionado à pasta",
+      "bookmarkRemoved": "Favorito devolvido à grade"
+    },
     "history": {
       "undone": "Alteração desfeita",
       "redone": "Alteração refeita"
@@ -102,14 +109,15 @@
     "redo": "Refazer",
     "prompt": "Nome do novo espaço de trabalho",
     "namePlaceholder": "Trabalho, lazer…",
-    "confirmDelete": "Excluir «{{name}}» e todos os seus favoritos ({{count}})? Se quiser mantê-los, mova-os antes para Principal ou para outro espaço."
+    "confirmDelete": "Excluir «{{name}}», suas {{folderCount}} pastas e {{bookmarkCount}} favoritos? Se quiser mantê-los, mova-os antes para Principal ou para outro espaço."
   },
   "search": {
     "title": "Buscar favoritos",
     "inputLabel": "Buscar por nome ou URL",
     "placeholder": "Nome ou URL",
     "empty": "Nenhum favorito encontrado.",
-    "noUrl": "Sem URL"
+    "noUrl": "Sem URL",
+    "inFolder": "Pasta: {{name}}"
   },
   "bulk": {
     "ariaLabel": "Ações dos favoritos selecionados",
@@ -128,6 +136,28 @@
     "select": "Selecionar favorito",
     "delete": "Excluir favorito",
     "copySuffix": "cópia"
+  },
+  "folder": {
+    "create": "Criar pasta",
+    "createPrompt": "Dê um nome à nova pasta",
+    "renamePrompt": "Renomear pasta",
+    "namePlaceholder": "Ferramentas, inspiração…",
+    "open": "Abrir {{name}}, {{count}} favoritos salvos",
+    "count": "{{count}} salvos",
+    "summary": "{{count}} favoritos nesta pasta",
+    "empty": "Esta pasta está vazia. Ative o modo de edição e arraste favoritos até aqui.",
+    "dropHint": "Solte para adicionar",
+    "noSpace": "Não há nenhuma célula livre para criar uma pasta.",
+    "removeNoSpace": "Não há espaço suficiente na grade para retirar este favorito da pasta.",
+    "confirmDelete": "Excluir «{{name}}» e seus {{count}} favoritos permanentemente?",
+    "actions": {
+      "openMenu": "Mostrar ações da pasta",
+      "menuLabel": "Ações da pasta",
+      "rename": "Renomear pasta",
+      "delete": "Excluir pasta",
+      "editBookmark": "Editar {{name}}",
+      "removeBookmark": "Retirar {{name}} da pasta"
+    }
   },
   "validation": {
     "preset": {

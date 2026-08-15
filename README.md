@@ -20,10 +20,11 @@ items on a desktop without relying on a SpaceTab account or backend.
 * Shared panel for creating, editing and defining default bookmark styles
 * Named appearance presets
 * Independent bookmark workspaces
+* Folders with drag-and-drop feedback and a dedicated contents panel
 * Global search palette (`/` or `Ctrl/Cmd + K`)
 * Multi-select, bulk styling, moving, duplication and deletion
-* Duplicate, undo and redo actions
-* Themes, favicon previews and English/Spanish UI
+* Duplicate, undo and redo actions for bookmarks and folders
+* Themes, favicon previews and English, Spanish and Brazilian Portuguese UI
 * Versioned bookmark import/export and complete backups
 * Optional browser-profile synchronization
 * Accessible modal focus management and keyboard navigation
@@ -54,6 +55,7 @@ Each bookmark owns identity, grid layout and appearance:
   w: 1,
   h: 1,
   groupId: null,
+  folderId: null,
   backgroundColor: "#000000",
   backgroundImageUrl: null,
   showFavicon: true
@@ -63,6 +65,25 @@ Each bookmark owns identity, grid layout and appearance:
 An appearance preset never contains bookmark identity, timestamps, workspace or
 grid coordinates. New bookmarks combine an empty identity with the active
 preset and are placed in the first available cell of the current workspace.
+
+Folders are first-class grid items with a fixed `1 × 1` footprint:
+
+```js
+{
+  id: "…",
+  name: "Reading",
+  gx: 0,
+  gy: 1,
+  w: 1,
+  h: 1,
+  groupId: null
+}
+```
+
+A bookmark inside a folder keeps its layout and appearance but no longer
+reserves grid cells. Dragging it onto the folder sets `folderId`; taking it out
+places it in the first free area that fits its saved dimensions. Deleting a
+folder asks for confirmation and deletes the bookmarks it contains.
 
 ## Architecture
 
@@ -81,17 +102,20 @@ Reusable UI components and renderers
 Important modules:
 
 ```text
-js/core/bookmarkModel.js       drafts, presets, normalization, validation
-js/core/dataSchema.js          migrations and import/export envelopes
-js/core/bookmark.js            bookmark commands and batch operations
-js/core/bookmarkGroups.js      workspace commands
-js/core/store.js               state, persistence status and undo/redo
-js/core/storage.js             local/sync storage and quota-safe chunking
+src/js/core/bookmarkModel.js       drafts, presets, normalization, validation
+src/js/core/bookmarkFolders.js     folder membership and placement commands
+src/js/core/dataSchema.js          migrations and import/export envelopes
+src/js/core/bookmark.js            bookmark commands and batch operations
+src/js/core/bookmarkGroups.js      workspace commands
+src/js/core/store.js               state, persistence status and undo/redo
+src/js/core/storage.js             local/sync storage and quota-safe chunking
 
-js/ui/bookmark/panel.js        reusable create/edit/preset panel
-js/ui/bookmark/renderer.js     production and preview rendering
-js/ui/bookmark/bulkActions.js  multi-selection workflows
-js/ui/modalManager.js          modal stack and focus management
+src/js/ui/bookmark/panel.js        reusable create/edit/preset panel
+src/js/ui/bookmark/renderer.js     bookmark and folder grid rendering
+src/js/ui/folder/                  folder card, actions and dragging
+src/js/ui/modals/folderModal.js    folder contents panel
+src/js/ui/bookmark/bulkActions.js  multi-selection workflows
+src/js/ui/modalManager.js          modal stack and focus management
 ```
 
 The bookmark panel does not import the store, calculate grid placement or
@@ -131,8 +155,10 @@ status in Settings.
 * `Ctrl/Cmd + Z` undoes the latest bookmark operation.
 * `Ctrl/Cmd + Shift + Z` redoes it.
 
-Workspaces maintain independent layouts. Search covers every workspace, and
-moving selected bookmarks finds free target cells before making changes.
+Workspaces maintain independent layouts. Folders cannot cross or nest between
+workspaces. Search covers every workspace and includes the containing folder in
+each result; moving selected bookmarks finds free target cells before making
+changes.
 
 ## Development and tests
 
@@ -161,8 +187,9 @@ Actions. Read [CONTRIBUTING.md](CONTRIBUTING.md) before structural changes.
 
 ## Languages
 
-English and Spanish are currently supported through `js/lang/en.json` and
-`js/lang/es.json`.
+The interface ships with English (`en`), Spanish from Spain (`es`), Latin
+American Spanish (`es_419`) and Brazilian Portuguese (`pt_BR`) in
+`src/js/lang/`.
 
 ## Roadmap
 

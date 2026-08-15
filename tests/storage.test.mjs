@@ -68,7 +68,7 @@ globalThis.chrome = {
   }
 };
 
-const { storage, STORAGE_MODES } = await import('../js/core/storage.js');
+const { storage, STORAGE_MODES } = await import('../src/js/core/storage.js');
 
 const SETTINGS = {
   language: 'es',
@@ -85,7 +85,10 @@ const SETTINGS = {
 };
 
 const LOCAL_DATA = {
-  bookmarks: [{ id: 'local', name: 'Local bookmark', url: 'https://local.test' }],
+  bookmarks: [{
+    id: 'local', name: 'Local bookmark', url: 'https://local.test', folderId: 'saved'
+  }],
+  folders: [{ id: 'saved', name: 'Saved', gx: 0, gy: 0, w: 1, h: 1 }],
   settings: SETTINGS
 };
 
@@ -98,9 +101,11 @@ test('migrates local data to an empty synchronized area', async () => {
   assert.equal(result.source, 'migrated');
   assert.equal(storage.getMode(), STORAGE_MODES.SYNC);
   const stored = await storage.get(null);
-  assert.equal(stored.schemaVersion, 2);
+  assert.equal(stored.schemaVersion, 3);
   assert.equal(stored.bookmarks[0].id, 'local');
   assert.equal(stored.bookmarks[0].name, 'Local bookmark');
+  assert.equal(stored.bookmarks[0].folderId, 'saved');
+  assert.equal(stored.folders[0].name, 'Saved');
   assert.deepEqual(stored.settings.bookmarkDefault, {
     backgroundImageUrl: null,
     backgroundImageUrlLocked: false,

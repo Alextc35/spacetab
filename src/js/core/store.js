@@ -26,9 +26,9 @@ let unsubscribeFromStorage = null;
 let persistenceQueue = Promise.resolve();
 
 const HISTORY_LIMIT = 50;
-/** @type {Bookmark[][]} */
+/** @type {Array<Pick<DataState, 'bookmarks'|'folders'>>} */
 const undoStack = [];
-/** @type {Bookmark[][]} */
+/** @type {Array<Pick<DataState, 'bookmarks'|'folders'>>} */
 const redoStack = [];
 
 /**
@@ -47,7 +47,7 @@ export function getState() {
 
 /**
  * Updates the global state with the provided partial values.
- * Persists bookmarks and settings to storage if not hydrating.
+ * Persists bookmarks, folders and settings to storage if not hydrating.
  * Notifies all subscribed listeners.
  * 
  * @param {Partial<AppState>} partial
@@ -55,11 +55,19 @@ export function getState() {
  */
 export async function setState(partial, { recordHistory = true } = {}) {
   const prevState = state;
-  const bookmarksWillChange = partial.data?.bookmarks !== undefined
-    && partial.data.bookmarks !== state.data.bookmarks;
+  const gridDataWillChange = (
+    partial.data?.bookmarks !== undefined
+    && partial.data.bookmarks !== state.data.bookmarks
+  ) || (
+    partial.data?.folders !== undefined
+    && partial.data.folders !== state.data.folders
+  );
 
-  if (!isHydrating && recordHistory && bookmarksWillChange) {
-    undoStack.push(structuredClone(state.data.bookmarks));
+  if (!isHydrating && recordHistory && gridDataWillChange) {
+    undoStack.push(structuredClone({
+      bookmarks: state.data.bookmarks,
+      folders: state.data.folders
+    }));
     if (undoStack.length > HISTORY_LIMIT) undoStack.shift();
     redoStack.length = 0;
   }
@@ -99,6 +107,7 @@ export async function setState(partial, { recordHistory = true } = {}) {
   if (!isHydrating) {
     if (
       state.data.bookmarks !== prevState.data.bookmarks ||
+      state.data.folders !== prevState.data.folders ||
       state.data.settings !== prevState.data.settings
     ) {
       const dataToPersist = structuredClone(state.data);
@@ -111,10 +120,7 @@ export async function setState(partial, { recordHistory = true } = {}) {
       try {
         persistenceQueue = persistenceQueue
           .catch(() => undefined)
-          .then(() => storage.set({
-            bookmarks: dataToPersist.bookmarks,
-            settings: dataToPersist.settings
-          }));
+          .then(() => storage.set(dataToPersist));
 
         await persistenceQueue;
         state.ui.persistence = {
@@ -126,6 +132,7 @@ export async function setState(partial, { recordHistory = true } = {}) {
         if (DEBUG) {
           console.log('[STORE] Persisted to storage:', {
             bookmarks: dataToPersist.bookmarks,
+            folders: dataToPersist.folders,
             settings: dataToPersist.settings
           });
         }
@@ -146,7 +153,7 @@ export async function setState(partial, { recordHistory = true } = {}) {
 }
 
 /**
- * Restores the previous bookmark collection. Settings and UI state are not
+ * Restores the previous bookmark/folder collection. Settings and UI state are not
  * included so an accidental shortcut cannot revert synchronization choices.
  *
  * @returns {Promise<boolean>}
@@ -155,8 +162,11 @@ export async function undoBookmarks() {
   const previous = undoStack.pop();
   if (!previous) return false;
 
-  redoStack.push(structuredClone(state.data.bookmarks));
-  await setState({ data: { bookmarks: previous } }, { recordHistory: false });
+  redoStack.push(structuredClone({
+    bookmarks: state.data.bookmarks,
+    folders: state.data.folders
+  }));
+  await setState({ data: previous }, { recordHistory: false });
   return true;
 }
 
@@ -165,8 +175,11 @@ export async function redoBookmarks() {
   const next = redoStack.pop();
   if (!next) return false;
 
-  undoStack.push(structuredClone(state.data.bookmarks));
-  await setState({ data: { bookmarks: next } }, { recordHistory: false });
+  undoStack.push(structuredClone({
+    bookmarks: state.data.bookmarks,
+    folders: state.data.folders
+  }));
+  await setState({ data: next }, { recordHistory: false });
   return true;
 }
 

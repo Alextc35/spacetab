@@ -37,6 +37,8 @@
   <div id="floating-menu">
     <button id="edit-toggle-mode" type="button">✎</button>
     <button id="add-bookmark" type="button">➕</button>
+    <button id="add-folder" type="button" aria-label="Create folder"
+      data-i18n-aria-label="folder.create">📁</button>
     <button id="settings" type="button">⚙️</button>
   </div>
 
@@ -71,6 +73,27 @@
       <div class="modal-actions">
         <button id="search-modal-close" class="btn btn-ghost" type="button"
           data-i18n="buttons.close">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="folder-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-card modal-folder">
+      <header class="folder-modal-header">
+        <span class="folder-modal-glyph" aria-hidden="true">📁</span>
+        <span class="folder-modal-heading">
+          <h2 id="folder-modal-title">Folder</h2>
+          <small id="folder-modal-summary"></small>
+        </span>
+      </header>
+      <p id="folder-modal-empty" class="folder-modal-empty" data-i18n="folder.empty">
+        This folder is empty. Enable edit mode and drag bookmarks here.
+      </p>
+      <ul id="folder-modal-items" class="folder-modal-items custom-scrollbar"></ul>
+      <div class="modal-actions">
+        <button id="folder-modal-close" class="btn btn-ghost" type="button"
+          data-i18n="buttons.close">Close</button>
       </div>
     </div>
   </div>

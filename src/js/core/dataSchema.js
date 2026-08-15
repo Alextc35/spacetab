@@ -34,6 +34,7 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
   const rawBookmarks = Array.isArray(source.bookmarks)
     ? source.bookmarks
     : (useDefaultsWhenEmpty ? DEFAULT_STATE.data.bookmarks : []);
+  const rawFolders = Array.isArray(source.folders) ? source.folders : [];
   const rawSettings = source.settings && typeof source.settings === 'object'
     ? source.settings
     : {};
@@ -44,6 +45,15 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
   const activeBookmarkGroupId = bookmarkGroups.some(
     group => group.id === rawSettings.activeBookmarkGroupId
   ) ? rawSettings.activeBookmarkGroupId : null;
+
+  const folders = rawFolders
+    .filter(folder => folder && typeof folder === 'object')
+    .map((folder, index) => normalizeBookmarkFolder(folder, {
+      index,
+      now,
+      bookmarkGroupIds
+    }));
+  const folderById = new Map(folders.map(folder => [folder.id, folder]));
 
   return {
     schemaVersion: DATA_SCHEMA_VERSION,
@@ -58,8 +68,14 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
         normalized.groupId = bookmarkGroupIds.has(normalized.groupId)
           ? normalized.groupId
           : null;
+        const folder = folderById.get(normalized.folderId);
+        normalized.folderId = folder
+          && (folder.groupId ?? null) === (normalized.groupId ?? null)
+          ? folder.id
+          : null;
         return normalized;
       }),
+    folders,
     settings: {
       ...structuredClone(DEFAULT_SETTINGS),
       ...rawSettings,
@@ -75,6 +91,34 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
       activeBookmarkGroupId
     }
   };
+}
+
+function normalizeBookmarkFolder(folder, { index, now, bookmarkGroupIds }) {
+  const groupId = bookmarkGroupIds.has(folder.groupId) ? folder.groupId : null;
+
+  return {
+    id: typeof folder.id === 'string' && folder.id.trim()
+      ? folder.id
+      : `folder-${now}-${index}`,
+    name: typeof folder.name === 'string' && folder.name.trim()
+      ? folder.name.trim()
+      : `Folder ${index + 1}`,
+    gx: normalizeGridValue(folder.gx),
+    gy: normalizeGridValue(folder.gy),
+    w: 1,
+    h: 1,
+    groupId,
+    createdAt: normalizeTimestamp(folder.createdAt, now),
+    updatedAt: normalizeTimestamp(folder.updatedAt, now)
+  };
+}
+
+function normalizeGridValue(value) {
+  return Number.isInteger(value) && value >= 0 ? value : 0;
+}
+
+function normalizeTimestamp(value, fallback) {
+  return Number.isFinite(value) && value >= 0 ? value : fallback;
 }
 
 function normalizeNamedPresets(value) {
@@ -127,11 +171,13 @@ export function createBackupEnvelope(data) {
  * Creates a portable, versioned bookmarks-only document.
  *
  * @param {Bookmark[]} bookmarks
- * @returns {{format: string, schemaVersion: number, exportedAt: string, bookmarks: Bookmark[]}}
+ * @param {BookmarkFolder[]} [folders=[]]
+ * @returns {{format: string, schemaVersion: number, exportedAt: string, bookmarks: Bookmark[], folders: BookmarkFolder[]}}
  */
-export function createBookmarksEnvelope(bookmarks) {
+export function createBookmarksEnvelope(bookmarks, folders = []) {
   const normalized = migratePersistedData({
     bookmarks,
+    folders,
     settings: DEFAULT_SETTINGS
   }, { useDefaultsWhenEmpty: false });
 
@@ -139,7 +185,8 @@ export function createBookmarksEnvelope(bookmarks) {
     format: 'spacetab-bookmarks',
     schemaVersion: DATA_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
-    bookmarks: normalized.bookmarks
+    bookmarks: normalized.bookmarks,
+    folders: normalized.folders
   };
 }
 
@@ -154,7 +201,8 @@ export function parseBackupPayload(payload, currentData = DEFAULT_STATE.data) {
   if (Array.isArray(payload)) {
     return migratePersistedData({
       ...currentData,
-      bookmarks: payload
+      bookmarks: payload,
+      folders: []
     });
   }
 
@@ -177,15 +225,23 @@ export function parseBackupPayload(payload, currentData = DEFAULT_STATE.data) {
  *
  * @param {*} payload
  * @param {PersistedData} currentData
- * @returns {Bookmark[]}
+ * @returns {{bookmarks: Bookmark[], folders: BookmarkFolder[]}}
  */
 export function parseBookmarksPayload(payload, currentData = DEFAULT_STATE.data) {
   if (payload?.format === 'spacetab-bookmarks' && Array.isArray(payload.bookmarks)) {
-    return migratePersistedData({
+    const migrated = migratePersistedData({
       ...currentData,
-      bookmarks: payload.bookmarks
-    }, { useDefaultsWhenEmpty: false }).bookmarks;
+      bookmarks: payload.bookmarks,
+      folders: Array.isArray(payload.folders) ? payload.folders : []
+    }, { useDefaultsWhenEmpty: false });
+    return { bookmarks: migrated.bookmarks, folders: migrated.folders };
   }
 
-  return parseBackupPayload(payload, currentData).bookmarks;
+  const restored = parseBackupPayload(payload, currentData);
+  const migrated = migratePersistedData({
+    ...currentData,
+    bookmarks: restored.bookmarks,
+    folders: restored.folders
+  }, { useDefaultsWhenEmpty: false });
+  return { bookmarks: migrated.bookmarks, folders: migrated.folders };
 }

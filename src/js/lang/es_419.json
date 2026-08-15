@@ -15,6 +15,13 @@
       "updated": "Marcador actualizado correctamente",
       "duplicated": "Marcador duplicado correctamente"
     },
+    "folder": {
+      "created": "Carpeta creada",
+      "renamed": "Carpeta renombrada",
+      "deleted": "Carpeta y marcadores eliminados",
+      "bookmarkAdded": "Marcador agregado a la carpeta",
+      "bookmarkRemoved": "Marcador devuelto a la cuadrícula"
+    },
     "history": {
       "undone": "Cambio deshecho",
       "redone": "Cambio rehecho"
@@ -102,14 +109,15 @@
     "redo": "Rehacer",
     "prompt": "Nombre del nuevo espacio de trabajo",
     "namePlaceholder": "Trabajo, ocio…",
-    "confirmDelete": "¿Eliminar «{{name}}» y todos sus marcadores ({{count}})? Si quieres conservarlos, muévelos antes a Principal o a otro espacio."
+    "confirmDelete": "¿Eliminar «{{name}}», sus {{folderCount}} carpetas y {{bookmarkCount}} marcadores? Si quieres conservarlos, muévelos antes a Principal o a otro espacio."
   },
   "search": {
     "title": "Buscar marcadores",
     "inputLabel": "Buscar por nombre o URL",
     "placeholder": "Nombre o URL",
     "empty": "No se encontraron marcadores.",
-    "noUrl": "Sin URL"
+    "noUrl": "Sin URL",
+    "inFolder": "Carpeta: {{name}}"
   },
   "bulk": {
     "ariaLabel": "Acciones de los marcadores seleccionados",
@@ -128,6 +136,28 @@
     "select": "Seleccionar marcador",
     "delete": "Eliminar marcador",
     "copySuffix": "copia"
+  },
+  "folder": {
+    "create": "Crear carpeta",
+    "createPrompt": "Ponle nombre a la nueva carpeta",
+    "renamePrompt": "Renombrar carpeta",
+    "namePlaceholder": "Herramientas, inspiración…",
+    "open": "Abrir {{name}}, {{count}} marcadores guardados",
+    "count": "{{count}} guardados",
+    "summary": "{{count}} marcadores en esta carpeta",
+    "empty": "Esta carpeta está vacía. Activa el modo edición y arrastra marcadores hasta aquí.",
+    "dropHint": "Suelta para agregar",
+    "noSpace": "No queda ninguna celda libre para crear una carpeta.",
+    "removeNoSpace": "No hay espacio suficiente en la cuadrícula para sacar este marcador de la carpeta.",
+    "confirmDelete": "¿Eliminar «{{name}}» y sus {{count}} marcadores de forma permanente?",
+    "actions": {
+      "openMenu": "Mostrar acciones de la carpeta",
+      "menuLabel": "Acciones de la carpeta",
+      "rename": "Renombrar carpeta",
+      "delete": "Eliminar carpeta",
+      "editBookmark": "Editar {{name}}",
+      "removeBookmark": "Sacar {{name}} de la carpeta"
+    }
   },
   "validation": {
     "preset": {

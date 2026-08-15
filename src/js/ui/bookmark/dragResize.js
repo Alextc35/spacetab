@@ -1,15 +1,11 @@
 import '../../types/types.js'; // typedefs
 import { updateBookmarkById } from '../../core/bookmark.js';
+import { addBookmarkToFolder, getGridItemsInGroup } from '../../core/bookmarkFolders.js';
 import { GRID_COLS, GRID_ROWS, PADDING } from '../../core/config.js';
 import { isAreaFree } from '../../core/grid.js';
-
-function getBookmarksInGroup(groupId) {
-  return getState().data.bookmarks.filter(
-    bookmark => (bookmark.groupId ?? null) === (groupId ?? null)
-  );
-}
 import { getState } from '../../core/store.js';
 import { confirmDeleteBookmark } from './actions.js';
+import { flashSuccess } from '../flash.js';
 
 let dragging = false;
 let resizing = false;
@@ -34,6 +30,7 @@ export function addDragAndResize(container, div, bookmark) {
 
   let tempGX = bookmark.gx;
   let tempGY = bookmark.gy;
+  let folderTarget = null;
 
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
@@ -83,9 +80,17 @@ export function addDragAndResize(container, div, bookmark) {
     newGX = Math.max(0, Math.min(newGX, GRID_COLS - bookmark.w));
     newGY = Math.max(0, Math.min(newGY, GRID_ROWS - bookmark.h));
 
+    const nextFolderTarget = findFolderTarget(e.clientX, e.clientY);
+    if (nextFolderTarget) {
+      setFolderTarget(nextFolderTarget);
+      div.classList.remove('is-invalid');
+      return;
+    }
+    setFolderTarget(null);
+
     if (
       isAreaFree(
-        getBookmarksInGroup(bookmark.groupId),
+        getGridItemsInGroup(getState().data, bookmark.groupId),
         newGX,
         newGY,
         bookmark.w,
@@ -103,12 +108,27 @@ export function addDragAndResize(container, div, bookmark) {
     }
   });
 
-  div.addEventListener('pointerup', async () => {
+  const finishDrag = async (commit = true) => {
     if (!dragging || resizing) return;
 
     dragging = false;
     div.classList.remove('is-dragging', 'is-invalid');
     div.style.zIndex = '';
+
+    if (!commit) {
+      setFolderTarget(null);
+      applyPosition(container, div, bookmark.gx, bookmark.gy);
+      return;
+    }
+
+    if (folderTarget) {
+      const targetId = folderTarget.dataset.folderId;
+      setFolderTarget(null);
+      if (addBookmarkToFolder(bookmark.id, targetId)) {
+        flashSuccess('flash.folder.bookmarkAdded');
+      }
+      return;
+    }
 
     // Persist changes via store
     if (tempGX !== bookmark.gx || tempGY !== bookmark.gy) {
@@ -117,7 +137,18 @@ export function addDragAndResize(container, div, bookmark) {
         gy: tempGY
       });
     }
-  });
+  };
+
+  div.addEventListener('pointerup', () => finishDrag(true));
+  div.addEventListener('pointercancel', () => finishDrag(false));
+
+  function setFolderTarget(nextTarget) {
+    if (folderTarget === nextTarget) return;
+    folderTarget?.classList.remove('is-drop-target');
+    folderTarget = nextTarget;
+    folderTarget?.classList.add('is-drop-target');
+    div.classList.toggle('is-over-folder', Boolean(folderTarget));
+  }
 
   ['top', 'right', 'bottom', 'left'].forEach(side => {
     const resizer = document.createElement('div');
@@ -223,7 +254,7 @@ function handleResize(container, e, div, bookmark, side) {
 
     if (
       isAreaFree(
-        getBookmarksInGroup(bookmark.groupId),
+        getGridItemsInGroup(getState().data, bookmark.groupId),
         newGX,
         newGY,
         newW,
@@ -269,6 +300,17 @@ function handleResize(container, e, div, bookmark, side) {
 
   document.addEventListener('pointermove', onMove);
   document.addEventListener('pointerup', onUp);
+}
+
+function findFolderTarget(clientX, clientY) {
+  return Array.from(document.querySelectorAll('.bookmark-folder[data-folder-id]'))
+    .find(element => {
+      const rect = element.getBoundingClientRect();
+      return clientX >= rect.left
+        && clientX <= rect.right
+        && clientY >= rect.top
+        && clientY <= rect.bottom;
+    }) ?? null;
 }
 
 /**

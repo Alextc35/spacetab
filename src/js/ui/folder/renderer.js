@@ -1,0 +1,72 @@
+import { t } from '../../core/i18n.js';
+import { applyGridItemPosition } from '../gridItemLayout.js';
+import { createFavicon } from '../bookmark/favicon.js';
+import { openFolderModal } from '../modals/folderModal.js';
+import { addFolderActions } from './actions.js';
+import { addFolderDrag } from './drag.js';
+
+/** Creates a folder card that occupies one regular grid cell. */
+export function createFolderElement({ container, folder, bookmarks, isEditing }) {
+  const element = document.createElement('div');
+  element.className = 'bookmark bookmark-folder';
+  element.dataset.folderId = folder.id;
+  element.classList.toggle('is-editing', isEditing);
+  applyGridItemPosition(container, element, folder);
+
+  const button = document.createElement('button');
+  button.className = 'folder-open';
+  button.type = 'button';
+  button.setAttribute('aria-label', t('folder.open', {
+    name: folder.name,
+    count: bookmarks.length
+  }));
+
+  const visual = document.createElement('span');
+  visual.className = 'folder-visual';
+  visual.setAttribute('aria-hidden', 'true');
+
+  const tab = document.createElement('span');
+  tab.className = 'folder-tab';
+  const body = document.createElement('span');
+  body.className = 'folder-body';
+  const previews = document.createElement('span');
+  previews.className = 'folder-previews';
+
+  for (const bookmark of bookmarks.slice(0, 4)) {
+    const image = createFavicon(bookmark);
+    image.alt = '';
+    previews.append(image);
+  }
+
+  body.append(previews);
+  visual.append(tab, body);
+
+  const title = document.createElement('span');
+  title.className = 'folder-title';
+  title.textContent = folder.name;
+
+  const count = document.createElement('span');
+  count.className = 'folder-count';
+  count.textContent = t('folder.count', { count: bookmarks.length });
+
+  const dropFeedback = document.createElement('span');
+  dropFeedback.className = 'folder-drop-feedback';
+  dropFeedback.textContent = t('folder.dropHint');
+
+  button.append(visual, title, count, dropFeedback);
+  button.addEventListener('click', event => {
+    if (element.dataset.suppressFolderOpen === 'true') {
+      event.preventDefault();
+      return;
+    }
+    openFolderModal(folder.id);
+  });
+  element.append(button);
+
+  if (isEditing) {
+    addFolderActions(element, folder);
+    addFolderDrag(container, element, folder);
+  }
+
+  return element;
+}

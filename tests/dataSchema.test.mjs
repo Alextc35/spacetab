@@ -7,8 +7,8 @@ import {
   migratePersistedData,
   parseBackupPayload,
   parseBookmarksPayload
-} from '../js/core/dataSchema.js';
-import { DATA_SCHEMA_VERSION, DEFAULT_SETTINGS } from '../js/core/defaults.js';
+} from '../src/js/core/dataSchema.js';
+import { DATA_SCHEMA_VERSION, DEFAULT_SETTINGS } from '../src/js/core/defaults.js';
 
 test('migrates legacy data and removes identity from the default preset', () => {
   const migrated = migratePersistedData({
@@ -56,13 +56,20 @@ test('keeps compatibility with the old bookmarks-only export', () => {
 test('round-trips a versioned bookmarks-only export without replacing settings', () => {
   const current = migratePersistedData({ bookmarks: [], settings: DEFAULT_SETTINGS });
   const envelope = createBookmarksEnvelope([
-    { id: 'portable', name: 'Portable', url: 'portable.test' }
-  ]);
-  const bookmarks = parseBookmarksPayload(envelope, current);
+    {
+      id: 'portable',
+      name: 'Portable',
+      url: 'portable.test',
+      folderId: 'reading'
+    }
+  ], [{ id: 'reading', name: 'Reading', gx: 0, gy: 0 }]);
+  const { bookmarks, folders } = parseBookmarksPayload(envelope, current);
 
   assert.equal(envelope.format, 'spacetab-bookmarks');
   assert.equal(bookmarks[0].id, 'portable');
   assert.equal(bookmarks[0].url, 'https://portable.test');
+  assert.equal(bookmarks[0].folderId, 'reading');
+  assert.equal(folders[0].name, 'Reading');
 });
 
 test('rejects data written by a future schema', () => {
@@ -105,4 +112,25 @@ test('falls back to the main workspace when the active group is missing', () => 
   });
 
   assert.equal(migrated.settings.activeBookmarkGroupId, null);
+});
+
+test('normalizes folder references and rejects cross-workspace membership', () => {
+  const migrated = migratePersistedData({
+    bookmarks: [
+      { id: 'inside', name: 'Inside', groupId: 'work', folderId: 'work-folder' },
+      { id: 'wrong', name: 'Wrong', groupId: null, folderId: 'work-folder' },
+      { id: 'missing', name: 'Missing', folderId: 'missing-folder' }
+    ],
+    folders: [{ id: 'work-folder', name: 'Work', groupId: 'work', w: 5, h: 4 }],
+    settings: {
+      ...DEFAULT_SETTINGS,
+      bookmarkGroups: [{ id: 'work', name: 'Work' }]
+    }
+  });
+
+  assert.equal(migrated.folders[0].w, 1);
+  assert.equal(migrated.folders[0].h, 1);
+  assert.equal(migrated.bookmarks[0].folderId, 'work-folder');
+  assert.equal(migrated.bookmarks[1].folderId, null);
+  assert.equal(migrated.bookmarks[2].folderId, null);
 });

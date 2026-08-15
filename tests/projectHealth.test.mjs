@@ -18,3 +18,23 @@ test('all manifest entry points exist', () => {
     assert.equal(existsSync(icon), true, `Missing manifest icon: ${icon}`);
   }
 });
+
+test('all interface languages expose the same translation contract', () => {
+  const languages = ['en', 'es', 'es_419', 'pt_BR'];
+  const flattenKeys = (value, prefix = '') => Object.entries(value).flatMap(
+    ([key, child]) => {
+      const path = prefix ? `${prefix}.${key}` : key;
+      return child && typeof child === 'object'
+        ? flattenKeys(child, path)
+        : [path];
+    }
+  ).sort();
+  const contracts = languages.map(language => flattenKeys(JSON.parse(
+    readFileSync(`src/js/lang/${language}.json`, 'utf8')
+  )));
+
+  assert.ok(contracts[0].includes('folder.actions.removeBookmark'));
+  for (const contract of contracts.slice(1)) {
+    assert.deepEqual(contract, contracts[0]);
+  }
+});

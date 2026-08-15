@@ -8,7 +8,7 @@ beforeEach(async () => {
   globalThis.chrome ||= {
     runtime: { getManifest: () => ({ version: '0.1.1' }) }
   };
-  modalManager ||= await import('../../js/ui/modalManager.js');
+  modalManager ||= await import('../../src/js/ui/modalManager.js');
   document.body.replaceChildren();
 });
 

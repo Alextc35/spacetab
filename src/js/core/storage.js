@@ -117,12 +117,13 @@ async function readLocalData() {
   const result = await callStorage(
     chrome.storage.local,
     'get',
-    ['schemaVersion', 'bookmarks', 'settings']
+    ['schemaVersion', 'bookmarks', 'folders', 'settings']
   );
 
   if (
     result.schemaVersion === undefined &&
     result.bookmarks === undefined &&
+    result.folders === undefined &&
     result.settings === undefined
   ) {
     return null;
@@ -131,6 +132,7 @@ async function readLocalData() {
   return {
     schemaVersion: result.schemaVersion,
     bookmarks: result.bookmarks,
+    folders: result.folders,
     settings: result.settings
   };
 }
@@ -145,7 +147,7 @@ async function readSyncData() {
   const header = await callStorage(
     chrome.storage.sync,
     'get',
-    [SYNC_META_KEY, 'schemaVersion', 'bookmarks', 'settings']
+    [SYNC_META_KEY, 'schemaVersion', 'bookmarks', 'folders', 'settings']
   );
 
   const meta = header[SYNC_META_KEY];
@@ -154,6 +156,7 @@ async function readSyncData() {
     if (
       header.schemaVersion === undefined &&
       header.bookmarks === undefined &&
+      header.folders === undefined &&
       header.settings === undefined
     ) {
       return null;
@@ -162,6 +165,7 @@ async function readSyncData() {
     return {
       schemaVersion: header.schemaVersion,
       bookmarks: header.bookmarks,
+      folders: header.folders,
       settings: header.settings
     };
   }
@@ -214,7 +218,7 @@ async function writeSyncData(data) {
   const previous = await callStorage(
     chrome.storage.sync,
     'get',
-    [SYNC_META_KEY, 'schemaVersion', 'bookmarks', 'settings']
+    [SYNC_META_KEY, 'schemaVersion', 'bookmarks', 'folders', 'settings']
   );
   const previousChunkCount = previous[SYNC_META_KEY]?.chunkCount ?? 0;
 
@@ -244,7 +248,7 @@ async function writeSyncData(data) {
     )
     : [];
 
-  const legacyKeys = ['schemaVersion', 'bookmarks', 'settings'].filter(
+  const legacyKeys = ['schemaVersion', 'bookmarks', 'folders', 'settings'].filter(
     key => previous[key] !== undefined
   );
   const keysToRemove = [...staleKeys, ...legacyKeys];
@@ -330,7 +334,9 @@ export const storage = {
   async set(data) {
     await initialize();
 
-    const isComplete = data.bookmarks !== undefined && data.settings !== undefined;
+    const isComplete = data.bookmarks !== undefined
+      && data.folders !== undefined
+      && data.settings !== undefined;
     const nextData = isComplete
       ? normalizePersistedData(data)
       : normalizePersistedData({
@@ -433,11 +439,13 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   const isApplicationChange = activeMode === STORAGE_MODES.LOCAL
     ? changedKeys.some(key => (
         key === 'schemaVersion' || key === 'bookmarks' || key === 'settings'
+        || key === 'folders'
       ))
     : changedKeys.some(key => (
         key === SYNC_META_KEY ||
         key === 'schemaVersion' ||
         key === 'bookmarks' ||
+        key === 'folders' ||
         key === 'settings' ||
         key.startsWith(SYNC_CHUNK_PREFIX)
       ));

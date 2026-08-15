@@ -125,6 +125,9 @@ export function normalizeBookmark(value = {}, {
     gy: normalizeGridValue(draft.gy, 0),
     w: normalizeGridSize(draft.w),
     h: normalizeGridSize(draft.h),
+    folderId: typeof draft.folderId === 'string' && draft.folderId.trim()
+      ? draft.folderId
+      : null,
     createdAt: isNew ? now : normalizeTimestamp(source.createdAt, now),
     updatedAt: touchUpdatedAt
       ? now

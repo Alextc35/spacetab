@@ -15,6 +15,13 @@
       "updated": "Bookmark updated successfully",
       "duplicated": "Bookmark duplicated successfully"
     },
+    "folder": {
+      "created": "Folder created",
+      "renamed": "Folder renamed",
+      "deleted": "Folder and its bookmarks deleted",
+      "bookmarkAdded": "Bookmark added to folder",
+      "bookmarkRemoved": "Bookmark moved back to the grid"
+    },
     "history": {
       "undone": "Change undone",
       "redone": "Change redone"
@@ -102,14 +109,15 @@
     "redo": "Redo",
     "prompt": "Enter a name for the new workspace",
     "namePlaceholder": "Work, leisure…",
-    "confirmDelete": "Delete “{{name}}” and all its bookmarks ({{count}})? To keep them, move them to Main or another workspace first."
+    "confirmDelete": "Delete “{{name}}”, its {{folderCount}} folders and {{bookmarkCount}} bookmarks? To keep them, move them to Main or another workspace first."
   },
   "search": {
     "title": "Search bookmarks",
     "inputLabel": "Search by name or URL",
     "placeholder": "Name or URL",
     "empty": "No bookmarks found.",
-    "noUrl": "No URL"
+    "noUrl": "No URL",
+    "inFolder": "Folder: {{name}}"
   },
   "bulk": {
     "ariaLabel": "Selected bookmark actions",
@@ -128,6 +136,28 @@
     "select": "Select bookmark",
     "delete": "Delete bookmark",
     "copySuffix": "copy"
+  },
+  "folder": {
+    "create": "Create folder",
+    "createPrompt": "Name the new folder",
+    "renamePrompt": "Rename folder",
+    "namePlaceholder": "Tools, inspiration…",
+    "open": "Open {{name}}, {{count}} saved bookmarks",
+    "count": "{{count}} saved",
+    "summary": "{{count}} bookmarks in this folder",
+    "empty": "This folder is empty. Enable edit mode and drag bookmarks here.",
+    "dropHint": "Drop to add",
+    "noSpace": "There is no free grid cell for a new folder.",
+    "removeNoSpace": "There is not enough grid space to remove this bookmark from the folder.",
+    "confirmDelete": "Delete “{{name}}” and its {{count}} bookmarks permanently?",
+    "actions": {
+      "openMenu": "Show folder actions",
+      "menuLabel": "Folder actions",
+      "rename": "Rename folder",
+      "delete": "Delete folder",
+      "editBookmark": "Edit {{name}}",
+      "removeBookmark": "Move {{name}} out of the folder"
+    }
   },
   "validation": {
     "preset": {

@@ -9,7 +9,6 @@ import { flash } from './flash.js';
 import { showAlert, showPrompt } from './modals/alert.js';
 import { openSearchModal } from './modals/searchModal.js';
 import { clearBookmarkSelection } from './bookmark/selection.js';
-import { hasOpenModal } from './modalManager.js';
 
 export function initWorkspaceToolbar() {
   const select = document.getElementById('workspace-select');
@@ -32,14 +31,16 @@ export function initWorkspaceToolbar() {
   });
   deleteButton.addEventListener('click', async () => {
     if (!select.value) return;
-    const { bookmarks, settings } = getState().data;
+    const { bookmarks, folders, settings } = getState().data;
     const group = settings.bookmarkGroups.find(item => item.id === select.value);
     if (!group) return;
 
     const bookmarkCount = bookmarks.filter(bookmark => bookmark.groupId === group.id).length;
+    const folderCount = folders.filter(folder => folder.groupId === group.id).length;
     const confirmed = await showAlert(t('workspace.confirmDelete', {
       name: group.name,
-      count: bookmarkCount
+      bookmarkCount,
+      folderCount
     }), { type: 'confirm' });
     if (confirmed) deleteBookmarkGroup(select.value);
   });

@@ -17,8 +17,8 @@ import { downloadJson } from '../backup.js';
  */
 export function exportBookmarks() {
   try {
-    const { data: { bookmarks } } = getState();
-    downloadJson(createBookmarksEnvelope(bookmarks), 'spacetab-bookmarks.json');
+    const { data: { bookmarks, folders } } = getState();
+    downloadJson(createBookmarksEnvelope(bookmarks, folders), 'spacetab-bookmarks.json');
 
     if (DEBUG) console.log('Bookmarks exported:', bookmarks);
 
@@ -44,8 +44,8 @@ export async function importBookmarks(file) {
   try {
     const payload = JSON.parse(await file.text());
     const currentData = getState().data;
-    const bookmarks = parseBookmarksPayload(payload, currentData);
-    await setState({ data: { bookmarks } });
+    const { bookmarks, folders } = parseBookmarksPayload(payload, currentData);
+    await setState({ data: { bookmarks, folders } });
 
     if (DEBUG) console.log('Bookmarks imported:', bookmarks);
     flashSuccess('flash.bookmarks.imported');

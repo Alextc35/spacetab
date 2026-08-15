@@ -1,5 +1,6 @@
-import { getState, setState } from './store.js';
+import { clearBookmarkHistory, getState, setState } from './store.js';
 import { findFirstFreeSlot } from './grid.js';
+import { getGridItemsInGroup } from './bookmarkFolders.js';
 
 export function createBookmarkGroup(name) {
   const normalizedName = typeof name === 'string' ? name.trim() : '';
@@ -32,12 +33,13 @@ export function setActiveBookmarkGroup(groupId) {
 }
 
 export function deleteBookmarkGroup(groupId) {
-  const { data: { settings, bookmarks } } = getState();
+  const { data: { settings, bookmarks, folders } } = getState();
   if (!settings.bookmarkGroups.some(group => group.id === groupId)) return false;
 
   setState({
     data: {
       bookmarks: bookmarks.filter(bookmark => bookmark.groupId !== groupId),
+      folders: folders.filter(folder => folder.groupId !== groupId),
       settings: {
         ...settings,
         bookmarkGroups: settings.bookmarkGroups.filter(group => group.id !== groupId),
@@ -47,19 +49,21 @@ export function deleteBookmarkGroup(groupId) {
       }
     }
   }, { recordHistory: false });
+  clearBookmarkHistory();
   return true;
 }
 
 export function moveBookmarksToGroup(bookmarkIds, groupId, { columns, rows } = {}) {
   const ids = new Set(bookmarkIds);
-  const { data: { settings, bookmarks } } = getState();
+  const { data } = getState();
+  const { settings, bookmarks } = data;
   const normalizedId = settings.bookmarkGroups.some(group => group.id === groupId)
     ? groupId
     : null;
   let moved = 0;
   let skipped = 0;
-  const occupied = bookmarks.filter(bookmark => (
-    (bookmark.groupId ?? null) === normalizedId && !ids.has(bookmark.id)
+  const occupied = getGridItemsInGroup(data, normalizedId).filter(item => (
+    !ids.has(item.id)
   ));
   const replacements = new Map();
 
@@ -80,6 +84,7 @@ export function moveBookmarksToGroup(bookmarkIds, groupId, { columns, rows } = {
       ...bookmark,
       ...position,
       groupId: normalizedId,
+      folderId: null,
       updatedAt: Date.now()
     };
     replacements.set(bookmark.id, replacement);

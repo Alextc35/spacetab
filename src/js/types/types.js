@@ -9,6 +9,7 @@
  * @property {number} w
  * @property {number} h
  * @property {string|null} groupId
+ * @property {string|null} folderId
  * @property {string|null} backgroundImageUrl
  * @property {boolean} backgroundImageUrlLocked
  * @property {boolean} backgroundFavicon
@@ -19,6 +20,19 @@
  * @property {string} textColor
  * @property {boolean} showFavicon
  * @property {boolean} invertColorIcon
+ * @property {number} createdAt
+ * @property {number} updatedAt
+ */
+
+/**
+ * @typedef {Object} BookmarkFolder
+ * @property {string} id
+ * @property {string} name
+ * @property {number} gx
+ * @property {number} gy
+ * @property {1} w
+ * @property {1} h
+ * @property {string|null} groupId
  * @property {number} createdAt
  * @property {number} updatedAt
  */
@@ -43,7 +57,7 @@
 
 /**
  * @typedef {Object} Settings
- * @property {'en'|'es'} language
+ * @property {'en'|'es'|'es_419'|'pt_BR'} language
  * @property {Object} theme
  * @property {boolean} theme.backgroundDefault
  * @property {string} theme.backgroundColor
@@ -59,6 +73,7 @@
  * @typedef {Object} DataState
  * @property {number} schemaVersion
  * @property {Bookmark[]} bookmarks
+ * @property {BookmarkFolder[]} folders
  * @property {Settings} settings
  */
 
@@ -80,5 +95,5 @@
  */
 
 /**
- * @typedef {Pick<AppState['data'], 'schemaVersion' | 'bookmarks' | 'settings'>} PersistedData
+ * @typedef {Pick<AppState['data'], 'schemaVersion' | 'bookmarks' | 'folders' | 'settings'>} PersistedData
  */
