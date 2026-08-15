@@ -11,7 +11,11 @@
   <nav id="workspace-toolbar" aria-label="Workspace controls" data-i18n-aria-label="workspace.ariaLabel">
     <button id="search-bookmarks" type="button" data-i18n-aria-label="workspace.search" aria-label="Search">⌕</button>
     <label class="is-hidden" for="workspace-select" data-i18n="workspace.current">Workspace</label>
-    <select id="workspace-select"></select>
+    <select id="workspace-select" aria-describedby="workspace-shortcut-hint"
+      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"></select>
+    <span id="workspace-shortcut-hint" class="is-hidden" data-i18n="workspace.shortcutHint">
+      Switch workspace with Alt plus up or down arrow
+    </span>
     <button id="workspace-add" type="button" data-i18n-aria-label="workspace.add" aria-label="Add workspace">＋</button>
     <button id="workspace-delete" type="button" data-i18n-aria-label="workspace.delete" aria-label="Delete workspace">−</button>
     <span class="workspace-toolbar-divider" aria-hidden="true"></span>

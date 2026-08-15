@@ -107,6 +107,7 @@
     "delete": "Delete workspace",
     "undo": "Undo",
     "redo": "Redo",
+    "shortcutHint": "Switch workspace with Alt or Option plus Up or Down Arrow",
     "prompt": "Enter a name for the new workspace",
     "namePlaceholder": "Work, leisure…",
     "confirmDelete": "Delete “{{name}}”, its {{folderCount}} folders and {{bookmarkCount}} bookmarks? To keep them, move them to Main or another workspace first."

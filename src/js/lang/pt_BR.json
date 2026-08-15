@@ -107,6 +107,7 @@
     "delete": "Excluir espaço de trabalho",
     "undo": "Desfazer",
     "redo": "Refazer",
+    "shortcutHint": "Alterne o espaço com Alt ou Option mais Seta para cima ou Seta para baixo",
     "prompt": "Nome do novo espaço de trabalho",
     "namePlaceholder": "Trabalho, lazer…",
     "confirmDelete": "Excluir «{{name}}», suas {{folderCount}} pastas e {{bookmarkCount}} favoritos? Se quiser mantê-los, mova-os antes para Principal ou para outro espaço."

@@ -32,7 +32,10 @@ globalThis.chrome = {
   }
 };
 
-const { deleteBookmarkGroup } = await import('../src/js/core/bookmarkGroups.js');
+const {
+  deleteBookmarkGroup,
+  getAdjacentBookmarkGroupId
+} = await import('../src/js/core/bookmarkGroups.js');
 const { getState, hydrateStore, setState } = await import('../src/js/core/store.js');
 
 test('deleting a workspace also deletes its bookmarks without moving them to Main', async () => {
@@ -60,4 +63,25 @@ test('deleting a workspace also deletes its bookmarks without moving them to Mai
   assert.deepEqual(getState().data.folders.map(folder => folder.id), ['main-folder']);
   assert.deepEqual(getState().data.settings.bookmarkGroups, []);
   assert.equal(getState().data.settings.activeBookmarkGroupId, null);
+});
+
+test('cycles through workspaces in both directions including Main', () => {
+  const settings = {
+    bookmarkGroups: [
+      { id: 'work', name: 'Work' },
+      { id: 'play', name: 'Play' }
+    ],
+    activeBookmarkGroupId: null
+  };
+
+  assert.equal(getAdjacentBookmarkGroupId(settings, 1), 'work');
+  assert.equal(getAdjacentBookmarkGroupId(settings, -1), 'play');
+  assert.equal(getAdjacentBookmarkGroupId({
+    ...settings,
+    activeBookmarkGroupId: 'work'
+  }, -1), null);
+  assert.equal(getAdjacentBookmarkGroupId({
+    ...settings,
+    activeBookmarkGroupId: 'play'
+  }, 1), null);
 });

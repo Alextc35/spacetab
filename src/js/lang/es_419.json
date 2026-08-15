@@ -107,6 +107,7 @@
     "delete": "Eliminar espacio de trabajo",
     "undo": "Deshacer",
     "redo": "Rehacer",
+    "shortcutHint": "Cambia de espacio con Alt u Opción más Flecha arriba o Flecha abajo",
     "prompt": "Nombre del nuevo espacio de trabajo",
     "namePlaceholder": "Trabajo, ocio…",
     "confirmDelete": "¿Eliminar «{{name}}», sus {{folderCount}} carpetas y {{bookmarkCount}} marcadores? Si quieres conservarlos, muévelos antes a Principal o a otro espacio."

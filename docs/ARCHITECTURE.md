@@ -83,6 +83,12 @@ Search indexes all workspaces and contained bookmarks, showing folder context
 when present. Selection is transient UI state and is pruned when bookmarks
 disappear.
 
+`src/js/ui/workspaceToolbar.js` owns cyclic workspace navigation. `Alt/Option`
+with the up or down arrow resolves the adjacent workspace through the core,
+animates the current grid out and the next grid in, and skips the transition
+when the operating system requests reduced motion. Shortcuts are ignored while
+typing or while a modal is open.
+
 ## Verification
 
 The project has four complementary checks:

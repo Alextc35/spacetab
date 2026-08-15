@@ -17,19 +17,39 @@ export function createBookmarkGroup(name) {
   return group;
 }
 
-export function setActiveBookmarkGroup(groupId) {
+export async function setActiveBookmarkGroup(groupId) {
   const { data: { settings } } = getState();
   const normalizedId = settings.bookmarkGroups.some(group => group.id === groupId)
     ? groupId
     : null;
   if (settings.activeBookmarkGroupId === normalizedId) return false;
 
-  setState({
+  await setState({
     data: {
       settings: { ...settings, activeBookmarkGroupId: normalizedId }
     }
   }, { recordHistory: false });
   return true;
+}
+
+/**
+ * Resolves the previous or next workspace, wrapping around at both ends.
+ * Main is always the first workspace in the cycle.
+ *
+ * @param {Settings} settings
+ * @param {number} offset - Negative for previous, positive for next.
+ * @returns {string|null}
+ */
+export function getAdjacentBookmarkGroupId(settings, offset) {
+  const ids = [null, ...settings.bookmarkGroups.map(group => group.id)];
+  const currentId = ids.includes(settings.activeBookmarkGroupId)
+    ? settings.activeBookmarkGroupId
+    : null;
+  if (ids.length < 2 || offset === 0) return currentId;
+
+  const currentIndex = ids.indexOf(currentId);
+  const direction = offset < 0 ? -1 : 1;
+  return ids[(currentIndex + direction + ids.length) % ids.length];
 }
 
 export function deleteBookmarkGroup(groupId) {

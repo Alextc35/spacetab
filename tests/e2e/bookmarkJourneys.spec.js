@@ -137,6 +137,22 @@ test('creates a workspace and finds bookmarks across workspaces', async ({ page 
   await expect(page.getByRole('option', { name: /Work dashboard/ })).toContainText('Work');
 });
 
+test('cycles workspaces with Alt plus arrow keys and animates the grid', async ({ page }) => {
+  await page.getByRole('navigation', { name: 'Workspace controls' }).hover();
+  await page.getByRole('button', { name: 'Create workspace' }).click();
+  await page.getByPlaceholder('Work, leisure…').fill('Work');
+  await page.getByRole('button', { name: 'Accept' }).click();
+
+  const workspace = page.getByRole('combobox', { name: 'Workspace' });
+  const workId = await workspace.inputValue();
+  await page.keyboard.press('Alt+ArrowUp');
+  await expect(workspace).toHaveValue('');
+
+  await page.keyboard.press('Alt+ArrowDown');
+  await expect(workspace).toHaveValue(workId);
+  await expect(page.locator('#bookmark-container')).not.toHaveClass(/is-switching-workspace/);
+});
+
 test('warns before deleting a workspace and removes its bookmarks', async ({ page }) => {
   const workspaceDock = page.getByRole('navigation', { name: 'Workspace controls' });
 

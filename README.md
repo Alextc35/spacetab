@@ -19,7 +19,7 @@ items on a desktop without relying on a SpaceTab account or backend.
 * Free drag and resize on a collision-aware grid
 * Shared panel for creating, editing and defining default bookmark styles
 * Named appearance presets
-* Independent bookmark workspaces
+* Independent bookmark workspaces with smooth `Alt/⌥ + ↑/↓` navigation
 * Folders with drag-and-drop feedback and a dedicated contents panel
 * Global search palette (`/` or `Ctrl/Cmd + K`)
 * Multi-select, bulk styling, moving, duplication and deletion
