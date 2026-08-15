@@ -95,6 +95,17 @@
   object-fit: contain;
 }
 
+.folder-caption {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  flex: 0 0 auto;
+  grid-template-rows: minmax(0, auto) 1em;
+  gap: 3px;
+  padding: 0 3px 1px;
+  overflow: hidden;
+}
+
 .folder-title {
   display: block;
   width: 100%;
@@ -110,10 +121,16 @@
 }
 
 .folder-count {
-  margin-top: 3px;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
   color: #a8c8e8;
   font-size: .72rem;
   line-height: 1;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .folder-drop-feedback {

@@ -49,11 +49,15 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
   count.className = 'folder-count';
   count.textContent = t('folder.count', { count: bookmarks.length });
 
+  const caption = document.createElement('span');
+  caption.className = 'folder-caption';
+  caption.append(title, count);
+
   const dropFeedback = document.createElement('span');
   dropFeedback.className = 'folder-drop-feedback';
   dropFeedback.textContent = t('folder.dropHint');
 
-  button.append(visual, title, count, dropFeedback);
+  button.append(visual, caption, dropFeedback);
   button.addEventListener('click', event => {
     if (element.dataset.suppressFolderOpen === 'true') {
       event.preventDefault();
