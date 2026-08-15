@@ -151,7 +151,7 @@ status in Settings.
 * `Space` toggles edit mode when no modal is open.
 * `Enter` opens the create-bookmark panel.
 * `.` opens Settings.
-* `/` or `Ctrl/Cmd + K` opens global search.
+* `/` opens global search.
 * `Ctrl/Cmd + Z` undoes the latest bookmark operation.
 * `Ctrl/Cmd + Shift + Z` redoes it.
 
