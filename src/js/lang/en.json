@@ -267,7 +267,7 @@
     },
     "information": {
       "title": "Information",
-      "version": "Version: {{VERSION}}-beta",
+      "version": "Version: {{VERSION}}",
       "author": "Author: @alextc35"
     }
   }
