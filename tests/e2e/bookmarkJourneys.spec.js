@@ -106,6 +106,130 @@ test('uses direct bookmark selection and edit controls without a flyout', async 
   await expect(edit).not.toHaveCSS('background-color', 'rgb(37, 99, 235)');
 });
 
+test('resizes smoothly from corners, snaps to the grid and rejects collisions', async ({ page }) => {
+  await enableEditMode(page);
+  const grid = page.locator('#bookmark-container');
+  const bookmark = page.locator('.bookmark[data-bookmark-id]').nth(1);
+  const indicator = bookmark.locator('.resize-indicator');
+  const gridBox = await grid.boundingBox();
+  const initialBox = await bookmark.boundingBox();
+  const cellWidth = gridBox.width / 12;
+  const cellHeight = gridBox.height / 6;
+
+  const cornerHandle = bookmark.locator('.resizer.top-left');
+  const cornerDecoration = await cornerHandle.evaluate((handle) => {
+    const handleStyle = getComputedStyle(handle);
+    const decoration = getComputedStyle(handle, '::before');
+    return {
+      background: handleStyle.backgroundColor,
+      inset: { top: handleStyle.top, left: handleStyle.left },
+      size: { width: handleStyle.width, height: handleStyle.height },
+      top: decoration.borderTopWidth,
+      right: decoration.borderRightWidth,
+      bottom: decoration.borderBottomWidth,
+      left: decoration.borderLeftWidth
+    };
+  });
+  expect(cornerDecoration).toEqual({
+    background: 'rgba(15, 23, 42, 0.88)',
+    inset: { top: '-5px', left: '-5px' },
+    size: { width: '14px', height: '14px' },
+    top: '2px',
+    right: '0px',
+    bottom: '0px',
+    left: '2px'
+  });
+
+  const sideDecoration = await bookmark.locator('.resizer.left').evaluate((handle) => {
+    const handleStyle = getComputedStyle(handle);
+    const decoration = getComputedStyle(handle, '::before');
+    return {
+      background: handleStyle.backgroundColor,
+      size: { width: handleStyle.width, height: handleStyle.height },
+      mark: { width: decoration.width, background: decoration.backgroundColor }
+    };
+  });
+  expect(sideDecoration).toEqual({
+    background: cornerDecoration.background,
+    size: { width: '10px', height: '22px' },
+    mark: { width: '2px', background: 'rgb(248, 250, 252)' }
+  });
+
+  const neighboringCorner = page.locator('.bookmark[data-bookmark-id]').first()
+    .locator('.resizer.top-right');
+  const neighboringSide = page.locator('.bookmark[data-bookmark-id]').first()
+    .locator('.resizer.right');
+  const [leftCornerBox, rightCornerBox, leftSideBox, rightSideBox, selectBox] = await Promise.all([
+    neighboringCorner.boundingBox(),
+    cornerHandle.boundingBox(),
+    neighboringSide.boundingBox(),
+    bookmark.locator('.resizer.left').boundingBox(),
+    bookmark.getByRole('button', { name: 'Select bookmark' }).boundingBox()
+  ]);
+  expect(Math.abs(leftCornerBox.x + leftCornerBox.width - rightCornerBox.x)).toBeLessThan(1);
+  expect(Math.abs(leftSideBox.x + leftSideBox.width - rightSideBox.x)).toBeLessThan(1);
+  expect(rightCornerBox.x + rightCornerBox.width).toBeLessThan(selectBox.x);
+
+  const blockedHandleBox = await bookmark.locator('.resizer.bottom-left').boundingBox();
+  const blockedStart = {
+    x: blockedHandleBox.x + blockedHandleBox.width / 2,
+    y: blockedHandleBox.y + blockedHandleBox.height / 2
+  };
+  await page.mouse.move(blockedStart.x, blockedStart.y);
+  await page.mouse.down();
+  await page.mouse.move(
+    blockedStart.x - cellWidth * .7,
+    blockedStart.y + cellHeight * .7,
+    { steps: 8 }
+  );
+  await expect(bookmark).toHaveClass(/is-invalid/);
+  await expect(indicator).toHaveText('2 × 2');
+  await page.mouse.up();
+
+  await expect(bookmark).not.toHaveClass(/is-invalid/);
+  const revertedBox = await bookmark.boundingBox();
+  expect(Math.abs(revertedBox.width - initialBox.width)).toBeLessThan(2);
+  expect(Math.abs(revertedBox.height - initialBox.height)).toBeLessThan(2);
+
+  const resizeHandleBox = await bookmark.locator('.resizer.bottom-right').boundingBox();
+  const resizeStart = {
+    x: resizeHandleBox.x + resizeHandleBox.width / 2,
+    y: resizeHandleBox.y + resizeHandleBox.height / 2
+  };
+  await page.mouse.move(resizeStart.x, resizeStart.y);
+  await page.mouse.down();
+  await page.mouse.move(
+    resizeStart.x + cellWidth * .35,
+    resizeStart.y + cellHeight * .35,
+    { steps: 5 }
+  );
+  await page.waitForTimeout(50);
+
+  const continuousBox = await bookmark.boundingBox();
+  expect(continuousBox.width).toBeGreaterThan(initialBox.width + cellWidth * .25);
+  expect(continuousBox.width).toBeLessThan(initialBox.width + cellWidth * .5);
+  await expect(indicator).toHaveText('1 × 1');
+
+  await page.mouse.move(
+    resizeStart.x + cellWidth * .8,
+    resizeStart.y + cellHeight * .8,
+    { steps: 7 }
+  );
+  await expect(indicator).toHaveText('2 × 2');
+  await expect(bookmark).not.toHaveClass(/is-invalid/);
+  await page.mouse.up();
+
+  const resizedBox = await bookmark.boundingBox();
+  expect(resizedBox.width).toBeGreaterThan(initialBox.width + cellWidth * .9);
+  expect(resizedBox.height).toBeGreaterThan(initialBox.height + cellHeight * .9);
+
+  await page.reload();
+  await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
+  const persistedBox = await page.locator('.bookmark[data-bookmark-id]').nth(1).boundingBox();
+  expect(Math.abs(persistedBox.width - resizedBox.width)).toBeLessThan(2);
+  expect(Math.abs(persistedBox.height - resizedBox.height)).toBeLessThan(2);
+});
+
 test('creates, edits and persists a bookmark after reload', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '➕' }).click();

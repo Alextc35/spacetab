@@ -74,6 +74,8 @@
       outline-offset: -2px;
       box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.35);
       z-index: calc(var(--z-bookmark) + 1);
+      user-select: none;
+      will-change: left, top, width, height;
       
       &.is-invalid {
         outline-color: red;
@@ -91,42 +93,182 @@
 
   & .resizer {
     position: absolute;
-    background: rgba(255,255,255,0.8);
-    border-radius: 3px;
+    z-index: 4;
+    box-sizing: border-box;
+    border: 1px solid rgba(191, 219, 254, .72);
+    border-radius: 4px;
+    background: rgba(15, 23, 42, .88);
+    box-shadow: 0 3px 10px rgba(15, 23, 42, .38);
+    opacity: .96;
+    touch-action: none;
+    transition: background-color .14s ease, border-color .14s ease,
+      box-shadow .14s ease, opacity .14s ease;
+
+    &:hover,
+    &.is-active {
+      border-color: #bfdbfe;
+      background: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, .24),
+        0 3px 10px rgba(15, 23, 42, .34);
+      opacity: 1;
+    }
 
     &.top,
     &.bottom {
       left: 50%;
       transform: translateX(-50%);
-      width: 20px;
-      height: 6px;
+      width: 22px;
+      height: 10px;
+      border-radius: 5px;
       cursor: ns-resize;
+
+      &::before {
+        top: 50%;
+        right: 4px;
+        left: 4px;
+        height: 2px;
+        transform: translateY(-50%);
+      }
     }
 
     &.left,
     &.right {
       top: 50%;
       transform: translateY(-50%);
-      width: 6px;
-      height: 20px;
+      width: 10px;
+      height: 22px;
+      border-radius: 5px;
       cursor: ew-resize;
+
+      &::before {
+        top: 4px;
+        bottom: 4px;
+        left: 50%;
+        width: 2px;
+        transform: translateX(-50%);
+      }
+    }
+
+    &.top,
+    &.right,
+    &.bottom,
+    &.left {
+      &::before {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        background: #f8fafc;
+        box-shadow: 0 1px 1px rgba(15, 23, 42, .45);
+      }
     }
 
     &.top {
-      top: -4px;
+      top: -5px;
     }
 
     &.bottom {
-      bottom: -4px;
+      bottom: -5px;
     }
 
     &.left {
-      left: -4px;
+      left: -5px;
     }
 
     &.right {
-      right: -4px;
+      right: -5px;
     }
+
+    &.top-left,
+    &.top-right,
+    &.bottom-left,
+    &.bottom-right {
+      width: 14px;
+      height: 14px;
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 3px;
+        border-color: #f8fafc;
+        border-style: solid;
+        border-width: 0;
+        filter: drop-shadow(0 1px 1px rgba(15, 23, 42, .45));
+      }
+    }
+
+    &.top-left {
+      top: -5px;
+      left: -5px;
+      cursor: nwse-resize;
+
+      &::before {
+        border-width: 2px 0 0 2px;
+        border-radius: 3px 0 0;
+      }
+    }
+
+    &.top-right {
+      top: -5px;
+      right: -5px;
+      cursor: nesw-resize;
+
+      &::before {
+        border-width: 2px 2px 0 0;
+        border-radius: 0 3px 0 0;
+      }
+    }
+
+    &.bottom-left {
+      bottom: -5px;
+      left: -5px;
+      cursor: nesw-resize;
+
+      &::before {
+        border-width: 0 0 2px 2px;
+        border-radius: 0 0 0 3px;
+      }
+    }
+
+    &.bottom-right {
+      right: -5px;
+      bottom: -5px;
+      cursor: nwse-resize;
+
+      &::before {
+        border-width: 0 2px 2px 0;
+        border-radius: 0 0 3px;
+      }
+    }
+  }
+
+  & .resize-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 5;
+    padding: 5px 8px;
+    border: 1px solid rgba(147, 197, 253, .42);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .86);
+    color: #f8fafc;
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(.92);
+    transition: opacity .14s ease, transform .14s ease,
+      background-color .14s ease;
+  }
+
+  &.is-resizing .resize-indicator {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  &.is-resizing.is-invalid .resize-indicator {
+    border-color: rgba(254, 202, 202, .7);
+    background: rgba(185, 28, 28, .9);
   }
 
   &.is-preview {
@@ -188,7 +330,7 @@
 .item-actions {
   position: absolute;
   top: 8px;
-  left: 8px;
+  left: 22px;
   z-index: 3;
   display: flex;
   gap: 6px;
@@ -249,6 +391,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .bookmark .resizer,
+  .bookmark .resize-indicator,
   .item-action-button {
     transition: none;
   }

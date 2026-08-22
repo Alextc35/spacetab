@@ -6,6 +6,10 @@ import { isAreaFree } from '../../core/grid.js';
 import { getState } from '../../core/store.js';
 import { flashSuccess } from '../flash.js';
 import { toggleBookmarkSelection } from './selection.js';
+import {
+  calculateResizeGeometry,
+  RESIZE_DIRECTIONS
+} from './resizeGeometry.js';
 
 let dragging = false;
 let resizing = false;
@@ -15,7 +19,7 @@ let resizing = false;
  *
  * Handles:
  * - Grid-based dragging with collision detection.
- * - Resizing from all four sides.
+ * - Continuous resizing from all four sides and corners.
  * - Middle-click selection shortcut.
  * - State persistence via store updates.
  *
@@ -157,15 +161,21 @@ export function addDragAndResize(container, div, bookmark) {
     div.classList.toggle('is-over-folder', Boolean(folderTarget));
   }
 
-  ['top', 'right', 'bottom', 'left'].forEach(side => {
+  const resizeIndicator = document.createElement('span');
+  resizeIndicator.className = 'resize-indicator';
+  resizeIndicator.setAttribute('aria-hidden', 'true');
+  div.appendChild(resizeIndicator);
+
+  RESIZE_DIRECTIONS.forEach(direction => {
     const resizer = document.createElement('div');
-    resizer.className = `resizer ${side}`;
+    resizer.className = `resizer ${direction}`;
+    resizer.setAttribute('aria-hidden', 'true');
     div.appendChild(resizer);
 
     resizer.addEventListener('pointerdown', (e) => {
       e.stopPropagation();
       e.preventDefault();
-      handleResize(container, e, div, bookmark, side);
+      handleResize(container, e, div, bookmark, direction, resizer, resizeIndicator);
     });
   });
 }
@@ -184,129 +194,157 @@ export function addDragAndResize(container, div, bookmark) {
  * @param {PointerEvent} e - Initial pointer event.
  * @param {HTMLElement} div - Bookmark DOM element.
  * @param {Bookmark} bookmark - Bookmark data object.
- * @param {'top'|'right'|'bottom'|'left'} side - Resize direction.
+ * @param {string} direction - Side or corner being dragged.
+ * @param {HTMLElement} handle - Active resize handle.
+ * @param {HTMLElement} indicator - Grid size feedback element.
  * @returns {void}
  */
-function handleResize(container, e, div, bookmark, side) {
+function handleResize(container, e, div, bookmark, direction, handle, indicator) {
+  if (e.button !== 0 || resizing) return;
+
   resizing = true;
   div.classList.add('is-resizing');
+  handle.classList.add('is-active');
 
   const startMouseX = e.clientX;
   const startMouseY = e.clientY;
-
-  const startGX = bookmark.gx;
-  const startGY = bookmark.gy;
-  const startW = bookmark.w;
-  const startH = bookmark.h;
-
-  let tempGX = startGX;
-  let tempGY = startGY;
-  let tempW = startW;
-  let tempH = startH;
-
+  const pointerId = e.pointerId;
+  const start = pickGridRectangle(bookmark);
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
+  let lastValid = start;
+  let latestGeometry = calculateResizeGeometry({
+    direction,
+    deltaX: 0,
+    deltaY: 0,
+    start,
+    cellWidth: rowWidth,
+    cellHeight: rowHeight,
+    columns: GRID_COLS,
+    rows: GRID_ROWS
+  });
+  let animationFrame = null;
+  let active = true;
+
+  indicator.textContent = formatGridSize(start);
+  handle.setPointerCapture(pointerId);
 
   const onMove = (ev) => {
-    if (!resizing) return;
+    if (!active || ev.pointerId !== pointerId) return;
 
-    let newGX = startGX;
-    let newGY = startGY;
-    let newW = startW;
-    let newH = startH;
+    latestGeometry = calculateResizeGeometry({
+      direction,
+      deltaX: ev.clientX - startMouseX,
+      deltaY: ev.clientY - startMouseY,
+      start,
+      cellWidth: rowWidth,
+      cellHeight: rowHeight,
+      columns: GRID_COLS,
+      rows: GRID_ROWS
+    });
 
-    if (side === 'right') {
-      const deltaCols = Math.round((ev.clientX - startMouseX) / rowWidth);
-      newW = Math.max(1, startW + deltaCols);
-    }
+    const { grid } = latestGeometry;
+    const isValid = isAreaFree(
+      getGridItemsInGroup(getState().data, bookmark.groupId),
+      grid.gx,
+      grid.gy,
+      grid.w,
+      grid.h,
+      bookmark.id
+    );
 
-    if (side === 'bottom') {
-      const deltaRows = Math.round((ev.clientY - startMouseY) / rowHeight);
-      newH = Math.max(1, startH + deltaRows);
-    }
-
-    if (side === 'left') {
-      const deltaCols = Math.round((ev.clientX - startMouseX) / rowWidth);
-
-      newGX = startGX + deltaCols;
-      newW = startW - deltaCols;
-
-      if (newW < 1) {
-        newW = 1;
-        newGX = startGX + (startW - 1);
-      }
-
-      if (newGX < 0) {
-        newW += newGX;
-        newGX = 0;
-      }
-    }
-
-    if (side === 'top') {
-      const deltaRows = Math.round((ev.clientY - startMouseY) / rowHeight);
-
-      newGY = startGY + deltaRows;
-      newH = startH - deltaRows;
-
-      if (newH < 1) {
-        newH = 1;
-        newGY = startGY + (startH - 1);
-      }
-
-      if (newGY < 0) {
-        newH += newGY;
-        newGY = 0;
-      }
-    }
-
-    if (
-      isAreaFree(
-        getGridItemsInGroup(getState().data, bookmark.groupId),
-        newGX,
-        newGY,
-        newW,
-        newH,
-        bookmark.id
-      )
-    ) {
-      tempGX = newGX;
-      tempGY = newGY;
-      tempW = newW;
-      tempH = newH;
-
-      applyPosition(container, div, newGX, newGY);
-      div.style.width = newW * rowWidth - PADDING + 'px';
-      div.style.height = newH * rowHeight - PADDING + 'px';
-      div.classList.remove('is-invalid');
-    } else {
-      div.classList.add('is-invalid');
-    }
+    if (isValid) lastValid = grid;
+    div.classList.toggle('is-invalid', !isValid);
+    indicator.textContent = formatGridSize(grid);
+    queueResizeFrame();
   };
 
-  const onUp = async () => {
-    resizing = false;
-    div.classList.remove('is-resizing');
+  const queueResizeFrame = () => {
+    if (animationFrame != null) return;
+    animationFrame = requestAnimationFrame(() => {
+      animationFrame = null;
+      applyContinuousResize(div, latestGeometry.pixel);
+    });
+  };
 
-    document.removeEventListener('pointermove', onMove);
-    document.removeEventListener('pointerup', onUp);
+  const finish = (commit) => {
+    if (!active) return;
+    active = false;
+    resizing = false;
+    if (animationFrame != null) cancelAnimationFrame(animationFrame);
+
+    handle.removeEventListener('pointermove', onMove);
+    handle.removeEventListener('pointerup', onUp);
+    handle.removeEventListener('pointercancel', onCancel);
+    handle.removeEventListener('lostpointercapture', onLostPointerCapture);
+    if (handle.hasPointerCapture?.(pointerId)) handle.releasePointerCapture(pointerId);
+
+    handle.classList.remove('is-active');
+    div.classList.remove('is-resizing', 'is-invalid');
+
+    const target = commit ? lastValid : start;
+    applyGridGeometry(container, div, target);
 
     if (
-      tempGX !== bookmark.gx ||
-      tempGY !== bookmark.gy ||
-      tempW !== bookmark.w ||
-      tempH !== bookmark.h
+      commit && (
+        target.gx !== bookmark.gx ||
+        target.gy !== bookmark.gy ||
+        target.w !== bookmark.w ||
+        target.h !== bookmark.h
+      )
     ) {
       updateBookmarkById(bookmark.id, {
-        gx: tempGX,
-        gy: tempGY,
-        w: tempW,
-        h: tempH
+        gx: target.gx,
+        gy: target.gy,
+        w: target.w,
+        h: target.h
       });
     }
   };
 
-  document.addEventListener('pointermove', onMove);
-  document.addEventListener('pointerup', onUp);
+  const onUp = ev => {
+    if (ev.pointerId === pointerId) finish(true);
+  };
+  const onCancel = ev => {
+    if (ev.pointerId === pointerId) finish(false);
+  };
+  const onLostPointerCapture = ev => {
+    if (ev.pointerId === pointerId) finish(false);
+  };
+
+  handle.addEventListener('pointermove', onMove);
+  handle.addEventListener('pointerup', onUp);
+  handle.addEventListener('pointercancel', onCancel);
+  handle.addEventListener('lostpointercapture', onLostPointerCapture);
+}
+
+function pickGridRectangle(bookmark) {
+  return {
+    gx: bookmark.gx,
+    gy: bookmark.gy,
+    w: bookmark.w,
+    h: bookmark.h
+  };
+}
+
+function formatGridSize({ w, h }) {
+  return `${w} × ${h}`;
+}
+
+function applyContinuousResize(element, { left, top, width, height }) {
+  element.style.left = `${left}px`;
+  element.style.top = `${top}px`;
+  element.style.width = `${width - PADDING}px`;
+  element.style.height = `${height - PADDING}px`;
+}
+
+function applyGridGeometry(container, element, geometry) {
+  const rowWidth = container.clientWidth / GRID_COLS;
+  const rowHeight = container.clientHeight / GRID_ROWS;
+
+  applyPosition(container, element, geometry.gx, geometry.gy);
+  element.style.width = `${geometry.w * rowWidth - PADDING}px`;
+  element.style.height = `${geometry.h * rowHeight - PADDING}px`;
 }
 
 function findFolderTarget(clientX, clientY) {
