@@ -49,4 +49,40 @@ describe('modal manager accessibility', () => {
     expect(modal.hidden).toBe(true);
     expect(document.activeElement).toBe(opener);
   });
+
+  test('layers nested modals according to the active stack instead of DOM order', () => {
+    const foregroundModal = createModal('Foreground');
+    const backgroundModal = createModal('Background');
+    document.body.append(foregroundModal, backgroundModal);
+
+    const foregroundId = `test-modal-${++sequence}`;
+    const backgroundId = `test-modal-${++sequence}`;
+    modalManager.registerModal({ id: foregroundId, element: foregroundModal });
+    modalManager.registerModal({ id: backgroundId, element: backgroundModal });
+
+    modalManager.openModal(backgroundId);
+    modalManager.openModal(foregroundId);
+
+    expect(backgroundModal.style.getPropertyValue('--modal-stack-index')).toBe('0');
+    expect(foregroundModal.style.getPropertyValue('--modal-stack-index')).toBe('1');
+
+    modalManager.closeModal();
+    expect(foregroundModal.style.getPropertyValue('--modal-stack-index')).toBe('');
+    expect(backgroundModal.style.getPropertyValue('--modal-stack-index')).toBe('0');
+
+    modalManager.closeModal();
+  });
 });
+
+function createModal(title) {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class="modal-overlay"></div>
+    <div class="modal-card">
+      <h2>${title}</h2>
+      <button type="button">Close</button>
+    </div>
+  `;
+  return modal;
+}

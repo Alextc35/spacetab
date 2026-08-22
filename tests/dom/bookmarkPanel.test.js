@@ -18,7 +18,6 @@ beforeAll(async () => {
 
 beforeEach(() => {
   document.getElementById('bookmark-modal-form-host').replaceChildren();
-  document.getElementById('settings-bookmark-form-host').replaceChildren();
 });
 
 describe('BookmarkEditorPanel', () => {
@@ -29,9 +28,10 @@ describe('BookmarkEditorPanel', () => {
       value: { name: '', backgroundColor: '#123456' }
     });
     const presetPanel = createBookmarkEditorPanel({
-      host: document.getElementById('settings-bookmark-form-host'),
+      host: document.createElement('div'),
       mode: 'preset',
-      value: { backgroundColor: '#abcdef' }
+      value: { backgroundColor: '#abcdef' },
+      previewName: 'Default bookmark'
     });
 
     expect(createPanel.sections).toEqual(['general', 'style', 'text', 'icon']);
@@ -39,6 +39,7 @@ describe('BookmarkEditorPanel', () => {
     expect(presetPanel.elements.name).toBeNull();
     expect(presetPanel.getValue()).not.toHaveProperty('name');
     expect(presetPanel.getValue().backgroundColor).toBe('#abcdef');
+    expect(presetPanel.root.querySelector('.bookmark-title').textContent).toBe('Default bookmark');
 
     createPanel.destroy();
     presetPanel.destroy();
@@ -54,7 +55,7 @@ describe('BookmarkEditorPanel', () => {
       onChange: onCreateChange
     });
     const presetPanel = createBookmarkEditorPanel({
-      host: document.getElementById('settings-bookmark-form-host'),
+      host: document.createElement('div'),
       mode: 'preset',
       value: {},
       onChange: onPresetChange

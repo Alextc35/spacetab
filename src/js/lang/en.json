@@ -79,7 +79,8 @@
         "reset": "Reset theme settings?"
       },
       "bookmark": {
-        "reset": "Reset bookmark style?"
+        "reset": "Reset bookmark style?",
+        "cancel": "Discard changes to the default bookmark appearance?"
       }
     },
     "backup": {
@@ -93,6 +94,7 @@
   },
   "buttons": {
     "save": "Save",
+    "apply": "Apply",
     "add": "Add",
     "accept": "Accept",
     "cancel": "Cancel",
@@ -247,6 +249,10 @@
     "bookmark": {
       "title": "Bookmarks",
       "subtitle": "Default bookmark",
+      "description": "Choose the appearance used when creating new bookmarks.",
+      "configure": "Configure default bookmark",
+      "editorTitle": "Default bookmark appearance",
+      "previewName": "Default bookmark",
       "reset": "Reset default bookmark",
       "export": "Export bookmarks",
       "import": "Import bookmarks",

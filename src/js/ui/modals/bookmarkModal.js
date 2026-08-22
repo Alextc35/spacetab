@@ -12,10 +12,11 @@ import { getOccupiedGridItems } from '../../core/bookmark.js';
 
 const modal = document.getElementById('edit-bookmark-modal');
 const modalTitle = modal.querySelector('h2');
+const modalHost = document.getElementById('bookmark-modal-form-host');
 const modalSave = document.getElementById('edit-bookmark-modal-save');
 const modalCancel = document.getElementById('edit-bookmark-modal-cancel');
 
-/** @type {'add' | 'edit' | null} */
+/** @type {'add' | 'edit' | 'preset' | null} */
 let mode = null;
 
 /** @type {string|null} */
@@ -23,6 +24,9 @@ let editingId = null;
 
 /** @type {ReturnType<typeof createBookmarkEditorPanel>|null} */
 let form = null;
+
+/** @type {((preset: BookmarkPreset) => void)|null} */
+let applyPreset = null;
 
 let submitting = false;
 let registered = false;
@@ -33,16 +37,6 @@ let registered = false;
 export function initBookmarkModal() {
   if (registered) return;
   registered = true;
-
-  const host = document.getElementById('bookmark-modal-form-host');
-
-  form = createBookmarkEditorPanel({
-    host,
-    idPrefix: 'bookmark-modal-form',
-    mode: 'create',
-    value: {},
-    onChange: updateSaveButtonState
-  });
 
   modalSave.addEventListener('click', handleAccept);
   modalCancel.addEventListener('click', handleCancel);
@@ -64,7 +58,7 @@ export function initBookmarkModal() {
     closeOnEsc: true,
     closeOnOverlay: true,
     acceptOnEnter: false,
-    initialFocus: form.elements.name,
+    initialFocus: null,
     shortcut: 'Enter',
     toggleWithShortcut: true,
     onShortcut: openAddBookmark
@@ -98,28 +92,60 @@ export function openEditBookmark(bookmarkId) {
   openBookmarkModal('edit', structuredClone(bookmark));
 }
 
-/** @deprecated Use openEditBookmark */
-export { openEditBookmark as openModal };
+/**
+ * Opens the shared editor in appearance-preset mode.
+ * The caller owns the draft and decides how applying it is persisted.
+ *
+ * @param {Partial<BookmarkPreset>} preset
+ * @param {Object} options
+ * @param {(preset: BookmarkPreset) => void} options.onApply
+ */
+export function openBookmarkPresetEditor(preset, { onApply } = {}) {
+  if (typeof onApply !== 'function') {
+    throw new TypeError('Preset editor requires an onApply callback');
+  }
+
+  editingId = null;
+  applyPreset = onApply;
+  openBookmarkModal('preset', structuredClone(preset));
+}
 
 /**
- * @param {'add' | 'edit'} nextMode
+ * @param {'add' | 'edit' | 'preset'} nextMode
  * @param {Object} bookmark
  */
 function openBookmarkModal(nextMode, bookmark) {
   mode = nextMode;
-  form.setMode(nextMode === 'add' ? 'create' : 'edit');
+  form?.destroy();
+  form = createBookmarkEditorPanel({
+    host: modalHost,
+    idPrefix: 'bookmark-modal-form',
+    mode: nextMode === 'add' ? 'create' : nextMode,
+    value: bookmark,
+    previewName: nextMode === 'preset'
+      ? t('settingsModal.bookmark.previewName')
+      : undefined,
+    onChange: updateSaveButtonState
+  });
 
-  modalTitle.textContent = t(nextMode === 'add' ? 'addModal.title' : 'editModal.title');
-  modalSave.textContent = t(nextMode === 'add' ? 'buttons.add' : 'buttons.save');
-
-  form.reset(bookmark);
+  modalTitle.textContent = t(
+    nextMode === 'add'
+      ? 'addModal.title'
+      : (nextMode === 'preset' ? 'settingsModal.bookmark.editorTitle' : 'editModal.title')
+  );
+  modalSave.textContent = t(
+    nextMode === 'add'
+      ? 'buttons.add'
+      : (nextMode === 'preset' ? 'buttons.apply' : 'buttons.save')
+  );
 
   updateSaveButtonState();
   form.activateDefaultTab();
 
   openManagedModal('bookmark-modal', {
     onAccept: handleAccept,
-    onCancel: handleCancel
+    onCancel: handleCancel,
+    initialFocus: form.elements.name ?? form.elements.backgroundColor
   });
 }
 
@@ -149,8 +175,10 @@ function updateSaveButtonState() {
 async function handleAccept() {
   if (mode === 'add') {
     await handleAddAccept();
-  } else {
+  } else if (mode === 'edit') {
     handleEditAccept();
+  } else {
+    handlePresetAccept();
   }
 }
 
@@ -211,6 +239,16 @@ function handleEditAccept() {
   closeBookmarkModal();
 }
 
+function handlePresetAccept() {
+  if (!hasChanges()) return;
+
+  const validation = form.validate();
+  if (!validation.isValid) return;
+
+  applyPreset?.(validation.value);
+  closeBookmarkModal();
+}
+
 async function handleCancel() {
   if (mode === 'add') {
     const ok = await showAlert(
@@ -231,7 +269,7 @@ async function handleCancel() {
   }
 
   const ok = await showAlert(
-    t('alert.bookmark.cancel'),
+    t(mode === 'preset' ? 'alert.settings.bookmark.cancel' : 'alert.bookmark.cancel'),
     { type: 'confirm' }
   );
 
@@ -249,5 +287,6 @@ function resetAddForm() {
 function closeBookmarkModal() {
   mode = null;
   editingId = null;
+  applyPreset = null;
   closeModal();
 }

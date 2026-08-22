@@ -16,7 +16,7 @@ let draftLanguage = null;
  */
 let draftBookmarkDefault = null;
 
-/** Named appearance presets edited alongside the default preset. */
+/** Named appearance presets edited alongside the default bookmark appearance. */
 let draftBookmarkPresets = null;
 
 /**
@@ -161,19 +161,6 @@ export function setDraftThemeValue(key, value) {
   draftTheme[key] = value;
 }
 
-/**
- * Updates a single field inside the draft bookmark default object.
- *
- * Does nothing if the draft bookmark draft has not been initialized yet.
- *
- * @param {string} key
- * @param {*} value
- */
-export function setDraftBookmarkValue(key, value) {
-  if (!draftBookmarkDefault) return;
-  draftBookmarkDefault[key] = value;
-}
-
 /* ==================================================
    FULL REPLACEMENTS (for resets)
 ================================================== */
@@ -216,9 +203,11 @@ export function replaceDraftSettings(settings) {
  * Returns whether the current draft differs from the initial snapshot.
  *
  * Compared sections:
+ * - storage mode
  * - language
  * - theme
  * - bookmark default
+ * - named bookmark presets
  *
  * @returns {boolean}
  */

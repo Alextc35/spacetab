@@ -79,7 +79,8 @@
         "reset": "Restaurar as configurações do tema?"
       },
       "bookmark": {
-        "reset": "Restaurar o estilo do favorito?"
+        "reset": "Restaurar o estilo do favorito?",
+        "cancel": "Descartar as alterações na aparência do favorito padrão?"
       }
     },
     "backup": {
@@ -93,6 +94,7 @@
   },
   "buttons": {
     "save": "Salvar",
+    "apply": "Aplicar",
     "add": "Adicionar",
     "accept": "Aceitar",
     "cancel": "Cancelar",
@@ -247,6 +249,10 @@
     "bookmark": {
       "title": "Favoritos",
       "subtitle": "Favorito padrão",
+      "description": "Escolha a aparência usada ao criar novos favoritos.",
+      "configure": "Configurar favorito padrão",
+      "editorTitle": "Aparência do favorito padrão",
+      "previewName": "Favorito padrão",
       "reset": "Restaurar favorito padrão",
       "export": "Exportar favoritos",
       "import": "Importar favoritos",

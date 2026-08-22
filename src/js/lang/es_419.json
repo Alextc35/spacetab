@@ -79,7 +79,8 @@
         "reset": "¿Restablecer la configuración del tema?"
       },
       "bookmark": {
-        "reset": "¿Restablecer el estilo del marcador?"
+        "reset": "¿Restablecer el estilo del marcador?",
+        "cancel": "¿Descartar los cambios en la apariencia del marcador predeterminado?"
       }
     },
     "backup": {
@@ -93,6 +94,7 @@
   },
   "buttons": {
     "save": "Guardar",
+    "apply": "Aplicar",
     "add": "Agregar",
     "accept": "Aceptar",
     "cancel": "Cancelar",
@@ -247,6 +249,10 @@
     "bookmark": {
       "title": "Marcadores",
       "subtitle": "Marcador predeterminado",
+      "description": "Elige la apariencia que tendrán los marcadores nuevos.",
+      "configure": "Configurar marcador predeterminado",
+      "editorTitle": "Apariencia del marcador predeterminado",
+      "previewName": "Marcador predeterminado",
       "reset": "Restablecer marcador predeterminado",
       "export": "Exportar marcadores",
       "import": "Importar marcadores",

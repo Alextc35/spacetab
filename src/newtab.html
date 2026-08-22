@@ -105,16 +105,18 @@
   <div id="edit-bookmark-modal" class="modal">
     <div class="modal-overlay"></div>
     <div class="modal-card modal-xl">
-      <h2 data-i18n="editModal.title">Editar Favorito</h2>
-      <div id="bookmark-modal-form-host"></div>
-      <div class="modal-actions">
+      <header class="edit-bookmark-modal-header">
+        <h2 data-i18n="editModal.title">Editar Favorito</h2>
+      </header>
+      <div id="bookmark-modal-form-host" class="bookmark-modal-form-host"></div>
+      <footer class="modal-actions">
         <button id="edit-bookmark-modal-cancel" class="btn btn-ghost" type="button"
           data-i18n="buttons.cancel">Cancelar
         </button>
         <button id="edit-bookmark-modal-save" class="btn btn-primary" type="button"
           data-i18n="buttons.save">Guardar
         </button>
-      </div>
+      </footer>
     </div>
   </div>
 
@@ -229,8 +231,16 @@
           <div id="settings-modal-tab-bookmark"
             class="settings-modal-tab-content is-hidden custom-scrollbar">
             <h2 data-i18n="settingsModal.bookmark.title">Favoritos</h2>
-            <h3 data-i18n="settingsModal.bookmark.subtitle">Favorito por defecto</h3>
-            <div id="settings-bookmark-form-host"></div>
+            <section class="default-bookmark-settings"
+              aria-labelledby="default-bookmark-settings-title">
+              <h3 id="default-bookmark-settings-title"
+                data-i18n="settingsModal.bookmark.subtitle">Favorito por defecto</h3>
+              <p data-i18n="settingsModal.bookmark.description">
+                Configura el aspecto que tendrán los favoritos nuevos.
+              </p>
+              <button id="settings-bookmark-configure" class="btn btn-secondary" type="button"
+                data-i18n="settingsModal.bookmark.configure">Configurar favorito por defecto</button>
+            </section>
             <section class="preset-library" aria-labelledby="preset-library-title">
               <h3 id="preset-library-title" data-i18n="settingsModal.bookmark.presets.title">Presets</h3>
               <div class="preset-create-row">

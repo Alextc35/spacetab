@@ -103,48 +103,27 @@
   background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
 }
 
-.settings-bookmark-layout {
-  display: flex;
-  gap: 20px;
-  height: 100%;
+.default-bookmark-settings {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  background: #181818;
 }
 
-.settings-bookmark-form {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 10px;
-}
-
-.settings-bookmark-preview-panel {
-  position: sticky;
-  width: 260px;
-  flex-shrink: 0;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  top: 20px;
-  gap: 12px;
-
-  border-left: 1px solid #222;
-  padding-left: 20px;
-}
-
-.settings-bookmark-preview-panel h3 {
-  font-size: 12px;
-  opacity: .6;
+.default-bookmark-settings :is(h3, p) {
   margin: 0;
 }
 
-.settings-bookmark-preview-panel .bookmark-preview {
-  width: 140px;
-  height: 140px;
+.default-bookmark-settings p {
+  color: #aaa;
+  font-size: 13px;
+  line-height: 1.5;
+}
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.default-bookmark-settings .btn {
+  justify-self: start;
 }
 
 .settings-bookmark-actions {
@@ -269,36 +248,4 @@
 
 .storage-persistence-status[data-status="error"] {
   color: #ff8a8a;
-}
-
-/* =========================================
-   SETTINGS BOOKMARK PREVIEW (COMPACT)
-========================================= */
-
-#settings-modal-tab-bookmark .edit-bookmark-modal-preview-panel {
-  width: 200px;
-  padding: 12px 16px;
-  justify-content: flex-start;
-  gap: 8px;
-}
-
-#settings-modal-tab-bookmark .edit-bookmark-modal-preview-panel h3 {
-  margin: 0;
-  font-size: 12px;
-  opacity: .6;
-}
-
-#settings-modal-tab-bookmark .bookmark-preview {
-  width: 180px;
-  height: 210px;
-}
-
-#settings-modal-tab-bookmark .edit-bookmark-modal-panel {
-  padding: 5px 5px 0 0; 
-  flex-direction: column;
-  overflow: hidden; 
-}
-
-#settings-modal-tab-bookmark .edit-bookmark-modal-tab-content {
-  gap: 6px;
 }

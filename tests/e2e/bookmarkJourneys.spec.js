@@ -118,6 +118,22 @@ test('creates, edits and persists a bookmark after reload', async ({ page }) => 
   await expect(page.getByRole('link', { name: /OpenAI Docs/ })).toBeVisible();
 });
 
+test('keeps bookmark editor actions inside the modal on content-heavy tabs', async ({ page }) => {
+  await page.setViewportSize({ width: 822, height: 525 });
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '➕' }).click();
+
+  const modal = page.locator('#edit-bookmark-modal .modal-card');
+  await modal.getByRole('tab', { name: 'Style' }).click();
+
+  const cardBox = await modal.boundingBox();
+  const actionsBox = await modal.locator('.modal-actions').boundingBox();
+
+  expect(actionsBox.y + actionsBox.height).toBeLessThanOrEqual(cardBox.y + cardBox.height);
+  expect(actionsBox.x).toBeGreaterThanOrEqual(cardBox.x);
+  expect(actionsBox.x + actionsBox.width).toBeLessThanOrEqual(cardBox.x + cardBox.width);
+});
+
 test('creates a workspace and finds bookmarks across workspaces', async ({ page }) => {
   await page.getByRole('navigation', { name: 'Workspace controls' }).hover();
   await page.getByRole('button', { name: 'Create workspace' }).click();
@@ -147,6 +163,7 @@ test('cycles workspaces with Alt plus arrow keys and animates the grid', async (
   const workId = await workspace.inputValue();
   await page.keyboard.press('Alt+ArrowUp');
   await expect(workspace).toHaveValue('');
+  await expect(page.locator('#bookmark-container')).not.toHaveClass(/is-switching-workspace/);
 
   await page.keyboard.press('Alt+ArrowDown');
   await expect(workspace).toHaveValue(workId);
@@ -196,6 +213,39 @@ test('saves a named appearance preset', async ({ page }) => {
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
   await expect(page.getByRole('combobox', { name: 'Saved presets' })).toContainText('Dark');
+});
+
+test('configures the default bookmark through the shared preset editor', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+
+  await expect(page.locator('#settings-bookmark-form-host')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Configure default bookmark' }).click();
+
+  const editor = page.locator('#edit-bookmark-modal');
+  await expect(editor.getByRole('heading', { name: 'Default bookmark appearance' })).toBeVisible();
+  await expect(editor.getByRole('tab', { name: 'General' })).toHaveCount(0);
+  await expect(editor.getByRole('tab', { name: 'Style' })).toHaveAttribute('aria-selected', 'true');
+  await expect(editor.locator('.bookmark-title')).toHaveText('Default bookmark');
+
+  await editor.getByRole('checkbox', { name: 'No background' }).uncheck();
+  await editor.locator('#bookmark-modal-form-backgroundColor').fill('#123456');
+  await editor.getByRole('button', { name: 'Apply' }).click();
+
+  await expect(editor).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Configure default bookmark' }).click();
+  await expect(editor.locator('#bookmark-modal-form-backgroundColor')).toHaveValue('#123456');
+  await editor.getByRole('button', { name: 'Cancel' }).click();
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await page.getByRole('button', { name: 'Configure default bookmark' }).click();
+  await expect(editor.locator('#bookmark-modal-form-backgroundColor')).toHaveValue('#123456');
 });
 
 test('persists the synchronized storage choice', async ({ page }) => {

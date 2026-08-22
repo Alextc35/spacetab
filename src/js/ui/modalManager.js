@@ -204,6 +204,7 @@ export function openModal(id, {
 
   config.element.hidden = false;
   config.element.classList.add('is-open');
+  syncModalStacking();
   syncPageAccessibility();
 
   const focusEl =
@@ -225,6 +226,7 @@ export function closeModal() {
 
   modal.element.classList.remove('is-open');
   modal.element.hidden = true;
+  syncModalStacking();
   syncPageAccessibility();
 
   const nextModal = getActive();
@@ -234,6 +236,16 @@ export function closeModal() {
     || nextModal?.element;
 
   requestAnimationFrame(() => focusTarget?.focus?.());
+}
+
+function syncModalStacking() {
+  for (const config of registry.values()) {
+    config.element.style.removeProperty('--modal-stack-index');
+  }
+
+  stack.forEach((modal, index) => {
+    modal.element.style.setProperty('--modal-stack-index', String(index));
+  });
 }
 
 function trapFocus(event, modalElement) {

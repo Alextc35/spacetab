@@ -153,7 +153,6 @@ export function initSettingsModal() {
     if (!ok) return false;
 
     await languageSection.restoreInitialLanguage();
-    bookmarkSection.cancelChanges();
     resetState();
     closeModal();
     return true;
@@ -185,8 +184,7 @@ export function initSettingsModal() {
     updateSaveButtonState();
 
     tabs.activate('settings-modal-tab-general');
-    bookmarkSection.activateDefaultTab();
-    
+
     openModal('settings', {
       onCancel: handleCancel
     });
@@ -212,12 +210,6 @@ export function initSettingsModal() {
    * - close the modal
    */
   settingsSave.addEventListener('click', async () => {
-    const bookmarkValidation = bookmarkSection.validate();
-    if (!bookmarkValidation.isValid) {
-      tabs.activate('settings-modal-tab-bookmark');
-      return;
-    }
-
     const newSettings = buildNewSettings();
     const currentStorageMode = getStorageMode();
     const nextStorageMode = getDraftStorageMode();

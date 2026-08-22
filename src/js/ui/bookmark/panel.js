@@ -23,6 +23,7 @@ let instanceCount = 0;
  * @param {string[]} [options.sections]
  * @param {(value: BookmarkDraft|BookmarkPreset) => void} [options.onChange]
  * @param {string} [options.idPrefix]
+ * @param {string} [options.previewName] - Placeholder title used by preset previews.
  * @returns {Object|null}
  */
 export function createBookmarkEditorPanel({
@@ -31,14 +32,15 @@ export function createBookmarkEditorPanel({
   value = {},
   sections,
   onChange,
-  idPrefix = `bookmark-editor-${++instanceCount}`
+  idPrefix = `bookmark-editor-${++instanceCount}`,
+  previewName = t('editModal.previewName')
 }) {
   const template = document.getElementById(TEMPLATE_ID);
   if (!host || !template) return null;
   if (!VALID_MODES.has(mode)) throw new TypeError(`Unsupported bookmark editor mode: ${mode}`);
 
   const abortController = new AbortController();
-  let currentMode = mode;
+  const currentMode = mode;
   const enabledSections = resolveSections(currentMode, sections);
   const root = template.content.firstElementChild.cloneNode(true);
   root.dataset.editorMode = currentMode;
@@ -92,14 +94,14 @@ export function createBookmarkEditorPanel({
     signal: abortController.signal
   });
 
-  let currentValue = prepareEditorValue(currentMode, value);
+  let currentValue = prepareEditorValue(currentMode, value, previewName);
   let initialValue = getPublicValue(currentMode, currentValue);
 
   const editor = createBookmarkEditor({
     elements,
     bookmark: currentValue,
     onChange: nextValue => {
-      currentValue = prepareEditorValue(currentMode, nextValue);
+      currentValue = prepareEditorValue(currentMode, nextValue, previewName);
       clearValidationErrors(elements, errorElements);
       onChange?.(getPublicValue(currentMode, currentValue));
     }
@@ -116,7 +118,7 @@ export function createBookmarkEditorPanel({
   }, { signal: abortController.signal });
 
   function setValue(nextValue) {
-    currentValue = prepareEditorValue(currentMode, nextValue);
+    currentValue = prepareEditorValue(currentMode, nextValue, previewName);
     editor.setState(currentValue);
     clearValidationErrors(elements, errorElements);
   }
@@ -127,7 +129,7 @@ export function createBookmarkEditorPanel({
   }
 
   function getValue() {
-    currentValue = prepareEditorValue(currentMode, editor.getState());
+    currentValue = prepareEditorValue(currentMode, editor.getState(), previewName);
     return getPublicValue(currentMode, currentValue);
   }
 
@@ -151,14 +153,6 @@ export function createBookmarkEditorPanel({
     if (root.parentElement === host) host.replaceChildren();
   }
 
-  function setMode(nextMode) {
-    if (!VALID_MODES.has(nextMode) || nextMode === 'preset') {
-      throw new TypeError(`Unsupported mode transition: ${nextMode}`);
-    }
-    currentMode = nextMode;
-    root.dataset.editorMode = nextMode;
-  }
-
   activateDefaultTab();
 
   return {
@@ -169,7 +163,6 @@ export function createBookmarkEditorPanel({
     getValue,
     getState: getValue,
     setValue,
-    setMode,
     reset,
     validate,
     focus,
@@ -188,11 +181,11 @@ function resolveSections(mode, sections) {
   return requested.length ? [...new Set(requested)] : ['style'];
 }
 
-function prepareEditorValue(mode, value) {
+function prepareEditorValue(mode, value, previewName) {
   if (mode === 'preset') {
     return createBookmarkDraft({
       preset: normalizeBookmarkPreset(value),
-      bookmark: { name: t('editModal.previewName') }
+      bookmark: { name: previewName }
     });
   }
 

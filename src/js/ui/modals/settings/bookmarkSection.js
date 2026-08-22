@@ -1,5 +1,5 @@
-import { createBookmarkEditorPanel } from '../../bookmark/panel.js';
 import { showAlert } from '../alert.js';
+import { openBookmarkPresetEditor } from '../bookmarkModal.js';
 import { t } from '../../../core/i18n.js';
 import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
 import { normalizeBookmarkPreset } from '../../../core/bookmarkModel.js';
@@ -17,38 +17,30 @@ import {
  *
  * @param {Object} params
  * @param {Function} params.onRequestSaveStateUpdate - Callback used to refresh save-state indicators.
- * @returns {{ syncUI: Function, cancelChanges: Function, activateDefaultTab: Function }}
+ * @returns {{ syncUI: Function }}
  */
 export function initBookmarkSection({ onRequestSaveStateUpdate }) {
+  const bookmarkConfigureBtn = document.getElementById('settings-bookmark-configure');
   const bookmarkResetBtn = document.getElementById('settings-bookmark-reset');
   const exportBtn = document.getElementById('export-btn');
   const importBtn = document.getElementById('import-btn');
   const importInput = document.getElementById('import-input');
   const deleteAllBtn = document.getElementById('delete-all-btn');
-  const host = document.getElementById('settings-bookmark-form-host');
   const presetName = document.getElementById('settings-preset-name');
   const presetSelect = document.getElementById('settings-preset-select');
   const presetSave = document.getElementById('settings-preset-save');
   const presetApply = document.getElementById('settings-preset-apply');
   const presetDelete = document.getElementById('settings-preset-delete');
 
-  /** @type {ReturnType<typeof createBookmarkEditorPanel>|null} */
-  let form = null;
-
-  /** @type {Object|null} */
-  let initialBookmarkDraft = null;
-
   initImportExportButtons(exportBtn, importInput);
 
-  form = createBookmarkEditorPanel({
-    host,
-    idPrefix: 'settings-bookmark-form',
-    mode: 'preset',
-    value: structuredClone(getDraftBookmarkDefault()),
-    onChange: (state) => {
-      replaceDraftBookmarkDefault(state);
-      onRequestSaveStateUpdate();
-    }
+  bookmarkConfigureBtn.addEventListener('click', () => {
+    openBookmarkPresetEditor(getDraftBookmarkDefault(), {
+      onApply: preset => {
+        replaceDraftBookmarkDefault(preset);
+        onRequestSaveStateUpdate();
+      }
+    });
   });
 
   bookmarkResetBtn.addEventListener('click', async () => {
@@ -59,8 +51,6 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
     if (!ok) return;
 
     replaceDraftBookmarkDefault(structuredClone(DEFAULT_SETTINGS.bookmarkDefault));
-
-    form.reset(getDraftBookmarkDefault());
     onRequestSaveStateUpdate();
   });
 
@@ -77,7 +67,7 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
     const preset = {
       id: crypto.randomUUID(),
       name,
-      style: normalizeBookmarkPreset(form.getValue())
+      style: normalizeBookmarkPreset(getDraftBookmarkDefault())
     };
     presets.push(preset);
     replaceDraftBookmarkPresets(presets);
@@ -92,7 +82,6 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
     const selected = getDraftBookmarkPresets().find(preset => preset.id === presetSelect.value);
     if (!selected) return;
     replaceDraftBookmarkDefault(normalizeBookmarkPreset(selected.style));
-    form.reset(getDraftBookmarkDefault());
     onRequestSaveStateUpdate();
   });
 
@@ -123,16 +112,7 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   }
 
   function syncUI() {
-    const draft = structuredClone(getDraftBookmarkDefault());
-    initialBookmarkDraft = draft;
-    form.reset(draft);
     renderPresetOptions();
-    onRequestSaveStateUpdate();
-  }
-
-  async function cancelChanges() {
-    replaceDraftBookmarkDefault(structuredClone(initialBookmarkDraft));
-    form.reset(getDraftBookmarkDefault());
     onRequestSaveStateUpdate();
   }
 
@@ -140,9 +120,6 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   importBtn.addEventListener('click', () => importInput.click());
 
   return {
-    syncUI,
-    cancelChanges,
-    validate: () => form.validate(),
-    activateDefaultTab: () => form.activateDefaultTab()
+    syncUI
   };
 }
