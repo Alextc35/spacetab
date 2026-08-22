@@ -52,7 +52,7 @@ export function initBulkBookmarkActions() {
     const ids = getSelectedBookmarkIds();
     if (!ids.length) return;
     const confirmed = await showAlert(
-      t('alert.bookmarks.confirmDeleteSelected', { count: ids.length }),
+      getDeleteConfirmation(ids, currentState.data.bookmarks),
       { type: 'confirm' }
     );
     if (!confirmed) return;
@@ -100,4 +100,15 @@ export function initBulkBookmarkActions() {
     toolbar.classList.toggle('is-hidden', ids.length === 0);
     count.textContent = t('bulk.selected', { count: ids.length });
   });
+}
+
+function getDeleteConfirmation(ids, bookmarks) {
+  if (ids.length === 1) {
+    const bookmark = bookmarks.find(item => item.id === ids[0]);
+    if (bookmark) {
+      return t('alert.bookmark.confirmDelete', { name: bookmark.name });
+    }
+  }
+
+  return t('alert.bookmarks.confirmDeleteSelected', { count: ids.length });
 }

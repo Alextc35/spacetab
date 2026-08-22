@@ -327,6 +327,22 @@ test('toggles multiple bookmark selections with middle click without opening tab
   await expect(page.getByText('1 selected')).toBeVisible();
 });
 
+test('names a single bookmark before deletion and counts multiple selections', async ({ page }) => {
+  await enableEditMode(page);
+  const bookmarks = page.locator('#bookmark-container > .bookmark[data-bookmark-id]');
+  const deleteSelection = page.getByRole('button', { name: 'Delete', exact: true });
+
+  await bookmarks.nth(0).getByRole('button', { name: 'Select bookmark' }).click();
+  await deleteSelection.click();
+  await expect(page.getByRole('heading', { name: 'Delete “DEVELOPED BY”?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Cancel' }).click();
+
+  await bookmarks.nth(1).getByRole('button', { name: 'Select bookmark' }).click();
+  await deleteSelection.click();
+  await expect(page.getByRole('heading', { name: 'Delete 2 selected bookmarks?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Cancel' }).click();
+});
+
 test('duplicates several selected bookmarks without overlaps', async ({ page }) => {
   await enableEditMode(page);
   const bookmarks = page.locator('#bookmark-container > .bookmark');

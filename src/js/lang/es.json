@@ -66,6 +66,7 @@
       "add": {
         "cancel": "¿Descartar el nuevo favorito?"
       },
+      "confirmDelete": "¿Eliminar «{{name}}»?",
       "cancel": "¿Descartar los cambios en la edición?"
     },
     "settings": {

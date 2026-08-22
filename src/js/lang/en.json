@@ -66,6 +66,7 @@
       "add": {
         "cancel": "Discard new bookmark?"
       },
+      "confirmDelete": "Delete “{{name}}”?",
       "cancel": "Discard changes?"
     },
     "settings": {

@@ -66,6 +66,7 @@
       "add": {
         "cancel": "¿Descartar el nuevo marcador?"
       },
+      "confirmDelete": "¿Eliminar «{{name}}»?",
       "cancel": "¿Descartar los cambios de la edición?"
     },
     "settings": {
