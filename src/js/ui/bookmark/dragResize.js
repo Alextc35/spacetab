@@ -4,8 +4,8 @@ import { addBookmarkToFolder, getGridItemsInGroup } from '../../core/bookmarkFol
 import { GRID_COLS, GRID_ROWS, PADDING } from '../../core/config.js';
 import { isAreaFree } from '../../core/grid.js';
 import { getState } from '../../core/store.js';
-import { confirmDeleteBookmark } from './actions.js';
 import { flashSuccess } from '../flash.js';
+import { toggleBookmarkSelection } from './selection.js';
 
 let dragging = false;
 let resizing = false;
@@ -16,7 +16,7 @@ let resizing = false;
  * Handles:
  * - Grid-based dragging with collision detection.
  * - Resizing from all four sides.
- * - Middle-click deletion shortcut.
+ * - Middle-click selection shortcut.
  * - State persistence via store updates.
  *
  * @param {HTMLElement} container - Grid container element.
@@ -35,14 +35,21 @@ export function addDragAndResize(container, div, bookmark) {
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
 
-  div.addEventListener('pointerdown', async e => {
+  div.addEventListener('auxclick', e => {
+    if (e.button !== 1) return;
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  div.addEventListener('pointerdown', e => {
     if (resizing) return;
 
-    // Middle click delete
+    // Middle click toggles the same selection exposed in the action menu.
     if (e.button === 1) {
       e.preventDefault();
       e.stopPropagation();
-      await confirmDeleteBookmark(bookmark);
+      const selected = toggleBookmarkSelection(bookmark.id);
+      div.classList.toggle('is-selected', selected);
       return;
     }
 

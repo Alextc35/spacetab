@@ -254,6 +254,25 @@ test('duplicates, selects and clears selection when edit mode closes', async ({ 
   await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
 });
 
+test('toggles multiple bookmark selections with middle click without opening tabs', async ({ page }) => {
+  await enableEditMode(page);
+  const bookmarks = page.locator('#bookmark-container > .bookmark[data-bookmark-id]');
+  const bulkActions = page.getByRole('toolbar', { name: 'Selected bookmark actions' });
+
+  await bookmarks.nth(0).click({ button: 'middle' });
+  await bookmarks.nth(1).click({ button: 'middle' });
+
+  await expect(page.locator('.bookmark.is-selected')).toHaveCount(2);
+  await expect(bulkActions).toBeVisible();
+  await expect(page.getByText('2 selected')).toBeVisible();
+  await expect.poll(() => page.context().pages().length).toBe(1);
+
+  await bookmarks.nth(0).click({ button: 'middle' });
+
+  await expect(page.locator('.bookmark.is-selected')).toHaveCount(1);
+  await expect(page.getByText('1 selected')).toBeVisible();
+});
+
 test('duplicates several selected bookmarks without overlaps', async ({ page }) => {
   await enableEditMode(page);
   const bookmarks = page.locator('#bookmark-container > .bookmark');
