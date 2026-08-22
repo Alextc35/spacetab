@@ -1,6 +1,6 @@
 import { createBookmarkElement } from './renderer.js';
 
-export function renderBookmarkPreview(container, bookmark) {
+export function renderBookmarkPreview(container, bookmark, { faviconUrl = null } = {}) {
   if (!container) return;
 
   container.innerHTML = '';
@@ -14,7 +14,8 @@ export function renderBookmarkPreview(container, bookmark) {
 
   const previewBookmark = createBookmarkElement(previewBookmarkData, {
     isEditing: false,
-    isPreview: true
+    isPreview: true,
+    faviconUrl
   });
 
   // quitar grid positioning

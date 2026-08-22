@@ -74,24 +74,6 @@ export function updateBookmarkById(bookmarkId, updatedData) {
 }
 
 /**
- * Deletes a bookmark by its id.
- *
- * @param {string} bookmarkId - The id of the bookmark to delete.
- * @returns {boolean} True if the bookmark was removed, false otherwise.
- */
-export function deleteBookmarkById(bookmarkId) {
-  const { data } = getState();
-  const { bookmarks } = data;
-
-  const updated = bookmarks.filter(b => b.id !== bookmarkId);
-  if (updated.length === bookmarks.length) return false;
-
-  setState({ data: { bookmarks: updated } });
-
-  return true;
-}
-
-/**
  * Removes all bookmarks from the state.
  * 
  * @return {boolean} True if the all bookmarks were removed, false otherwise.
@@ -157,24 +139,6 @@ export function applyPresetToBookmarks(bookmarkIds, preset) {
   return updateBookmarksByIds(bookmarkIds, bookmark => (
     applyBookmarkPreset(bookmark, preset)
   ));
-}
-
-/**
- * Duplicates a bookmark into a caller-selected free position.
- *
- * @param {string} bookmarkId
- * @param {{gx: number, gy: number}} position
- * @param {string} [nameSuffix='copy']
- * @returns {Bookmark|null}
- */
-export function duplicateBookmarkById(bookmarkId, position, nameSuffix = 'copy') {
-  const { data: { bookmarks } } = getState();
-  const bookmark = bookmarks.find(item => item.id === bookmarkId);
-  if (!bookmark || !position) return null;
-
-  const duplicate = createBookmarkDuplicate(bookmark, position, nameSuffix);
-  setState({ data: { bookmarks: [...bookmarks, duplicate] } });
-  return duplicate;
 }
 
 /**

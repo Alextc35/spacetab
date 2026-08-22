@@ -18,11 +18,6 @@ async function enableEditMode(page) {
   await page.getByRole('button', { name: '✎' }).click();
 }
 
-async function openBookmarkActions(bookmark) {
-  await bookmark.getByRole('button', { name: 'Show bookmark actions' }).hover();
-  await expect(bookmark.locator('.bookmark-actions')).toBeVisible();
-}
-
 test('reveals the bottom workspace dock on hover and keyboard focus', async ({ page }) => {
   const toolbar = page.getByRole('navigation', { name: 'Workspace controls' });
   const viewportHeight = page.viewportSize().height;
@@ -71,31 +66,44 @@ test('keeps long bookmark titles centered and truncated inside their card', asyn
   expect(titleBox.x + titleBox.width).toBeLessThanOrEqual(bookmarkBox.x + bookmarkBox.width);
 });
 
-test('previews and pins bookmark actions from the top-left trigger', async ({ page }) => {
+test('uses direct bookmark selection and edit controls without a flyout', async ({ page }) => {
   await enableEditMode(page);
   const bookmark = page.locator('#bookmark-container > .bookmark').first();
-  const toggle = bookmark.getByRole('button', { name: 'Show bookmark actions' });
-  const actions = bookmark.locator('.bookmark-actions');
+  const controls = bookmark.getByRole('group', { name: 'Bookmark controls' });
+  const select = bookmark.locator('.bookmark-select-toggle');
+  const edit = bookmark.getByRole('button', { name: 'Edit bookmark' });
 
-  await expect(toggle).toBeVisible();
-  await expect(actions).toBeHidden();
+  await expect(controls).toBeVisible();
+  await expect(bookmark.getByRole('button', { name: 'Select bookmark' })).toBeVisible();
+  await expect(edit).toBeVisible();
+  await expect(bookmark.locator('.bookmark-action-menu, .bookmark-actions')).toHaveCount(0);
 
-  await toggle.hover();
-  await expect(actions).toBeVisible();
-  await actions.getByRole('button', { name: 'Edit bookmark' }).hover();
-  await expect(actions).toBeVisible();
+  const selectBox = await select.boundingBox();
+  const editBox = await edit.boundingBox();
+  const bookmarkBox = await bookmark.boundingBox();
+  expect(selectBox.x - bookmarkBox.x).toBeGreaterThanOrEqual(7);
+  expect(selectBox.y - bookmarkBox.y).toBeGreaterThanOrEqual(7);
+  expect(editBox.x - (selectBox.x + selectBox.width)).toBeGreaterThanOrEqual(5);
+  expect(editBox.x).toBeGreaterThan(selectBox.x);
 
-  await page.mouse.move(page.viewportSize().width / 2, page.viewportSize().height / 2);
-  await expect(actions).toBeHidden();
+  await select.click();
+  await expect(bookmark).toHaveClass(/is-selected/);
+  await expect(select).toHaveAttribute('aria-pressed', 'true');
+  await expect(select).toHaveAttribute('aria-label', 'Deselect bookmark');
 
-  await toggle.click();
-  await page.mouse.move(page.viewportSize().width / 2, page.viewportSize().height / 2);
-  await expect(actions).toBeVisible();
-  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await select.click();
+  await expect(bookmark).not.toHaveClass(/is-selected/);
+  await expect(select).toHaveAttribute('aria-pressed', 'false');
+  await expect(select).toHaveAttribute('aria-label', 'Select bookmark');
 
+  await edit.click();
+  const editor = page.locator('#edit-bookmark-modal');
+  await expect(editor).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(actions).toBeHidden();
-  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(editor).toBeHidden();
+  await page.mouse.move(page.viewportSize().width / 2, page.viewportSize().height / 2);
+  await expect(edit).toBeFocused();
+  await expect(edit).not.toHaveCSS('background-color', 'rgb(37, 99, 235)');
 });
 
 test('creates, edits and persists a bookmark after reload', async ({ page }) => {
@@ -111,7 +119,6 @@ test('creates, edits and persists a bookmark after reload', async ({ page }) => 
 
   await enableEditMode(page);
   const newBookmark = page.locator('#bookmark-container > .bookmark').last();
-  await openBookmarkActions(newBookmark);
   await newBookmark.getByRole('button', { name: 'Edit bookmark' }).click();
   await page.locator('#bookmark-modal-form-name').fill('OpenAI Docs');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
@@ -228,6 +235,8 @@ test('configures the default bookmark through the shared preset editor', async (
   await expect(editor.getByRole('tab', { name: 'General' })).toHaveCount(0);
   await expect(editor.getByRole('tab', { name: 'Style' })).toHaveAttribute('aria-selected', 'true');
   await expect(editor.locator('.bookmark-title')).toHaveText('Default bookmark');
+  await expect(editor.locator('.bookmark-favicon'))
+    .toHaveAttribute('src', /assets\/icons\/icon-128\.png$/);
 
   await editor.getByRole('checkbox', { name: 'No background' }).uncheck();
   await editor.locator('#bookmark-modal-form-backgroundColor').fill('#123456');
@@ -261,30 +270,25 @@ test('persists the synchronized storage choice', async ({ page }) => {
   await expect(page.getByRole('radio', { name: /Synced/ })).toBeChecked();
 });
 
-test('duplicates, selects and clears selection when edit mode closes', async ({ page }) => {
+test('duplicates from the bulk toolbar and clears selection when edit mode closes', async ({ page }) => {
   await enableEditMode(page);
   const firstBookmark = page.locator('#bookmark-container > .bookmark').first();
-  await openBookmarkActions(firstBookmark);
+  const controls = firstBookmark.getByRole('group', { name: 'Bookmark controls' });
+  const select = firstBookmark.getByRole('button', { name: 'Select bookmark' });
   const editBox = await firstBookmark.getByRole('button', { name: 'Edit bookmark' }).boundingBox();
-  const deleteBox = await firstBookmark.getByRole('button', { name: 'Delete bookmark' }).boundingBox();
-  const selectBox = await firstBookmark.getByRole('button', { name: 'Select bookmark' }).boundingBox();
-  const duplicateBox = await firstBookmark.getByRole('button', { name: 'Duplicate bookmark' }).boundingBox();
-  const toggleBox = await firstBookmark.getByRole(
-    'button',
-    { name: 'Show bookmark actions' }
-  ).boundingBox();
-  const actionPanelBox = await firstBookmark.locator('.bookmark-actions').boundingBox();
+  const selectBox = await select.boundingBox();
 
-  expect(Math.abs(editBox.y - deleteBox.y)).toBeLessThan(2);
-  expect(Math.abs(selectBox.y - duplicateBox.y)).toBeLessThan(2);
-  expect(selectBox.y).toBeGreaterThan(editBox.y);
-  expect(actionPanelBox.x).toBeGreaterThanOrEqual(toggleBox.x + toggleBox.width - 2);
+  await expect(controls).toBeVisible();
+  await expect(firstBookmark.getByRole('button', { name: 'Duplicate bookmark' })).toHaveCount(0);
+  await expect(firstBookmark.getByRole('button', { name: 'Delete bookmark' })).toHaveCount(0);
+  expect(Math.abs(editBox.y - selectBox.y)).toBeLessThan(2);
+  expect(editBox.x).toBeGreaterThan(selectBox.x);
 
-  await firstBookmark.getByRole('button', { name: 'Duplicate bookmark' }).click();
+  await select.click();
+  await page.getByRole('button', { name: 'Duplicate selection' }).click();
   await expect(page.getByRole('link', { name: /DEVELOPED BY \(copy\)/ })).toBeVisible();
 
   const duplicatedBookmark = page.locator('#bookmark-container > .bookmark').last();
-  await openBookmarkActions(duplicatedBookmark);
   await duplicatedBookmark.getByRole('button', { name: 'Select bookmark' }).click();
   const bulkActions = page.getByRole('toolbar', { name: 'Selected bookmark actions' });
   const workspaceDock = page.getByRole('navigation', { name: 'Workspace controls' });
@@ -327,9 +331,7 @@ test('duplicates several selected bookmarks without overlaps', async ({ page }) 
   await enableEditMode(page);
   const bookmarks = page.locator('#bookmark-container > .bookmark');
 
-  await openBookmarkActions(bookmarks.nth(0));
   await bookmarks.nth(0).getByRole('button', { name: 'Select bookmark' }).click();
-  await openBookmarkActions(bookmarks.nth(1));
   await bookmarks.nth(1).getByRole('button', { name: 'Select bookmark' }).click();
   await expect(page.getByText('2 selected')).toBeVisible();
 
@@ -365,6 +367,10 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
   await expect(folder).toContainText('0 saved');
 
   await enableEditMode(page);
+  await expect(folder.getByRole('group', { name: 'Folder controls' })).toBeVisible();
+  await expect(folder.getByRole('button', { name: 'Rename folder' })).toBeVisible();
+  await expect(folder.getByRole('button', { name: 'Delete folder' })).toBeVisible();
+  await expect(folder.locator('.bookmark-action-menu, .bookmark-actions')).toHaveCount(0);
   const bookmark = page.locator('.bookmark[data-bookmark-id]').first();
   const bookmarkBox = await bookmark.boundingBox();
   const folderBox = await folder.boundingBox();
@@ -399,4 +405,23 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
   await expect(page.getByText('0 bookmarks in this folder')).toBeVisible();
   await page.getByRole('button', { name: 'Close' }).click();
   await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
+});
+
+test('renames and deletes a folder from its direct controls', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('Temporary');
+  await page.getByRole('button', { name: 'Accept' }).click();
+
+  await enableEditMode(page);
+  let folder = page.locator('.bookmark-folder', { hasText: 'Temporary' });
+  await folder.getByRole('button', { name: 'Rename folder' }).click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('Renamed');
+  await page.getByRole('button', { name: 'Accept' }).click();
+
+  folder = page.locator('.bookmark-folder', { hasText: 'Renamed' });
+  await expect(folder).toBeVisible();
+  await folder.getByRole('button', { name: 'Delete folder' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await expect(folder).toHaveCount(0);
 });

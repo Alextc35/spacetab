@@ -9,11 +9,8 @@
     },
     "bookmark": {
       "added": "Marcador agregado correctamente",
-      "deleted": "Marcador eliminado correctamente",
-      "deleteError": "Error al eliminar el marcador",
       "notFound": "Marcador no encontrado",
-      "updated": "Marcador actualizado correctamente",
-      "duplicated": "Marcador duplicado correctamente"
+      "updated": "Marcador actualizado correctamente"
     },
     "folder": {
       "created": "Carpeta creada",
@@ -69,7 +66,6 @@
       "add": {
         "cancel": "¿Descartar el nuevo marcador?"
       },
-      "confirmDelete": "Eliminar {{name}}",
       "cancel": "¿Descartar los cambios de la edición?"
     },
     "settings": {
@@ -132,12 +128,10 @@
     "clear": "Cancelar selección"
   },
   "bookmarkActions": {
-    "openMenu": "Mostrar acciones del marcador",
-    "menuLabel": "Acciones del marcador",
+    "ariaLabel": "Controles del marcador",
     "edit": "Editar marcador",
-    "duplicate": "Duplicar marcador",
     "select": "Seleccionar marcador",
-    "delete": "Eliminar marcador",
+    "deselect": "Deseleccionar marcador",
     "copySuffix": "copia"
   },
   "folder": {
@@ -154,8 +148,7 @@
     "removeNoSpace": "No hay espacio suficiente en la cuadrícula para sacar este marcador de la carpeta.",
     "confirmDelete": "¿Eliminar «{{name}}» y sus {{count}} marcadores de forma permanente?",
     "actions": {
-      "openMenu": "Mostrar acciones de la carpeta",
-      "menuLabel": "Acciones de la carpeta",
+      "ariaLabel": "Controles de la carpeta",
       "rename": "Renombrar carpeta",
       "delete": "Eliminar carpeta",
       "editBookmark": "Editar {{name}}",

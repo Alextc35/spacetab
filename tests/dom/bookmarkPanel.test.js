@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 let createBookmarkEditorPanel;
+let createFavicon;
 const newTabHtml = readFileSync(join(process.cwd(), 'src/newtab.html'), 'utf8');
 
 beforeAll(async () => {
@@ -14,6 +15,7 @@ beforeAll(async () => {
     .replace(/<\/html>.*$/s, '');
 
   ({ createBookmarkEditorPanel } = await import('../../src/js/ui/bookmark/panel.js'));
+  ({ createFavicon } = await import('../../src/js/ui/bookmark/favicon.js'));
 });
 
 beforeEach(() => {
@@ -31,7 +33,8 @@ describe('BookmarkEditorPanel', () => {
       host: document.createElement('div'),
       mode: 'preset',
       value: { backgroundColor: '#abcdef' },
-      previewName: 'Default bookmark'
+      previewName: 'Default bookmark',
+      previewFaviconUrl: '/assets/icons/icon-128.png'
     });
 
     expect(createPanel.sections).toEqual(['general', 'style', 'text', 'icon']);
@@ -40,6 +43,8 @@ describe('BookmarkEditorPanel', () => {
     expect(presetPanel.getValue()).not.toHaveProperty('name');
     expect(presetPanel.getValue().backgroundColor).toBe('#abcdef');
     expect(presetPanel.root.querySelector('.bookmark-title').textContent).toBe('Default bookmark');
+    expect(presetPanel.root.querySelector('.bookmark-favicon').getAttribute('src'))
+      .toBe('/assets/icons/icon-128.png');
 
     createPanel.destroy();
     presetPanel.destroy();
@@ -96,6 +101,13 @@ describe('BookmarkEditorPanel', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(document.getElementById('bookmark-modal-form-host').children).toHaveLength(0);
+  });
+
+  test('uses an inline initials fallback for bookmarks without a resolvable URL', () => {
+    const favicon = createFavicon({ name: 'Example bookmark', url: '' });
+
+    expect(favicon.getAttribute('src')).toMatch(/^data:image\/svg\+xml,/);
+    expect(favicon.getAttribute('src')).not.toContain('flaticon.com');
   });
 });
 

@@ -185,20 +185,16 @@
   }
 }
 
-.bookmark.has-open-actions {
-  z-index: calc(var(--z-bookmark) + 2);
-}
-
-.bookmark-action-menu {
+.item-actions {
   position: absolute;
-  top: 4px;
-  left: 4px;
+  top: 8px;
+  left: 8px;
   z-index: 3;
-  width: 24px;
-  height: 24px;
+  display: flex;
+  gap: 6px;
 }
 
-.bookmark-actions-toggle {
+.item-action-button {
   display: grid;
   width: 24px;
   height: 24px;
@@ -208,8 +204,6 @@
   border-radius: 10px;
   cursor: pointer;
   font-size: .8rem;
-  font-weight: 700;
-  letter-spacing: 1px;
   line-height: 1;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
   transition: background-color .15s ease, color .15s ease, transform .15s ease,
@@ -226,7 +220,6 @@
   }
 
   &:hover,
-  &:focus-visible,
   &[aria-pressed='true'] {
     background: #2563eb;
     color: #fff;
@@ -236,71 +229,6 @@
 
   &:focus-visible {
     outline: 2px solid #93c5fd;
-    outline-offset: 2px;
-  }
-}
-
-.bookmark-actions {
-  position: absolute;
-  top: 0;
-  left: 28px;
-  display: grid;
-  grid-template-columns: repeat(2, 32px);
-  gap: 6px;
-  padding: 5px;
-  border: 1px solid rgba(255, 255, 255, .16);
-  border-radius: 12px;
-  background: rgba(15, 20, 31, .9);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, .32);
-  backdrop-filter: blur(10px);
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(-6px) scale(.94);
-  transform-origin: left top;
-  visibility: hidden;
-  transition: opacity .16s ease, transform .16s ease, visibility 0s linear .16s;
-}
-
-.bookmark-action-menu.is-open .bookmark-actions {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(0) scale(1);
-  visibility: visible;
-  transition-delay: 0s;
-}
-
-.bookmark-btn {
-  display: grid;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  place-items: center;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  cursor: pointer;
-  font-size: .9rem;
-  line-height: 1;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, .18);
-  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
-
-  &.is-dark {
-    background: rgba(255, 255, 255, .94);
-    color: #111827;
-  }
-
-  &.is-light {
-    background: rgba(20, 27, 42, .92);
-    color: #f8fafc;
-  }
-
-  &:hover {
-    filter: brightness(1.08);
-    box-shadow: 0 5px 14px rgba(0, 0, 0, .28);
-    transform: translateY(-1px);
-  }
-
-  &:focus-visible {
-    outline: 2px solid #60a5fa;
     outline-offset: 2px;
   }
 
@@ -314,16 +242,14 @@
     color: #fff;
   }
 
-  &.duplicate:hover {
-    background: #7c3aed;
-    color: #fff;
+  &.select {
+    font-weight: 700;
+    letter-spacing: 1px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bookmark-actions,
-  .bookmark-actions-toggle,
-  .bookmark-btn {
+  .item-action-button {
     transition: none;
   }
 }

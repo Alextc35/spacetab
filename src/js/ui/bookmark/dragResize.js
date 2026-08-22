@@ -44,7 +44,7 @@ export function addDragAndResize(container, div, bookmark) {
   div.addEventListener('pointerdown', e => {
     if (resizing) return;
 
-    // Middle click toggles the same selection exposed in the action menu.
+    // Middle click toggles the same selection exposed by the three-dot control.
     if (e.button === 1) {
       e.preventDefault();
       e.stopPropagation();
@@ -53,7 +53,7 @@ export function addDragAndResize(container, div, bookmark) {
       return;
     }
 
-    if (e.target.closest('.bookmark-action-menu, .resizer')) return;
+    if (e.target.closest('.item-actions, .resizer')) return;
 
     if (e.button !== 0) return;
 

@@ -22,7 +22,7 @@ export function addFolderDrag(container, element, folder) {
   element.addEventListener('pointerdown', event => {
     if (
       event.button !== 0
-      || event.target.closest('.bookmark-action-menu')
+      || event.target.closest('.item-actions')
     ) return;
 
     event.preventDefault();

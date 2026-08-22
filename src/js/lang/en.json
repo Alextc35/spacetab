@@ -9,11 +9,8 @@
     },
     "bookmark": {
       "added": "Bookmark added successfully",
-      "deleted": "Bookmark deleted successfully",
-      "deleteError": "Failed to delete bookmark",
       "notFound": "Bookmark not found",
-      "updated": "Bookmark updated successfully",
-      "duplicated": "Bookmark duplicated successfully"
+      "updated": "Bookmark updated successfully"
     },
     "folder": {
       "created": "Folder created",
@@ -69,7 +66,6 @@
       "add": {
         "cancel": "Discard new bookmark?"
       },
-      "confirmDelete": "Delete {{name}}",
       "cancel": "Discard changes?"
     },
     "settings": {
@@ -132,12 +128,10 @@
     "clear": "Clear selection"
   },
   "bookmarkActions": {
-    "openMenu": "Show bookmark actions",
-    "menuLabel": "Bookmark actions",
+    "ariaLabel": "Bookmark controls",
     "edit": "Edit bookmark",
-    "duplicate": "Duplicate bookmark",
     "select": "Select bookmark",
-    "delete": "Delete bookmark",
+    "deselect": "Deselect bookmark",
     "copySuffix": "copy"
   },
   "folder": {
@@ -154,8 +148,7 @@
     "removeNoSpace": "There is not enough grid space to remove this bookmark from the folder.",
     "confirmDelete": "Delete “{{name}}” and its {{count}} bookmarks permanently?",
     "actions": {
-      "openMenu": "Show folder actions",
-      "menuLabel": "Folder actions",
+      "ariaLabel": "Folder controls",
       "rename": "Rename folder",
       "delete": "Delete folder",
       "editBookmark": "Edit {{name}}",

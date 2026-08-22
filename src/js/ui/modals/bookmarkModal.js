@@ -125,6 +125,9 @@ function openBookmarkModal(nextMode, bookmark) {
     previewName: nextMode === 'preset'
       ? t('settingsModal.bookmark.previewName')
       : undefined,
+    previewFaviconUrl: nextMode === 'preset'
+      ? chrome.runtime.getURL('assets/icons/icon-128.png')
+      : null,
     onChange: updateSaveButtonState
   });
 

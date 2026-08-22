@@ -24,6 +24,7 @@ let instanceCount = 0;
  * @param {(value: BookmarkDraft|BookmarkPreset) => void} [options.onChange]
  * @param {string} [options.idPrefix]
  * @param {string} [options.previewName] - Placeholder title used by preset previews.
+ * @param {string|null} [options.previewFaviconUrl] - Local favicon used by preset previews.
  * @returns {Object|null}
  */
 export function createBookmarkEditorPanel({
@@ -33,7 +34,8 @@ export function createBookmarkEditorPanel({
   sections,
   onChange,
   idPrefix = `bookmark-editor-${++instanceCount}`,
-  previewName = t('editModal.previewName')
+  previewName = t('editModal.previewName'),
+  previewFaviconUrl = null
 }) {
   const template = document.getElementById(TEMPLATE_ID);
   if (!host || !template) return null;
@@ -100,6 +102,7 @@ export function createBookmarkEditorPanel({
   const editor = createBookmarkEditor({
     elements,
     bookmark: currentValue,
+    previewFaviconUrl,
     onChange: nextValue => {
       currentValue = prepareEditorValue(currentMode, nextValue, previewName);
       clearValidationErrors(elements, errorElements);

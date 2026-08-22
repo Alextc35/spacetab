@@ -9,9 +9,10 @@ import { createLockableInputController } from '../modals/helper/stateLocked.js';
  * @param {Object} params.elements - DOM references for form controls and preview.
  * @param {Object} params.bookmark - Initial bookmark state to edit.
  * @param {Function} params.onChange - Callback invoked with a cloned bookmark state.
+ * @param {string|null} [params.previewFaviconUrl] - Optional local favicon for the preview.
  * @returns {Object} Public editor API.
  */
-export function createBookmarkEditor({ elements, bookmark, onChange }) {
+export function createBookmarkEditor({ elements, bookmark, onChange, previewFaviconUrl = null }) {
   let syncing = false;
   const abortController = new AbortController();
   const eventOptions = { signal: abortController.signal };
@@ -59,7 +60,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange }) {
    * Re-renders the bookmark preview when a preview container exists.
    */
   const updatePreview = () => {
-    if (preview) renderBookmarkPreview(preview, bookmark);
+    if (preview) renderBookmarkPreview(preview, bookmark, { faviconUrl: previewFaviconUrl });
   };
 
   /**

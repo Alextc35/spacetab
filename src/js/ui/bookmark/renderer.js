@@ -2,7 +2,7 @@ import { getState } from '../../core/store.js';
 import { updateGridSize } from '../gridLayout.js';
 import { createFavicon } from './favicon.js';
 import { addDragAndResize } from './dragResize.js';
-import { addEditDeleteButtons } from './actions.js';
+import { addBookmarkActions } from './actions.js';
 import { isBookmarkSelected } from './selection.js';
 import { applyGridItemPosition } from '../gridItemLayout.js';
 import { createFolderElement } from '../folder/renderer.js';
@@ -48,7 +48,7 @@ export function renderBookmarks(container) {
     createBookmarkContent(div, bookmark, isEditing);
 
     if (isEditing) {
-      addEditDeleteButtons(div, bookmark);
+      addBookmarkActions(div, bookmark);
       addDragAndResize(container, div, bookmark);
     }
 
@@ -81,10 +81,11 @@ export function renderBookmarks(container) {
  * @param {Object} [options]
  * @param {boolean} [options.isEditing=false] - Whether editing styles should apply.
  * @param {boolean} [options.isPreview=false] - Whether preview styles should apply.
+ * @param {string|null} [options.faviconUrl=null] - Optional preview-only favicon source.
  * @returns {HTMLDivElement} The generated bookmark element.
  */
 export function createBookmarkElement(bookmark, options = {}) {
-  const { isEditing = false, isPreview = false } = options;
+  const { isEditing = false, isPreview = false, faviconUrl = null } = options;
 
   const div = document.createElement('div');
   div.className = 'bookmark';
@@ -94,7 +95,7 @@ export function createBookmarkElement(bookmark, options = {}) {
 
   applyBookmarkStyle(null, div, bookmark);
 
-  createBookmarkContent(div, bookmark, isEditing);
+  createBookmarkContent(div, bookmark, isEditing, faviconUrl);
 
   return div;
 }
@@ -209,16 +210,17 @@ function applyTextStyle(div, bookmark) {
  * @param {HTMLDivElement} div
  * @param {Bookmark} bookmark
  * @param {boolean} isEditing
+ * @param {string|null} [faviconUrl]
  * @returns {void}
  */
-function createBookmarkContent(div, bookmark, isEditing) {
+function createBookmarkContent(div, bookmark, isEditing, faviconUrl = null) {
   const linkEl = document.createElement('a');
   linkEl.href = bookmark.url || '#';
   linkEl.className = 'bookmark-link';
   linkEl.classList.toggle('is-editing', isEditing);
 
   if (bookmark.backgroundFavicon) {
-    appendMainIcon(linkEl, bookmark);
+    appendMainIcon(linkEl, bookmark, faviconUrl);
     if (bookmark.showText) {
       linkEl.appendChild(createTextSpan(bookmark));
       div.appendChild(linkEl);
@@ -228,7 +230,7 @@ function createBookmarkContent(div, bookmark, isEditing) {
 
   const infoBox = document.createElement('div');
   infoBox.className = 'bookmark-info';
-  if (bookmark.showFavicon ?? true) infoBox.appendChild(createSmallIcon(bookmark));
+  if (bookmark.showFavicon ?? true) infoBox.appendChild(createSmallIcon(bookmark, faviconUrl));
   if (bookmark.showText ?? true) infoBox.appendChild(createTextSpan(bookmark));
   linkEl.appendChild(infoBox);
   div.appendChild(linkEl);
@@ -240,10 +242,11 @@ function createBookmarkContent(div, bookmark, isEditing) {
  *
  * @param {HTMLElement} container
  * @param {Bookmark} bookmark
+ * @param {string|null} faviconUrl
  * @returns {void}
  */
-function appendMainIcon(container, bookmark) {
-  const img = createFavicon(bookmark);
+function appendMainIcon(container, bookmark, faviconUrl) {
+  const img = createFavicon(bookmark, { placeholderUrl: faviconUrl });
   img.alt = bookmark.name || '';
   if (bookmark.invertColorIcon) img.style.filter = 'invert(1)';
   container.appendChild(img);
@@ -253,10 +256,11 @@ function appendMainIcon(container, bookmark) {
  * Creates a small favicon element for inline display.
  *
  * @param {Bookmark} bookmark
+ * @param {string|null} faviconUrl
  * @returns {HTMLImageElement}
  */
-function createSmallIcon(bookmark) {
-  const img = createFavicon(bookmark);
+function createSmallIcon(bookmark, faviconUrl) {
+  const img = createFavicon(bookmark, { placeholderUrl: faviconUrl });
   img.alt = bookmark.name || '';
   img.style.width = '16px';
   img.style.height = '16px';

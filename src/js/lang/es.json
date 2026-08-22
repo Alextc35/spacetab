@@ -9,11 +9,8 @@
     },
     "bookmark": {
       "added": "Favorito añadido correctamente",
-      "deleted": "Favorito eliminado correctamente",
-      "deleteError": "Error al eliminar el favorito",
       "notFound": "Favorito no encontrado",
-      "updated": "Favorito actualizado correctamente",
-      "duplicated": "Favorito duplicado correctamente"
+      "updated": "Favorito actualizado correctamente"
     },
     "folder": {
       "created": "Carpeta creada",
@@ -69,7 +66,6 @@
       "add": {
         "cancel": "¿Descartar el nuevo favorito?"
       },
-      "confirmDelete": "Eliminar {{name}}",
       "cancel": "¿Descartar los cambios en la edición?"
     },
     "settings": {
@@ -132,12 +128,10 @@
     "clear": "Cancelar selección"
   },
   "bookmarkActions": {
-    "openMenu": "Mostrar acciones del favorito",
-    "menuLabel": "Acciones del favorito",
+    "ariaLabel": "Controles del favorito",
     "edit": "Editar favorito",
-    "duplicate": "Duplicar favorito",
     "select": "Seleccionar favorito",
-    "delete": "Eliminar favorito",
+    "deselect": "Deseleccionar favorito",
     "copySuffix": "copia"
   },
   "folder": {
@@ -154,8 +148,7 @@
     "removeNoSpace": "No hay espacio suficiente en la cuadrícula para sacar este favorito de la carpeta.",
     "confirmDelete": "¿Eliminar «{{name}}» y sus {{count}} favoritos de forma permanente?",
     "actions": {
-      "openMenu": "Mostrar acciones de la carpeta",
-      "menuLabel": "Acciones de la carpeta",
+      "ariaLabel": "Controles de la carpeta",
       "rename": "Renombrar carpeta",
       "delete": "Eliminar carpeta",
       "editBookmark": "Editar {{name}}",
