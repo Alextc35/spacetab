@@ -109,6 +109,23 @@ describe('BookmarkEditorPanel', () => {
     expect(favicon.getAttribute('src')).toMatch(/^data:image\/svg\+xml,/);
     expect(favicon.getAttribute('src')).not.toContain('flaticon.com');
   });
+
+  test('ignores a leading www only when resolving the favicon', () => {
+    const bookmark = {
+      name: 'Iberlogistics',
+      url: 'https://www.iberlogistics.com/services'
+    };
+    const favicon = createFavicon(bookmark);
+    const faviconRequest = new URL(favicon.getAttribute('src'));
+    const subdomainRequest = new URL(createFavicon({
+      name: 'App',
+      url: 'https://app.example.com/dashboard'
+    }).getAttribute('src'));
+
+    expect(faviconRequest.searchParams.get('url')).toBe('https://iberlogistics.com');
+    expect(subdomainRequest.searchParams.get('url')).toBe('https://app.example.com');
+    expect(bookmark.url).toBe('https://www.iberlogistics.com/services');
+  });
 });
 
 function createChromeMock() {

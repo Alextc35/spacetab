@@ -25,8 +25,9 @@ export function createFavicon(bookmark, { placeholderUrl = null } = {}) {
     const urlObj = new URL(bookmark.url);
     isInternal = urlObj.hostname.endsWith('.internal') || urlObj.hostname.endsWith('.local');
     if (!isInternal) {
+      const faviconOrigin = getFaviconOrigin(urlObj);
       img.src =
-        `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(urlObj.origin)}&size=64`;
+        `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(faviconOrigin)}&size=64`;
       img.onerror = () => {
         img.onerror = null;
         img.src = generateInitialsFallback(bookmark.name);
@@ -39,6 +40,22 @@ export function createFavicon(bookmark, { placeholderUrl = null } = {}) {
   if (isInternal) img.src = generateInitialsFallback(bookmark.name);
 
   return img;
+}
+
+/**
+ * Uses the apex host for favicon discovery while preserving the bookmark URL.
+ * Google can return a generic icon for a leading www host even when the apex
+ * host has the correct favicon registered.
+ *
+ * @param {URL} url
+ * @returns {string}
+ */
+function getFaviconOrigin(url) {
+  if (!url.hostname.startsWith('www.')) return url.origin;
+
+  const faviconUrl = new URL(url.origin);
+  faviconUrl.hostname = faviconUrl.hostname.slice(4);
+  return faviconUrl.origin;
 }
 
 /**
