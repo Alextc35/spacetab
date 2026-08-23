@@ -16,17 +16,22 @@ items on a desktop without relying on a SpaceTab account or backend.
 
 ## Features
 
-* Free drag and resize on a collision-aware grid
+* Smooth eight-direction drag and resize on a collision-aware grid
+* Configurable drag behavior: None, Relocation (default) and experimental
+  Sequence
+* Direct bookmark editing plus short-click selection and a middle-click editor
+* Arrow-key movement for a single selected bookmark
 * Shared panel for creating, editing and defining default bookmark styles
 * Named appearance presets
 * Independent bookmark workspaces with smooth `Alt/⌥ + ↑/↓` navigation
-* Folders with drag-and-drop feedback and a dedicated contents panel
-* Global search palette (`/` or `Ctrl/Cmd + K`)
+* Resizable folders with drag-and-drop feedback and a dedicated contents panel
+* Global search palette (`/`)
 * Multi-select, bulk styling, moving, duplication and deletion
-* Duplicate, undo and redo actions for bookmarks and folders
+* Bookmark duplication plus atomic undo/redo for bookmark and folder changes
 * Themes, favicon previews and English, Spanish and Brazilian Portuguese UI
 * Versioned bookmark import/export and complete backups
-* Optional browser-profile synchronization
+* Optional Google Chrome profile synchronization with status and data
+  management
 * Accessible modal focus management and keyboard navigation
 
 ## Installation
@@ -66,7 +71,8 @@ An appearance preset never contains bookmark identity, timestamps, workspace or
 grid coordinates. New bookmarks combine an empty identity with the active
 preset and are placed in the first available cell of the current workspace.
 
-Folders are first-class grid items with a fixed `1 × 1` footprint:
+Folders are first-class, resizable grid items. They start at `1 × 1`, then keep
+their own position and dimensions just like bookmarks:
 
 ```js
 {
@@ -84,6 +90,32 @@ A bookmark inside a folder keeps its layout and appearance but no longer
 reserves grid cells. Dragging it onto the folder sets `folderId`; taking it out
 places it in the first free area that fits its saved dimensions. Deleting a
 folder asks for confirmation and deletes the bookmarks it contains.
+
+## Editing and grid behavior
+
+Edit mode exposes a direct pencil button on each bookmark. A middle click opens
+the same editor without opening the bookmark in a tab. A short primary click
+toggles selection, while holding the primary button starts dragging instead.
+Selected bookmarks can be styled, moved to another workspace, duplicated or
+deleted from the bulk toolbar.
+
+Bookmarks and folders have eight resize handles. Drag a handle for continuous
+resizing, click it to grow one grid cell in that direction, or `Shift + click`
+to shrink. Invalid resize attempts restore the complete rectangle that existed
+before the gesture.
+
+**Settings → Bookmarks → Drag behavior** controls occupied-cell handling:
+
+* **None** keeps other items still. Pointer collisions are rejected and return
+  to the source on release.
+* **Relocation** (default) moves blockers into the vacated area or nearest free
+  space.
+* **Sequence** shifts the bookmark chain toward an available gap. This mode is
+  experimental and may contain minor edge-case bugs.
+
+A bookmark never displaces a folder: dropping it onto a folder adds it to that
+folder. Folders themselves use the same smart drag and resize system as other
+grid items.
 
 ## Architecture
 
@@ -104,6 +136,8 @@ Important modules:
 ```text
 src/js/core/bookmarkModel.js       drafts, presets, normalization, validation
 src/js/core/bookmarkFolders.js     folder membership and placement commands
+src/js/core/bookmarkDragModes.js   drag-mode constants and normalization
+src/js/core/browserCapabilities.js tested sync-browser detection
 src/js/core/dataSchema.js          migrations and import/export envelopes
 src/js/core/bookmark.js            bookmark commands and batch operations
 src/js/core/bookmarkGroups.js      workspace commands
@@ -112,7 +146,10 @@ src/js/core/storage.js             local/sync storage and quota-safe chunking
 
 src/js/ui/bookmark/panel.js        reusable create/edit/preset panel
 src/js/ui/bookmark/renderer.js     bookmark and folder grid rendering
-src/js/ui/folder/                  folder card, actions and dragging
+src/js/ui/bookmark/dragResize.js   shared pointer drag and resize controller
+src/js/ui/bookmark/smartDragLayout.js pure collision and displacement planner
+src/js/ui/bookmark/keyboardMovement.js selected-bookmark arrow movement
+src/js/ui/folder/                  folder card, actions and contents controller
 src/js/ui/modals/folderModal.js    folder contents panel
 src/js/ui/bookmark/bulkActions.js  multi-selection workflows
 src/js/ui/modalManager.js          modal stack and focus management
@@ -124,14 +161,18 @@ perform persistence. Controllers decide what saving means. See
 
 ## Local and synchronized storage
 
-SpaceTab starts in **Local** mode. From **Settings → Sync**, users can select:
+SpaceTab starts in **Local** mode. In Google Chrome, **Settings → Sync** offers:
 
 * **Only on this device** — data uses `chrome.storage.local`.
 * **Synchronized** — data uses the browser-managed `chrome.storage.sync` area.
 
-Chrome follows the Chrome profile / Google Account sync configuration. Brave
-uses Brave Sync. SpaceTab does not operate an OAuth client, account system or
-server and cannot access synchronized user data.
+Synchronization is currently enabled only in branded Google Chrome, where it
+follows the Chrome profile / Google Account configuration. Brave and other
+Chromium browsers remain fully usable in Local mode, but the synchronized
+option is disabled because cross-device propagation has not been reliable; see
+[issue #1](https://github.com/Alextc35/spacetab/issues/1). SpaceTab does not
+operate an OAuth client, account system or server and cannot access synchronized
+user data.
 
 When Sync is enabled for the first time, local data is uploaded if the profile
 does not already contain SpaceTab data. Existing synchronized data wins to avoid
@@ -140,20 +181,34 @@ the synchronized copy untouched.
 
 Chrome's sync quotas are handled by splitting the versioned payload into safe
 chunks. SpaceTab reports quota/persistence errors and shows the current save
-status in Settings.
+status in Settings. The Sync panel also reports the latest synchronized update
+and can delete all synchronized SpaceTab data after confirmation. Deleting sync
+data first keeps the working data locally when necessary.
 
 > Cross-device sync requires the same extension ID on every installation. A
 > Chrome Web Store release provides this automatically. Development installs
 > need a stable manifest key or consistent packaging workflow.
 
-## Keyboard and organization
+## Keyboard and pointer shortcuts
 
 * `Space` toggles edit mode when no modal is open.
 * `Enter` opens the create-bookmark panel.
 * `.` opens Settings.
 * `/` opens global search.
+* `Middle click` opens that bookmark's editor while editing the grid.
+* `↑/↓/←/→` moves exactly one selected top-level bookmark while editing.
+* `Alt/⌥ + ↑/↓` cycles through workspaces.
 * `Ctrl/Cmd + Z` undoes the latest bookmark operation.
 * `Ctrl/Cmd + Shift + Z` redoes it.
+
+Arrow movement follows the configured drag behavior. In None mode it skips
+occupied cells until the next free rectangle. Relocation and Sequence exchange
+bookmarks one step at a time and jump over the complete rectangle of a folder
+without moving it. Arrow shortcuts are ignored with zero or multiple
+selections, while typing, and while a modal is open.
+
+Selection uses a short primary click. Holding the primary button starts a drag
+and therefore does not alter selection.
 
 Workspaces maintain independent layouts. Folders cannot cross or nest between
 workspaces. Search covers every workspace and includes the containing folder in

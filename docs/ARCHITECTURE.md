@@ -28,6 +28,11 @@ collection.
 `src/js/core/bookmarkGroups.js` implement application commands. Batch operations
 make one store transition, so undo treats them as a single user action.
 
+`src/js/core/bookmarkDragModes.js` owns the persisted drag-mode contract and
+normalizes unknown values to Relocation. `src/js/core/browserCapabilities.js`
+keeps browser detection out of Settings and only enables synchronized storage
+for tested, branded Google Chrome environments.
+
 `src/js/core/store.js` owns live state, the persistence queue and grid-content
 undo/redo history. A history snapshot contains bookmarks and folders together.
 Synchronization settings are deliberately excluded from undo, preventing a
@@ -36,14 +41,16 @@ shortcut from changing where data is stored.
 ## Folder invariants
 
 Folders are independent entities in `data.folders`. They have an id, name,
-workspace, timestamps and a fixed one-cell grid rectangle. Bookmark membership
-is represented by nullable `bookmark.folderId`.
+workspace, timestamps and a resizable `gx`, `gy`, `w`, `h` grid rectangle. New
+folders start at `1 × 1`. Bookmark membership is represented by nullable
+`bookmark.folderId`.
 
 The schema and commands enforce these rules:
 
 * A folder and its bookmarks always belong to the same workspace.
 * Folders cannot contain other folders.
 * A contained bookmark does not reserve grid space.
+* A top-level folder reserves its complete `w × h` rectangle.
 * Removing a bookmark requires a free area matching its saved `w × h` size.
 * Deleting a folder deletes its contained bookmarks in the same state change.
 * Deleting a workspace deletes its folders and all bookmarks in that workspace.
@@ -59,11 +66,53 @@ The schema and commands enforce these rules:
 The panel manages fields, tabs, validation, dirty state, preview and lifecycle.
 It does not know about modals, grid placement, persistence or the store.
 
+Settings opens the same panel in `preset` mode to configure the default bookmark
+appearance. The settings tab owns only the button and draft preset; it does not
+embed a second editor implementation.
+
+## Grid interaction
+
+`src/js/ui/bookmark/dragResize.js` is the shared pointer controller for bookmark
+and folder cards. It owns drag gesture thresholds, folder drop targeting,
+eight-direction resize handles, previews and atomic commits through
+`updateGridItemsByIds()`. Resize geometry lives in the pure
+`resizeGeometry.js` module. An invalid gesture restores the original rectangle,
+not the last valid intermediate preview.
+
+`src/js/ui/bookmark/smartDragLayout.js` is a pure layout planner. Persisted state
+remains the baseline while pointer previews are reversible:
+
+* `none` rejects occupied pointer targets.
+* `relocate` maps blockers into the vacated area or nearest free rectangle.
+* `cascade` shifts a chain toward the gap and is exposed as experimental.
+
+Bookmarks are the movable set during a bookmark drag, so a folder is never
+displaced and remains available as a drop target. A folder drag includes every
+top-level grid item in its movable set, allowing folders to participate in the
+same planner without a separate drag implementation. Folder size is always
+included in collision checks.
+
+Selection lives in `selection.js` and is intentionally transient. A short
+primary click toggles a bookmark, while a held primary click becomes a drag.
+Middle click delegates to the same editor entry point as the direct pencil and
+prevents the bookmark link from opening a tab. `keyboardMovement.js` acts only
+when exactly one visible, top-level bookmark is selected in edit mode. None
+mode scans to the next free rectangle; the smart modes exchange bookmarks one
+keypress at a time and skip fixed folder rectangles. The resulting bookmark
+and displacement updates use one state transition and therefore one undo entry.
+
 ## Persistence
 
 Local mode uses `chrome.storage.local`. Sync mode serializes the complete
 versioned payload and divides it into quota-safe `chrome.storage.sync` chunks.
 The local storage-mode choice remains device-specific.
+
+`browserCapabilities.js` currently permits Sync only in Google Chrome. Brave
+and unverified Chromium browsers stay in Local mode because exposing
+`chrome.storage.sync` does not guarantee that their profile service propagates
+SpaceTab data. Settings displays persistence status and synchronized update
+metadata, and confirmed deletion removes only SpaceTab's synchronized keys. If
+the active mode is Sync, deletion preserves the working data in Local first.
 
 Complete backups use the `spacetab-backup` format; bookmark-only files use
 `spacetab-bookmarks`. Both versioned formats preserve folders and membership.
@@ -80,8 +129,8 @@ The renderer displays top-level bookmarks and folders in the active workspace.
 detects folder hit targets and delegates membership changes to the core.
 
 Search indexes all workspaces and contained bookmarks, showing folder context
-when present. Selection is transient UI state and is pruned when bookmarks
-disappear.
+when present. Selection is pruned when bookmarks disappear and is cleared when
+edit mode closes.
 
 `src/js/ui/workspaceToolbar.js` owns cyclic workspace navigation. `Alt/Option`
 with the up or down arrow resolves the adjacent workspace through the core,
