@@ -1130,23 +1130,19 @@ test('duplicates from the bulk toolbar and clears selection when edit mode close
   await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
 });
 
-test('toggles multiple bookmark selections with middle click without opening tabs', async ({ page }) => {
+test('opens the bookmark editor with middle click without opening a tab', async ({ page }) => {
   await enableEditMode(page);
-  const bookmarks = page.locator('#bookmark-container > .bookmark[data-bookmark-id]');
+  const bookmark = page.locator('#bookmark-container > .bookmark[data-bookmark-id]').first();
   const bulkActions = page.getByRole('toolbar', { name: 'Selected bookmark actions' });
 
-  await bookmarks.nth(0).click({ button: 'middle' });
-  await bookmarks.nth(1).click({ button: 'middle' });
+  await bookmark.click({ button: 'middle' });
 
-  await expect(page.locator('.bookmark.is-selected')).toHaveCount(2);
-  await expect(bulkActions).toBeVisible();
-  await expect(page.getByText('2 selected')).toBeVisible();
+  await expect(page.locator('#edit-bookmark-modal')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Edit bookmark' })).toBeVisible();
+  await expect(page.locator('#bookmark-modal-form-name')).toHaveValue('DEVELOPED BY');
+  await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
+  await expect(bulkActions).toBeHidden();
   await expect.poll(() => page.context().pages().length).toBe(1);
-
-  await bookmarks.nth(0).click({ button: 'middle' });
-
-  await expect(page.locator('.bookmark.is-selected')).toHaveCount(1);
-  await expect(page.getByText('1 selected')).toBeVisible();
 });
 
 test('names a single bookmark before deletion and counts multiple selections', async ({ page }) => {

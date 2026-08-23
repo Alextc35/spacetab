@@ -8,6 +8,7 @@ import { GRID_COLS, GRID_ROWS, PADDING } from '../../core/config.js';
 import { isAreaFree } from '../../core/grid.js';
 import { getState } from '../../core/store.js';
 import { flashSuccess } from '../flash.js';
+import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { toggleBookmarkSelection } from './selection.js';
 import {
   calculateResizeGeometry,
@@ -28,7 +29,7 @@ const smartDragOwners = new WeakMap();
  * Handles:
  * - Reversible smart dragging with automatic bookmark displacement.
  * - Continuous or one-click resizing from all four sides and corners.
- * - Short-click and middle-click selection shortcuts for bookmarks.
+ * - Short-click selection and middle-click editing for bookmarks.
  * - State persistence via store updates.
  *
  * @param {HTMLElement} container - Grid container element.
@@ -59,12 +60,11 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
   div.addEventListener('pointerdown', e => {
     if (resizing) return;
 
-    // Middle click keeps the quick selection shortcut without opening a tab.
+    // Middle click mirrors the pencil shortcut without opening the bookmark.
     if (kind === 'bookmark' && e.button === 1) {
       e.preventDefault();
       e.stopPropagation();
-      const selected = toggleBookmarkSelection(item.id);
-      div.classList.toggle('is-selected', selected);
+      openEditBookmark(item.id);
       return;
     }
 
