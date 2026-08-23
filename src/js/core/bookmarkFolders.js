@@ -1,6 +1,21 @@
 import '../types/types.js';
 import { findFirstFreeSlot } from './grid.js';
+import {
+  cellKey,
+  createFolderBookmarkLayout,
+  FOLDER_GRID_CAPACITY,
+  findFirstFreeFolderCell,
+  isFolderCell
+} from './folderGrid.js';
 import { getState, setState } from './store.js';
+
+export const BOOKMARK_FOLDER_NAME_MAX_LENGTH = 60;
+
+function normalizeBookmarkFolderName(name) {
+  return typeof name === 'string'
+    ? name.trim().slice(0, BOOKMARK_FOLDER_NAME_MAX_LENGTH)
+    : '';
+}
 
 /**
  * Returns the items that currently reserve cells in one workspace.
@@ -32,7 +47,7 @@ export function getGridItemsInGroup(data, groupId) {
  * @returns {BookmarkFolder|null}
  */
 export function createBookmarkFolder(name, { columns, rows } = {}) {
-  const normalizedName = typeof name === 'string' ? name.trim() : '';
+  const normalizedName = normalizeBookmarkFolderName(name);
   if (!normalizedName) return null;
 
   const { data } = getState();
@@ -61,7 +76,7 @@ export function createBookmarkFolder(name, { columns, rows } = {}) {
 
 /** @returns {BookmarkFolder|null} */
 export function renameBookmarkFolder(folderId, name) {
-  const normalizedName = typeof name === 'string' ? name.trim() : '';
+  const normalizedName = normalizeBookmarkFolderName(name);
   if (!normalizedName) return null;
 
   const { data: { folders } } = getState();
@@ -135,21 +150,83 @@ export function addBookmarkToFolder(bookmarkId, folderId) {
   const { data: { bookmarks, folders } } = getState();
   const folder = folders.find(item => item.id === folderId);
   const bookmark = bookmarks.find(item => item.id === bookmarkId);
+  const contents = bookmarks.filter(item => item.folderId === folderId);
   if (
     !folder
     || !bookmark
+    || contents.length >= FOLDER_GRID_CAPACITY
     || (folder.groupId ?? null) !== (bookmark.groupId ?? null)
   ) return null;
+
+  const layout = createFolderBookmarkLayout(contents);
+  const occupied = new Set(
+    Array.from(layout.values(), position => cellKey(position.gx, position.gy))
+  );
+  const position = findFirstFreeFolderCell(occupied);
+  if (!position) return null;
 
   let moved = null;
   const updated = bookmarks.map(item => {
     if (item.id !== bookmarkId) return item;
-    moved = { ...item, folderId, updatedAt: Date.now() };
+    moved = { ...item, ...position, folderId, updatedAt: Date.now() };
     return moved;
   });
 
   setState({ data: { bookmarks: updated } });
   return moved;
+}
+
+/**
+ * Commits a complete smart-drag preview inside one folder. All supplied
+ * positions are validated and applied with legacy layout normalization in a
+ * single store transition, so Sequence remains one undoable action.
+ *
+ * @param {string} folderId
+ * @param {Iterable<{id: string, gx: number, gy: number}>} positions
+ * @returns {Bookmark[]}
+ */
+export function updateFolderBookmarkPositions(folderId, positions) {
+  const requested = new Map(Array.from(positions ?? [], position => [
+    position.id,
+    { gx: position.gx, gy: position.gy }
+  ]));
+  if (!requested.size) return [];
+
+  const { data: { bookmarks } } = getState();
+  const contents = bookmarks.filter(bookmark => bookmark.folderId === folderId);
+  const contentIds = new Set(contents.map(bookmark => bookmark.id));
+  if (Array.from(requested).some(([id, position]) => (
+    !contentIds.has(id) || !isFolderCell(position.gx, position.gy)
+  ))) return [];
+
+  const layout = createFolderBookmarkLayout(contents);
+  for (const [id, position] of requested) layout.set(id, position);
+
+  const occupied = new Set();
+  for (const position of layout.values()) {
+    if (!isFolderCell(position.gx, position.gy)) continue;
+    const key = cellKey(position.gx, position.gy);
+    if (occupied.has(key)) return [];
+    occupied.add(key);
+  }
+
+  const now = Date.now();
+  const changed = [];
+  const updated = bookmarks.map(bookmark => {
+    if (bookmark.folderId !== folderId) return bookmark;
+    const position = layout.get(bookmark.id);
+    if (
+      !position
+      || (bookmark.gx === position.gx && bookmark.gy === position.gy)
+    ) return bookmark;
+
+    const next = { ...bookmark, ...position, updatedAt: now };
+    changed.push(next);
+    return next;
+  });
+
+  if (changed.length) setState({ data: { bookmarks: updated } });
+  return changed;
 }
 
 /**

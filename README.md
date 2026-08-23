@@ -17,14 +17,14 @@ items on a desktop without relying on a SpaceTab account or backend.
 ## Features
 
 * Smooth eight-direction drag and resize on a collision-aware grid
-* Configurable drag behavior: None, Relocation (default) and experimental
+* Configurable drag behavior: None (default), Relocation and experimental
   Sequence
 * Direct bookmark editing plus short-click selection and a middle-click editor
 * Arrow-key movement for a single selected bookmark
 * Shared panel for creating, editing and defining default bookmark styles
 * Named appearance presets
 * Independent bookmark workspaces with smooth `Alt/⌥ + ↑/↓` navigation
-* Resizable folders with drag-and-drop feedback and a dedicated contents panel
+* Resizable folders with drag-and-drop feedback and a compact 3 × 6 workspace
 * Global search palette (`/`)
 * Multi-select, bulk styling, moving, duplication and deletion
 * Bookmark duplication plus atomic undo/redo for bookmark and folder changes
@@ -86,10 +86,17 @@ their own position and dimensions just like bookmarks:
 }
 ```
 
-A bookmark inside a folder keeps its layout and appearance but no longer
-reserves grid cells. Dragging it onto the folder sets `folderId`; taking it out
-places it in the first free area that fits its saved dimensions. Deleting a
-folder asks for confirmation and deletes the bookmarks it contains.
+A bookmark inside a folder keeps its appearance and saved `w × h` size but no
+longer reserves cells in the main workspace. Each folder exposes a compact
+3-row × 6-column grid for up to 18 bookmarks. Internal cards always occupy one
+compact cell. The configured None, Relocation or Sequence behavior also applies
+inside the folder, with smooth reversible cell transitions. The local order
+persists across reopens and reloads.
+
+Dragging a top-level bookmark onto the folder assigns the first free local
+cell. Taking it out places it in the first free main-grid area that fits its
+saved dimensions. Deleting a folder asks for confirmation and deletes the
+bookmarks it contains.
 
 ## Editing and grid behavior
 
@@ -106,9 +113,9 @@ before the gesture.
 
 **Settings → Bookmarks → Drag behavior** controls occupied-cell handling:
 
-* **None** keeps other items still. Pointer collisions are rejected and return
-  to the source on release.
-* **Relocation** (default) moves blockers into the vacated area or nearest free
+* **None** (default) keeps other items still. It only accepts free cells;
+  occupied targets return the dragged item to its source on release.
+* **Relocation** moves blockers into the vacated area or nearest free
   space.
 * **Sequence** shifts the bookmark chain toward an available gap. This mode is
   experimental and may contain minor edge-case bugs.
@@ -136,6 +143,7 @@ Important modules:
 ```text
 src/js/core/bookmarkModel.js       drafts, presets, normalization, validation
 src/js/core/bookmarkFolders.js     folder membership and placement commands
+src/js/core/folderGrid.js          fixed 3 × 6 internal folder layout
 src/js/core/bookmarkDragModes.js   drag-mode constants and normalization
 src/js/core/browserCapabilities.js tested sync-browser detection
 src/js/core/dataSchema.js          migrations and import/export envelopes
@@ -150,7 +158,7 @@ src/js/ui/bookmark/dragResize.js   shared pointer drag and resize controller
 src/js/ui/bookmark/smartDragLayout.js pure collision and displacement planner
 src/js/ui/bookmark/keyboardMovement.js selected-bookmark arrow movement
 src/js/ui/folder/                  folder card, actions and contents controller
-src/js/ui/modals/folderModal.js    folder contents panel
+src/js/ui/modals/folderModal.js    compact folder workspace and drag controller
 src/js/ui/bookmark/bulkActions.js  multi-selection workflows
 src/js/ui/modalManager.js          modal stack and focus management
 ```

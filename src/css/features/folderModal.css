@@ -168,9 +168,11 @@
 }
 
 .modal-folder {
-  width: min(660px, 92vw);
-  max-height: min(620px, 86vh);
-  padding: 22px;
+  display: flex;
+  width: min(900px, 96vw);
+  max-height: min(680px, 92vh);
+  padding: 20px;
+  flex-direction: column;
   border: 1px solid rgba(148, 163, 184, .18);
   background: linear-gradient(150deg, #121a27, #0c111b);
 }
@@ -197,141 +199,366 @@
 
 .folder-modal-heading {
   min-width: 0;
+  flex: 1;
 }
 
 .folder-modal-heading h2 {
-  overflow: hidden;
+  display: flex;
+  overflow: visible;
   margin: 0 0 4px;
+  align-items: center;
+  gap: 8px;
   font-size: 1.12rem;
-  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.folder-modal-title {
+  display: inline-block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 7px;
+  cursor: text;
+  outline: none;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  transition: color .15s ease, background-color .15s ease,
+    box-shadow .15s ease;
+}
+
+.folder-modal-title:hover {
+  color: #7dd3fc;
+}
+
+.folder-modal-title.is-renaming {
+  min-width: min(96px, 100%);
+  padding: 1px 5px;
+  margin: -1px -5px;
+  background: rgba(14, 165, 233, .12);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, .45);
+  color: #e0f2fe;
+  user-select: text;
+}
+
+.folder-modal-rename-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.folder-modal-rename-button {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  font: inherit;
+  font-size: .9rem;
+  line-height: 1;
+  place-items: center;
+  transition: background-color .15s ease, border-color .15s ease,
+    transform .15s ease;
+}
+
+.folder-modal-rename-button.is-accept {
+  border-color: rgba(74, 222, 128, .48);
+  background: rgba(20, 83, 45, .38);
+  color: #bbf7d0;
+}
+
+.folder-modal-rename-button.is-accept:hover,
+.folder-modal-rename-button.is-accept:focus-visible {
+  border-color: #4ade80;
+  background: rgba(21, 128, 61, .72);
+}
+
+.folder-modal-rename-button.is-cancel {
+  border-color: rgba(248, 113, 113, .42);
+  background: rgba(127, 29, 29, .28);
+  color: #fecaca;
+}
+
+.folder-modal-rename-button.is-cancel:hover,
+.folder-modal-rename-button.is-cancel:focus-visible {
+  border-color: #f87171;
+  background: rgba(185, 28, 28, .68);
+}
+
+.folder-modal-rename-button:hover,
+.folder-modal-rename-button:focus-visible {
+  outline: none;
+  transform: scale(1.06);
 }
 
 .folder-modal-heading small {
   color: #94a3b8;
 }
 
-.folder-modal-items {
-  display: grid;
-  max-height: min(410px, 58vh);
-  padding: 12px 2px 4px;
-  margin: 0;
-  gap: 8px;
-  overflow-y: auto;
-  list-style: none;
-}
-
-.folder-bookmark-item {
-  display: flex;
-  min-width: 0;
-  padding: 8px;
+.folder-modal-hint {
+  display: inline-flex;
+  padding: 7px 10px;
   align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(148, 163, 184, .13);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, .035);
-  transition: border-color .15s ease, background-color .15s ease;
-}
-
-.folder-bookmark-item:hover {
-  border-color: rgba(56, 189, 248, .4);
-  background: rgba(56, 189, 248, .07);
-}
-
-.folder-bookmark-link {
-  display: flex;
-  min-width: 0;
-  flex: 1;
-  align-items: center;
-  gap: 11px;
-  color: #f8fafc;
-  text-decoration: none;
-}
-
-.folder-bookmark-link:focus-visible {
-  outline: 2px solid #38bdf8;
-  outline-offset: 3px;
-  border-radius: 7px;
-}
-
-.folder-bookmark-link .bookmark-favicon {
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  padding: 4px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, .9);
-  object-fit: contain;
-}
-
-.folder-bookmark-copy {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.folder-bookmark-copy :is(strong, small) {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  border: 1px solid rgba(125, 211, 252, .18);
+  border-radius: 999px;
+  background: rgba(14, 165, 233, .08);
+  color: #bae6fd;
+  font-size: .72rem;
   white-space: nowrap;
 }
 
-.folder-bookmark-copy small {
-  color: #94a3b8;
-  font-size: .72rem;
-}
-
-.folder-bookmark-actions {
+.folder-grid-shell {
+  position: relative;
   display: flex;
-  flex: 0 0 auto;
-  gap: 6px;
+  min-height: 0;
+  padding: 14px 0 4px;
+  align-items: center;
+  flex: 1;
 }
 
-.folder-item-action {
+.folder-modal-grid {
+  --folder-grid-gap: 0px;
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: min(100%, 116vh);
+  min-height: 0;
+  height: auto;
   padding: 0;
-  place-items: center;
-  border: 1px solid rgba(148, 163, 184, .18);
-  border-radius: 9px;
-  background: rgba(255, 255, 255, .07);
-  color: #e2e8f0;
-  cursor: pointer;
+  margin: auto;
+  aspect-ratio: 2 / 1;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: calc(100% / 3);
+  gap: var(--folder-grid-gap);
+  border: 1px solid rgba(148, 163, 184, .14);
+  border-radius: 16px;
+  background-color: rgba(2, 6, 23, .32);
+  background-image:
+    linear-gradient(rgba(148, 163, 184, .08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, .08) 1px, transparent 1px);
+  background-size: calc(100% / 6) calc(100% / 3);
+  background-position: 0 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-.folder-item-action:hover,
-.folder-item-action:focus-visible {
-  border-color: #38bdf8;
-  background: rgba(14, 165, 233, .2);
-  outline: none;
-}
-
-.folder-item-remove:hover,
-.folder-item-remove:focus-visible {
-  border-color: #a78bfa;
-  background: rgba(124, 58, 237, .2);
-}
-
-.folder-modal-empty {
-  padding: 34px 18px 20px;
+.folder-grid-bookmark.bookmark {
+  --folder-scale: 1;
+  --folder-shift-x: 0px;
+  --folder-shift-y: 0px;
+  position: relative;
+  top: auto;
+  left: auto;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 5px;
   margin: 0;
-  color: #94a3b8;
-  line-height: 1.5;
+  align-self: stretch;
+  justify-self: stretch;
+  box-sizing: border-box;
+  grid-column: auto;
+  grid-row: auto;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: grab;
+  touch-action: none;
+  transform: translate3d(
+    var(--folder-shift-x),
+    var(--folder-shift-y),
+    0
+  ) scale(var(--folder-scale));
+  user-select: none;
+  transition: border-color .16s ease, box-shadow .16s ease,
+    opacity .16s ease,
+    transform .22s cubic-bezier(.22, 1, .36, 1);
+}
+
+.folder-grid-bookmark.bookmark:hover,
+.folder-grid-bookmark.bookmark:focus-within {
+  border-color: rgba(56, 189, 248, .52);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, .14),
+    0 10px 24px rgba(2, 8, 23, .28);
+}
+
+.folder-grid-bookmark .bookmark-link {
+  cursor: grab;
+}
+
+.folder-grid-bookmark .bookmark-link:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: -2px;
+  border-radius: 10px;
+}
+
+.folder-grid-bookmark .bookmark-favicon {
+  max-width: 58px;
+  max-height: 58px;
+}
+
+.folder-grid-bookmark .bookmark-info {
+  right: 6px;
+  bottom: 5px;
+  left: 6px;
+  min-width: 0;
+  justify-content: center;
+  gap: 4px;
+}
+
+.folder-grid-bookmark .bookmark-info .bookmark-title {
   text-align: center;
 }
 
-@media (max-width: 520px) {
-  .folder-bookmark-copy small {
+.folder-grid-bookmark.bookmark .bookmark-title {
+  margin-top: 3px;
+  font-size: clamp(.62rem, 1vw, .78rem);
+}
+
+.folder-bookmark-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  left: 6px;
+  z-index: 5;
+  display: flex;
+  gap: 4px;
+  opacity: .72;
+  transition: opacity .15s ease;
+}
+
+.folder-grid-bookmark:hover .folder-bookmark-actions,
+.folder-grid-bookmark:focus-within .folder-bookmark-actions {
+  opacity: 1;
+}
+
+.folder-bookmark-actions .item-action-button {
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  font-size: .7rem;
+}
+
+.folder-bookmark-actions .folder-item-remove:hover {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.folder-bookmark-actions .folder-item-remove {
+  margin-left: auto;
+}
+
+.folder-bookmark-actions .folder-item-delete:hover {
+  background: #b91c1c;
+  color: #fff;
+}
+
+.folder-grid-bookmark.is-folder-grid-dragging {
+  --folder-scale: .96;
+  z-index: 4;
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, .34),
+    0 16px 30px rgba(2, 8, 23, .42);
+  cursor: grabbing;
+}
+
+.folder-grid-bookmark.is-folder-grid-dragging .bookmark-link {
+  cursor: grabbing;
+}
+
+.folder-grid-bookmark.is-folder-grid-displaced {
+  --folder-scale: .97;
+  border-color: #7dd3fc;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, .22);
+}
+
+.folder-grid-bookmark.is-folder-grid-invalid {
+  --folder-scale: .94;
+  z-index: 4;
+  border-color: #f87171;
+  box-shadow:
+    inset 0 0 0 2px rgba(248, 113, 113, .95),
+    0 0 0 2px rgba(239, 68, 68, .3);
+  opacity: .62;
+}
+
+.folder-grid-bookmark.is-folder-grid-moving {
+  z-index: 3;
+  will-change: transform;
+}
+
+.folder-modal-grid.is-folder-grid-settling {
+  pointer-events: none;
+}
+
+.folder-modal-empty {
+  position: absolute;
+  inset: 14px 0 4px;
+  display: grid;
+  padding: 34px;
+  margin: 0;
+  place-items: center;
+  color: #94a3b8;
+  line-height: 1.5;
+  pointer-events: none;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .modal-folder {
+    padding: 14px;
+  }
+
+  .folder-modal-header {
+    gap: 8px;
+  }
+
+  .folder-modal-glyph,
+  .folder-modal-hint {
     display: none;
+  }
+
+  .folder-modal-grid {
+    width: min(100%, 124vh);
+    grid-auto-rows: calc(100% / 3);
+    background-size: calc(100% / 6) calc(100% / 3);
+    background-position: 0 0;
+  }
+
+  .folder-grid-bookmark.bookmark {
+    padding: 3px;
+  }
+
+  .folder-grid-bookmark .bookmark-favicon {
+    max-width: 42px;
+    max-height: 42px;
+  }
+
+  .folder-bookmark-actions {
+    top: 3px;
+    right: 3px;
+    left: 3px;
+    gap: 2px;
+  }
+
+  .folder-bookmark-actions .item-action-button {
+    width: 19px;
+    height: 19px;
+    border-radius: 7px;
+    font-size: .62rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .bookmark-folder,
   .folder-drop-feedback,
-  .folder-bookmark-item {
+  .folder-grid-bookmark,
+  .folder-bookmark-actions {
     transition: none;
   }
 }

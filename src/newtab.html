@@ -87,14 +87,33 @@
       <header class="folder-modal-header">
         <span class="folder-modal-glyph" aria-hidden="true">📁</span>
         <span class="folder-modal-heading">
-          <h2 id="folder-modal-title">Folder</h2>
+          <h2 id="folder-modal-heading-title">
+            <span id="folder-modal-title" class="folder-modal-title">
+              Folder
+            </span>
+            <span id="folder-modal-rename-actions"
+              class="folder-modal-rename-actions is-hidden">
+              <button id="folder-modal-rename-cancel"
+                class="folder-modal-rename-button is-cancel" type="button"
+                aria-label="Cancel folder rename"
+                data-i18n-aria-label="folder.actions.cancelRename">×</button>
+              <button id="folder-modal-rename-accept"
+                class="folder-modal-rename-button is-accept" type="button"
+                aria-label="Save folder name"
+                data-i18n-aria-label="folder.actions.acceptRename">✓</button>
+            </span>
+          </h2>
           <small id="folder-modal-summary"></small>
         </span>
+        <span class="folder-modal-hint" data-i18n="folder.dragHint">Drag to reorder</span>
       </header>
-      <p id="folder-modal-empty" class="folder-modal-empty" data-i18n="folder.empty">
-        This folder is empty. Enable edit mode and drag bookmarks here.
-      </p>
-      <ul id="folder-modal-items" class="folder-modal-items custom-scrollbar"></ul>
+      <div class="folder-grid-shell">
+        <div id="folder-modal-items" class="folder-modal-grid custom-scrollbar" role="list"
+          aria-label="Folder bookmarks" data-i18n-aria-label="folder.gridLabel"></div>
+        <p id="folder-modal-empty" class="folder-modal-empty" data-i18n="folder.empty">
+          This folder is empty. Drag bookmarks here from edit mode.
+        </p>
+      </div>
       <div class="modal-actions">
         <button id="folder-modal-close" class="btn btn-ghost" type="button"
           data-i18n="buttons.close">Close</button>
@@ -262,7 +281,7 @@
                   <span class="drag-mode-copy">
                     <strong data-i18n="settingsModal.bookmark.drag.none.title">Ninguna</strong>
                     <small data-i18n="settingsModal.bookmark.drag.none.description">
-                      No reorganiza elementos; las posiciones ocupadas se rechazan.
+                      Solo permite mover a huecos libres.
                     </small>
                   </span>
                 </label>
@@ -271,7 +290,7 @@
                   <span class="drag-mode-copy">
                     <strong data-i18n="settingsModal.bookmark.drag.relocate.title">Recolocación</strong>
                     <small data-i18n="settingsModal.bookmark.drag.relocate.description">
-                      Lleva los favoritos ocupados al hueco dejado o al espacio libre más cercano.
+                      Recoloca los favoritos que ocupan el destino.
                     </small>
                   </span>
                 </label>
@@ -280,7 +299,7 @@
                   <span class="drag-mode-copy">
                     <strong data-i18n="settingsModal.bookmark.drag.cascade.title">Sucesión</strong>
                     <small data-i18n="settingsModal.bookmark.drag.cascade.description">
-                      Desplaza la cadena de favoritos hacia el hueco disponible.
+                      Desplaza en cadena hasta encontrar un hueco libre.
                     </small>
                     <small class="drag-mode-warning"
                       data-i18n="settingsModal.bookmark.drag.cascade.experimental">

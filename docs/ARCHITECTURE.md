@@ -29,7 +29,7 @@ collection.
 make one store transition, so undo treats them as a single user action.
 
 `src/js/core/bookmarkDragModes.js` owns the persisted drag-mode contract and
-normalizes unknown values to Relocation. `src/js/core/browserCapabilities.js`
+normalizes missing or unknown values to None. `src/js/core/browserCapabilities.js`
 keeps browser detection out of Settings and only enables synchronized storage
 for tested, branded Google Chrome environments.
 
@@ -51,6 +51,11 @@ The schema and commands enforce these rules:
 * Folders cannot contain other folders.
 * A contained bookmark does not reserve grid space.
 * A top-level folder reserves its complete `w × h` rectangle.
+* New folder membership is capped at 18 bookmarks in a fixed 3-row ×
+  6-column grid. Legacy overflow remains accessible in scrollable extra rows.
+* Contained bookmarks occupy one local cell while preserving their main-grid
+  `w × h` size for a later removal.
+* Moving onto an occupied local cell swaps both bookmark positions atomically.
 * Removing a bookmark requires a free area matching its saved `w × h` size.
 * Deleting a folder deletes its contained bookmarks in the same state change.
 * Deleting a workspace deletes its folders and all bookmarks in that workspace.
@@ -125,8 +130,16 @@ owns stacking, focus trapping, background isolation and focus restoration.
 
 The renderer displays top-level bookmarks and folders in the active workspace.
 `src/js/ui/folder/renderer.js` owns the folder card and previews, while
-`src/js/ui/modals/folderModal.js` owns its contents panel. Bookmark drag logic
-detects folder hit targets and delegates membership changes to the core.
+`src/js/ui/modals/folderModal.js` reuses the production bookmark renderer in a
+compact 3 × 6 workspace. Its pointer controller previews empty-cell moves and
+occupied-cell displacement through the same `calculateSmartDragLayout()` modes
+as the main grid. Preview positions are rendered as smooth transforms from each
+item's persisted cell; on release the transform remains visible until
+`updateFolderBookmarkPositions()` atomically commits that exact layout, avoiding
+a source/destination flash. `src/js/core/folderGrid.js` owns the pure local
+layout contract and normalizes legacy or colliding positions deterministically.
+Main-grid bookmark drag logic detects folder hit targets and delegates
+membership changes to the core.
 
 Search indexes all workspaces and contained bookmarks, showing folder context
 when present. Selection is pruned when bookmarks disappear and is cleared when

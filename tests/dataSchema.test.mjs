@@ -30,17 +30,17 @@ test('migrates legacy data and removes identity from the default preset', () => 
   assert.equal(migrated.settings.bookmarkDefault.name, undefined);
   assert.equal(migrated.settings.bookmarkDefault.url, undefined);
   assert.equal(migrated.settings.bookmarkDefault.backgroundColor, '#123456');
-  assert.equal(migrated.settings.bookmarkDragMode, BOOKMARK_DRAG_MODES.RELOCATE);
+  assert.equal(migrated.settings.bookmarkDragMode, BOOKMARK_DRAG_MODES.NONE);
   assert.deepEqual(Object.keys(migrated.settings.theme), Object.keys(DEFAULT_SETTINGS.theme));
 });
 
-test('normalizes unsupported bookmark drag modes to relocation', () => {
+test('normalizes unsupported bookmark drag modes to none', () => {
   const migrated = migratePersistedData({
     bookmarks: [],
     settings: { ...DEFAULT_SETTINGS, bookmarkDragMode: 'unknown' }
   });
 
-  assert.equal(migrated.settings.bookmarkDragMode, BOOKMARK_DRAG_MODES.RELOCATE);
+  assert.equal(migrated.settings.bookmarkDragMode, BOOKMARK_DRAG_MODES.NONE);
 });
 
 test('preserves the none bookmark drag mode', () => {

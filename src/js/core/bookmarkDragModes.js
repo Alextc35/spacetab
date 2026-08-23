@@ -10,5 +10,5 @@ const VALID_MODES = new Set(Object.values(BOOKMARK_DRAG_MODES));
 export function normalizeBookmarkDragMode(value) {
   return VALID_MODES.has(value)
     ? value
-    : BOOKMARK_DRAG_MODES.RELOCATE;
+    : BOOKMARK_DRAG_MODES.NONE;
 }

@@ -10,13 +10,15 @@
     "bookmark": {
       "added": "Favorito añadido correctamente",
       "notFound": "Favorito no encontrado",
-      "updated": "Favorito actualizado correctamente"
+      "updated": "Favorito actualizado correctamente",
+      "deleted": "Favorito eliminado"
     },
     "folder": {
       "created": "Carpeta creada",
       "renamed": "Carpeta renombrada",
       "deleted": "Carpeta y favoritos eliminados",
       "bookmarkAdded": "Favorito añadido a la carpeta",
+      "folderFull": "Esta carpeta ya contiene 18 favoritos",
       "bookmarkRemoved": "Favorito devuelto a la cuadrícula"
     },
     "history": {
@@ -145,8 +147,10 @@
     "namePlaceholder": "Herramientas, inspiración…",
     "open": "Abrir {{name}}, {{count}} favoritos guardados",
     "count": "{{count}} guardados",
-    "summary": "{{count}} favoritos en esta carpeta",
-    "empty": "Esta carpeta está vacía. Activa el modo edición y arrastra favoritos hasta aquí.",
+    "summary": "{{count}} de {{capacity}} huecos ocupados",
+    "dragHint": "Arrastra para ordenar",
+    "gridLabel": "Favoritos de la carpeta",
+    "empty": "Esta carpeta está vacía. Arrastra favoritos hasta aquí desde el modo edición.",
     "dropHint": "Suelta para añadir",
     "noSpace": "No queda ninguna celda libre para crear una carpeta.",
     "removeNoSpace": "No hay espacio suficiente en la cuadrícula para sacar este favorito de la carpeta.",
@@ -156,7 +160,10 @@
       "rename": "Renombrar carpeta",
       "delete": "Eliminar carpeta",
       "editBookmark": "Editar {{name}}",
-      "removeBookmark": "Sacar {{name}} de la carpeta"
+      "removeBookmark": "Sacar {{name}} de la carpeta",
+      "deleteBookmark": "Eliminar {{name}}",
+      "acceptRename": "Guardar nombre de la carpeta",
+      "cancelRename": "Cancelar el cambio de nombre"
     }
   },
   "validation": {
@@ -271,16 +278,16 @@
         "description": "Elige cómo se reorganizan los favoritos cuando ocupas su posición.",
         "none": {
           "title": "Ninguna",
-          "description": "No reorganiza elementos; las posiciones ocupadas se rechazan."
+          "description": "Solo permite mover a huecos libres."
         },
         "cascade": {
           "title": "Sucesión",
-          "description": "Desplaza la cadena de favoritos hacia el hueco disponible.",
+          "description": "Desplaza en cadena hasta encontrar un hueco libre.",
           "experimental": "Experimental · Puede contener errores menores."
         },
         "relocate": {
           "title": "Recolocación",
-          "description": "Lleva los favoritos ocupados al hueco dejado o al espacio libre más cercano."
+          "description": "Recoloca los favoritos que ocupan el destino."
         }
       },
       "presets": {

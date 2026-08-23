@@ -10,13 +10,15 @@
     "bookmark": {
       "added": "Marcador agregado correctamente",
       "notFound": "Marcador no encontrado",
-      "updated": "Marcador actualizado correctamente"
+      "updated": "Marcador actualizado correctamente",
+      "deleted": "Marcador eliminado"
     },
     "folder": {
       "created": "Carpeta creada",
       "renamed": "Carpeta renombrada",
       "deleted": "Carpeta y marcadores eliminados",
       "bookmarkAdded": "Marcador agregado a la carpeta",
+      "folderFull": "Esta carpeta ya contiene 18 marcadores",
       "bookmarkRemoved": "Marcador devuelto a la cuadrícula"
     },
     "history": {
@@ -145,8 +147,10 @@
     "namePlaceholder": "Herramientas, inspiración…",
     "open": "Abrir {{name}}, {{count}} marcadores guardados",
     "count": "{{count}} guardados",
-    "summary": "{{count}} marcadores en esta carpeta",
-    "empty": "Esta carpeta está vacía. Activa el modo edición y arrastra marcadores hasta aquí.",
+    "summary": "{{count}} de {{capacity}} espacios ocupados",
+    "dragHint": "Arrastra para ordenar",
+    "gridLabel": "Marcadores de la carpeta",
+    "empty": "Esta carpeta está vacía. Arrastra marcadores hasta aquí desde el modo edición.",
     "dropHint": "Suelta para agregar",
     "noSpace": "No queda ninguna celda libre para crear una carpeta.",
     "removeNoSpace": "No hay espacio suficiente en la cuadrícula para sacar este marcador de la carpeta.",
@@ -156,7 +160,10 @@
       "rename": "Renombrar carpeta",
       "delete": "Eliminar carpeta",
       "editBookmark": "Editar {{name}}",
-      "removeBookmark": "Sacar {{name}} de la carpeta"
+      "removeBookmark": "Sacar {{name}} de la carpeta",
+      "deleteBookmark": "Eliminar {{name}}",
+      "acceptRename": "Guardar nombre de la carpeta",
+      "cancelRename": "Cancelar el cambio de nombre"
     }
   },
   "validation": {
@@ -271,16 +278,16 @@
         "description": "Elige cómo se reorganizan los marcadores cuando ocupas su posición.",
         "none": {
           "title": "Ninguna",
-          "description": "No reorganiza elementos; las posiciones ocupadas se rechazan."
+          "description": "Solo permite mover a espacios libres."
         },
         "cascade": {
           "title": "Sucesión",
-          "description": "Desplaza la cadena de marcadores hacia el espacio disponible.",
+          "description": "Desplaza en cadena hasta encontrar un espacio libre.",
           "experimental": "Experimental · Puede contener errores menores."
         },
         "relocate": {
           "title": "Reubicación",
-          "description": "Lleva los marcadores ocupados al espacio dejado o al lugar libre más cercano."
+          "description": "Reubica los marcadores que ocupan el destino."
         }
       },
       "presets": {

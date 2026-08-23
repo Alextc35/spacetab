@@ -5,21 +5,28 @@ import { createItemActionButton } from '../bookmark/actions.js';
 import { flashSuccess } from '../flash.js';
 import { showAlert, showPrompt } from '../modals/alert.js';
 
+export async function promptRenameFolder(folder) {
+  const name = await showPrompt(t('folder.renamePrompt'), {
+    value: folder.name,
+    placeholder: t('folder.namePlaceholder')
+  });
+  if (name && renameBookmarkFolder(folder.id, name)) {
+    flashSuccess('flash.folder.renamed');
+  }
+}
+
 export function addFolderActions(container, folder) {
   const actions = document.createElement('div');
   actions.className = 'item-actions folder-item-actions';
   actions.setAttribute('role', 'group');
   actions.setAttribute('aria-label', t('folder.actions.ariaLabel'));
 
-  const renameButton = createItemActionButton('✎', 'edit', 'is-dark', async () => {
-    const name = await showPrompt(t('folder.renamePrompt'), {
-      value: folder.name,
-      placeholder: t('folder.namePlaceholder')
-    });
-    if (name && renameBookmarkFolder(folder.id, name)) {
-      flashSuccess('flash.folder.renamed');
-    }
-  });
+  const renameButton = createItemActionButton(
+    '✎',
+    'edit',
+    'is-dark',
+    () => promptRenameFolder(folder)
+  );
   renameButton.setAttribute('aria-label', t('folder.actions.rename'));
 
   const deleteButton = createItemActionButton('🗑', 'delete', 'is-dark', async () => {

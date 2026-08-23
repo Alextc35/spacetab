@@ -104,7 +104,7 @@ export const DEFAULT_BOOKMARKS = [
  */
 export const DEFAULT_SETTINGS = {
   language: 'en',
-  bookmarkDragMode: BOOKMARK_DRAG_MODES.RELOCATE,
+  bookmarkDragMode: BOOKMARK_DRAG_MODES.NONE,
 
   theme: {
     backgroundDefault: true,

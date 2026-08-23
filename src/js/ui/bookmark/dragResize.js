@@ -5,9 +5,10 @@ import {
   updateGridItemsByIds
 } from '../../core/bookmarkFolders.js';
 import { GRID_COLS, GRID_ROWS, PADDING } from '../../core/config.js';
+import { FOLDER_GRID_CAPACITY } from '../../core/folderGrid.js';
 import { isAreaFree } from '../../core/grid.js';
 import { getState } from '../../core/store.js';
-import { flashSuccess } from '../flash.js';
+import { flashError, flashSuccess } from '../flash.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { toggleBookmarkSelection } from './selection.js';
 import {
@@ -45,6 +46,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
 
   let folderTarget = null;
   let dragSession = null;
+  let itemDragging = false;
   let moved = false;
   let pressStartedAt = 0;
 
@@ -58,7 +60,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
   });
 
   div.addEventListener('pointerdown', e => {
-    if (resizing) return;
+    if (resizing || dragging) return;
 
     // Middle click mirrors the pencil shortcut without opening the bookmark.
     if (kind === 'bookmark' && e.button === 1) {
@@ -74,6 +76,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
 
     e.preventDefault();
     dragging = true;
+    itemDragging = true;
 
     startX = e.clientX;
     startY = e.clientY;
@@ -89,7 +92,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
   });
 
   div.addEventListener('pointermove', (e) => {
-    if (!dragging || resizing) return;
+    if (!itemDragging || resizing || !dragSession) return;
 
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
@@ -139,8 +142,9 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
   });
 
   const finishDrag = (commit = true, event = null) => {
-    if (!dragging || resizing) return;
+    if (!itemDragging || resizing || !dragSession) return;
 
+    itemDragging = false;
     dragging = false;
     div.classList.remove('is-dragging', 'is-invalid');
     div.style.zIndex = '';
@@ -169,11 +173,16 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
 
     if (folderTarget) {
       const targetId = folderTarget.dataset.folderId;
+      const targetIsFull = getState().data.bookmarks.filter(
+        bookmark => bookmark.folderId === targetId
+      ).length >= FOLDER_GRID_CAPACITY;
       setFolderTarget(null);
       restoreSmartDragPreview(container, dragSession);
       dragSession = null;
       if (addBookmarkToFolder(item.id, targetId)) {
         flashSuccess('flash.folder.bookmarkAdded');
+      } else if (targetIsFull) {
+        flashError('flash.folder.folderFull');
       }
       return;
     }

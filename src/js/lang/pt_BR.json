@@ -10,13 +10,15 @@
     "bookmark": {
       "added": "Favorito adicionado com sucesso",
       "notFound": "Favorito não encontrado",
-      "updated": "Favorito atualizado com sucesso"
+      "updated": "Favorito atualizado com sucesso",
+      "deleted": "Favorito excluído"
     },
     "folder": {
       "created": "Pasta criada",
       "renamed": "Pasta renomeada",
       "deleted": "Pasta e favoritos excluídos",
       "bookmarkAdded": "Favorito adicionado à pasta",
+      "folderFull": "Esta pasta já contém 18 favoritos",
       "bookmarkRemoved": "Favorito devolvido à grade"
     },
     "history": {
@@ -145,8 +147,10 @@
     "namePlaceholder": "Ferramentas, inspiração…",
     "open": "Abrir {{name}}, {{count}} favoritos salvos",
     "count": "{{count}} salvos",
-    "summary": "{{count}} favoritos nesta pasta",
-    "empty": "Esta pasta está vazia. Ative o modo de edição e arraste favoritos até aqui.",
+    "summary": "{{count}} de {{capacity}} espaços ocupados",
+    "dragHint": "Arraste para organizar",
+    "gridLabel": "Favoritos da pasta",
+    "empty": "Esta pasta está vazia. Arraste favoritos até aqui no modo de edição.",
     "dropHint": "Solte para adicionar",
     "noSpace": "Não há nenhuma célula livre para criar uma pasta.",
     "removeNoSpace": "Não há espaço suficiente na grade para retirar este favorito da pasta.",
@@ -156,7 +160,10 @@
       "rename": "Renomear pasta",
       "delete": "Excluir pasta",
       "editBookmark": "Editar {{name}}",
-      "removeBookmark": "Retirar {{name}} da pasta"
+      "removeBookmark": "Retirar {{name}} da pasta",
+      "deleteBookmark": "Excluir {{name}}",
+      "acceptRename": "Salvar nome da pasta",
+      "cancelRename": "Cancelar alteração do nome"
     }
   },
   "validation": {
@@ -271,16 +278,16 @@
         "description": "Escolha como os favoritos se reorganizam ao ocupar uma posição.",
         "none": {
           "title": "Nenhuma",
-          "description": "Não reorganiza itens; posições ocupadas são rejeitadas."
+          "description": "Só permite mover para espaços livres."
         },
         "cascade": {
           "title": "Sequência",
-          "description": "Desloca a sequência de favoritos em direção ao espaço disponível.",
+          "description": "Desloca em sequência até encontrar um espaço livre.",
           "experimental": "Experimental · Pode conter pequenos erros."
         },
         "relocate": {
           "title": "Realocação",
-          "description": "Leva os favoritos ocupados ao espaço deixado ou ao local livre mais próximo."
+          "description": "Realoca os favoritos que ocupam o destino."
         }
       },
       "presets": {

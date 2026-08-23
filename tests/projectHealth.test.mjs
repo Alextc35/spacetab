@@ -33,7 +33,7 @@ test('all interface languages expose the same translation contract', () => {
     readFileSync(`src/js/lang/${language}.json`, 'utf8')
   )));
 
-  assert.ok(contracts[0].includes('folder.actions.removeBookmark'));
+  assert.ok(contracts[0].includes('folder.actions.deleteBookmark'));
   for (const contract of contracts.slice(1)) {
     assert.deepEqual(contract, contracts[0]);
   }

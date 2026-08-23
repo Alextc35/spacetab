@@ -10,13 +10,15 @@
     "bookmark": {
       "added": "Bookmark added successfully",
       "notFound": "Bookmark not found",
-      "updated": "Bookmark updated successfully"
+      "updated": "Bookmark updated successfully",
+      "deleted": "Bookmark deleted"
     },
     "folder": {
       "created": "Folder created",
       "renamed": "Folder renamed",
       "deleted": "Folder and its bookmarks deleted",
       "bookmarkAdded": "Bookmark added to folder",
+      "folderFull": "This folder already has 18 bookmarks",
       "bookmarkRemoved": "Bookmark moved back to the grid"
     },
     "history": {
@@ -145,8 +147,10 @@
     "namePlaceholder": "Tools, inspiration…",
     "open": "Open {{name}}, {{count}} saved bookmarks",
     "count": "{{count}} saved",
-    "summary": "{{count}} bookmarks in this folder",
-    "empty": "This folder is empty. Enable edit mode and drag bookmarks here.",
+    "summary": "{{count}} of {{capacity}} spaces used",
+    "dragHint": "Drag to reorder",
+    "gridLabel": "Folder bookmarks",
+    "empty": "This folder is empty. Drag bookmarks here from edit mode.",
     "dropHint": "Drop to add",
     "noSpace": "There is no free grid cell for a new folder.",
     "removeNoSpace": "There is not enough grid space to remove this bookmark from the folder.",
@@ -156,7 +160,10 @@
       "rename": "Rename folder",
       "delete": "Delete folder",
       "editBookmark": "Edit {{name}}",
-      "removeBookmark": "Move {{name}} out of the folder"
+      "removeBookmark": "Move {{name}} out of the folder",
+      "deleteBookmark": "Delete {{name}}",
+      "acceptRename": "Save folder name",
+      "cancelRename": "Cancel folder rename"
     }
   },
   "validation": {
@@ -271,16 +278,16 @@
         "description": "Choose how bookmarks reorganize when you occupy their position.",
         "none": {
           "title": "None",
-          "description": "Does not reorganize items; occupied positions are rejected."
+          "description": "Only allows moves to free cells."
         },
         "cascade": {
           "title": "Sequence",
-          "description": "Shifts the bookmark chain toward the available gap.",
+          "description": "Shifts the chain until it finds a free cell.",
           "experimental": "Experimental · May contain minor bugs."
         },
         "relocate": {
           "title": "Relocation",
-          "description": "Moves occupied bookmarks to the vacated area or the nearest free space."
+          "description": "Relocates bookmarks occupying the destination."
         }
       },
       "presets": {

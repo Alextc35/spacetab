@@ -34,11 +34,18 @@ globalThis.chrome = {
 
 const {
   addBookmarkToFolder,
+  BOOKMARK_FOLDER_NAME_MAX_LENGTH,
   createBookmarkFolder,
   deleteBookmarkFolder,
   removeBookmarkFromFolder,
+  renameBookmarkFolder,
+  updateFolderBookmarkPositions,
   updateGridItemsByIds
 } = await import('../src/js/core/bookmarkFolders.js');
+const {
+  createFolderBookmarkLayout,
+  FOLDER_GRID_CAPACITY
+} = await import('../src/js/core/folderGrid.js');
 const { getState, hydrateStore, setState } = await import('../src/js/core/store.js');
 
 test('folders reserve a cell and own bookmarks without reserving their old cells', async () => {
@@ -76,6 +83,16 @@ test('deleting a folder deletes its contained bookmarks atomically', () => {
   assert.deepEqual(result, { deleted: true, bookmarkCount: 1 });
   assert.deepEqual(getState().data.folders, []);
   assert.deepEqual(getState().data.bookmarks, []);
+});
+
+test('folder creation and renaming share the same name length limit', async () => {
+  await setState({ data: { bookmarks: [], folders: [] } });
+  const created = createBookmarkFolder('a'.repeat(75), { columns: 1, rows: 1 });
+  assert.equal(created.name.length, BOOKMARK_FOLDER_NAME_MAX_LENGTH);
+
+  const renamed = renameBookmarkFolder(created.id, 'b'.repeat(80));
+  assert.equal(renamed.name.length, BOOKMARK_FOLDER_NAME_MAX_LENGTH);
+  assert.equal(getState().data.folders[0].name, renamed.name);
 });
 
 test('updates bookmark and folder rectangles atomically', async () => {
@@ -125,4 +142,127 @@ test('keeps a bookmark inside when the grid has no room to remove it', async () 
   const result = removeBookmarkFromFolder('contained', { columns: 1, rows: 1 });
   assert.equal(result.reason, 'no-space');
   assert.equal(getState().data.bookmarks[0].folderId, 'full');
+});
+
+test('normalizes legacy folder positions into a stable 6 by 3 layout', () => {
+  const layout = createFolderBookmarkLayout([
+    { id: 'kept', gx: 2, gy: 1 },
+    { id: 'collision', gx: 2, gy: 1 },
+    { id: 'outside', gx: 11, gy: 5 }
+  ]);
+
+  assert.deepEqual(layout.get('kept'), { gx: 2, gy: 1 });
+  assert.deepEqual(layout.get('collision'), { gx: 0, gy: 0 });
+  assert.deepEqual(layout.get('outside'), { gx: 1, gy: 0 });
+});
+
+test('keeps legacy folder overflow accessible below the visible 18 cells', () => {
+  const bookmarks = Array.from({ length: FOLDER_GRID_CAPACITY + 1 }, (_, index) => ({
+    id: `legacy-${index}`,
+    gx: index % 6,
+    gy: Math.floor(index / 6)
+  }));
+  const layout = createFolderBookmarkLayout(bookmarks);
+
+  assert.equal(layout.size, FOLDER_GRID_CAPACITY + 1);
+  assert.deepEqual(layout.get(`legacy-${FOLDER_GRID_CAPACITY}`), { gx: 0, gy: 3 });
+});
+
+test('commits folder bookmark positions without changing their saved size', async () => {
+  await setState({
+    data: {
+      bookmarks: [
+        { id: 'first', name: 'First', folderId: 'folder', groupId: null, gx: 0, gy: 0, w: 2, h: 1 },
+        { id: 'second', name: 'Second', folderId: 'folder', groupId: null, gx: 1, gy: 0, w: 1, h: 2 }
+      ],
+      folders: [{ id: 'folder', name: 'Folder', groupId: null, gx: 0, gy: 0, w: 1, h: 1 }]
+    }
+  });
+
+  const swap = updateFolderBookmarkPositions('folder', [
+    { id: 'first', gx: 1, gy: 0 },
+    { id: 'second', gx: 0, gy: 0 }
+  ]);
+  assert.equal(swap.length, 2);
+  assert.deepEqual(
+    getState().data.bookmarks.map(({ id, gx, gy, w, h }) => ({ id, gx, gy, w, h })),
+    [
+      { id: 'first', gx: 1, gy: 0, w: 2, h: 1 },
+      { id: 'second', gx: 0, gy: 0, w: 1, h: 2 }
+    ]
+  );
+
+  const move = updateFolderBookmarkPositions('folder', [
+    { id: 'first', gx: 5, gy: 2 }
+  ]);
+  assert.equal(move.length, 1);
+  const moved = getState().data.bookmarks.find(bookmark => bookmark.id === 'first');
+  assert.deepEqual({ gx: moved.gx, gy: moved.gy, w: moved.w, h: moved.h }, {
+    gx: 5, gy: 2, w: 2, h: 1
+  });
+});
+
+test('commits a multi-bookmark folder sequence in one validated layout', async () => {
+  await setState({
+    data: {
+      bookmarks: [0, 1, 2].map(index => ({
+        id: `sequence-${index}`,
+        name: `Sequence ${index}`,
+        folderId: 'folder',
+        groupId: null,
+        gx: index,
+        gy: 0,
+        w: 1,
+        h: 1
+      })),
+      folders: [{ id: 'folder', name: 'Folder', groupId: null, gx: 0, gy: 0, w: 1, h: 1 }]
+    }
+  });
+
+  const changed = updateFolderBookmarkPositions('folder', [
+    { id: 'sequence-0', gx: 2, gy: 0 },
+    { id: 'sequence-1', gx: 0, gy: 0 },
+    { id: 'sequence-2', gx: 1, gy: 0 }
+  ]);
+  assert.equal(changed.length, 3);
+  assert.deepEqual(
+    getState().data.bookmarks.map(({ id, gx, gy }) => ({ id, gx, gy })),
+    [
+      { id: 'sequence-0', gx: 2, gy: 0 },
+      { id: 'sequence-1', gx: 0, gy: 0 },
+      { id: 'sequence-2', gx: 1, gy: 0 }
+    ]
+  );
+
+  assert.deepEqual(updateFolderBookmarkPositions('folder', [
+    { id: 'sequence-0', gx: 1, gy: 0 }
+  ]), []);
+});
+
+test('does not add more than 18 bookmarks to one folder', async () => {
+  const contents = Array.from({ length: FOLDER_GRID_CAPACITY }, (_, index) => ({
+    id: `inside-${index}`,
+    name: `Inside ${index}`,
+    folderId: 'folder',
+    groupId: null,
+    gx: index % 6,
+    gy: Math.floor(index / 6),
+    w: 1,
+    h: 1
+  }));
+  await setState({
+    data: {
+      bookmarks: [
+        ...contents,
+        { id: 'outside', name: 'Outside', folderId: null, groupId: null, gx: 8, gy: 0, w: 1, h: 1 }
+      ],
+      folders: [{ id: 'folder', name: 'Folder', groupId: null, gx: 0, gy: 0, w: 1, h: 1 }]
+    }
+  });
+
+  assert.equal(addBookmarkToFolder('outside', 'folder'), null);
+  assert.equal(
+    getState().data.bookmarks.find(bookmark => bookmark.id === 'outside').folderId,
+    null
+  );
 });
