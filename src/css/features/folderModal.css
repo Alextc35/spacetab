@@ -298,7 +298,7 @@
   color: #94a3b8;
 }
 
-.folder-modal-hint {
+.folder-modal-edit-toggle {
   display: inline-flex;
   padding: 7px 10px;
   align-items: center;
@@ -306,8 +306,26 @@
   border-radius: 999px;
   background: rgba(14, 165, 233, .08);
   color: #bae6fd;
+  cursor: pointer;
+  font: inherit;
   font-size: .72rem;
   white-space: nowrap;
+  transition: background-color .15s ease, border-color .15s ease,
+    box-shadow .15s ease;
+}
+
+.folder-modal-edit-toggle:hover,
+.folder-modal-edit-toggle:focus-visible {
+  border-color: rgba(125, 211, 252, .58);
+  background: rgba(14, 165, 233, .18);
+  outline: none;
+}
+
+.folder-modal-edit-toggle[aria-pressed="true"] {
+  border-color: #7dd3fc;
+  background: rgba(3, 105, 161, .42);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, .12);
+  color: #e0f2fe;
 }
 
 .folder-grid-shell {
@@ -367,14 +385,14 @@
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  cursor: grab;
-  touch-action: none;
+  cursor: pointer;
+  touch-action: auto;
   transform: translate3d(
     var(--folder-shift-x),
     var(--folder-shift-y),
     0
   ) scale(var(--folder-scale));
-  user-select: none;
+  user-select: auto;
   transition: border-color .16s ease, box-shadow .16s ease,
     opacity .16s ease,
     transform .22s cubic-bezier(.22, 1, .36, 1);
@@ -388,6 +406,16 @@
 }
 
 .folder-grid-bookmark .bookmark-link {
+  cursor: pointer;
+}
+
+#folder-modal.is-folder-editing .folder-grid-bookmark.bookmark {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+#folder-modal.is-folder-editing .folder-grid-bookmark .bookmark-link {
   cursor: grab;
 }
 
@@ -477,19 +505,21 @@
   box-shadow: 0 0 0 2px rgba(56, 189, 248, .22);
 }
 
-.folder-grid-bookmark.is-folder-grid-invalid {
-  --folder-scale: .94;
-  z-index: 4;
-  border-color: #f87171;
-  box-shadow:
-    inset 0 0 0 2px rgba(248, 113, 113, .95),
-    0 0 0 2px rgba(239, 68, 68, .3);
-  opacity: .62;
-}
-
 .folder-grid-bookmark.is-folder-grid-moving {
   z-index: 3;
   will-change: transform;
+}
+
+.folder-grid-bookmark.is-folder-grid-invalid {
+  --folder-scale: .94;
+  z-index: 5;
+  border-color: #f87171;
+  background: rgba(69, 10, 10, .96);
+  box-shadow:
+    inset 0 0 0 2px rgba(248, 113, 113, .95),
+    0 0 0 2px rgba(239, 68, 68, .3),
+    0 16px 30px rgba(2, 8, 23, .5);
+  opacity: 1;
 }
 
 .folder-modal-grid.is-folder-grid-settling {
@@ -518,8 +548,7 @@
     gap: 8px;
   }
 
-  .folder-modal-glyph,
-  .folder-modal-hint {
+  .folder-modal-glyph {
     display: none;
   }
 

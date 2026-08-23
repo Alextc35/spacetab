@@ -24,7 +24,7 @@ const changeListeners = new Set();
  * Converts callback-based chrome.storage calls into promises.
  *
  * @param {chrome.storage.StorageArea} area
- * @param {'get'|'set'|'remove'} method
+ * @param {'get'|'set'|'remove'|'getBytesInUse'} method
  * @param {*} value
  * @returns {Promise<*>}
  */
@@ -259,6 +259,39 @@ async function writeSyncData(data) {
   }
 }
 
+/**
+ * Reports quota usage for one browser storage area.
+ *
+ * @param {'local'|'sync'} mode
+ * @returns {Promise<{
+ *   mode: 'local'|'sync',
+ *   usedBytes: number,
+ *   quotaBytes: number,
+ *   availableBytes: number
+ * }>}
+ */
+async function getStorageUsage(mode) {
+  if (!Object.values(STORAGE_MODES).includes(mode)) {
+    throw new TypeError(`Unsupported storage mode: ${mode}`);
+  }
+
+  const area = chrome.storage[mode];
+  const fallbackQuota = mode === STORAGE_MODES.SYNC ? 102400 : 10485760;
+  const quotaBytes = Number.isFinite(area.QUOTA_BYTES)
+    ? area.QUOTA_BYTES
+    : fallbackQuota;
+  const usedBytes = typeof area.getBytesInUse === 'function'
+    ? await callStorage(area, 'getBytesInUse', null)
+    : getStorageBytes(await callStorage(area, 'get', null));
+
+  return {
+    mode,
+    usedBytes,
+    quotaBytes,
+    availableBytes: Math.max(0, quotaBytes - usedBytes)
+  };
+}
+
 function isSpaceTabSyncKey(key) {
   return key === SYNC_META_KEY
     || key.startsWith(SYNC_CHUNK_PREFIX)
@@ -342,6 +375,7 @@ async function initialize() {
 export const storage = {
   initialize,
   getSyncMetadata,
+  getUsage: getStorageUsage,
   clearSyncData,
 
   /** @returns {'local'|'sync'} */

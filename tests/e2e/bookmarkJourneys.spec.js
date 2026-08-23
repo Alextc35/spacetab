@@ -18,6 +18,13 @@ async function enableEditMode(page) {
   await page.getByRole('button', { name: '✎' }).click();
 }
 
+async function enableFolderEditMode(page) {
+  const toggle = page.locator('#folder-modal-edit-toggle');
+  if (await toggle.getAttribute('aria-pressed') === 'false') {
+    await toggle.click();
+  }
+}
+
 async function setBookmarkDragMode(page, mode) {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
@@ -892,12 +899,84 @@ test('creates, edits and persists a bookmark after reload', async ({ page }) => 
   await expect(page.getByRole('link', { name: /OpenAI Docs/ })).toBeVisible();
 });
 
+test('expands and collapses compact bookmark creation without losing the draft', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '➕' }).click();
+
+  const modal = page.locator('#edit-bookmark-modal');
+  const card = modal.locator('.modal-card');
+  const tabs = modal.locator('.edit-bookmark-modal-tabs');
+  const preview = modal.locator('.edit-bookmark-modal-preview-panel');
+  const expand = modal.getByRole('button', { name: '⚙ Advanced options' });
+
+  await expect(modal).toHaveClass(/is-add-compact/);
+  await expect(expand).toHaveAttribute('aria-expanded', 'false');
+  await expect(tabs).toHaveCSS('opacity', '0');
+  await expect(tabs).toHaveCSS('visibility', 'hidden');
+  await expect(tabs).toHaveAttribute('aria-hidden', 'true');
+  await expect(preview).toHaveCSS('opacity', '0');
+  await expect(preview).toHaveCSS('visibility', 'hidden');
+  await expect(preview).toHaveAttribute('aria-hidden', 'true');
+  await expect(card).toHaveCSS('width', '420px');
+  expect(await card.evaluate(element => getComputedStyle(element).transitionProperty))
+    .toContain('width');
+
+  await page.locator('#bookmark-modal-form-name').fill('Animated draft');
+  await page.locator('#bookmark-modal-form-url').fill('animated.example');
+  await expand.click();
+
+  await expect(modal).not.toHaveClass(/is-add-compact/);
+  const collapse = modal.getByRole('button', { name: '▴ Compact view' });
+  await expect(collapse).toHaveAttribute('aria-expanded', 'true');
+  await expect(tabs).toHaveCSS('opacity', '1');
+  await expect(tabs).toHaveCSS('visibility', 'visible');
+  await expect(tabs).not.toHaveAttribute('aria-hidden');
+  await expect(preview).toHaveCSS('opacity', '1');
+  await expect(preview).toHaveCSS('visibility', 'visible');
+  await expect(preview).not.toHaveAttribute('aria-hidden');
+  await expect.poll(async () => (await card.boundingBox()).width)
+    .toBeGreaterThan(670);
+  await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
+  await expect(page.locator('#bookmark-modal-form-name')).toHaveValue('Animated draft');
+  await expect(page.locator('#bookmark-modal-form-url')).toHaveValue('animated.example');
+
+  await collapse.click();
+  await expect(modal).toHaveClass(/is-add-compact/);
+  await expect(card).toHaveCSS('width', '420px');
+  await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
+  await expect(page.locator('#bookmark-modal-form-name')).toHaveValue('Animated draft');
+  await expect(page.locator('#bookmark-modal-form-url')).toHaveValue('animated.example');
+});
+
+test('closes an untouched bookmark draft without confirmation', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '➕' }).click();
+
+  const editor = page.locator('#edit-bookmark-modal');
+  const alert = page.locator('#alert-modal');
+  await editor.getByRole('button', { name: 'Cancel' }).click();
+
+  await expect(editor).toBeHidden();
+  await expect(alert).toBeHidden();
+
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '➕' }).click();
+  await page.locator('#bookmark-modal-form-name').fill('Unsaved draft');
+  await editor.getByRole('button', { name: 'Cancel' }).click();
+
+  await expect(alert).toBeVisible();
+  await expect(page.locator('#alert-modal-title')).toHaveText('Discard new bookmark?');
+  await alert.getByRole('button', { name: 'Accept' }).click();
+  await expect(editor).toBeHidden();
+});
+
 test('keeps bookmark editor actions inside the modal on content-heavy tabs', async ({ page }) => {
   await page.setViewportSize({ width: 822, height: 525 });
   await revealSideDock(page);
   await page.getByRole('button', { name: '➕' }).click();
 
   const modal = page.locator('#edit-bookmark-modal .modal-card');
+  await page.getByRole('button', { name: '⚙ Advanced options' }).click();
   await modal.getByRole('tab', { name: 'Style' }).click();
 
   const cardBox = await modal.boundingBox();
@@ -1038,6 +1117,27 @@ test('persists the synchronized storage choice', async ({ page }) => {
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '☁️ Sync' }).click();
   await expect(page.getByRole('radio', { name: /Synced/ })).toBeChecked();
+});
+
+test('shows storage availability only for the selected mode', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '☁️ Sync' }).click();
+
+  const usage = page.locator('[data-storage-usage-active]');
+  const summary = page.locator('#storage-usage-summary');
+  await expect(usage).toHaveAttribute('data-storage-usage', 'local');
+  await expect(page.locator('#storage-usage-mode')).toHaveText('Local');
+  await expect(summary).toContainText('of 10 MB');
+  await expect(summary).toContainText('%');
+  await expect(page.locator('#storage-usage-available')).toContainText('available');
+
+  await page.getByRole('radio', { name: /Synced/ }).check();
+  await expect(usage).toHaveAttribute('data-storage-usage', 'sync');
+  await expect(page.locator('#storage-usage-mode')).toHaveText('Synced');
+  await expect(summary).toContainText('of 100 KB');
+  await expect(summary).toContainText('%');
+  await expect(page.locator('#storage-usage-progress')).toHaveAttribute('value', /.+/);
 });
 
 test('localizes sync status and confirms synchronized data deletion', async ({ page }) => {
@@ -1286,8 +1386,13 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
   await persistedFolder.getByRole('button', { name: /Open Reading/ }).click();
   await expect(page.getByRole('heading', { name: 'Reading' })).toBeVisible();
   await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
-  await expect(page.getByRole('list', { name: 'Folder bookmarks' })).toBeVisible();
+  const folderGrid = page.getByRole('list', { name: 'Folder bookmarks' });
+  await expect(folderGrid).toBeVisible();
+  await expect(folderGrid.getByRole('button')).toHaveCount(0);
+  await expect(folderGrid.getByRole('link', { name: /DEVELOPED BY/ }))
+    .toHaveCSS('cursor', 'pointer');
 
+  await enableFolderEditMode(page);
   await page.getByRole('button', { name: /Move DEVELOPED BY out of the folder/ }).click();
   await expect(page.getByText('0 of 18 spaces used')).toBeVisible();
   await page.getByRole('button', { name: 'Close' }).click();
@@ -1326,10 +1431,6 @@ test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ p
     getComputedStyle(element).gridTemplateRows.split(' ').length
   ))).toBe(3);
 
-  const [firstBox, secondBox] = await Promise.all([
-    first.boundingBox(),
-    second.boundingBox()
-  ]);
   const firstCellAlignment = await first.evaluate(element => {
     const gridElement = element.parentElement;
     const gridStyles = getComputedStyle(gridElement);
@@ -1343,17 +1444,35 @@ test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ p
   });
   await expect(first).toHaveCSS('justify-self', 'stretch');
   await expect(first).toHaveCSS('align-self', 'stretch');
+  await expect(grid.getByRole('button')).toHaveCount(0);
+  await expect(first.getByRole('link')).toHaveCSS('cursor', 'pointer');
+  await expect(page.locator('#folder-modal-edit-toggle')).toHaveText('Edit');
   expect(Math.abs(
     firstCellAlignment.cardWidth - firstCellAlignment.cellWidth
   )).toBeLessThan(1);
+
+  await page.keyboard.press('Space');
+  await expect(page.locator('#folder-modal-edit-toggle')).toHaveText('Finish editing');
+  await expect(page.locator('#folder-modal-edit-toggle')).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
+  await expect(page.getByText('Edit mode enabled')).toBeVisible();
+  await expect(grid.getByRole('button')).toHaveCount(6);
+  await expect(first.getByRole('link')).toHaveCSS('cursor', 'grab');
+
+  const [editableFirstBox, editableSecondBox] = await Promise.all([
+    first.boundingBox(),
+    second.boundingBox()
+  ]);
   await page.mouse.move(
-    firstBox.x + firstBox.width / 2,
-    firstBox.y + firstBox.height / 2
+    editableFirstBox.x + editableFirstBox.width / 2,
+    editableFirstBox.y + editableFirstBox.height / 2
   );
   await page.mouse.down();
   await page.mouse.move(
-    secondBox.x + secondBox.width / 2,
-    secondBox.y + secondBox.height / 2,
+    editableSecondBox.x + editableSecondBox.width / 2,
+    editableSecondBox.y + editableSecondBox.height / 2,
     { steps: 8 }
   );
   await expect(first).toHaveClass(/is-folder-grid-dragging/);
@@ -1369,6 +1488,11 @@ test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ p
 
   await expect.poll(() => first.evaluate(element => element.style.gridColumn)).toBe('2');
   await expect.poll(() => second.evaluate(element => element.style.gridColumn)).toBe('1');
+  await page.keyboard.press('Space');
+  await expect(page.locator('#folder-modal-edit-toggle')).toHaveText('Edit');
+  await expect(page.getByText('Edit mode disabled')).toBeVisible();
+  await expect(grid.getByRole('button')).toHaveCount(0);
+  await expect(first.getByRole('link')).toHaveCSS('cursor', 'pointer');
   await page.getByRole('button', { name: 'Close' }).click();
   await page.reload();
   await page.locator('.bookmark-folder', { hasText: 'Visual grid' })
@@ -1378,6 +1502,8 @@ test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ p
     .locator('[data-bookmark-id]');
   await expect(persisted.nth(0)).toHaveCSS('grid-column-start', '2');
   await expect(persisted.nth(1)).toHaveCSS('grid-column-start', '1');
+  await expect(page.getByRole('list', { name: 'Folder bookmarks' })
+    .getByRole('button')).toHaveCount(0);
 });
 
 test('honors None and Sequence inside a folder', async ({ page }) => {
@@ -1412,6 +1538,7 @@ test('honors None and Sequence inside a folder', async ({ page }) => {
       .click();
   };
   await openFolder();
+  await enableFolderEditMode(page);
   let grid = page.getByRole('list', { name: 'Folder bookmarks' });
   let items = grid.locator('[data-bookmark-id]');
   let [firstBox, secondBox] = await Promise.all([
@@ -1430,6 +1557,8 @@ test('honors None and Sequence inside a folder', async ({ page }) => {
     { steps: 8 }
   );
   await expect(items.nth(0)).toHaveClass(/is-folder-grid-invalid/);
+  await expect(items.nth(0)).toHaveCSS('opacity', '1');
+  await expect(items.nth(0)).toHaveCSS('background-color', 'rgba(69, 10, 10, 0.96)');
   await expect(grid.locator('.is-folder-grid-displaced')).toHaveCount(0);
   expect(await items.nth(0).evaluate(element => (
     element.style.getPropertyValue('--folder-shift-x')
@@ -1449,6 +1578,7 @@ test('honors None and Sequence inside a folder', async ({ page }) => {
   await page.getByRole('button', { name: 'Close' }).click();
   await setBookmarkDragMode(page, 'cascade');
   await openFolder();
+  await enableFolderEditMode(page);
   grid = page.getByRole('list', { name: 'Folder bookmarks' });
   items = grid.locator('[data-bookmark-id]');
   const thirdBox = await items.nth(2).boundingBox();
@@ -1493,6 +1623,7 @@ test('returns to the open folder after escaping, cancelling or saving bookmark e
   const folderModal = page.locator('#folder-modal');
   const editor = page.locator('#edit-bookmark-modal');
 
+  await enableFolderEditMode(page);
   let edit = folderModal.getByRole('button', { name: 'Edit DEVELOPED BY' });
   await edit.click();
   await expect(folderModal).toBeVisible();
@@ -1542,6 +1673,7 @@ test('deletes a bookmark permanently from an open folder after confirmation', as
   await openFolder();
   const grid = page.getByRole('list', { name: 'Folder bookmarks' });
   await expect(grid.locator('[data-bookmark-id]')).toHaveCount(1);
+  await enableFolderEditMode(page);
   await page.getByRole('button', { name: 'Delete DEVELOPED BY' }).click();
   await expect(page.locator('#alert-modal')).toBeVisible();
   await expect(page.locator('#alert-modal-title'))

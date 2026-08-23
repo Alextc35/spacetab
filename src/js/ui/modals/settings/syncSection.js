@@ -6,6 +6,7 @@ import {
 import {
   deleteSyncedData,
   getStorageMode,
+  getStorageUsage,
   getSyncedDataMetadata,
   subscribe
 } from '../../../core/store.js';
@@ -29,6 +30,34 @@ function getBrowserNoticeKey(browser) {
   return 'settingsModal.sync.browserSupport.unsupported';
 }
 
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
+
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const unitIndex = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1
+  );
+  const value = bytes / (1024 ** unitIndex);
+  const language = document.documentElement.lang || 'en';
+  const formatted = new Intl.NumberFormat(language, {
+    maximumFractionDigits: value >= 10 ? 0 : 1
+  }).format(value);
+
+  return `${formatted} ${units[unitIndex]}`;
+}
+
+function formatPercentage(value) {
+  const language = document.documentElement.lang || 'en';
+  if (value > 0 && value < 0.1) {
+    return `<${new Intl.NumberFormat(language).format(0.1)}`;
+  }
+
+  return new Intl.NumberFormat(language, {
+    maximumFractionDigits: 1
+  }).format(value);
+}
+
 /**
  * Initializes the Local/Sync persistence selector.
  *
@@ -50,10 +79,84 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   const persistenceStatus = document.getElementById('storage-persistence-status');
   const lastUpdated = document.getElementById('storage-sync-last-updated');
   const deleteSyncData = document.getElementById('storage-sync-delete');
+  const usageItem = document.querySelector('[data-storage-usage-active]');
+  const usageMode = document.getElementById('storage-usage-mode');
+  const usageSummary = document.getElementById('storage-usage-summary');
+  const usageAvailable = document.getElementById('storage-usage-available');
+  const usageProgress = document.getElementById('storage-usage-progress');
   let syncMetadata = null;
   let metadataError = false;
   let metadataRequestId = 0;
+  let storageUsage = null;
+  let storageUsageError = false;
+  let usageRequestId = 0;
   let isDeleting = false;
+
+  function getUsageDisplayMode() {
+    return getDraftStorageMode() ?? getStorageMode();
+  }
+
+  function renderStorageUsage() {
+    if (!usageItem) return;
+
+    const mode = getUsageDisplayMode();
+    const modeKey = mode === 'sync' ? 'sync' : 'local';
+    usageItem.dataset.storageUsage = modeKey;
+    usageMode.textContent = t(`settingsModal.sync.usage.${modeKey}`);
+    usageProgress.setAttribute(
+      'aria-label',
+      t(`settingsModal.sync.usage.${modeKey}Aria`)
+    );
+
+    if (storageUsageError) {
+      usageSummary.textContent = t('settingsModal.sync.usage.error');
+      usageAvailable.textContent = '';
+      usageProgress.value = 0;
+      return;
+    }
+
+    if (!storageUsage || storageUsage.mode !== modeKey) {
+      usageSummary.textContent = t('settingsModal.sync.usage.loading');
+      usageAvailable.textContent = '';
+      usageProgress.value = 0;
+      return;
+    }
+
+    const percentage = storageUsage.quotaBytes > 0
+      ? Math.min(100, (storageUsage.usedBytes / storageUsage.quotaBytes) * 100)
+      : 0;
+    const used = formatBytes(storageUsage.usedBytes);
+    const total = formatBytes(storageUsage.quotaBytes);
+    const free = formatBytes(storageUsage.availableBytes);
+    const percent = formatPercentage(percentage);
+
+    usageSummary.textContent = t(
+      'settingsModal.sync.usage.summary',
+      { used, total, percent }
+    );
+    usageAvailable.textContent = t('settingsModal.sync.usage.available', { free });
+    usageProgress.value = percentage;
+  }
+
+  async function refreshStorageUsage() {
+    const requestId = ++usageRequestId;
+    const mode = getUsageDisplayMode();
+    storageUsage = null;
+    storageUsageError = false;
+    renderStorageUsage();
+
+    try {
+      const usage = await getStorageUsage(mode);
+      if (requestId !== usageRequestId || mode !== getUsageDisplayMode()) return;
+      storageUsage = usage;
+    } catch (error) {
+      if (requestId !== usageRequestId || mode !== getUsageDisplayMode()) return;
+      console.error(`[SETTINGS] Could not read ${mode} storage usage:`, error);
+      storageUsageError = true;
+    }
+
+    renderStorageUsage();
+  }
 
   function renderSyncMetadata() {
     if (!lastUpdated) return;
@@ -112,9 +215,14 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
     if (persistence.status === 'saved' && getStorageMode() === 'sync') {
       void refreshSyncMetadata();
     }
+
+    if (persistence.status === 'saved') void refreshStorageUsage();
   });
 
-  subscribeLanguageChange(renderSyncMetadata);
+  subscribeLanguageChange(() => {
+    renderSyncMetadata();
+    renderStorageUsage();
+  });
 
   function syncUI() {
     const selectedMode = getDraftStorageMode();
@@ -145,7 +253,9 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
     }
 
     renderSyncMetadata();
+    renderStorageUsage();
     void refreshSyncMetadata();
+    void refreshStorageUsage();
   }
 
   for (const input of modeInputs) {

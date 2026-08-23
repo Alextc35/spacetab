@@ -92,6 +92,23 @@ const LOCAL_DATA = {
   settings: SETTINGS
 };
 
+test('reports used, total, and available bytes for both storage areas', async () => {
+  const local = await storage.getUsage(STORAGE_MODES.LOCAL);
+  const sync = await storage.getUsage(STORAGE_MODES.SYNC);
+
+  assert.equal(local.mode, STORAGE_MODES.LOCAL);
+  assert.equal(local.quotaBytes, 10485760);
+  assert.equal(local.availableBytes, local.quotaBytes - local.usedBytes);
+  assert.ok(local.usedBytes >= 0);
+
+  assert.equal(sync.mode, STORAGE_MODES.SYNC);
+  assert.equal(sync.quotaBytes, 102400);
+  assert.equal(sync.availableBytes, sync.quotaBytes - sync.usedBytes);
+  assert.ok(sync.usedBytes >= 0);
+
+  await assert.rejects(storage.getUsage('session'), /Unsupported storage mode/);
+});
+
 test('migrates local data to an empty synchronized area', async () => {
   await storage.initialize();
   await storage.set(LOCAL_DATA);

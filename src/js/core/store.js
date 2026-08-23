@@ -205,6 +205,16 @@ export function getSyncedDataMetadata() {
 }
 
 /**
+ * Returns quota usage for a browser storage area.
+ *
+ * @param {'local'|'sync'} mode
+ * @returns {ReturnType<typeof storage.getUsage>}
+ */
+export function getStorageUsage(mode) {
+  return storage.getUsage(mode);
+}
+
+/**
  * Permanently removes the remote SpaceTab payload. If synchronized storage is
  * active, the current state is copied locally before the remote data is
  * removed so the device never loses its working data.

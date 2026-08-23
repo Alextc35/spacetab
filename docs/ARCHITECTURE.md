@@ -71,6 +71,10 @@ The schema and commands enforce these rules:
 The panel manages fields, tabs, validation, dirty state, preview and lifecycle.
 It does not know about modals, grid placement, persistence or the store.
 
+Create mode opens as a compact name-and-URL form. Its advanced-options control
+animates the same panel to full size, preserving the draft while exposing the
+appearance tabs and live preview. Edit and preset modes always open expanded.
+
 Settings opens the same panel in `preset` mode to configure the default bookmark
 appearance. The settings tab owns only the button and draft preset; it does not
 embed a second editor implementation.
@@ -115,9 +119,12 @@ The local storage-mode choice remains device-specific.
 `browserCapabilities.js` currently permits Sync only in Google Chrome. Brave
 and unverified Chromium browsers stay in Local mode because exposing
 `chrome.storage.sync` does not guarantee that their profile service propagates
-SpaceTab data. Settings displays persistence status and synchronized update
-metadata, and confirmed deletion removes only SpaceTab's synchronized keys. If
-the active mode is Sync, deletion preserves the working data in Local first.
+SpaceTab data. The storage facade exposes quota usage for both areas through
+`getBytesInUse`, with a byte estimate fallback for compatible implementations.
+Settings displays used/total/available capacity for the currently selected mode,
+persistence status and synchronized update metadata. Confirmed deletion removes
+only SpaceTab's synchronized keys; if Sync is active, it preserves the working
+data in Local first.
 
 Complete backups use the `spacetab-backup` format; bookmark-only files use
 `spacetab-bookmarks`. Both versioned formats preserve folders and membership.
@@ -131,10 +138,13 @@ owns stacking, focus trapping, background isolation and focus restoration.
 The renderer displays top-level bookmarks and folders in the active workspace.
 `src/js/ui/folder/renderer.js` owns the folder card and previews, while
 `src/js/ui/modals/folderModal.js` reuses the production bookmark renderer in a
-compact 3 × 6 workspace. Its pointer controller previews empty-cell moves and
-occupied-cell displacement through the same `calculateSmartDragLayout()` modes
-as the main grid. Preview positions are rendered as smooth transforms from each
-item's persisted cell; on release the transform remains visible until
+compact 3 × 6 workspace. The modal starts in a link-only view with no action or
+drag listeners. Its local edit mode, toggled by the header control or `Space`,
+re-renders controls and enables a pointer controller that previews empty-cell
+moves and occupied-cell displacement through the same
+`calculateSmartDragLayout()` modes as the main grid. Preview positions are
+rendered as smooth transforms from each item's persisted cell; on release the
+transform remains visible until
 `updateFolderBookmarkPositions()` atomically commits that exact layout, avoiding
 a source/destination flash. `src/js/core/folderGrid.js` owns the pure local
 layout contract and normalizes legacy or colliding positions deterministically.

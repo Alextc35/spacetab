@@ -94,7 +94,9 @@
   "addModal": {
     "title": "➕ Agregar nuevo marcador",
     "name": "Nombre:",
-    "url": "URL:"
+    "url": "URL:",
+    "advancedOptions": "⚙ Opciones avanzadas",
+    "compactView": "▴ Vista compacta"
   },
   "buttons": {
     "save": "Guardar",
@@ -148,7 +150,10 @@
     "open": "Abrir {{name}}, {{count}} marcadores guardados",
     "count": "{{count}} guardados",
     "summary": "{{count}} de {{capacity}} espacios ocupados",
-    "dragHint": "Arrastra para ordenar",
+    "editMode": {
+      "enable": "Editar",
+      "disable": "Finalizar edición"
+    },
     "gridLabel": "Marcadores de la carpeta",
     "empty": "Esta carpeta está vacía. Arrastra marcadores hasta aquí desde el modo edición.",
     "dropHint": "Suelta para agregar",
@@ -231,6 +236,17 @@
       "synced": {
         "title": "Sincronizado",
         "description": "Disponible en perfiles de Google Chrome conectados a la misma cuenta."
+      },
+      "usage": {
+        "title": "Disponibilidad de almacenamiento",
+        "local": "Local",
+        "sync": "Sincronizado",
+        "localAria": "Uso del almacenamiento local",
+        "syncAria": "Uso del almacenamiento sincronizado",
+        "loading": "Calculando…",
+        "summary": "{{used}} de {{total}} · {{percent}}%",
+        "available": "{{free}} disponibles",
+        "error": "Uso no disponible"
       },
       "browserSupport": {
         "chrome": "Google Chrome sincroniza SpaceTab mediante tu cuenta de Google. SpaceTab no utiliza un servidor propio de sincronización.",

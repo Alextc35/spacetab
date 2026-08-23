@@ -21,10 +21,10 @@ items on a desktop without relying on a SpaceTab account or backend.
   Sequence
 * Direct bookmark editing plus short-click selection and a middle-click editor
 * Arrow-key movement for a single selected bookmark
-* Shared panel for creating, editing and defining default bookmark styles
+* Compact bookmark creation that expands into the shared full style editor
 * Named appearance presets
 * Independent bookmark workspaces with smooth `Alt/⌥ + ↑/↓` navigation
-* Resizable folders with drag-and-drop feedback and a compact 3 × 6 workspace
+* Resizable folders with a clean link view and an editable 3 × 6 workspace
 * Global search palette (`/`)
 * Multi-select, bulk styling, moving, duplication and deletion
 * Bookmark duplication plus atomic undo/redo for bookmark and folder changes
@@ -189,9 +189,10 @@ the synchronized copy untouched.
 
 Chrome's sync quotas are handled by splitting the versioned payload into safe
 chunks. SpaceTab reports quota/persistence errors and shows the current save
-status in Settings. The Sync panel also reports the latest synchronized update
-and can delete all synchronized SpaceTab data after confirmation. Deleting sync
-data first keeps the working data locally when necessary.
+status in Settings. The Sync panel shows live used, total and available capacity
+for the currently selected mode, reports the latest synchronized update and can
+delete all synchronized SpaceTab data after confirmation. Deleting sync data first
+keeps the working data locally when necessary.
 
 > Cross-device sync requires the same extension ID on every installation. A
 > Chrome Web Store release provides this automatically. Development installs
@@ -199,7 +200,8 @@ data first keeps the working data locally when necessary.
 
 ## Keyboard and pointer shortcuts
 
-* `Space` toggles edit mode when no modal is open.
+* `Space` toggles the main edit mode; inside an open folder it toggles that
+  folder's edit controls and reordering.
 * `Enter` opens the create-bookmark panel.
 * `.` opens Settings.
 * `/` opens global search.

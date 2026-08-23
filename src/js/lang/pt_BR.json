@@ -94,7 +94,9 @@
   "addModal": {
     "title": "➕ Adicionar novo favorito",
     "name": "Nome:",
-    "url": "URL:"
+    "url": "URL:",
+    "advancedOptions": "⚙ Opções avançadas",
+    "compactView": "▴ Visualização compacta"
   },
   "buttons": {
     "save": "Salvar",
@@ -148,7 +150,10 @@
     "open": "Abrir {{name}}, {{count}} favoritos salvos",
     "count": "{{count}} salvos",
     "summary": "{{count}} de {{capacity}} espaços ocupados",
-    "dragHint": "Arraste para organizar",
+    "editMode": {
+      "enable": "Editar",
+      "disable": "Finalizar edição"
+    },
     "gridLabel": "Favoritos da pasta",
     "empty": "Esta pasta está vazia. Arraste favoritos até aqui no modo de edição.",
     "dropHint": "Solte para adicionar",
@@ -231,6 +236,17 @@
       "synced": {
         "title": "Sincronizado",
         "description": "Disponível em perfis do Google Chrome conectados à mesma conta."
+      },
+      "usage": {
+        "title": "Disponibilidade de armazenamento",
+        "local": "Local",
+        "sync": "Sincronizado",
+        "localAria": "Uso do armazenamento local",
+        "syncAria": "Uso do armazenamento sincronizado",
+        "loading": "Calculando…",
+        "summary": "{{used}} de {{total}} · {{percent}}%",
+        "available": "{{free}} disponíveis",
+        "error": "Uso indisponível"
       },
       "browserSupport": {
         "chrome": "O Google Chrome sincroniza o SpaceTab pela sua conta Google. O SpaceTab não utiliza um servidor próprio de sincronização.",

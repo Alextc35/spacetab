@@ -15,6 +15,7 @@ const modalTitle = modal.querySelector('h2');
 const modalHost = document.getElementById('bookmark-modal-form-host');
 const modalSave = document.getElementById('edit-bookmark-modal-save');
 const modalCancel = document.getElementById('edit-bookmark-modal-cancel');
+const densityToggle = document.getElementById('bookmark-modal-density-toggle');
 
 /** @type {'add' | 'edit' | 'preset' | null} */
 let mode = null;
@@ -40,6 +41,10 @@ export function initBookmarkModal() {
 
   modalSave.addEventListener('click', handleAccept);
   modalCancel.addEventListener('click', handleCancel);
+  densityToggle.addEventListener('click', () => {
+    setAddCompactMode(!modal.classList.contains('is-add-compact'));
+    requestAnimationFrame(() => form?.elements.name?.focus());
+  });
 
   modal.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
@@ -142,6 +147,7 @@ function openBookmarkModal(nextMode, bookmark) {
       : (nextMode === 'preset' ? 'buttons.apply' : 'buttons.save')
   );
 
+  setAddCompactMode(nextMode === 'add');
   updateSaveButtonState();
   form.activateDefaultTab();
 
@@ -182,6 +188,28 @@ async function handleAccept() {
     handleEditAccept();
   } else {
     handlePresetAccept();
+  }
+}
+
+function setAddCompactMode(compact) {
+  const isAddMode = mode === 'add';
+  const nextCompact = isAddMode && compact;
+  if (nextCompact) form?.activateDefaultTab();
+
+  modal.classList.toggle('is-add-compact', nextCompact);
+  densityToggle.classList.toggle('is-hidden', !isAddMode);
+  densityToggle.setAttribute('aria-expanded', String(isAddMode && !nextCompact));
+  densityToggle.textContent = t(
+    nextCompact ? 'addModal.advancedOptions' : 'addModal.compactView'
+  );
+
+  for (const element of modal.querySelectorAll(
+    '.edit-bookmark-modal-tabs, .edit-bookmark-modal-preview-panel, '
+      + '[data-tab-panel="general"] .input-action'
+  )) {
+    element.inert = nextCompact;
+    if (nextCompact) element.setAttribute('aria-hidden', 'true');
+    else element.removeAttribute('aria-hidden');
   }
 }
 
@@ -254,6 +282,11 @@ function handlePresetAccept() {
 
 async function handleCancel() {
   if (mode === 'add') {
+    if (!hasChanges()) {
+      closeBookmarkModal();
+      return true;
+    }
+
     const ok = await showAlert(
       t('alert.bookmark.add.cancel'),
       { type: 'confirm' }
@@ -263,7 +296,7 @@ async function handleCancel() {
 
     resetAddForm();
     closeBookmarkModal();
-    return;
+    return true;
   }
 
   if (!hasChanges()) {
@@ -288,6 +321,8 @@ function resetAddForm() {
 }
 
 function closeBookmarkModal() {
+  modal.classList.remove('is-add-compact');
+  densityToggle.classList.add('is-hidden');
   mode = null;
   editingId = null;
   applyPreset = null;

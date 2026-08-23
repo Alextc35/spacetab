@@ -15,7 +15,7 @@ import { t } from '../../core/i18n.js';
 import { getState, subscribe } from '../../core/store.js';
 import { createItemActionButton } from '../bookmark/actions.js';
 import { createBookmarkElement } from '../bookmark/renderer.js';
-import { flashSuccess } from '../flash.js';
+import { flashInfo, flashSuccess } from '../flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { closeModal, openModal, registerModal } from '../modalManager.js';
 import { openEditBookmark } from './bookmarkModal.js';
@@ -33,8 +33,9 @@ let renameCancel;
 let summary;
 let list;
 let empty;
+let editToggle;
+let folderIsEditing = false;
 let dragSession = null;
-let suppressBookmarkClickUntil = 0;
 let pendingFolderCommit = null;
 
 export function initFolderModal() {
@@ -49,8 +50,23 @@ export function initFolderModal() {
   summary = document.getElementById('folder-modal-summary');
   list = document.getElementById('folder-modal-items');
   empty = document.getElementById('folder-modal-empty');
+  editToggle = document.getElementById('folder-modal-edit-toggle');
 
   document.getElementById('folder-modal-close').addEventListener('click', closeFolderModal);
+  editToggle.addEventListener('click', () => toggleFolderEditMode());
+  document.addEventListener('keydown', event => {
+    if (!activeFolderId) return;
+
+    const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(
+      document.activeElement?.tagName
+    ) || document.activeElement?.isContentEditable;
+
+    if (event.code !== 'Space' || event.repeat || isTyping) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    toggleFolderEditMode();
+  });
   title.addEventListener('dblclick', startInlineFolderRename);
   title.addEventListener('blur', () => finishInlineFolderRename());
   title.addEventListener('keydown', event => {
@@ -116,14 +132,44 @@ export function openFolderModal(folderId) {
   if (!folder) return;
 
   activeFolderId = folderId;
+  folderIsEditing = false;
   renderFolderContents();
   openModal('folder', { onCancel: closeFolderModal });
 }
 
 function closeFolderModal() {
   cancelFolderDrag();
+  folderIsEditing = false;
+  modal.classList.remove('is-folder-editing');
   activeFolderId = null;
   closeModal();
+}
+
+function toggleFolderEditMode() {
+  setFolderEditMode(!folderIsEditing, { announce: true });
+}
+
+function setFolderEditMode(isEditing, { announce = false } = {}) {
+  if (folderIsEditing === isEditing) return;
+  if (!isEditing) cancelFolderDrag();
+
+  folderIsEditing = isEditing;
+  renderFolderContents();
+
+  if (announce) {
+    flashInfo(
+      isEditing ? 'flash.editMode.enabled' : 'flash.editMode.disabled',
+      1000
+    );
+  }
+}
+
+function syncFolderEditUI() {
+  modal.classList.toggle('is-folder-editing', folderIsEditing);
+  editToggle.setAttribute('aria-pressed', String(folderIsEditing));
+  editToggle.textContent = t(
+    folderIsEditing ? 'folder.editMode.disable' : 'folder.editMode.enable'
+  );
 }
 
 function renderFolderContents() {
@@ -136,6 +182,7 @@ function renderFolderContents() {
 
   const contents = bookmarks.filter(bookmark => bookmark.folderId === folder.id);
   const layout = createFolderBookmarkLayout(contents);
+  syncFolderEditUI();
   if (!title.isContentEditable) title.textContent = folder.name;
   title.setAttribute('title', t('folder.actions.rename'));
   summary.textContent = t('folder.summary', {
@@ -215,7 +262,10 @@ function enforceInlineFolderNameLimit() {
 }
 
 function createFolderBookmarkItem(bookmark, position) {
-  const item = createBookmarkElement({ ...bookmark, w: 1, h: 1 });
+  const item = createBookmarkElement(
+    { ...bookmark, w: 1, h: 1 },
+    { isEditing: folderIsEditing }
+  );
   item.classList.add('folder-grid-bookmark');
   item.dataset.bookmarkId = bookmark.id;
   item.setAttribute('role', 'listitem');
@@ -223,6 +273,8 @@ function createFolderBookmarkItem(bookmark, position) {
   for (const draggable of item.querySelectorAll('a, img')) {
     draggable.draggable = false;
   }
+
+  if (!folderIsEditing) return item;
 
   const actions = document.createElement('span');
   actions.className = 'folder-bookmark-actions';
@@ -273,7 +325,7 @@ function createFolderBookmarkItem(bookmark, position) {
 
 function addFolderBookmarkDrag(item, bookmarkId) {
   item.addEventListener('click', event => {
-    if (Date.now() >= suppressBookmarkClickUntil) return;
+    if (event.target.closest('button')) return;
     event.preventDefault();
     event.stopPropagation();
   }, true);
@@ -403,7 +455,6 @@ function finishFolderDrag(event, commit) {
   if (!session.active) return;
 
   event.preventDefault();
-  suppressBookmarkClickUntil = Date.now() + 400;
   session.item.classList.remove('is-folder-grid-dragging', 'is-folder-grid-invalid');
 
   if (commit && session.dropIsValid && hasFolderLayoutChanges(session)) {

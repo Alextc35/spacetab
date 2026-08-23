@@ -105,7 +105,9 @@
           </h2>
           <small id="folder-modal-summary"></small>
         </span>
-        <span class="folder-modal-hint" data-i18n="folder.dragHint">Drag to reorder</span>
+        <button id="folder-modal-edit-toggle" class="folder-modal-edit-toggle"
+          type="button" aria-pressed="false"
+          data-i18n="folder.editMode.enable">Edit</button>
       </header>
       <div class="folder-grid-shell">
         <div id="folder-modal-items" class="folder-modal-grid custom-scrollbar" role="list"
@@ -129,6 +131,10 @@
       </header>
       <div id="bookmark-modal-form-host" class="bookmark-modal-form-host"></div>
       <footer class="modal-actions">
+        <button id="bookmark-modal-density-toggle"
+          class="btn btn-secondary bookmark-modal-density-toggle is-hidden"
+          type="button" aria-expanded="false"
+          aria-controls="bookmark-modal-form-host">⚙ Advanced options</button>
         <button id="edit-bookmark-modal-cancel" class="btn btn-ghost" type="button"
           data-i18n="buttons.cancel">Cancelar
         </button>
@@ -204,6 +210,20 @@
                 </span>
               </label>
             </div>
+
+            <section class="storage-usage" aria-labelledby="storage-usage-title">
+              <h3 id="storage-usage-title" data-i18n="settingsModal.sync.usage.title">Disponibilidad de almacenamiento</h3>
+              <article class="storage-usage-item" data-storage-usage-active>
+                <div class="storage-usage-heading">
+                  <strong id="storage-usage-mode">Local</strong>
+                  <span id="storage-usage-summary" data-storage-usage-summary
+                    data-i18n="settingsModal.sync.usage.loading">Calculando…</span>
+                </div>
+                <progress id="storage-usage-progress" max="100" value="0"
+                  aria-label="Local storage usage"></progress>
+                <small id="storage-usage-available" data-storage-usage-available></small>
+              </article>
+            </section>
 
             <div id="storage-sync-notice" class="storage-sync-notice">
               <p id="storage-sync-browser-notice" data-i18n="settingsModal.sync.browserSupport.chrome">Google Chrome sincroniza SpaceTab mediante tu cuenta de Google.</p>

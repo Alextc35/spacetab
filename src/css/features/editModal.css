@@ -1,6 +1,8 @@
 .modal-card.modal-xl {
   padding: 0;
   overflow: hidden;
+  transition: width .32s cubic-bezier(.22, 1, .36, 1),
+    height .32s cubic-bezier(.22, 1, .36, 1);
 }
 
 .edit-bookmark-modal-header {
@@ -33,6 +35,13 @@
   gap: 6px;
   padding: 10px 24px;
   border-bottom: 1px solid #222;
+  max-height: 54px;
+  box-sizing: border-box;
+  overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+  transition: max-height .24s ease, padding .24s ease,
+    border-color .24s ease, opacity .16s ease, visibility 0s;
 }
 
 .edit-bookmark-modal-tab-btn {
@@ -70,6 +79,7 @@
   padding: 24px;
   display: flex;
   border-right: 1px solid #222;
+  transition: padding .28s ease, border-color .2s ease;
 }
 
 .edit-bookmark-modal-tab-content {
@@ -94,6 +104,13 @@
   gap: 16px;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+  transition: width .28s cubic-bezier(.22, 1, .36, 1),
+    padding .28s cubic-bezier(.22, 1, .36, 1), opacity .18s ease,
+    visibility 0s;
 
   & h3 {
     font-size: 13px;
@@ -107,4 +124,76 @@
   border-top: 1px solid #222;
   padding: 16px 24px;
   margin-top: 0;
+  transition: padding .28s ease;
+}
+
+.bookmark-modal-density-toggle {
+  display: inline-flex;
+  margin-right: auto;
+  align-items: center;
+  gap: 6px;
+}
+
+#edit-bookmark-modal.is-add-compact {
+  & .modal-card.modal-xl {
+    width: 420px;
+    height: 330px;
+  }
+
+  & .edit-bookmark-modal-header {
+    padding: 18px 22px 10px;
+  }
+
+  & .edit-bookmark-modal-tabs {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom-color: transparent;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: max-height .24s ease, padding .24s ease,
+      border-color .24s ease, opacity .16s ease, visibility 0s .24s;
+  }
+
+  & .edit-bookmark-modal-panel {
+    padding: 18px 22px;
+    border-right-color: transparent;
+  }
+
+  & .edit-bookmark-modal-preview-panel {
+    width: 0;
+    padding-right: 0;
+    padding-left: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: width .28s cubic-bezier(.22, 1, .36, 1),
+      padding .28s cubic-bezier(.22, 1, .36, 1), opacity .18s ease,
+      visibility 0s .28s;
+  }
+
+  & [data-tab-panel="general"] .input-action {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  & [data-tab-panel="general"] .input-with-actions input {
+    padding-right: 12px;
+  }
+
+  & .modal-actions {
+    padding: 14px 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-card.modal-xl,
+  .edit-bookmark-modal-tabs,
+  .edit-bookmark-modal-panel,
+  .edit-bookmark-modal-preview-panel,
+  .modal-card.modal-xl .modal-actions {
+    transition: none;
+  }
 }

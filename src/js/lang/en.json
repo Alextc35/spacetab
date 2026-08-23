@@ -94,7 +94,9 @@
   "addModal": {
     "title": "➕ Add new bookmark",
     "name": "Name:",
-    "url": "URL:"
+    "url": "URL:",
+    "advancedOptions": "⚙ Advanced options",
+    "compactView": "▴ Compact view"
   },
   "buttons": {
     "save": "Save",
@@ -148,7 +150,10 @@
     "open": "Open {{name}}, {{count}} saved bookmarks",
     "count": "{{count}} saved",
     "summary": "{{count}} of {{capacity}} spaces used",
-    "dragHint": "Drag to reorder",
+    "editMode": {
+      "enable": "Edit",
+      "disable": "Finish editing"
+    },
     "gridLabel": "Folder bookmarks",
     "empty": "This folder is empty. Drag bookmarks here from edit mode.",
     "dropHint": "Drop to add",
@@ -231,6 +236,17 @@
       "synced": {
         "title": "Synced",
         "description": "Available in Google Chrome profiles connected to the same account."
+      },
+      "usage": {
+        "title": "Storage availability",
+        "local": "Local",
+        "sync": "Synced",
+        "localAria": "Local storage usage",
+        "syncAria": "Synced storage usage",
+        "loading": "Calculating…",
+        "summary": "{{used}} of {{total}} · {{percent}}%",
+        "available": "{{free}} available",
+        "error": "Usage unavailable"
       },
       "browserSupport": {
         "chrome": "Google Chrome syncs SpaceTab through your Google Account. SpaceTab does not run its own sync server.",
