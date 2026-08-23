@@ -103,7 +103,8 @@
   background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
 }
 
-.default-bookmark-settings {
+.default-bookmark-settings,
+.bookmark-drag-settings {
   display: grid;
   gap: 8px;
   padding: 14px;
@@ -112,11 +113,11 @@
   background: #181818;
 }
 
-.default-bookmark-settings :is(h3, p) {
+:is(.default-bookmark-settings, .bookmark-drag-settings) :is(h3, p) {
   margin: 0;
 }
 
-.default-bookmark-settings p {
+:is(.default-bookmark-settings, .bookmark-drag-settings) > p {
   color: #aaa;
   font-size: 13px;
   line-height: 1.5;
@@ -124,6 +125,10 @@
 
 .default-bookmark-settings .btn {
   justify-self: start;
+}
+
+:is(.default-bookmark-settings, .bookmark-drag-settings) {
+  margin-bottom: 12px;
 }
 
 .settings-bookmark-actions {
@@ -171,12 +176,14 @@
   margin: 0 0 16px;
 }
 
-.storage-mode-options {
+.storage-mode-options,
+.drag-mode-options {
   display: grid;
   gap: 10px;
 }
 
-.storage-mode-option {
+.storage-mode-option,
+.drag-mode-option {
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -188,35 +195,60 @@
   transition: border-color .2s ease, background .2s ease;
 }
 
-.storage-mode-option:hover {
+.storage-mode-option:hover,
+.drag-mode-option:hover {
   background: #202020;
   border-color: #465064;
 }
 
-.storage-mode-option.is-selected {
+.storage-mode-option.is-selected,
+.drag-mode-option.is-selected {
   background: #182438;
   border-color: #4da3ff;
 }
 
-.storage-mode-option input[type="radio"] {
+.storage-mode-option.is-disabled {
+  opacity: .58;
+  cursor: not-allowed;
+}
+
+.storage-mode-option.is-disabled:not(.is-selected):hover {
+  background: #181818;
+  border-color: #333;
+}
+
+.storage-mode-option.is-disabled input {
+  cursor: not-allowed;
+}
+
+.storage-mode-option input[type="radio"],
+.drag-mode-option input[type="radio"] {
   margin-top: 3px;
   accent-color: #4da3ff;
 }
 
-.storage-mode-copy {
+.storage-mode-copy,
+.drag-mode-copy {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.storage-mode-copy strong {
+.storage-mode-copy strong,
+.drag-mode-copy strong {
   font-size: 14px;
 }
 
-.storage-mode-copy small {
+.storage-mode-copy small,
+.drag-mode-copy small {
   color: #aaa;
   font-size: 12px;
   line-height: 1.45;
+}
+
+.drag-mode-copy .drag-mode-warning {
+  color: #e9bd65;
+  font-weight: 600;
 }
 
 .storage-sync-notice {
@@ -248,4 +280,42 @@
 
 .storage-persistence-status[data-status="error"] {
   color: #ff8a8a;
+}
+
+.storage-sync-notice.is-unsupported {
+  border-left-color: #e9bd65;
+  background: #262013;
+  color: #ead3a0;
+}
+
+.storage-sync-management {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #2d2d2d;
+}
+
+.storage-sync-last-updated {
+  margin: 0;
+  color: #aaa;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.storage-sync-management .btn {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 620px) {
+  .storage-sync-management {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .storage-sync-management .btn {
+    align-self: flex-start;
+  }
 }

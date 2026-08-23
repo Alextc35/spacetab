@@ -45,7 +45,9 @@
       "localEnabled": "Modo local ativado",
       "remoteLoaded": "Dados sincronizados carregados",
       "error": "Não foi possível alterar o modo de armazenamento",
-      "quotaError": "Os dados excedem o espaço disponível para sincronização"
+      "quotaError": "Os dados excedem o espaço disponível para sincronização",
+      "deleted": "Dados sincronizados excluídos",
+      "deleteError": "Não foi possível excluir os dados sincronizados"
     },
     "backup": {
       "exported": "Backup exportado com sucesso",
@@ -78,6 +80,9 @@
       "bookmark": {
         "reset": "Restaurar o estilo do favorito?",
         "cancel": "Descartar as alterações na aparência do favorito padrão?"
+      },
+      "sync": {
+        "delete": "Excluir todos os dados sincronizados do SpaceTab? Se a sincronização estiver ativa, este dispositivo mudará primeiro para o modo local. Esta ação não pode ser desfeita."
       }
     },
     "backup": {
@@ -131,8 +136,6 @@
   "bookmarkActions": {
     "ariaLabel": "Controles do favorito",
     "edit": "Editar favorito",
-    "select": "Selecionar favorito",
-    "deselect": "Desmarcar favorito",
     "copySuffix": "cópia"
   },
   "folder": {
@@ -220,10 +223,22 @@
       },
       "synced": {
         "title": "Sincronizado",
-        "description": "Disponível nos navegadores conectados ao mesmo perfil sincronizado."
+        "description": "Disponível em perfis do Google Chrome conectados à mesma conta."
       },
-      "browserNotice": "No Chrome, utiliza a sincronização da sua conta Google. No Brave, utiliza o Brave Sync.",
-      "existingNotice": "Se já existirem dados sincronizados do Spacetab, eles serão carregados ao salvar.",
+      "browserSupport": {
+        "chrome": "O Google Chrome sincroniza o SpaceTab pela sua conta Google. O SpaceTab não utiliza um servidor próprio de sincronização.",
+        "brave": "Indisponível no Brave: ele pode armazenar dados do SpaceTab em chrome.storage.sync, mas atualmente não os propaga entre dispositivos.",
+        "unsupported": "Por enquanto, o armazenamento sincronizado está disponível apenas no Google Chrome. Os outros navegadores continuarão bloqueados até que a sincronização entre dispositivos seja verificada."
+      },
+      "existingNotice": "Se já existirem dados sincronizados do SpaceTab, eles serão carregados ao salvar.",
+      "deleteData": "Excluir dados sincronizados",
+      "metadata": {
+        "loading": "Verificando dados sincronizados…",
+        "updatedAt": "Última atualização sincronizada: {{date}}",
+        "unknown": "Existem dados sincronizados, mas o horário da atualização não está disponível.",
+        "empty": "Não há dados sincronizados do SpaceTab armazenados.",
+        "error": "Não foi possível carregar as informações dos dados sincronizados."
+      },
       "status": {
         "idle": "Os dados estão prontos.",
         "saving": "Salvando alterações…",
@@ -251,6 +266,23 @@
       "export": "Exportar favoritos",
       "import": "Importar favoritos",
       "deleteAll": "Excluir todos os favoritos",
+      "drag": {
+        "title": "Comportamento ao arrastar",
+        "description": "Escolha como os favoritos se reorganizam ao ocupar uma posição.",
+        "none": {
+          "title": "Nenhuma",
+          "description": "Não reorganiza itens; posições ocupadas são rejeitadas."
+        },
+        "cascade": {
+          "title": "Sequência",
+          "description": "Desloca a sequência de favoritos em direção ao espaço disponível.",
+          "experimental": "Experimental · Pode conter pequenos erros."
+        },
+        "relocate": {
+          "title": "Realocação",
+          "description": "Leva os favoritos ocupados ao espaço deixado ou ao local livre mais próximo."
+        }
+      },
       "presets": {
         "title": "Biblioteca de estilos",
         "name": "Nome do estilo",

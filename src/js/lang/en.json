@@ -45,7 +45,9 @@
       "localEnabled": "Local mode enabled",
       "remoteLoaded": "Synced data loaded",
       "error": "Could not change storage mode",
-      "quotaError": "The data exceeds the available sync storage"
+      "quotaError": "The data exceeds the available sync storage",
+      "deleted": "Synced data deleted",
+      "deleteError": "Could not delete synced data"
     },
     "backup": {
       "exported": "Backup exported successfully",
@@ -78,6 +80,9 @@
       "bookmark": {
         "reset": "Reset bookmark style?",
         "cancel": "Discard changes to the default bookmark appearance?"
+      },
+      "sync": {
+        "delete": "Delete all synchronized SpaceTab data? If Sync is active, this device will switch to local storage first. This cannot be undone."
       }
     },
     "backup": {
@@ -131,8 +136,6 @@
   "bookmarkActions": {
     "ariaLabel": "Bookmark controls",
     "edit": "Edit bookmark",
-    "select": "Select bookmark",
-    "deselect": "Deselect bookmark",
     "copySuffix": "copy"
   },
   "folder": {
@@ -220,10 +223,22 @@
       },
       "synced": {
         "title": "Synced",
-        "description": "Available in browsers connected to the same synced profile."
+        "description": "Available in Google Chrome profiles connected to the same account."
       },
-      "browserNotice": "Chrome uses your Google Account sync. Brave uses Brave Sync.",
+      "browserSupport": {
+        "chrome": "Google Chrome syncs SpaceTab through your Google Account. SpaceTab does not run its own sync server.",
+        "brave": "Unavailable in Brave: it can store SpaceTab data in chrome.storage.sync, but currently does not propagate it between devices.",
+        "unsupported": "Synced storage is only available in Google Chrome for now. Other browsers remain disabled until cross-device support is verified."
+      },
       "existingNotice": "If synced SpaceTab data already exists, it will be loaded when you save.",
+      "deleteData": "Delete synced data",
+      "metadata": {
+        "loading": "Checking synchronized data…",
+        "updatedAt": "Last synchronized update: {{date}}",
+        "unknown": "Synchronized data exists, but its update time is unavailable.",
+        "empty": "No synchronized SpaceTab data is stored.",
+        "error": "Synchronized data information could not be loaded."
+      },
       "status": {
         "idle": "Data is ready.",
         "saving": "Saving changes…",
@@ -251,6 +266,23 @@
       "export": "Export bookmarks",
       "import": "Import bookmarks",
       "deleteAll": "Delete all bookmarks",
+      "drag": {
+        "title": "Drag behavior",
+        "description": "Choose how bookmarks reorganize when you occupy their position.",
+        "none": {
+          "title": "None",
+          "description": "Does not reorganize items; occupied positions are rejected."
+        },
+        "cascade": {
+          "title": "Sequence",
+          "description": "Shifts the bookmark chain toward the available gap.",
+          "experimental": "Experimental · May contain minor bugs."
+        },
+        "relocate": {
+          "title": "Relocation",
+          "description": "Moves occupied bookmarks to the vacated area or the nearest free space."
+        }
+      },
       "presets": {
         "title": "Style library",
         "name": "Preset name",

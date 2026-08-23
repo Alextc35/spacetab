@@ -10,6 +10,33 @@ export const RESIZE_DIRECTIONS = [
 ];
 
 /**
+ * Returns the one-cell movement used by a resize-handle click. Holding Shift
+ * reverses the edge movement so the rectangle shrinks instead of growing.
+ *
+ * @param {string} direction
+ * @param {number} cellWidth
+ * @param {number} cellHeight
+ * @param {boolean} [shrink=false]
+ * @returns {{deltaX:number, deltaY:number}}
+ */
+export function getResizeClickDelta(
+  direction,
+  cellWidth,
+  cellHeight,
+  shrink = false
+) {
+  const multiplier = shrink ? -1 : 1;
+  return {
+    deltaX: direction.includes('left')
+      ? -cellWidth * multiplier
+      : direction.includes('right') ? cellWidth * multiplier : 0,
+    deltaY: direction.includes('top')
+      ? -cellHeight * multiplier
+      : direction.includes('bottom') ? cellHeight * multiplier : 0
+  };
+}
+
+/**
  * Calculates continuous pixel edges and their nearest valid grid rectangle.
  * Moving edges are clamped to the grid and can never cross the opposite edge.
  *

@@ -1,6 +1,9 @@
 import '../../types/types.js'; // typedefs
-import { updateBookmarkById } from '../../core/bookmark.js';
-import { addBookmarkToFolder, getGridItemsInGroup } from '../../core/bookmarkFolders.js';
+import {
+  addBookmarkToFolder,
+  getGridItemsInGroup,
+  updateGridItemsByIds
+} from '../../core/bookmarkFolders.js';
 import { GRID_COLS, GRID_ROWS, PADDING } from '../../core/config.js';
 import { isAreaFree } from '../../core/grid.js';
 import { getState } from '../../core/store.js';
@@ -8,39 +11,47 @@ import { flashSuccess } from '../flash.js';
 import { toggleBookmarkSelection } from './selection.js';
 import {
   calculateResizeGeometry,
+  getResizeClickDelta,
   RESIZE_DIRECTIONS
 } from './resizeGeometry.js';
+import { calculateSmartDragLayout } from './smartDragLayout.js';
 
 let dragging = false;
 let resizing = false;
+const SMART_MOVE_DURATION = 180;
+const SELECTION_CLICK_MAX_DURATION = 300;
+const smartDragOwners = new WeakMap();
 
 /**
- * Enables drag and resize behavior for a bookmark element.
+ * Enables drag and resize behavior for a bookmark or folder element.
  *
  * Handles:
- * - Grid-based dragging with collision detection.
- * - Continuous resizing from all four sides and corners.
- * - Middle-click selection shortcut.
+ * - Reversible smart dragging with automatic bookmark displacement.
+ * - Continuous or one-click resizing from all four sides and corners.
+ * - Short-click and middle-click selection shortcuts for bookmarks.
  * - State persistence via store updates.
  *
  * @param {HTMLElement} container - Grid container element.
- * @param {HTMLElement} div - Bookmark DOM element.
- * @param {Bookmark} bookmark - Bookmark data object.
+ * @param {HTMLElement} div - Grid item DOM element.
+ * @param {Bookmark|BookmarkFolder} item - Grid item data object.
+ * @param {Object} [options]
+ * @param {'bookmark'|'folder'} [options.kind='bookmark']
  * @returns {void}
  */
-export function addDragAndResize(container, div, bookmark) {
+export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {}) {
   let startX = 0, startY = 0;
   let startLeft = 0, startTop = 0;
 
-  let tempGX = bookmark.gx;
-  let tempGY = bookmark.gy;
   let folderTarget = null;
+  let dragSession = null;
+  let moved = false;
+  let pressStartedAt = 0;
 
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
 
   div.addEventListener('auxclick', e => {
-    if (e.button !== 1) return;
+    if (kind !== 'bookmark' || e.button !== 1) return;
     e.preventDefault();
     e.stopPropagation();
   });
@@ -48,11 +59,11 @@ export function addDragAndResize(container, div, bookmark) {
   div.addEventListener('pointerdown', e => {
     if (resizing) return;
 
-    // Middle click toggles the same selection exposed by the three-dot control.
-    if (e.button === 1) {
+    // Middle click keeps the quick selection shortcut without opening a tab.
+    if (kind === 'bookmark' && e.button === 1) {
       e.preventDefault();
       e.stopPropagation();
-      const selected = toggleBookmarkSelection(bookmark.id);
+      const selected = toggleBookmarkSelection(item.id);
       div.classList.toggle('is-selected', selected);
       return;
     }
@@ -68,9 +79,10 @@ export function addDragAndResize(container, div, bookmark) {
     startY = e.clientY;
     startLeft = div.offsetLeft;
     startTop = div.offsetTop;
+    pressStartedAt = e.timeStamp;
 
-    tempGX = bookmark.gx;
-    tempGY = bookmark.gy;
+    moved = false;
+    dragSession = createSmartDragSession(container, item, kind);
 
     div.classList.add('is-dragging');
     div.setPointerCapture(e.pointerId);
@@ -81,6 +93,7 @@ export function addDragAndResize(container, div, bookmark) {
 
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
+    if (Math.hypot(dx, dy) > 4) moved = true;
 
     let newLeft = startLeft + dx;
     let newTop = startTop + dy;
@@ -88,10 +101,14 @@ export function addDragAndResize(container, div, bookmark) {
     let newGX = Math.round(newLeft / rowWidth);
     let newGY = Math.round(newTop / rowHeight);
 
-    newGX = Math.max(0, Math.min(newGX, GRID_COLS - bookmark.w));
-    newGY = Math.max(0, Math.min(newGY, GRID_ROWS - bookmark.h));
+    newGX = Math.max(0, Math.min(newGX, GRID_COLS - item.w));
+    newGY = Math.max(0, Math.min(newGY, GRID_ROWS - item.h));
 
-    const nextFolderTarget = findFolderTarget(e.clientX, e.clientY);
+    updateCascadeDirection(dragSession, { gx: newGX, gy: newGY });
+
+    const nextFolderTarget = kind === 'bookmark'
+      ? findFolderTarget(e.clientX, e.clientY)
+      : null;
     if (nextFolderTarget) {
       setFolderTarget(nextFolderTarget);
       div.classList.remove('is-invalid');
@@ -99,59 +116,86 @@ export function addDragAndResize(container, div, bookmark) {
     }
     setFolderTarget(null);
 
-    if (
-      isAreaFree(
-        getGridItemsInGroup(getState().data, bookmark.groupId),
-        newGX,
-        newGY,
-        bookmark.w,
-        bookmark.h,
-        bookmark.id
-      )
-    ) {
-      tempGX = newGX;
-      tempGY = newGY;
-
-      applyPosition(container, div, newGX, newGY);
+    const layout = calculateSmartDragLayout({
+      items: dragSession.items,
+      draggedId: item.id,
+      target: { gx: newGX, gy: newGY },
+      movableIds: dragSession.movableIds,
+      mode: dragSession.mode,
+      cascadeStep: dragSession.cascadeStep,
+      previewPositions: dragSession.activeLayout.positions,
+      columns: GRID_COLS,
+      rows: GRID_ROWS
+    });
+    if (layout.isValid) {
+      dragSession.activeLayout = layout;
+      dragSession.dropIsValid = true;
+      applySmartDragPreview(container, dragSession, layout);
       div.classList.remove('is-invalid');
     } else {
+      dragSession.dropIsValid = false;
       div.classList.add('is-invalid');
     }
   });
 
-  const finishDrag = async (commit = true) => {
+  const finishDrag = (commit = true, event = null) => {
     if (!dragging || resizing) return;
 
     dragging = false;
     div.classList.remove('is-dragging', 'is-invalid');
     div.style.zIndex = '';
+    if (kind === 'folder' && moved) suppressFolderOpen(div);
+
+    const isSelectionClick = commit
+      && kind === 'bookmark'
+      && !moved
+      && event
+      && event.timeStamp - pressStartedAt <= SELECTION_CLICK_MAX_DURATION;
+    if (isSelectionClick) {
+      setFolderTarget(null);
+      restoreSmartDragPreview(container, dragSession);
+      dragSession = null;
+      const selected = toggleBookmarkSelection(item.id);
+      div.classList.toggle('is-selected', selected);
+      return;
+    }
 
     if (!commit) {
       setFolderTarget(null);
-      applyPosition(container, div, bookmark.gx, bookmark.gy);
+      restoreSmartDragPreview(container, dragSession);
+      dragSession = null;
       return;
     }
 
     if (folderTarget) {
       const targetId = folderTarget.dataset.folderId;
       setFolderTarget(null);
-      if (addBookmarkToFolder(bookmark.id, targetId)) {
+      restoreSmartDragPreview(container, dragSession);
+      dragSession = null;
+      if (addBookmarkToFolder(item.id, targetId)) {
         flashSuccess('flash.folder.bookmarkAdded');
       }
       return;
     }
 
-    // Persist changes via store
-    if (tempGX !== bookmark.gx || tempGY !== bookmark.gy) {
-      updateBookmarkById(bookmark.id, {
-        gx: tempGX,
-        gy: tempGY
-      });
+    if (!dragSession.dropIsValid) {
+      restoreSmartDragPreview(container, dragSession);
+      dragSession = null;
+      return;
     }
+
+    const changed = commitSmartDragLayout(dragSession);
+    if (changed) {
+      scheduleSmartPreviewCleanup(dragSession, false);
+    } else {
+      restoreSmartDragPreview(container, dragSession);
+    }
+    dragSession = null;
   };
 
-  div.addEventListener('pointerup', () => finishDrag(true));
-  div.addEventListener('pointercancel', () => finishDrag(false));
+  div.addEventListener('pointerup', event => finishDrag(true, event));
+  div.addEventListener('pointercancel', event => finishDrag(false, event));
+  div.addEventListener('lostpointercapture', event => finishDrag(false, event));
 
   function setFolderTarget(nextTarget) {
     if (folderTarget === nextTarget) return;
@@ -175,13 +219,173 @@ export function addDragAndResize(container, div, bookmark) {
     resizer.addEventListener('pointerdown', (e) => {
       e.stopPropagation();
       e.preventDefault();
-      handleResize(container, e, div, bookmark, direction, resizer, resizeIndicator);
+      handleResize(container, e, div, item, direction, resizer, resizeIndicator);
     });
   });
 }
 
+function createSmartDragSession(container, item, kind) {
+  const { data } = getState();
+  const groupId = item.groupId ?? null;
+  const items = getGridItemsInGroup(data, groupId);
+  const bookmarkIds = new Set(data.bookmarks
+    .filter(bookmark => !bookmark.folderId)
+    .map(bookmark => bookmark.id));
+  const movableIds = items
+    .filter(gridItem => kind === 'folder' || bookmarkIds.has(gridItem.id))
+    .map(gridItem => gridItem.id);
+  const movable = new Set(movableIds);
+  const originals = new Map(items
+    .filter(item => movable.has(item.id))
+    .map(item => [item.id, pickGridPosition(item)]));
+  const elements = new Map(Array.from(
+    container.querySelectorAll(
+      '.bookmark[data-bookmark-id], .bookmark-folder[data-folder-id]'
+    )
+  ).map(element => [getGridItemId(element), element]));
+  const inheritedTouchedIds = new Set(Array.from(elements)
+    .filter(([, element]) => element.classList.contains('is-smart-moving'))
+    .map(([id]) => id));
+  const owner = {};
+  for (const element of elements.values()) smartDragOwners.set(element, owner);
+  const currentItem = items.find(gridItem => gridItem.id === item.id) ?? item;
+
+  return {
+    owner,
+    draggedId: item.id,
+    mode: data.settings.bookmarkDragMode,
+    items,
+    movableIds,
+    originals,
+    elements,
+    touchedIds: inheritedTouchedIds,
+    lastTarget: pickGridPosition(currentItem),
+    cascadeStep: null,
+    dropIsValid: true,
+    activeLayout: {
+      isValid: true,
+      positions: [{
+        id: item.id,
+        gx: currentItem.gx,
+        gy: currentItem.gy
+      }],
+      displacedIds: []
+    }
+  };
+}
+
+function applySmartDragPreview(container, session, layout) {
+  const positions = new Map(layout.positions.map(position => [position.id, position]));
+  const displaced = new Set(layout.displacedIds);
+
+  for (const [id, original] of session.originals) {
+    const element = session.elements.get(id);
+    if (!element) continue;
+
+    if (id === session.draggedId) {
+      const position = positions.get(id) ?? original;
+      applyPosition(container, element, position.gx, position.gy);
+      continue;
+    }
+
+    if (!positions.has(id) && !session.touchedIds.has(id)) continue;
+
+    prepareSmartMovement(element);
+    const position = positions.get(id) ?? original;
+    applyPosition(container, element, position.gx, position.gy);
+    element.classList.toggle('is-smart-displaced', displaced.has(id));
+    session.touchedIds.add(id);
+  }
+}
+
+function restoreSmartDragPreview(container, session) {
+  if (!session) return;
+
+  for (const [id, original] of session.originals) {
+    if (id !== session.draggedId && !session.touchedIds.has(id)) continue;
+    const element = session.elements.get(id);
+    if (!element) continue;
+
+    if (id !== session.draggedId) prepareSmartMovement(element);
+    applyPosition(container, element, original.gx, original.gy);
+    element.classList.remove('is-smart-displaced');
+  }
+
+  scheduleSmartPreviewCleanup(session, true);
+}
+
+function prepareSmartMovement(element) {
+  if (element.classList.contains('is-smart-moving')) return;
+  element.classList.add('is-smart-moving');
+  element.getBoundingClientRect();
+}
+
+function commitSmartDragLayout(session) {
+  if (!session) return false;
+
+  const changed = new Map();
+  for (const position of session.activeLayout.positions) {
+    const original = session.originals.get(position.id);
+    if (
+      original
+      && (position.gx !== original.gx || position.gy !== original.gy)
+    ) {
+      changed.set(position.id, { gx: position.gx, gy: position.gy });
+    }
+  }
+
+  if (!changed.size) return false;
+  updateGridItemsByIds(changed);
+  return true;
+}
+
+function updateCascadeDirection(session, target) {
+  const dx = target.gx - session.lastTarget.gx;
+  const dy = target.gy - session.lastTarget.gy;
+  if (dx === 0 && dy === 0) return;
+
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    session.cascadeStep = { gx: -Math.sign(dx), gy: 0 };
+  } else {
+    session.cascadeStep = { gx: 0, gy: -Math.sign(dy) };
+  }
+  session.lastTarget = target;
+}
+
+function getGridItemId(element) {
+  return element.dataset.bookmarkId ?? element.dataset.folderId;
+}
+
+function suppressFolderOpen(element) {
+  element.dataset.suppressFolderOpen = 'true';
+  setTimeout(() => delete element.dataset.suppressFolderOpen, 0);
+}
+
+function scheduleSmartPreviewCleanup(session, removeInlinePositions) {
+  const elements = [
+    session.elements.get(session.draggedId),
+    ...Array.from(session.touchedIds, id => session.elements.get(id))
+  ].filter(Boolean);
+
+  setTimeout(() => {
+    for (const element of elements) {
+      if (smartDragOwners.get(element) !== session.owner) continue;
+      element.classList.remove('is-smart-moving', 'is-smart-displaced');
+      if (removeInlinePositions) {
+        element.style.removeProperty('left');
+        element.style.removeProperty('top');
+      }
+      smartDragOwners.delete(element);
+    }
+  }, SMART_MOVE_DURATION);
+}
+
+function pickGridPosition(item) {
+  return { gx: item.gx, gy: item.gy };
+}
+
 /**
- * Handles resize interaction for a bookmark.
+ * Handles resize interaction for a bookmark or folder.
  *
  * Dynamically recalculates grid position and dimensions while ensuring:
  * - Minimum size constraints.
@@ -192,14 +396,14 @@ export function addDragAndResize(container, div, bookmark) {
  *
  * @param {HTMLElement} container - Grid container element.
  * @param {PointerEvent} e - Initial pointer event.
- * @param {HTMLElement} div - Bookmark DOM element.
- * @param {Bookmark} bookmark - Bookmark data object.
+ * @param {HTMLElement} div - Grid item DOM element.
+ * @param {Bookmark|BookmarkFolder} item - Grid item data object.
  * @param {string} direction - Side or corner being dragged.
  * @param {HTMLElement} handle - Active resize handle.
  * @param {HTMLElement} indicator - Grid size feedback element.
  * @returns {void}
  */
-function handleResize(container, e, div, bookmark, direction, handle, indicator) {
+function handleResize(container, e, div, item, direction, handle, indicator) {
   if (e.button !== 0 || resizing) return;
 
   resizing = true;
@@ -209,10 +413,10 @@ function handleResize(container, e, div, bookmark, direction, handle, indicator)
   const startMouseX = e.clientX;
   const startMouseY = e.clientY;
   const pointerId = e.pointerId;
-  const start = pickGridRectangle(bookmark);
+  const start = pickGridRectangle(item);
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
-  let lastValid = start;
+  let latestIsValid = true;
   let latestGeometry = calculateResizeGeometry({
     direction,
     deltaX: 0,
@@ -225,6 +429,7 @@ function handleResize(container, e, div, bookmark, direction, handle, indicator)
   });
   let animationFrame = null;
   let active = true;
+  let moved = false;
 
   indicator.textContent = formatGridSize(start);
   handle.setPointerCapture(pointerId);
@@ -232,10 +437,14 @@ function handleResize(container, e, div, bookmark, direction, handle, indicator)
   const onMove = (ev) => {
     if (!active || ev.pointerId !== pointerId) return;
 
+    const deltaX = ev.clientX - startMouseX;
+    const deltaY = ev.clientY - startMouseY;
+    if (Math.hypot(deltaX, deltaY) > 4) moved = true;
+
     latestGeometry = calculateResizeGeometry({
       direction,
-      deltaX: ev.clientX - startMouseX,
-      deltaY: ev.clientY - startMouseY,
+      deltaX,
+      deltaY,
       start,
       cellWidth: rowWidth,
       cellHeight: rowHeight,
@@ -245,15 +454,15 @@ function handleResize(container, e, div, bookmark, direction, handle, indicator)
 
     const { grid } = latestGeometry;
     const isValid = isAreaFree(
-      getGridItemsInGroup(getState().data, bookmark.groupId),
+      getGridItemsInGroup(getState().data, item.groupId),
       grid.gx,
       grid.gy,
       grid.w,
       grid.h,
-      bookmark.id
+      item.id
     );
 
-    if (isValid) lastValid = grid;
+    latestIsValid = isValid;
     div.classList.toggle('is-invalid', !isValid);
     indicator.textContent = formatGridSize(grid);
     queueResizeFrame();
@@ -282,23 +491,50 @@ function handleResize(container, e, div, bookmark, direction, handle, indicator)
     handle.classList.remove('is-active');
     div.classList.remove('is-resizing', 'is-invalid');
 
-    const target = commit ? lastValid : start;
+    let target = start;
+    if (commit && moved && latestIsValid) target = latestGeometry.grid;
+    if (commit && !moved) {
+      const clickDelta = getResizeClickDelta(
+        direction,
+        rowWidth,
+        rowHeight,
+        e.shiftKey
+      );
+      const clickTarget = calculateResizeGeometry({
+        direction,
+        ...clickDelta,
+        start,
+        cellWidth: rowWidth,
+        cellHeight: rowHeight,
+        columns: GRID_COLS,
+        rows: GRID_ROWS
+      }).grid;
+      const clickIsValid = isAreaFree(
+        getGridItemsInGroup(getState().data, item.groupId),
+        clickTarget.gx,
+        clickTarget.gy,
+        clickTarget.w,
+        clickTarget.h,
+        item.id
+      );
+      if (clickIsValid) target = clickTarget;
+    }
     applyGridGeometry(container, div, target);
 
     if (
       commit && (
-        target.gx !== bookmark.gx ||
-        target.gy !== bookmark.gy ||
-        target.w !== bookmark.w ||
-        target.h !== bookmark.h
+        target.gx !== item.gx ||
+        target.gy !== item.gy ||
+        target.w !== item.w ||
+        target.h !== item.h
       )
     ) {
-      updateBookmarkById(bookmark.id, {
+      updateGridItemsByIds(new Map([[item.id, {
         gx: target.gx,
         gy: target.gy,
         w: target.w,
         h: target.h
-      });
+      }]]));
     }
   };
 
@@ -318,12 +554,12 @@ function handleResize(container, e, div, bookmark, direction, handle, indicator)
   handle.addEventListener('lostpointercapture', onLostPointerCapture);
 }
 
-function pickGridRectangle(bookmark) {
+function pickGridRectangle(item) {
   return {
-    gx: bookmark.gx,
-    gy: bookmark.gy,
-    w: bookmark.w,
-    h: bookmark.h
+    gx: item.gx,
+    gy: item.gy,
+    w: item.w,
+    h: item.h
   };
 }
 

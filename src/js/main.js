@@ -7,6 +7,7 @@ import { clearBookmarkSelection } from './ui/bookmark/selection.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
 import { initWorkspaceToolbar } from './ui/workspaceToolbar.js';
 import { initBulkBookmarkActions } from './ui/bookmark/bulkActions.js';
+import { initBookmarkKeyboardMovement } from './ui/bookmark/keyboardMovement.js';
 import { initFolderController } from './ui/folder/controller.js';
 import { initBookmarkModal,
   initAlertModal, initFolderModal, initSearchModal, initSettingsModal } from './ui/modals/index.js';
@@ -51,6 +52,7 @@ async function initApp() {
   initModals();
   initWorkspaceToolbar();
   initBulkBookmarkActions();
+  initBookmarkKeyboardMovement();
   initFolderController();
 
   if (DEBUG) {

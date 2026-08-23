@@ -11,6 +11,7 @@ const SYNC_META_KEY = 'spacetabSyncMeta';
 const SYNC_CHUNK_PREFIX = 'spacetabSyncChunk:';
 const SYNC_FORMAT_VERSION = 1;
 const SYNC_ITEM_SAFE_BYTES = 7600;
+const LEGACY_SYNC_KEYS = ['schemaVersion', 'bookmarks', 'folders', 'settings'];
 
 /** @type {'local'|'sync'} */
 let activeMode = STORAGE_MODES.LOCAL;
@@ -258,6 +259,43 @@ async function writeSyncData(data) {
   }
 }
 
+function isSpaceTabSyncKey(key) {
+  return key === SYNC_META_KEY
+    || key.startsWith(SYNC_CHUNK_PREFIX)
+    || LEGACY_SYNC_KEYS.includes(key);
+}
+
+/**
+ * Reads lightweight information about the remote SpaceTab payload without
+ * hydrating or migrating it.
+ *
+ * @returns {Promise<{hasData: boolean, updatedAt: number|null}>}
+ */
+async function getSyncMetadata() {
+  const values = await callStorage(chrome.storage.sync, 'get', null);
+  const syncKeys = Object.keys(values).filter(isSpaceTabSyncKey);
+  const updatedAt = values[SYNC_META_KEY]?.updatedAt;
+
+  return {
+    hasData: syncKeys.length > 0,
+    updatedAt: Number.isFinite(updatedAt) ? updatedAt : null
+  };
+}
+
+/**
+ * Deletes only SpaceTab-owned values from synchronized extension storage.
+ *
+ * @returns {Promise<boolean>} Whether any synchronized values were removed.
+ */
+async function clearSyncData() {
+  const values = await callStorage(chrome.storage.sync, 'get', null);
+  const keys = Object.keys(values).filter(isSpaceTabSyncKey);
+
+  if (!keys.length) return false;
+  await callStorage(chrome.storage.sync, 'remove', keys);
+  return true;
+}
+
 /**
  * Reads raw application data from a selected storage area.
  *
@@ -303,6 +341,8 @@ async function initialize() {
  */
 export const storage = {
   initialize,
+  getSyncMetadata,
+  clearSyncData,
 
   /** @returns {'local'|'sync'} */
   getMode() {

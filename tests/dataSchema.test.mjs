@@ -9,6 +9,7 @@ import {
   parseBookmarksPayload
 } from '../src/js/core/dataSchema.js';
 import { DATA_SCHEMA_VERSION, DEFAULT_SETTINGS } from '../src/js/core/defaults.js';
+import { BOOKMARK_DRAG_MODES } from '../src/js/core/bookmarkDragModes.js';
 
 test('migrates legacy data and removes identity from the default preset', () => {
   const migrated = migratePersistedData({
@@ -29,7 +30,26 @@ test('migrates legacy data and removes identity from the default preset', () => 
   assert.equal(migrated.settings.bookmarkDefault.name, undefined);
   assert.equal(migrated.settings.bookmarkDefault.url, undefined);
   assert.equal(migrated.settings.bookmarkDefault.backgroundColor, '#123456');
+  assert.equal(migrated.settings.bookmarkDragMode, BOOKMARK_DRAG_MODES.RELOCATE);
   assert.deepEqual(Object.keys(migrated.settings.theme), Object.keys(DEFAULT_SETTINGS.theme));
+});
+
+test('normalizes unsupported bookmark drag modes to relocation', () => {
+  const migrated = migratePersistedData({
+    bookmarks: [],
+    settings: { ...DEFAULT_SETTINGS, bookmarkDragMode: 'unknown' }
+  });
+
+  assert.equal(migrated.settings.bookmarkDragMode, BOOKMARK_DRAG_MODES.RELOCATE);
+});
+
+test('preserves the none bookmark drag mode', () => {
+  const migrated = migratePersistedData({
+    bookmarks: [],
+    settings: { ...DEFAULT_SETTINGS, bookmarkDragMode: BOOKMARK_DRAG_MODES.NONE }
+  });
+
+  assert.equal(migrated.settings.bookmarkDragMode, BOOKMARK_DRAG_MODES.NONE);
 });
 
 test('creates and parses a versioned complete backup', () => {
@@ -128,8 +148,8 @@ test('normalizes folder references and rejects cross-workspace membership', () =
     }
   });
 
-  assert.equal(migrated.folders[0].w, 1);
-  assert.equal(migrated.folders[0].h, 1);
+  assert.equal(migrated.folders[0].w, 5);
+  assert.equal(migrated.folders[0].h, 4);
   assert.equal(migrated.bookmarks[0].folderId, 'work-folder');
   assert.equal(migrated.bookmarks[1].folderId, null);
   assert.equal(migrated.bookmarks[2].folderId, null);

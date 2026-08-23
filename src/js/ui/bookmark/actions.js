@@ -5,13 +5,9 @@ import { showAlert } from '../modals/alert.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { isVisuallyDark } from './utils.js';
 import { flashSuccess, flashError } from '../flash.js';
-import {
-  isBookmarkSelected,
-  toggleBookmarkSelection
-} from './selection.js';
 
 /**
- * Adds direct selection and edit controls to a bookmark element.
+ * Adds the direct edit control to a bookmark element.
  *
  * The button theme adapts automatically based on the bookmark's
  * perceived visual brightness.
@@ -23,22 +19,15 @@ import {
 export function addBookmarkActions(container, bookmark) {
   const themeClass = isVisuallyDark(bookmark) ? 'is-dark' : 'is-light';
   const actions = document.createElement('div');
-  actions.className = 'item-actions bookmark-item-actions';
+  actions.className = 'item-actions';
   actions.setAttribute('role', 'group');
   actions.setAttribute('aria-label', t('bookmarkActions.ariaLabel'));
-
-  const selectBtn = createItemActionButton('•••', 'select', themeClass, () => {
-    const selected = toggleBookmarkSelection(bookmark.id);
-    syncSelectionControl(container, selectBtn, selected);
-  });
-  selectBtn.classList.add('bookmark-select-toggle');
-  syncSelectionControl(container, selectBtn, isBookmarkSelected(bookmark.id));
 
   const editBtn = createItemActionButton('✎', 'edit', themeClass, () => {
     openEditBookmark(bookmark.id);
   });
   editBtn.setAttribute('aria-label', t('bookmarkActions.edit'));
-  actions.append(selectBtn, editBtn);
+  actions.append(editBtn);
   container.append(actions);
 }
 
@@ -58,14 +47,6 @@ export function createItemActionButton(text, type, themeClass, onClick) {
   btn.textContent = text;
   btn.addEventListener('click', e => { e.stopPropagation(); onClick(); });
   return btn;
-}
-
-function syncSelectionControl(container, button, selected) {
-  container.classList.toggle('is-selected', selected);
-  button.setAttribute('aria-pressed', String(selected));
-  button.setAttribute('aria-label', t(
-    selected ? 'bookmarkActions.deselect' : 'bookmarkActions.select'
-  ));
 }
 
 /**

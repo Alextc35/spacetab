@@ -7,9 +7,11 @@ import { deleteAllBookmarks } from '../../bookmark/actions.js';
 import { initImportExportButtons } from '../../bookmark/importExport.js';
 import {
   getDraftBookmarkDefault,
+  getDraftBookmarkDragMode,
   getDraftBookmarkPresets,
   replaceDraftBookmarkDefault,
-  replaceDraftBookmarkPresets
+  replaceDraftBookmarkPresets,
+  setDraftBookmarkDragMode
 } from './settingsState.js';
 
 /**
@@ -31,6 +33,9 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   const presetSave = document.getElementById('settings-preset-save');
   const presetApply = document.getElementById('settings-preset-apply');
   const presetDelete = document.getElementById('settings-preset-delete');
+  const dragModeInputs = Array.from(document.querySelectorAll(
+    'input[name="bookmark-drag-mode"]'
+  ));
 
   initImportExportButtons(exportBtn, importInput);
 
@@ -78,6 +83,15 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
 
   presetName.addEventListener('input', () => presetName.setCustomValidity(''));
 
+  for (const input of dragModeInputs) {
+    input.addEventListener('change', () => {
+      if (!input.checked) return;
+      setDraftBookmarkDragMode(input.value);
+      renderDragMode();
+      onRequestSaveStateUpdate();
+    });
+  }
+
   presetApply.addEventListener('click', () => {
     const selected = getDraftBookmarkPresets().find(preset => preset.id === presetSelect.value);
     if (!selected) return;
@@ -111,7 +125,19 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
     presetDelete.disabled = presets.length === 0;
   }
 
+  function renderDragMode() {
+    const mode = getDraftBookmarkDragMode();
+    for (const input of dragModeInputs) {
+      input.checked = input.value === mode;
+      input.closest('.drag-mode-option')?.classList.toggle(
+        'is-selected',
+        input.checked
+      );
+    }
+  }
+
   function syncUI() {
+    renderDragMode();
     renderPresetOptions();
     onRequestSaveStateUpdate();
   }

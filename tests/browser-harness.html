@@ -69,6 +69,26 @@
         }
       };
 
+      const browserProfile = new URLSearchParams(location.search).get('browser');
+      const brands = browserProfile === 'brave'
+        ? [{ brand: 'Chromium', version: '140' }]
+        : [
+            { brand: 'Chromium', version: '140' },
+            { brand: 'Google Chrome', version: '140' }
+          ];
+
+      Object.defineProperty(navigator, 'userAgentData', {
+        configurable: true,
+        value: { brands }
+      });
+
+      if (browserProfile === 'brave') {
+        Object.defineProperty(navigator, 'brave', {
+          configurable: true,
+          value: { isBrave: () => Promise.resolve(true) }
+        });
+      }
+
       const source = await fetch('../src/newtab.html').then(response => response.text());
       const parsed = new DOMParser().parseFromString(source, 'text/html');
       document.body.replaceChildren(...parsed.body.children);

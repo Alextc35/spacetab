@@ -1,5 +1,6 @@
 // settingsState.js
-import { getState } from '../../../core/store.js'
+import { normalizeBookmarkDragMode } from '../../../core/bookmarkDragModes.js';
+import { getState } from '../../../core/store.js';
 
 /**
  * Draft theme state used while the settings modal is open.
@@ -18,6 +19,9 @@ let draftBookmarkDefault = null;
 
 /** Named appearance presets edited alongside the default bookmark appearance. */
 let draftBookmarkPresets = null;
+
+/** Drag collision behavior selected for bookmarks. */
+let draftBookmarkDragMode = null;
 
 /**
  * Per-device persistence mode selected in the settings modal.
@@ -52,6 +56,7 @@ export function initDraft(settings, storageMode) {
   draftLanguage = settings.language;
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
   draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
+  draftBookmarkDragMode = normalizeBookmarkDragMode(settings.bookmarkDragMode);
   draftStorageMode = storageMode;
 }
 
@@ -65,6 +70,7 @@ export function resetState() {
   draftLanguage = null;
   draftBookmarkDefault = null;
   draftBookmarkPresets = null;
+  draftBookmarkDragMode = null;
   draftStorageMode = null;
   initialSnapshot = null;
 }
@@ -108,6 +114,12 @@ export function getDraftBookmarkPresets() {
   return draftBookmarkPresets ?? settings.bookmarkPresets ?? [];
 }
 
+export function getDraftBookmarkDragMode() {
+  const { data: { settings } } = getState();
+  return draftBookmarkDragMode
+    ?? normalizeBookmarkDragMode(settings.bookmarkDragMode);
+}
+
 /**
  * Returns the selected per-device persistence mode.
  *
@@ -149,6 +161,19 @@ export function setDraftStorageMode(storageMode) {
 }
 
 /**
+ * Reconciles a storage-mode change that was already applied outside the normal
+ * settings save flow, while preserving every other draft edit.
+ */
+export function reconcileDraftStorageMode(storageMode) {
+  draftStorageMode = storageMode;
+  if (initialSnapshot) initialSnapshot.storageMode = storageMode;
+}
+
+export function setDraftBookmarkDragMode(mode) {
+  draftBookmarkDragMode = normalizeBookmarkDragMode(mode);
+}
+
+/**
  * Updates a single field inside the draft theme object.
  *
  * Does nothing if the draft theme has not been initialized yet.
@@ -187,12 +212,13 @@ export function replaceDraftBookmarkPresets(presets) {
   draftBookmarkPresets = structuredClone(presets);
 }
 
-/** Replaces every editable settings draft while preserving the mode choice. */
+/** Replaces every editable settings draft while preserving the storage choice. */
 export function replaceDraftSettings(settings) {
   draftTheme = structuredClone(settings.theme);
   draftLanguage = settings.language;
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
   draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
+  draftBookmarkDragMode = normalizeBookmarkDragMode(settings.bookmarkDragMode);
 }
 
 /* ==================================================
@@ -218,6 +244,7 @@ export function hasChanges() {
     storageMode: draftStorageMode,
     language: draftLanguage,
     theme: draftTheme,
+    bookmarkDragMode: draftBookmarkDragMode,
     bookmarkDefault: draftBookmarkDefault,
     bookmarkPresets: draftBookmarkPresets
   };
@@ -225,6 +252,7 @@ export function hasChanges() {
     storageMode: initialSnapshot.storageMode,
     language: initialSnapshot.language,
     theme: initialSnapshot.theme,
+    bookmarkDragMode: normalizeBookmarkDragMode(initialSnapshot.bookmarkDragMode),
     bookmarkDefault: initialSnapshot.bookmarkDefault,
     bookmarkPresets: initialSnapshot.bookmarkPresets ?? []
   };
@@ -242,12 +270,13 @@ export function hasChanges() {
  * The returned object is fully cloned where needed
  * to avoid leaking draft references.
  *
- * @returns {{ language: string|null, theme: Object|null, bookmarkDefault: Object|null }}
+ * @returns {Settings}
  */
 export function buildNewSettings() {
   return {
     language: draftLanguage,
     theme: structuredClone(draftTheme),
+    bookmarkDragMode: draftBookmarkDragMode,
     bookmarkDefault: structuredClone(draftBookmarkDefault),
     bookmarkPresets: structuredClone(draftBookmarkPresets),
     bookmarkGroups: structuredClone(initialSnapshot?.bookmarkGroups ?? []),

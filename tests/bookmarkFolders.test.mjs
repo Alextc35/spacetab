@@ -36,7 +36,8 @@ const {
   addBookmarkToFolder,
   createBookmarkFolder,
   deleteBookmarkFolder,
-  removeBookmarkFromFolder
+  removeBookmarkFromFolder,
+  updateGridItemsByIds
 } = await import('../src/js/core/bookmarkFolders.js');
 const { getState, hydrateStore, setState } = await import('../src/js/core/store.js');
 
@@ -75,6 +76,36 @@ test('deleting a folder deletes its contained bookmarks atomically', () => {
   assert.deepEqual(result, { deleted: true, bookmarkCount: 1 });
   assert.deepEqual(getState().data.folders, []);
   assert.deepEqual(getState().data.bookmarks, []);
+});
+
+test('updates bookmark and folder rectangles atomically', async () => {
+  await setState({
+    data: {
+      bookmarks: [{
+        id: 'grid-bookmark', name: 'Bookmark', groupId: null, folderId: null,
+        gx: 0, gy: 0, w: 1, h: 1
+      }],
+      folders: [{
+        id: 'grid-folder', name: 'Folder', groupId: null,
+        gx: 1, gy: 0, w: 1, h: 1, createdAt: 1, updatedAt: 1
+      }]
+    }
+  });
+
+  const changed = updateGridItemsByIds(new Map([
+    ['grid-bookmark', { gx: 3, gy: 0 }],
+    ['grid-folder', { gx: 0, gy: 0, w: 2, h: 2 }]
+  ]));
+
+  assert.equal(changed.length, 2);
+  assert.deepEqual(
+    getState().data.bookmarks.map(({ gx, gy, w, h }) => ({ gx, gy, w, h })),
+    [{ gx: 3, gy: 0, w: 1, h: 1 }]
+  );
+  assert.deepEqual(
+    getState().data.folders.map(({ gx, gy, w, h }) => ({ gx, gy, w, h })),
+    [{ gx: 0, gy: 0, w: 2, h: 2 }]
+  );
 });
 
 test('keeps a bookmark inside when the grid has no room to remove it', async () => {

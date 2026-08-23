@@ -91,11 +91,6 @@ export function initBulkBookmarkActions() {
     document.querySelectorAll('.bookmark[data-bookmark-id]').forEach(element => {
       const isSelected = selected.has(element.dataset.bookmarkId);
       element.classList.toggle('is-selected', isSelected);
-      const toggle = element.querySelector('.bookmark-select-toggle');
-      toggle?.setAttribute('aria-pressed', String(isSelected));
-      toggle?.setAttribute('aria-label', t(
-        isSelected ? 'bookmarkActions.deselect' : 'bookmarkActions.select'
-      ));
     });
     toolbar.classList.toggle('is-hidden', ids.length === 0);
     count.textContent = t('bulk.selected', { count: ids.length });

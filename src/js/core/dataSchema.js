@@ -8,6 +8,7 @@ import {
   normalizeBookmark,
   normalizeBookmarkPreset
 } from './bookmarkModel.js';
+import { normalizeBookmarkDragMode } from './bookmarkDragModes.js';
 
 /**
  * Upgrades and normalizes application data from every supported SpaceTab
@@ -86,6 +87,7 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
           : {})
       },
       bookmarkDefault: normalizeBookmarkPreset(rawSettings.bookmarkDefault),
+      bookmarkDragMode: normalizeBookmarkDragMode(rawSettings.bookmarkDragMode),
       bookmarkPresets: normalizeNamedPresets(rawSettings.bookmarkPresets),
       bookmarkGroups,
       activeBookmarkGroupId
@@ -105,8 +107,8 @@ function normalizeBookmarkFolder(folder, { index, now, bookmarkGroupIds }) {
       : `Folder ${index + 1}`,
     gx: normalizeGridValue(folder.gx),
     gy: normalizeGridValue(folder.gy),
-    w: 1,
-    h: 1,
+    w: normalizeGridSize(folder.w),
+    h: normalizeGridSize(folder.h),
     groupId,
     createdAt: normalizeTimestamp(folder.createdAt, now),
     updatedAt: normalizeTimestamp(folder.updatedAt, now)
@@ -115,6 +117,10 @@ function normalizeBookmarkFolder(folder, { index, now, bookmarkGroupIds }) {
 
 function normalizeGridValue(value) {
   return Number.isInteger(value) && value >= 0 ? value : 0;
+}
+
+function normalizeGridSize(value) {
+  return Number.isInteger(value) && value > 0 ? value : 1;
 }
 
 function normalizeTimestamp(value, fallback) {

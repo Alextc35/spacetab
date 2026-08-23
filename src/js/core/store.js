@@ -199,6 +199,30 @@ export function getStorageMode() {
   return storage.getMode();
 }
 
+/** @returns {Promise<{hasData: boolean, updatedAt: number|null}>} */
+export function getSyncedDataMetadata() {
+  return storage.getSyncMetadata();
+}
+
+/**
+ * Permanently removes the remote SpaceTab payload. If synchronized storage is
+ * active, the current state is copied locally before the remote data is
+ * removed so the device never loses its working data.
+ *
+ * @returns {Promise<{deleted: boolean, switchedToLocal: boolean}>}
+ */
+export async function deleteSyncedData() {
+  await persistenceQueue.catch(() => undefined);
+  const switchedToLocal = storage.getMode() === STORAGE_MODES.SYNC;
+
+  if (switchedToLocal) {
+    await changeStorageMode(STORAGE_MODES.LOCAL, state.data);
+  }
+
+  const deleted = await storage.clearSyncData();
+  return { deleted, switchedToLocal };
+}
+
 /**
  * Switches between device-only and browser-synchronized persistence.
  *

@@ -1,11 +1,11 @@
 import { t } from '../../core/i18n.js';
 import { applyGridItemPosition } from '../gridItemLayout.js';
 import { createFavicon } from '../bookmark/favicon.js';
+import { addDragAndResize } from '../bookmark/dragResize.js';
 import { openFolderModal } from '../modals/folderModal.js';
 import { addFolderActions } from './actions.js';
-import { addFolderDrag } from './drag.js';
 
-/** Creates a folder card that occupies one regular grid cell. */
+/** Creates a resizable folder card for the bookmark grid. */
 export function createFolderElement({ container, folder, bookmarks, isEditing }) {
   const element = document.createElement('div');
   element.className = 'bookmark bookmark-folder';
@@ -69,7 +69,7 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
 
   if (isEditing) {
     addFolderActions(element, folder);
-    addFolderDrag(container, element, folder);
+    addDragAndResize(container, element, folder, { kind: 'folder' });
   }
 
   return element;

@@ -38,10 +38,10 @@
 .folder-visual {
   position: relative;
   display: block;
-  width: min(78%, 108px);
-  height: min(56%, 80px);
+  width: min(72%, 160px);
+  height: min(58%, 128px);
   margin: 2px auto 7px;
-  flex: 0 1 80px;
+  flex: 0 1 128px;
   filter: drop-shadow(0 10px 12px rgba(2, 8, 23, .34));
 }
 

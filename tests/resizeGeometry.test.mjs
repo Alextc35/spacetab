@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   calculateResizeGeometry,
+  getResizeClickDelta,
   RESIZE_DIRECTIONS
 } from '../src/js/ui/bookmark/resizeGeometry.js';
 
@@ -24,6 +25,44 @@ test('exposes side and corner resize directions', () => {
     'left',
     'top-left'
   ]);
+});
+
+test('maps handle clicks to one outward grid cell', () => {
+  assert.deepEqual(getResizeClickDelta('top', 100, 80), {
+    deltaX: 0,
+    deltaY: -80
+  });
+  assert.deepEqual(getResizeClickDelta('right', 100, 80), {
+    deltaX: 100,
+    deltaY: 0
+  });
+  assert.deepEqual(getResizeClickDelta('bottom-left', 100, 80), {
+    deltaX: -100,
+    deltaY: 80
+  });
+  assert.deepEqual(getResizeClickDelta('top-right', 100, 80), {
+    deltaX: 100,
+    deltaY: -80
+  });
+});
+
+test('reverses handle click deltas when shrinking with Shift', () => {
+  assert.deepEqual(getResizeClickDelta('top', 100, 80, true), {
+    deltaX: 0,
+    deltaY: 80
+  });
+  assert.deepEqual(getResizeClickDelta('right', 100, 80, true), {
+    deltaX: -100,
+    deltaY: 0
+  });
+  assert.deepEqual(getResizeClickDelta('bottom-left', 100, 80, true), {
+    deltaX: 100,
+    deltaY: -80
+  });
+  assert.deepEqual(getResizeClickDelta('top-right', 100, 80, true), {
+    deltaX: -100,
+    deltaY: 80
+  });
 });
 
 test('moves continuously before snapping to the next grid column', () => {

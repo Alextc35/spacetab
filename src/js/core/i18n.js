@@ -9,6 +9,9 @@ let translations = {};
 /** @type {string|null} */
 let currentLang = null;
 
+/** @type {Set<(language: string) => void>} */
+const languageChangeListeners = new Set();
+
 /**
  * Initializes the internationalization system.
  *
@@ -41,6 +44,18 @@ export async function changeLanguage(settings = {}) {
   currentLang = language;
 
   applyI18n(document, { VERSION });
+  for (const listener of languageChangeListeners) listener(currentLang);
+}
+
+/**
+ * Subscribes UI containing locale-formatted values to live language changes.
+ *
+ * @param {(language: string) => void} listener
+ * @returns {() => void}
+ */
+export function subscribeLanguageChange(listener) {
+  languageChangeListeners.add(listener);
+  return () => languageChangeListeners.delete(listener);
 }
 
 /**

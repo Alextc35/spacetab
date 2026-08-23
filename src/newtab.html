@@ -181,15 +181,22 @@
                 <input id="storage-mode-sync" name="storage-mode" type="radio" value="sync">
                 <span class="storage-mode-copy">
                   <strong data-i18n="settingsModal.sync.synced.title">Sincronizado</strong>
-                  <small data-i18n="settingsModal.sync.synced.description">Disponible en los navegadores conectados al mismo perfil sincronizado.</small>
+                  <small data-i18n="settingsModal.sync.synced.description">Disponible en perfiles de Google Chrome conectados a la misma cuenta.</small>
                 </span>
               </label>
             </div>
 
-            <div class="storage-sync-notice">
-              <p data-i18n="settingsModal.sync.browserNotice">En Chrome utiliza la sincronización de tu cuenta de Google. En Brave utiliza Brave Sync.</p>
-              <p data-i18n="settingsModal.sync.existingNotice">Si ya existen datos sincronizados de Spacetab, se cargarán al guardar.</p>
+            <div id="storage-sync-notice" class="storage-sync-notice">
+              <p id="storage-sync-browser-notice" data-i18n="settingsModal.sync.browserSupport.chrome">Google Chrome sincroniza SpaceTab mediante tu cuenta de Google.</p>
+              <p id="storage-sync-existing-notice" data-i18n="settingsModal.sync.existingNotice">Si ya existen datos sincronizados de SpaceTab, se cargarán al guardar.</p>
               <p id="storage-persistence-status" class="storage-persistence-status" aria-live="polite"></p>
+            </div>
+            <div class="storage-sync-management">
+              <p id="storage-sync-last-updated" class="storage-sync-last-updated" aria-live="polite">
+                Comprobando datos sincronizados…
+              </p>
+              <button id="storage-sync-delete" class="btn btn-danger" type="button" disabled
+                data-i18n="settingsModal.sync.deleteData">Borrar datos sincronizados</button>
             </div>
           </div>
           <div id="settings-modal-tab-theme" 
@@ -240,6 +247,48 @@
               </p>
               <button id="settings-bookmark-configure" class="btn btn-secondary" type="button"
                 data-i18n="settingsModal.bookmark.configure">Configurar favorito por defecto</button>
+            </section>
+            <section class="bookmark-drag-settings"
+              aria-labelledby="bookmark-drag-settings-title">
+              <h3 id="bookmark-drag-settings-title"
+                data-i18n="settingsModal.bookmark.drag.title">Comportamiento al arrastrar</h3>
+              <p data-i18n="settingsModal.bookmark.drag.description">
+                Elige cómo se reorganizan los favoritos cuando ocupas su posición.
+              </p>
+              <div class="drag-mode-options" role="radiogroup"
+                aria-labelledby="bookmark-drag-settings-title">
+                <label class="drag-mode-option">
+                  <input type="radio" name="bookmark-drag-mode" value="none">
+                  <span class="drag-mode-copy">
+                    <strong data-i18n="settingsModal.bookmark.drag.none.title">Ninguna</strong>
+                    <small data-i18n="settingsModal.bookmark.drag.none.description">
+                      No reorganiza elementos; las posiciones ocupadas se rechazan.
+                    </small>
+                  </span>
+                </label>
+                <label class="drag-mode-option">
+                  <input type="radio" name="bookmark-drag-mode" value="relocate">
+                  <span class="drag-mode-copy">
+                    <strong data-i18n="settingsModal.bookmark.drag.relocate.title">Recolocación</strong>
+                    <small data-i18n="settingsModal.bookmark.drag.relocate.description">
+                      Lleva los favoritos ocupados al hueco dejado o al espacio libre más cercano.
+                    </small>
+                  </span>
+                </label>
+                <label class="drag-mode-option">
+                  <input type="radio" name="bookmark-drag-mode" value="cascade">
+                  <span class="drag-mode-copy">
+                    <strong data-i18n="settingsModal.bookmark.drag.cascade.title">Sucesión</strong>
+                    <small data-i18n="settingsModal.bookmark.drag.cascade.description">
+                      Desplaza la cadena de favoritos hacia el hueco disponible.
+                    </small>
+                    <small class="drag-mode-warning"
+                      data-i18n="settingsModal.bookmark.drag.cascade.experimental">
+                      Experimental · Puede contener errores menores.
+                    </small>
+                  </span>
+                </label>
+              </div>
             </section>
             <section class="preset-library" aria-labelledby="preset-library-title">
               <h3 id="preset-library-title" data-i18n="settingsModal.bookmark.presets.title">Presets</h3>

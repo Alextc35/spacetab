@@ -1,4 +1,5 @@
 import '../types/types.js'; // typedefs
+import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 
 export const DATA_SCHEMA_VERSION = 3;
 
@@ -103,6 +104,7 @@ export const DEFAULT_BOOKMARKS = [
  */
 export const DEFAULT_SETTINGS = {
   language: 'en',
+  bookmarkDragMode: BOOKMARK_DRAG_MODES.RELOCATE,
 
   theme: {
     backgroundDefault: true,

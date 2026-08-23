@@ -30,8 +30,8 @@
  * @property {string} name
  * @property {number} gx
  * @property {number} gy
- * @property {1} w
- * @property {1} h
+ * @property {number} w
+ * @property {number} h
  * @property {string|null} groupId
  * @property {number} createdAt
  * @property {number} updatedAt
@@ -58,6 +58,7 @@
 /**
  * @typedef {Object} Settings
  * @property {'en'|'es'|'es_419'|'pt_BR'} language
+ * @property {'none'|'cascade'|'relocate'} bookmarkDragMode
  * @property {Object} theme
  * @property {boolean} theme.backgroundDefault
  * @property {string} theme.backgroundColor

@@ -182,6 +182,21 @@ test('rejects synchronized payloads above Chrome quota', async () => {
   );
 });
 
+test('reports and deletes only SpaceTab synchronized data', async () => {
+  chrome.storage.sync.data.unrelatedExtensionValue = 'keep';
+
+  const beforeDelete = await storage.getSyncMetadata();
+  assert.equal(beforeDelete.hasData, true);
+  assert.equal(Number.isFinite(beforeDelete.updatedAt), true);
+
+  const deleted = await storage.clearSyncData();
+  const afterDelete = await storage.getSyncMetadata();
+
+  assert.equal(deleted, true);
+  assert.deepEqual(afterDelete, { hasData: false, updatedAt: null });
+  assert.equal(chrome.storage.sync.data.unrelatedExtensionValue, 'keep');
+});
+
 test('follows storage-mode changes made by another open tab', async () => {
   let notifications = 0;
   const unsubscribe = storage.subscribe(() => { notifications += 1; });
