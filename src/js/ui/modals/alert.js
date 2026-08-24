@@ -51,11 +51,6 @@ export function initAlertModal() {
   inputEl = modal.querySelector('#alert-modal-input');
 
   /**
-   * Ensure the alert modal stays above other modals when needed.
-   */
-  modal.style.zIndex = '1001';
-
-  /**
    * Delegate accept button clicks to the currently active handler.
    */
   btnAccept.addEventListener('click', () => {
