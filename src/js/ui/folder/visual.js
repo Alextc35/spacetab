@@ -16,10 +16,19 @@ export function createFolderVisual(folder, bookmarks = [], { compact = false } =
   previews.className = 'folder-previews';
 
   if (!compact) {
-    for (const bookmark of bookmarks.slice(0, 4)) {
+    const hasCover = Boolean(folder?.backgroundImageUrl);
+    const previewLimit = hasCover ? 3 : 4;
+    for (const bookmark of bookmarks.slice(0, previewLimit)) {
       const image = createFavicon(bookmark);
       image.alt = '';
       previews.append(image);
+    }
+
+    if (hasCover && bookmarks.length > previewLimit) {
+      const remaining = document.createElement('span');
+      remaining.className = 'folder-preview-more';
+      remaining.textContent = `+${bookmarks.length - previewLimit}`;
+      previews.append(remaining);
     }
   }
 
@@ -30,6 +39,7 @@ export function createFolderVisual(folder, bookmarks = [], { compact = false } =
 
 /** Applies persisted folder colors and optional imagery through CSS variables. */
 export function applyFolderAppearance(element, folder = {}) {
+  element.classList.toggle('is-folder-transparent', folder.noBackground === true);
   element.style.setProperty(
     '--folder-color',
     folder.backgroundColor || '#38bdf8'

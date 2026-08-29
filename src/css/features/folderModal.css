@@ -1,13 +1,17 @@
 .bookmark-folder {
   --folder-color: #38bdf8;
   --folder-text-color: #f8fafc;
+  --folder-preview-icon-size: clamp(16px, min(14cqw, 14cqh), 52px);
+  container-type: size;
   overflow: visible;
   border: 1px solid color-mix(in srgb, var(--folder-color) 42%, transparent);
   background:
     radial-gradient(circle at 25% 15%,
       color-mix(in srgb, var(--folder-color) 24%, transparent), transparent 45%),
     linear-gradient(145deg, rgba(15, 36, 58, .96), rgba(12, 20, 34, .96));
-  box-shadow: 0 12px 28px rgba(0, 0, 0, .3), inset 0 1px rgba(255, 255, 255, .06);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, .3),
+    inset 0 1px rgba(255, 255, 255, .06);
   color: #f8fafc;
   transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
@@ -38,52 +42,120 @@
   border-radius: calc(var(--radius-md) - 3px);
 }
 
+.bookmark-folder:not(.is-editing) .folder-open:hover .folder-visual {
+  filter:
+    drop-shadow(0 14px 14px rgba(2, 8, 23, .42))
+    drop-shadow(0 0 10px color-mix(in srgb, var(--folder-color) 18%, transparent));
+  transform: translateY(-2px);
+}
+
 .folder-visual {
   position: relative;
   display: block;
-  width: min(72%, 160px);
-  height: min(58%, 128px);
-  margin: 2px auto 7px;
-  flex: 0 1 128px;
-  filter: drop-shadow(0 10px 12px rgba(2, 8, 23, .34));
+  width: min(82cqw, calc((100cqh - 48px) * 1.36), 280px);
+  height: auto;
+  margin: 2px auto 8px;
+  aspect-ratio: 1.36 / 1;
+  flex: 0 1 auto;
+  filter:
+    drop-shadow(0 12px 13px rgba(2, 8, 23, .38))
+    drop-shadow(0 0 1px color-mix(in srgb, var(--folder-color) 48%, transparent));
+  transform: translateY(0);
+  transition: filter .2s ease, transform .2s ease;
 }
 
 .folder-tab {
   position: absolute;
   top: 0;
-  left: 8%;
-  width: 42%;
-  height: 26%;
-  border-radius: 9px 9px 0 0;
-  background: color-mix(in srgb, var(--folder-color) 88%, white);
+  left: 7%;
+  width: 43%;
+  height: 27%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .18), transparent 55%),
+    color-mix(in srgb, var(--folder-color) 90%, white);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .28);
 }
 
 .folder-body {
   position: absolute;
-  inset: 17% 0 0;
+  inset: 18% 0 0;
   display: grid;
   padding: 10px 12px;
   place-items: center;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, .28);
-  border-radius: 11px;
-  background: linear-gradient(145deg,
-    color-mix(in srgb, var(--folder-color) 92%, white),
-    color-mix(in srgb, var(--folder-color) 72%, #0f172a));
-  box-shadow: inset 0 1px rgba(255, 255, 255, .3);
+  border-radius: 15px;
+  background-color: var(--folder-color);
+  background-image:
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, .24), transparent 42%),
+    linear-gradient(145deg,
+      color-mix(in srgb, var(--folder-color) 94%, white),
+      color-mix(in srgb, var(--folder-color) 72%, #0f172a));
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, .38),
+    inset 0 -18px 28px rgba(15, 23, 42, .12);
+}
+
+.folder-body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, .12), transparent 32%),
+    linear-gradient(0deg, rgba(2, 6, 23, .12), transparent 46%);
+  pointer-events: none;
 }
 
 .folder-visual.has-folder-bg-image .folder-body,
 .has-folder-bg-image .folder-body {
   background-image:
-    linear-gradient(rgba(15, 23, 42, .12), rgba(15, 23, 42, .34)),
+    linear-gradient(rgba(15, 23, 42, .04), rgba(15, 23, 42, .26)),
     var(--folder-bg-image);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
 }
 
+.folder-visual.has-folder-bg-image .folder-body::before,
+.has-folder-bg-image .folder-body::before {
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, .12), transparent 34%),
+    linear-gradient(0deg, rgba(2, 6, 23, .42), transparent 54%);
+}
+
+.folder-visual.is-folder-transparent .folder-tab,
+.is-folder-transparent .folder-tab {
+  border-color: rgba(255, 255, 255, .16);
+  background: rgba(255, 255, 255, .035);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .1);
+}
+
+.folder-visual.is-folder-transparent .folder-body,
+.is-folder-transparent .folder-body {
+  border-color: rgba(255, 255, 255, .2);
+  background-color: transparent;
+  background-image: none;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, .12),
+    0 0 0 1px rgba(2, 6, 23, .12);
+}
+
+.folder-visual.is-folder-transparent.has-folder-bg-image .folder-body,
+.is-folder-transparent.has-folder-bg-image .folder-body {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, .04), rgba(15, 23, 42, .26)),
+    var(--folder-bg-image);
+}
+
 .folder-previews {
+  position: relative;
+  z-index: 1;
   display: grid;
   width: 100%;
   height: 100%;
@@ -94,20 +166,129 @@
 
 .folder-previews:empty::before {
   content: '';
-  width: 70%;
-  height: 5px;
+  width: 42%;
+  height: 4px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, .38);
-  box-shadow: 0 10px rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .34);
+  box-shadow: 0 9px rgba(255, 255, 255, .18);
 }
 
 .folder-previews .bookmark-favicon {
-  width: 24px;
-  height: 24px;
+  width: var(--folder-preview-icon-size, 27px);
+  height: var(--folder-preview-icon-size, 27px);
   padding: 3px;
-  border-radius: 7px;
-  background: rgba(255, 255, 255, .9);
+  border: 1px solid rgba(255, 255, 255, .62);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 4px 10px rgba(2, 8, 23, .22);
   object-fit: contain;
+}
+
+.folder-visual.has-folder-bg-image .folder-previews:not(:empty) {
+  display: flex;
+  width: auto;
+  max-width: calc(100% - 14px);
+  height: auto;
+  padding: 5px 6px;
+  align-items: center;
+  align-self: end;
+  justify-content: center;
+  justify-self: center;
+  gap: 5px;
+  border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 11px;
+  background: rgba(2, 6, 23, .48);
+  box-shadow: 0 6px 18px rgba(2, 6, 23, .3);
+  backdrop-filter: blur(7px) saturate(1.18);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.folder-visual.has-folder-bg-image .folder-previews:empty::before {
+  display: none;
+}
+
+.folder-visual.has-folder-bg-image .folder-previews .bookmark-favicon,
+.folder-preview-more {
+  width: var(--folder-preview-icon-size, 23px);
+  min-width: 0;
+  height: auto;
+  max-height: var(--folder-preview-icon-size, 23px);
+  flex: 0 1 var(--folder-preview-icon-size, 23px);
+  padding: 2px;
+  aspect-ratio: 1 / 1;
+  border-radius: 7px;
+  box-sizing: border-box;
+}
+
+.folder-preview-more {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .28);
+  background: rgba(15, 23, 42, .82);
+  color: #f8fafc;
+  font-size: .58rem;
+  font-weight: 750;
+  line-height: 1;
+}
+
+@container (max-width: 120px) or (max-height: 125px) {
+  .folder-open {
+    padding: 5px;
+  }
+
+  .folder-visual {
+    margin-bottom: 4px;
+  }
+
+  .folder-tab {
+    border-radius: 7px 7px 0 0;
+  }
+
+  .folder-body {
+    padding: 3px 5px;
+    border-radius: 9px;
+  }
+
+  .folder-previews {
+    gap: 2px;
+  }
+
+  .folder-previews .bookmark-favicon {
+    width: 16px;
+    height: 16px;
+    padding: 1px;
+    border-radius: 5px;
+  }
+
+  .folder-visual.has-folder-bg-image .folder-previews:not(:empty) {
+    max-width: calc(100% - 6px);
+    padding: 3px;
+    gap: 3px;
+    border-radius: 8px;
+  }
+
+  .folder-visual.has-folder-bg-image .folder-previews .bookmark-favicon,
+  .folder-preview-more {
+    width: 17px;
+    height: 17px;
+    flex-basis: 17px;
+    padding: 1px;
+    border-radius: 5px;
+  }
+
+  .bookmark-folder .folder-caption {
+    grid-template-rows: minmax(0, auto) .8em;
+    gap: 1px;
+  }
+
+  .bookmark-folder .folder-title {
+    font-size: .76rem;
+  }
+
+  .bookmark-folder .folder-count {
+    font-size: .61rem;
+  }
 }
 
 .folder-caption {
@@ -128,7 +309,7 @@
   overflow: hidden;
   color: var(--folder-text-color);
   font-size: .96rem;
-  font-weight: 650;
+  font-weight: 700;
   line-height: 1.2;
   text-align: center;
   text-overflow: ellipsis;
@@ -352,7 +533,7 @@
   color: #bae6fd;
   cursor: pointer;
   font: inherit;
-  font-size: .72rem;
+  font-size: .74rem;
   white-space: nowrap;
   transition: background-color .15s ease, border-color .15s ease,
     box-shadow .15s ease;
@@ -480,7 +661,7 @@
   left: 6px;
   min-width: 0;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .folder-grid-bookmark .bookmark-info .bookmark-title {
@@ -622,10 +803,11 @@
 .folder-editor-preview-card {
   --folder-color: #38bdf8;
   --folder-text-color: #f8fafc;
+  --folder-preview-icon-size: 27px;
   display: flex;
-  width: 180px;
-  height: 190px;
-  padding: 12px 10px 8px;
+  width: 210px;
+  height: 220px;
+  padding: 15px 12px 10px;
   align-items: center;
   flex-direction: column;
   justify-content: center;
@@ -639,9 +821,9 @@
 }
 
 .folder-editor-preview-card .folder-visual {
-  width: min(78%, 150px);
-  height: 116px;
-  flex: 0 0 116px;
+  width: min(84%, 176px);
+  height: auto;
+  flex: 0 1 auto;
 }
 
 .folder-editor-preview-card .folder-caption {
@@ -701,13 +883,18 @@
     border-radius: 7px;
     font-size: .62rem;
   }
+
+  .folder-visual {
+    width: min(80%, 220px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .bookmark-folder,
   .folder-drop-feedback,
   .folder-grid-bookmark,
-  .folder-bookmark-actions {
+  .folder-bookmark-actions,
+  .folder-visual {
     transition: none;
   }
 }

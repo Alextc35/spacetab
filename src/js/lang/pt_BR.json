@@ -177,6 +177,7 @@
     "editor": {
       "title": "Editar pasta",
       "name": "Nome:",
+      "noBackground": "Sem fundo",
       "backgroundColor": "Cor da pasta:",
       "backgroundImage": "Imagem de fundo (URL):",
       "lockImage": "Bloquear ou desbloquear a URL da imagem",

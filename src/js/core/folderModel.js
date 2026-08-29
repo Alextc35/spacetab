@@ -2,6 +2,7 @@ import '../types/types.js';
 import { DEFAULT_FOLDER_STYLE } from './defaults.js';
 
 export const FOLDER_STYLE_KEYS = Object.freeze([
+  'noBackground',
   'backgroundColor',
   'backgroundImageUrl',
   'backgroundImageUrlLocked',
@@ -18,6 +19,7 @@ export function normalizeFolderStyle(value = {}) {
     ? source.backgroundImageUrl.trim()
     : null;
   return {
+    noBackground: source.noBackground === true,
     backgroundColor: isHexColor(source.backgroundColor)
       ? source.backgroundColor.toLowerCase()
       : DEFAULT_FOLDER_STYLE.backgroundColor,

@@ -5,6 +5,7 @@ export const DATA_SCHEMA_VERSION = 4;
 
 /** Default appearance applied to new and legacy folders. */
 export const DEFAULT_FOLDER_STYLE = Object.freeze({
+  noBackground: false,
   backgroundColor: '#38bdf8',
   backgroundImageUrl: null,
   backgroundImageUrlLocked: false,

@@ -177,6 +177,7 @@
     "editor": {
       "title": "Editar carpeta",
       "name": "Nombre:",
+      "noBackground": "Sin fondo",
       "backgroundColor": "Color de la carpeta:",
       "backgroundImage": "Imagen de fondo (URL):",
       "lockImage": "Bloquear o desbloquear la URL de la imagen",

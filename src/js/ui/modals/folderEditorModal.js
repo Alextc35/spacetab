@@ -17,6 +17,7 @@ let activeFolderId = null;
 let initialValue = null;
 let modal;
 let nameInput;
+let noBackgroundInput;
 let colorInput;
 let imageInput;
 let textColorInput;
@@ -32,6 +33,7 @@ export function initFolderEditorModal() {
 
   modal = document.getElementById('edit-folder-modal');
   nameInput = document.getElementById('folder-editor-name');
+  noBackgroundInput = document.getElementById('folder-editor-no-background');
   colorInput = document.getElementById('folder-editor-color');
   imageInput = document.getElementById('folder-editor-image');
   textColorInput = document.getElementById('folder-editor-text-color');
@@ -49,6 +51,7 @@ export function initFolderEditorModal() {
   for (const input of [nameInput, colorInput, textColorInput]) {
     input.addEventListener('input', handleInput);
   }
+  noBackgroundInput.addEventListener('change', handleInput);
   imageController = createLockableInputController({
     input: imageInput,
     toggleBtn: document.getElementById('folder-editor-image-toggle'),
@@ -77,11 +80,13 @@ export function openFolderEditor(folderId) {
   initialValue = editableFolderValue(folder);
   nameInput.maxLength = BOOKMARK_FOLDER_NAME_MAX_LENGTH;
   nameInput.value = initialValue.name;
+  noBackgroundInput.checked = initialValue.noBackground;
   colorInput.value = initialValue.backgroundColor;
   imageInput.value = initialValue.backgroundImageUrl ?? '';
   textColorInput.value = initialValue.textColor;
   imageController.setLocked(initialValue.backgroundImageUrlLocked);
   clearErrors();
+  syncStyleControls();
   activateGeneralTab();
   renderPreview();
   syncSaveButton();
@@ -95,6 +100,7 @@ export function openFolderEditor(folderId) {
 
 function handleInput() {
   clearErrors();
+  syncStyleControls();
   renderPreview();
   syncSaveButton();
 }
@@ -102,6 +108,7 @@ function handleInput() {
 function currentValue() {
   return {
     name: nameInput.value,
+    noBackground: noBackgroundInput.checked,
     backgroundColor: colorInput.value,
     backgroundImageUrl: imageInput.value.trim() || null,
     backgroundImageUrlLocked: imageController?.isLocked() ?? false,
@@ -118,10 +125,15 @@ function isDirty() {
   if (!initialValue) return false;
   const current = currentValue();
   return current.name !== initialValue.name
+    || current.noBackground !== initialValue.noBackground
     || current.backgroundColor !== initialValue.backgroundColor
     || current.backgroundImageUrl !== initialValue.backgroundImageUrl
     || current.backgroundImageUrlLocked !== initialValue.backgroundImageUrlLocked
     || current.textColor !== initialValue.textColor;
+}
+
+function syncStyleControls() {
+  colorInput.disabled = noBackgroundInput.checked;
 }
 
 function syncSaveButton() {

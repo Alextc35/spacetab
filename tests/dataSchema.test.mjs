@@ -150,6 +150,7 @@ test('normalizes folder references and rejects cross-workspace membership', () =
 
   assert.equal(migrated.folders[0].w, 5);
   assert.equal(migrated.folders[0].h, 4);
+  assert.equal(migrated.folders[0].noBackground, false);
   assert.equal(migrated.folders[0].backgroundColor, '#38bdf8');
   assert.equal(migrated.folders[0].backgroundImageUrl, null);
   assert.equal(migrated.folders[0].backgroundImageUrlLocked, false);

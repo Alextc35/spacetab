@@ -1463,6 +1463,8 @@ test('customizes a folder from its miniature and persists the appearance', async
   folder = page.locator('.bookmark-folder', { hasText: 'Games' });
   await expect(folder).toHaveCSS('--folder-color', '#ef4444');
   await expect(folder).toHaveCSS('--folder-text-color', '#fef3c7');
+  await expect(folder.locator('.folder-body'))
+    .toHaveCSS('background-color', 'rgb(239, 68, 68)');
 
   await page.reload();
   folder = page.locator('.bookmark-folder', { hasText: 'Games' });
@@ -1475,6 +1477,91 @@ test('customizes a folder from its miniature and persists the appearance', async
   await expect(page.getByRole('button', { name: 'Lock or unlock image URL' }))
     .toHaveText('🔒');
   await expect(page.getByRole('button', { name: 'Clear image URL' })).toBeHidden();
+
+  const noBackground = page.locator('#folder-editor-no-background');
+  await expect(noBackground).not.toBeChecked();
+  await noBackground.check();
+  await expect(page.locator('#folder-editor-color')).toBeDisabled();
+  await expect(page.locator('.folder-editor-preview-card .folder-visual'))
+    .toHaveClass(/is-folder-transparent/);
+  await expect(page.locator('.folder-editor-preview-card .folder-visual'))
+    .toHaveClass(/has-folder-bg-image/);
+  await page.locator('#edit-folder-modal-save').click();
+
+  await expect(editor).toBeHidden();
+  await page.locator('#folder-modal-close').click();
+  folder = page.locator('.bookmark-folder', { hasText: 'Games' });
+  await expect(folder).toHaveClass(/is-folder-transparent/);
+  await expect(folder.locator('.folder-body'))
+    .toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+
+  await page.reload();
+  folder = page.locator('.bookmark-folder', { hasText: 'Games' });
+  await expect(folder).toHaveClass(/is-folder-transparent/);
+});
+
+test('scales folder previews and keeps cover icons inside their tray', async ({ page }) => {
+  await revealSideDock(page);
+  for (const name of ['Small previews', 'Large previews', 'Cover previews']) {
+    await page.getByRole('button', { name: 'Create folder' }).click();
+    await page.getByPlaceholder('Tools, inspiration…').fill(name);
+    await page.getByRole('button', { name: 'Accept' }).click();
+  }
+
+  await page.evaluate(() => new Promise(resolve => {
+    chrome.storage.local.get(null, stored => {
+      const layout = {
+        'Small previews': { gx: 0, gy: 0, w: 1, h: 1 },
+        'Large previews': { gx: 1, gy: 0, w: 4, h: 3 },
+        'Cover previews': {
+          gx: 5, gy: 0, w: 2, h: 2,
+          backgroundImageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="8" height="8"%3E%3Cpath fill="%230f766e" d="M0 0h8v8H0z"/%3E%3C/svg%3E'
+        }
+      };
+      const folders = stored.folders.map(folder => ({
+        ...folder,
+        ...layout[folder.name]
+      }));
+      const bookmarks = folders.flatMap(folder => (
+        Array.from({ length: folder.name === 'Cover previews' ? 5 : 3 }, (_, index) => ({
+          id: `${folder.id}-bookmark-${index}`,
+          name: `${folder.name} ${index + 1}`,
+          url: `https://${folder.id}-${index}.internal`,
+          folderId: folder.id,
+          groupId: null,
+          gx: index,
+          gy: 0,
+          w: 1,
+          h: 1
+        }))
+      ));
+      chrome.storage.local.set({ folders, bookmarks }, resolve);
+    });
+  }));
+  await page.reload();
+
+  const smallIcon = page.locator('.bookmark-folder', { hasText: 'Small previews' })
+    .locator('.bookmark-favicon').first();
+  const largeIcon = page.locator('.bookmark-folder', { hasText: 'Large previews' })
+    .locator('.bookmark-favicon').first();
+  const [smallBox, largeBox] = await Promise.all([
+    smallIcon.boundingBox(),
+    largeIcon.boundingBox()
+  ]);
+  expect(largeBox.width).toBeGreaterThan(smallBox.width * 2);
+
+  const cover = page.locator('.bookmark-folder', { hasText: 'Cover previews' });
+  const trayBox = await cover.locator('.folder-previews').boundingBox();
+  const itemBoxes = await cover.locator('.folder-previews > *').evaluateAll(elements => (
+    elements.map(element => element.getBoundingClientRect().toJSON())
+  ));
+  expect(itemBoxes).toHaveLength(4);
+  for (const item of itemBoxes) {
+    expect(item.left).toBeGreaterThanOrEqual(trayBox.x);
+    expect(item.right).toBeLessThanOrEqual(trayBox.x + trayBox.width);
+    expect(item.top).toBeGreaterThanOrEqual(trayBox.y);
+    expect(item.bottom).toBeLessThanOrEqual(trayBox.y + trayBox.height);
+  }
 });
 
 test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ page }) => {

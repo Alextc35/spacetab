@@ -101,11 +101,13 @@ test('creates legacy-safe folder styles and updates their appearance', async () 
   const created = createBookmarkFolder('Personal', { columns: 1, rows: 1 });
 
   assert.deepEqual({
+    noBackground: created.noBackground,
     backgroundColor: created.backgroundColor,
     backgroundImageUrl: created.backgroundImageUrl,
     backgroundImageUrlLocked: created.backgroundImageUrlLocked,
     textColor: created.textColor
   }, {
+    noBackground: false,
     backgroundColor: '#38bdf8',
     backgroundImageUrl: null,
     backgroundImageUrlLocked: false,
@@ -114,6 +116,7 @@ test('creates legacy-safe folder styles and updates their appearance', async () 
 
   const updated = updateBookmarkFolder(created.id, {
     name: 'Games',
+    noBackground: true,
     backgroundColor: '#ff3366',
     backgroundImageUrl: 'https://images.test/folder.png',
     backgroundImageUrlLocked: true,
@@ -121,6 +124,7 @@ test('creates legacy-safe folder styles and updates their appearance', async () 
   });
 
   assert.equal(updated.name, 'Games');
+  assert.equal(updated.noBackground, true);
   assert.equal(updated.backgroundColor, '#ff3366');
   assert.equal(updated.backgroundImageUrl, 'https://images.test/folder.png');
   assert.equal(updated.backgroundImageUrlLocked, true);

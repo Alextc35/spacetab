@@ -177,6 +177,7 @@
     "editor": {
       "title": "Edit folder",
       "name": "Name:",
+      "noBackground": "No background",
       "backgroundColor": "Folder color:",
       "backgroundImage": "Background image (URL):",
       "lockImage": "Lock or unlock image URL",
