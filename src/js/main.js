@@ -10,7 +10,8 @@ import { initBulkBookmarkActions } from './ui/bookmark/bulkActions.js';
 import { initBookmarkKeyboardMovement } from './ui/bookmark/keyboardMovement.js';
 import { initFolderController } from './ui/folder/controller.js';
 import { initBookmarkModal,
-  initAlertModal, initFolderModal, initSearchModal, initSettingsModal } from './ui/modals/index.js';
+  initAlertModal, initFolderEditorModal, initFolderModal,
+  initSearchModal, initSettingsModal } from './ui/modals/index.js';
 
 /* ======================= DOM References ======================= */
 
@@ -107,6 +108,7 @@ function initModals() {
   initAlertModal();
   initSearchModal();
   initFolderModal();
+  initFolderEditorModal();
   initSettingsModal();
   initBookmarkModal();
 }

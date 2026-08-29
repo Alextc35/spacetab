@@ -1,7 +1,15 @@
 import '../types/types.js'; // typedefs
 import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 
-export const DATA_SCHEMA_VERSION = 3;
+export const DATA_SCHEMA_VERSION = 4;
+
+/** Default appearance applied to new and legacy folders. */
+export const DEFAULT_FOLDER_STYLE = Object.freeze({
+  backgroundColor: '#38bdf8',
+  backgroundImageUrl: null,
+  backgroundImageUrlLocked: false,
+  textColor: '#f8fafc'
+});
 
 /**
  * Default visual style for a bookmark.

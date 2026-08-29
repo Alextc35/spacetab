@@ -33,6 +33,10 @@
  * @property {number} w
  * @property {number} h
  * @property {string|null} groupId
+ * @property {string} backgroundColor
+ * @property {string|null} backgroundImageUrl
+ * @property {boolean} backgroundImageUrlLocked
+ * @property {string} textColor
  * @property {number} createdAt
  * @property {number} updatedAt
  */

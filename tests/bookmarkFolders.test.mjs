@@ -39,6 +39,7 @@ const {
   deleteBookmarkFolder,
   removeBookmarkFromFolder,
   renameBookmarkFolder,
+  updateBookmarkFolder,
   updateFolderBookmarkPositions,
   updateGridItemsByIds
 } = await import('../src/js/core/bookmarkFolders.js');
@@ -93,6 +94,37 @@ test('folder creation and renaming share the same name length limit', async () =
   const renamed = renameBookmarkFolder(created.id, 'b'.repeat(80));
   assert.equal(renamed.name.length, BOOKMARK_FOLDER_NAME_MAX_LENGTH);
   assert.equal(getState().data.folders[0].name, renamed.name);
+});
+
+test('creates legacy-safe folder styles and updates their appearance', async () => {
+  await setState({ data: { bookmarks: [], folders: [] } });
+  const created = createBookmarkFolder('Personal', { columns: 1, rows: 1 });
+
+  assert.deepEqual({
+    backgroundColor: created.backgroundColor,
+    backgroundImageUrl: created.backgroundImageUrl,
+    backgroundImageUrlLocked: created.backgroundImageUrlLocked,
+    textColor: created.textColor
+  }, {
+    backgroundColor: '#38bdf8',
+    backgroundImageUrl: null,
+    backgroundImageUrlLocked: false,
+    textColor: '#f8fafc'
+  });
+
+  const updated = updateBookmarkFolder(created.id, {
+    name: 'Games',
+    backgroundColor: '#ff3366',
+    backgroundImageUrl: 'https://images.test/folder.png',
+    backgroundImageUrlLocked: true,
+    textColor: '#ffeeaa'
+  });
+
+  assert.equal(updated.name, 'Games');
+  assert.equal(updated.backgroundColor, '#ff3366');
+  assert.equal(updated.backgroundImageUrl, 'https://images.test/folder.png');
+  assert.equal(updated.backgroundImageUrlLocked, true);
+  assert.equal(updated.textColor, '#ffeeaa');
 });
 
 test('updates bookmark and folder rectangles atomically', async () => {

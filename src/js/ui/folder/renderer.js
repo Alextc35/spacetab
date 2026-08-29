@@ -1,9 +1,9 @@
 import { t } from '../../core/i18n.js';
 import { applyGridItemPosition } from '../gridItemLayout.js';
-import { createFavicon } from '../bookmark/favicon.js';
 import { addDragAndResize } from '../bookmark/dragResize.js';
 import { openFolderModal } from '../modals/folderModal.js';
 import { addFolderActions } from './actions.js';
+import { applyFolderAppearance, createFolderVisual } from './visual.js';
 
 /** Creates a resizable folder card for the bookmark grid. */
 export function createFolderElement({ container, folder, bookmarks, isEditing }) {
@@ -11,6 +11,7 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
   element.className = 'bookmark bookmark-folder';
   element.dataset.folderId = folder.id;
   element.classList.toggle('is-editing', isEditing);
+  applyFolderAppearance(element, folder);
   applyGridItemPosition(container, element, folder);
 
   const button = document.createElement('button');
@@ -21,25 +22,7 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
     count: bookmarks.length
   }));
 
-  const visual = document.createElement('span');
-  visual.className = 'folder-visual';
-  visual.setAttribute('aria-hidden', 'true');
-
-  const tab = document.createElement('span');
-  tab.className = 'folder-tab';
-  const body = document.createElement('span');
-  body.className = 'folder-body';
-  const previews = document.createElement('span');
-  previews.className = 'folder-previews';
-
-  for (const bookmark of bookmarks.slice(0, 4)) {
-    const image = createFavicon(bookmark);
-    image.alt = '';
-    previews.append(image);
-  }
-
-  body.append(previews);
-  visual.append(tab, body);
+  const visual = createFolderVisual(folder, bookmarks);
 
   const title = document.createElement('span');
   title.className = 'folder-title';

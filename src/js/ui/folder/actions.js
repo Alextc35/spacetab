@@ -1,19 +1,10 @@
-import { deleteBookmarkFolder, renameBookmarkFolder } from '../../core/bookmarkFolders.js';
+import { deleteBookmarkFolder } from '../../core/bookmarkFolders.js';
 import { t } from '../../core/i18n.js';
 import { getState } from '../../core/store.js';
 import { createItemActionButton } from '../bookmark/actions.js';
 import { flashSuccess } from '../flash.js';
-import { showAlert, showPrompt } from '../modals/alert.js';
-
-export async function promptRenameFolder(folder) {
-  const name = await showPrompt(t('folder.renamePrompt'), {
-    value: folder.name,
-    placeholder: t('folder.namePlaceholder')
-  });
-  if (name && renameBookmarkFolder(folder.id, name)) {
-    flashSuccess('flash.folder.renamed');
-  }
-}
+import { showAlert } from '../modals/alert.js';
+import { openFolderEditor } from '../modals/folderEditorModal.js';
 
 export function addFolderActions(container, folder) {
   const actions = document.createElement('div');
@@ -21,13 +12,13 @@ export function addFolderActions(container, folder) {
   actions.setAttribute('role', 'group');
   actions.setAttribute('aria-label', t('folder.actions.ariaLabel'));
 
-  const renameButton = createItemActionButton(
+  const editButton = createItemActionButton(
     '✎',
     'edit',
     'is-dark',
-    () => promptRenameFolder(folder)
+    () => openFolderEditor(folder.id)
   );
-  renameButton.setAttribute('aria-label', t('folder.actions.rename'));
+  editButton.setAttribute('aria-label', t('folder.actions.customize'));
 
   const deleteButton = createItemActionButton('🗑', 'delete', 'is-dark', async () => {
     const { bookmarks } = getState().data;
@@ -44,6 +35,6 @@ export function addFolderActions(container, folder) {
   });
   deleteButton.setAttribute('aria-label', t('folder.actions.delete'));
 
-  actions.append(renameButton, deleteButton);
+  actions.append(editButton, deleteButton);
   container.append(actions);
 }

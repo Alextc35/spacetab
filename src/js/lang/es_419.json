@@ -16,6 +16,7 @@
     "folder": {
       "created": "Carpeta creada",
       "renamed": "Carpeta renombrada",
+      "updated": "Carpeta actualizada",
       "deleted": "Carpeta y marcadores eliminados",
       "bookmarkAdded": "Marcador agregado a la carpeta",
       "folderFull": "Esta carpeta ya contiene 18 marcadores",
@@ -72,6 +73,9 @@
       },
       "confirmDelete": "¿Eliminar «{{name}}»?",
       "cancel": "¿Descartar los cambios de la edición?"
+    },
+    "folder": {
+      "cancel": "¿Descartar los cambios de la carpeta?"
     },
     "settings": {
       "cancel": "¿Descartar los cambios de la configuración?",
@@ -145,7 +149,6 @@
   "folder": {
     "create": "Crear carpeta",
     "createPrompt": "Ponle nombre a la nueva carpeta",
-    "renamePrompt": "Renombrar carpeta",
     "namePlaceholder": "Herramientas, inspiración…",
     "open": "Abrir {{name}}, {{count}} marcadores guardados",
     "count": "{{count}} guardados",
@@ -162,6 +165,7 @@
     "confirmDelete": "¿Eliminar «{{name}}» y sus {{count}} marcadores de forma permanente?",
     "actions": {
       "ariaLabel": "Controles de la carpeta",
+      "customize": "Personalizar carpeta",
       "rename": "Renombrar carpeta",
       "delete": "Eliminar carpeta",
       "editBookmark": "Editar {{name}}",
@@ -169,6 +173,23 @@
       "deleteBookmark": "Eliminar {{name}}",
       "acceptRename": "Guardar nombre de la carpeta",
       "cancelRename": "Cancelar el cambio de nombre"
+    },
+    "editor": {
+      "title": "Editar carpeta",
+      "name": "Nombre:",
+      "backgroundColor": "Color de la carpeta:",
+      "backgroundImage": "Imagen de fondo (URL):",
+      "lockImage": "Bloquear o desbloquear la URL de la imagen",
+      "copyImage": "Copiar URL de la imagen",
+      "clearImage": "Borrar URL de la imagen",
+      "textColor": "Color del texto:",
+      "preview": "Vista previa",
+      "previewName": "Carpeta",
+      "sections": {
+        "general": "General",
+        "style": "Estilo",
+        "text": "Texto"
+      }
     }
   },
   "validation": {
@@ -177,6 +198,9 @@
     },
     "name": {
       "required": "Escribe un nombre para el marcador."
+    },
+    "folderName": {
+      "required": "Escribe un nombre para la carpeta."
     },
     "url": {
       "invalid": "La URL no es válida.",

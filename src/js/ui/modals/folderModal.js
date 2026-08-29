@@ -19,6 +19,8 @@ import { flashInfo, flashSuccess } from '../flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { closeModal, openModal, registerModal } from '../modalManager.js';
 import { openEditBookmark } from './bookmarkModal.js';
+import { openFolderEditor } from './folderEditorModal.js';
+import { applyFolderAppearance, createFolderVisual } from '../folder/visual.js';
 import { showAlert } from './alert.js';
 import { calculateSmartDragLayout } from '../bookmark/smartDragLayout.js';
 
@@ -34,6 +36,7 @@ let summary;
 let list;
 let empty;
 let editToggle;
+let customizeButton;
 let folderIsEditing = false;
 let dragSession = null;
 let pendingFolderCommit = null;
@@ -51,9 +54,13 @@ export function initFolderModal() {
   list = document.getElementById('folder-modal-items');
   empty = document.getElementById('folder-modal-empty');
   editToggle = document.getElementById('folder-modal-edit-toggle');
+  customizeButton = document.getElementById('folder-modal-customize');
 
   document.getElementById('folder-modal-close').addEventListener('click', closeFolderModal);
   editToggle.addEventListener('click', () => toggleFolderEditMode());
+  customizeButton.addEventListener('click', () => {
+    if (activeFolderId) openFolderEditor(activeFolderId);
+  });
   document.addEventListener('keydown', event => {
     if (!activeFolderId) return;
 
@@ -183,6 +190,8 @@ function renderFolderContents() {
   const contents = bookmarks.filter(bookmark => bookmark.folderId === folder.id);
   const layout = createFolderBookmarkLayout(contents);
   syncFolderEditUI();
+  customizeButton.replaceChildren(createFolderVisual(folder, [], { compact: true }));
+  applyFolderAppearance(customizeButton, folder);
   if (!title.isContentEditable) title.textContent = folder.name;
   title.setAttribute('title', t('folder.actions.rename'));
   summary.textContent = t('folder.summary', {

@@ -16,6 +16,7 @@
     "folder": {
       "created": "Pasta criada",
       "renamed": "Pasta renomeada",
+      "updated": "Pasta atualizada",
       "deleted": "Pasta e favoritos excluídos",
       "bookmarkAdded": "Favorito adicionado à pasta",
       "folderFull": "Esta pasta já contém 18 favoritos",
@@ -72,6 +73,9 @@
       },
       "confirmDelete": "Excluir «{{name}}»?",
       "cancel": "Descartar as alterações da edição?"
+    },
+    "folder": {
+      "cancel": "Descartar as alterações da pasta?"
     },
     "settings": {
       "cancel": "Descartar as alterações nas configurações?",
@@ -145,7 +149,6 @@
   "folder": {
     "create": "Criar pasta",
     "createPrompt": "Dê um nome à nova pasta",
-    "renamePrompt": "Renomear pasta",
     "namePlaceholder": "Ferramentas, inspiração…",
     "open": "Abrir {{name}}, {{count}} favoritos salvos",
     "count": "{{count}} salvos",
@@ -162,6 +165,7 @@
     "confirmDelete": "Excluir «{{name}}» e seus {{count}} favoritos permanentemente?",
     "actions": {
       "ariaLabel": "Controles da pasta",
+      "customize": "Personalizar pasta",
       "rename": "Renomear pasta",
       "delete": "Excluir pasta",
       "editBookmark": "Editar {{name}}",
@@ -169,6 +173,23 @@
       "deleteBookmark": "Excluir {{name}}",
       "acceptRename": "Salvar nome da pasta",
       "cancelRename": "Cancelar alteração do nome"
+    },
+    "editor": {
+      "title": "Editar pasta",
+      "name": "Nome:",
+      "backgroundColor": "Cor da pasta:",
+      "backgroundImage": "Imagem de fundo (URL):",
+      "lockImage": "Bloquear ou desbloquear a URL da imagem",
+      "copyImage": "Copiar URL da imagem",
+      "clearImage": "Limpar URL da imagem",
+      "textColor": "Cor do texto:",
+      "preview": "Pré-visualização",
+      "previewName": "Pasta",
+      "sections": {
+        "general": "Geral",
+        "style": "Estilo",
+        "text": "Texto"
+      }
     }
   },
   "validation": {
@@ -177,6 +198,9 @@
     },
     "name": {
       "required": "Digite um nome para o favorito."
+    },
+    "folderName": {
+      "required": "Digite um nome para a pasta."
     },
     "url": {
       "invalid": "A URL não é válida.",

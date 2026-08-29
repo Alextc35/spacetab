@@ -9,6 +9,7 @@ import {
   normalizeBookmarkPreset
 } from './bookmarkModel.js';
 import { normalizeBookmarkDragMode } from './bookmarkDragModes.js';
+import { normalizeFolderStyle } from './folderModel.js';
 
 /**
  * Upgrades and normalizes application data from every supported SpaceTab
@@ -99,6 +100,7 @@ function normalizeBookmarkFolder(folder, { index, now, bookmarkGroupIds }) {
   const groupId = bookmarkGroupIds.has(folder.groupId) ? folder.groupId : null;
 
   return {
+    ...normalizeFolderStyle(folder),
     id: typeof folder.id === 'string' && folder.id.trim()
       ? folder.id
       : `folder-${now}-${index}`,

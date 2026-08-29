@@ -85,7 +85,8 @@
     <div class="modal-overlay"></div>
     <div class="modal-card modal-folder">
       <header class="folder-modal-header">
-        <span class="folder-modal-glyph" aria-hidden="true">📁</span>
+        <button id="folder-modal-customize" class="folder-modal-glyph" type="button"
+          aria-label="Customize folder" data-i18n-aria-label="folder.actions.customize"></button>
         <span class="folder-modal-heading">
           <h2 id="folder-modal-heading-title">
             <span id="folder-modal-title" class="folder-modal-title">
@@ -120,6 +121,88 @@
         <button id="folder-modal-close" class="btn btn-ghost" type="button"
           data-i18n="buttons.close">Close</button>
       </div>
+    </div>
+  </div>
+
+  <div id="edit-folder-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-card modal-xl modal-folder-editor">
+      <header class="edit-bookmark-modal-header">
+        <h2 data-i18n="folder.editor.title">Edit folder</h2>
+      </header>
+      <div class="folder-editor-form">
+        <div class="edit-bookmark-modal-tabs" role="tablist">
+          <button class="edit-bookmark-modal-tab-btn active" type="button"
+            data-tab="folder-editor-panel-general" role="tab"
+            aria-controls="folder-editor-panel-general"
+            data-i18n="folder.editor.sections.general">General</button>
+          <button class="edit-bookmark-modal-tab-btn" type="button"
+            data-tab="folder-editor-panel-style" role="tab"
+            aria-controls="folder-editor-panel-style"
+            data-i18n="folder.editor.sections.style">Style</button>
+          <button class="edit-bookmark-modal-tab-btn" type="button"
+            data-tab="folder-editor-panel-text" role="tab"
+            aria-controls="folder-editor-panel-text"
+            data-i18n="folder.editor.sections.text">Text</button>
+        </div>
+        <div class="edit-bookmark-modal-layout">
+          <div class="edit-bookmark-modal-panel">
+            <div id="folder-editor-panel-general"
+              class="modal-field edit-bookmark-modal-tab-content custom-scrollbar"
+              role="tabpanel">
+              <label for="folder-editor-name" data-i18n="folder.editor.name">Name:</label>
+              <input id="folder-editor-name" type="text" maxlength="60" autofocus>
+              <p id="folder-editor-name-error" class="field-error is-hidden" role="alert"></p>
+            </div>
+            <div id="folder-editor-panel-style"
+              class="modal-field edit-bookmark-modal-tab-content is-hidden custom-scrollbar"
+              role="tabpanel">
+              <div class="edit-bookmark-modal-color-options">
+                <label for="folder-editor-color"
+                  data-i18n="folder.editor.backgroundColor">Folder color:</label>
+                <input id="folder-editor-color" type="color">
+              </div>
+              <div class="modal-field">
+                <label for="folder-editor-image"
+                  data-i18n="folder.editor.backgroundImage">Background image (URL):</label>
+                <div class="input-with-actions">
+                  <input id="folder-editor-image" type="text" placeholder="https://..."
+                    aria-describedby="folder-editor-image-error">
+                  <button id="folder-editor-image-toggle" class="input-action input-toggle"
+                    type="button" aria-label="Lock image URL"
+                    data-i18n-aria-label="folder.editor.lockImage">🔓</button>
+                  <button id="folder-editor-image-copy" class="input-action input-copy"
+                    type="button" aria-label="Copy image URL"
+                    data-i18n-aria-label="folder.editor.copyImage">📋</button>
+                  <button id="folder-editor-image-clear" class="input-action input-clear"
+                    type="button" aria-label="Clear image URL"
+                    data-i18n-aria-label="folder.editor.clearImage">✕</button>
+                </div>
+                <p id="folder-editor-image-error" class="field-error is-hidden" role="alert"></p>
+              </div>
+            </div>
+            <div id="folder-editor-panel-text"
+              class="modal-field edit-bookmark-modal-tab-content is-hidden custom-scrollbar"
+              role="tabpanel">
+              <div class="edit-bookmark-modal-color-options">
+                <label for="folder-editor-text-color"
+                  data-i18n="folder.editor.textColor">Text color:</label>
+                <input id="folder-editor-text-color" type="color">
+              </div>
+            </div>
+          </div>
+          <div class="edit-bookmark-modal-preview-panel">
+            <h3 data-i18n="folder.editor.preview">Preview</h3>
+            <div id="folder-editor-preview" class="folder-editor-preview"></div>
+          </div>
+        </div>
+      </div>
+      <footer class="modal-actions">
+        <button id="edit-folder-modal-cancel" class="btn btn-ghost" type="button"
+          data-i18n="buttons.cancel">Cancel</button>
+        <button id="edit-folder-modal-save" class="btn btn-primary" type="button"
+          data-i18n="buttons.save">Save</button>
+      </footer>
     </div>
   </div>
 

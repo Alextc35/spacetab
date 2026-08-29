@@ -8,6 +8,7 @@ import {
   isFolderCell
 } from './folderGrid.js';
 import { getState, setState } from './store.js';
+import { normalizeFolderStyle, validateFolderDraft } from './folderModel.js';
 
 export const BOOKMARK_FOLDER_NAME_MAX_LENGTH = 60;
 
@@ -62,6 +63,7 @@ export function createBookmarkFolder(name, { columns, rows } = {}) {
   const folder = {
     id: crypto.randomUUID(),
     name: normalizedName,
+    ...normalizeFolderStyle(),
     ...position,
     w: 1,
     h: 1,
@@ -139,6 +141,29 @@ export function updateGridItemsByIds(updates) {
   const folders = data.folders.map(updateItem);
   if (changed.length) setState({ data: { bookmarks, folders } });
   return changed;
+}
+
+/** Updates the editable identity and appearance of one folder. */
+export function updateBookmarkFolder(folderId, draft) {
+  const validation = validateFolderDraft(draft);
+  if (!validation.isValid) return null;
+
+  const { data: { folders } } = getState();
+  let updatedFolder = null;
+  const updated = folders.map(folder => {
+    if (folder.id !== folderId) return folder;
+    updatedFolder = {
+      ...folder,
+      ...validation.value,
+      name: normalizeBookmarkFolderName(validation.value.name),
+      updatedAt: Date.now()
+    };
+    return updatedFolder;
+  });
+  if (!updatedFolder?.name) return null;
+
+  setState({ data: { folders: updated } });
+  return updatedFolder;
 }
 
 /**

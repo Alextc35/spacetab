@@ -16,6 +16,7 @@
     "folder": {
       "created": "Folder created",
       "renamed": "Folder renamed",
+      "updated": "Folder updated",
       "deleted": "Folder and its bookmarks deleted",
       "bookmarkAdded": "Bookmark added to folder",
       "folderFull": "This folder already has 18 bookmarks",
@@ -72,6 +73,9 @@
       },
       "confirmDelete": "Delete “{{name}}”?",
       "cancel": "Discard changes?"
+    },
+    "folder": {
+      "cancel": "Discard folder changes?"
     },
     "settings": {
       "cancel": "Discard settings changes?",
@@ -145,7 +149,6 @@
   "folder": {
     "create": "Create folder",
     "createPrompt": "Name the new folder",
-    "renamePrompt": "Rename folder",
     "namePlaceholder": "Tools, inspiration…",
     "open": "Open {{name}}, {{count}} saved bookmarks",
     "count": "{{count}} saved",
@@ -162,6 +165,7 @@
     "confirmDelete": "Delete “{{name}}” and its {{count}} bookmarks permanently?",
     "actions": {
       "ariaLabel": "Folder controls",
+      "customize": "Customize folder",
       "rename": "Rename folder",
       "delete": "Delete folder",
       "editBookmark": "Edit {{name}}",
@@ -169,6 +173,23 @@
       "deleteBookmark": "Delete {{name}}",
       "acceptRename": "Save folder name",
       "cancelRename": "Cancel folder rename"
+    },
+    "editor": {
+      "title": "Edit folder",
+      "name": "Name:",
+      "backgroundColor": "Folder color:",
+      "backgroundImage": "Background image (URL):",
+      "lockImage": "Lock or unlock image URL",
+      "copyImage": "Copy image URL",
+      "clearImage": "Clear image URL",
+      "textColor": "Text color:",
+      "preview": "Preview",
+      "previewName": "Folder",
+      "sections": {
+        "general": "General",
+        "style": "Style",
+        "text": "Text"
+      }
     }
   },
   "validation": {
@@ -177,6 +198,9 @@
     },
     "name": {
       "required": "Enter a name for the bookmark."
+    },
+    "folderName": {
+      "required": "Enter a name for the folder."
     },
     "url": {
       "invalid": "The URL is not valid.",
