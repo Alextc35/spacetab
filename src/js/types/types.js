@@ -103,3 +103,13 @@
 /**
  * @typedef {Pick<AppState['data'], 'schemaVersion' | 'bookmarks' | 'folders' | 'settings'>} PersistedData
  */
+
+/**
+ * @typedef {Object} SyncCompatibilityBlock
+ * @property {'newer-sync-data'} reason
+ * @property {number|null} requiredSchemaVersion
+ * @property {number} supportedSchemaVersion
+ * @property {number|null} requiredSyncFormatVersion
+ * @property {number} supportedSyncFormatVersion
+ * @property {number} detectedAt
+ */

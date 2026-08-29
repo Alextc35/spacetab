@@ -25,6 +25,7 @@ import {
   hasChanges,
   buildNewSettings,
   getDraftStorageMode,
+  reconcileDraftStorageMode,
   replaceDraftSettings
 } from './settingsState.js';
 
@@ -240,11 +241,17 @@ export function initSettingsModal() {
       closeModal();
     } catch (err) {
       console.error('[SETTINGS] Storage mode change failed:', err);
-      flashError(
-        err?.code === 'SYNC_QUOTA_EXCEEDED'
-          ? 'flash.sync.quotaError'
-          : 'flash.sync.error'
-      );
+      if (err?.code === 'SYNC_REQUIRES_NEWER_VERSION') {
+        reconcileDraftStorageMode(getStorageMode());
+        syncSection.syncUI();
+        flashError('flash.sync.versionBlocked');
+      } else {
+        flashError(
+          err?.code === 'SYNC_QUOTA_EXCEEDED'
+            ? 'flash.sync.quotaError'
+            : 'flash.sync.error'
+        );
+      }
       updateSaveButtonState();
     }
   });

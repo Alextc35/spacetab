@@ -1,5 +1,10 @@
 import { VERSION, DEBUG  } from './core/config.js';
-import { subscribe, hydrateStore, getStorageMode } from './core/store.js';
+import {
+  subscribe,
+  hydrateStore,
+  getStorageMode,
+  getSyncCompatibility
+} from './core/store.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { renderBookmarks } from './ui/bookmark/renderer.js';
@@ -9,6 +14,7 @@ import { initWorkspaceToolbar } from './ui/workspaceToolbar.js';
 import { initBulkBookmarkActions } from './ui/bookmark/bulkActions.js';
 import { initBookmarkKeyboardMovement } from './ui/bookmark/keyboardMovement.js';
 import { initFolderController } from './ui/folder/controller.js';
+import { flashInfo } from './ui/flash.js';
 import { initBookmarkModal,
   initAlertModal, initFolderEditorModal, initFolderModal,
   initSearchModal, initSettingsModal } from './ui/modals/index.js';
@@ -55,6 +61,10 @@ async function initApp() {
   initBulkBookmarkActions();
   initBookmarkKeyboardMovement();
   initFolderController();
+
+  if (getSyncCompatibility()) {
+    flashInfo('flash.sync.versionBlocked', 8000);
+  }
 
   if (DEBUG) {
     console.info('Initializing SpaceTab ' + VERSION + ' alfa');

@@ -362,6 +362,16 @@
   color: #ead3a0;
 }
 
+.storage-sync-notice.is-version-blocked {
+  border-left-color: #ff9f43;
+  background: #2b1d13;
+  color: #ffd3a8;
+}
+
+#storage-sync-compatibility-notice {
+  font-weight: 600;
+}
+
 .storage-sync-management {
   display: flex;
   align-items: center;

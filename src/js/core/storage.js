@@ -1,5 +1,6 @@
 import '../types/types.js'; // typedefs
 import { migratePersistedData } from './dataSchema.js';
+import { DATA_SCHEMA_VERSION } from './defaults.js';
 
 export const STORAGE_MODES = Object.freeze({
   LOCAL: 'local',
@@ -7,6 +8,7 @@ export const STORAGE_MODES = Object.freeze({
 });
 
 const STORAGE_MODE_KEY = 'spacetabStorageMode';
+const SYNC_COMPATIBILITY_KEY = 'spacetabSyncCompatibility';
 const SYNC_META_KEY = 'spacetabSyncMeta';
 const SYNC_CHUNK_PREFIX = 'spacetabSyncChunk:';
 const SYNC_FORMAT_VERSION = 1;
@@ -16,6 +18,9 @@ const LEGACY_SYNC_KEYS = ['schemaVersion', 'bookmarks', 'folders', 'settings'];
 /** @type {'local'|'sync'} */
 let activeMode = STORAGE_MODES.LOCAL;
 let initialized = false;
+
+/** @type {SyncCompatibilityBlock|null} */
+let syncCompatibility = null;
 
 /** @type {Set<() => void>} */
 const changeListeners = new Set();
@@ -172,6 +177,16 @@ async function readSyncData() {
   }
 
   if (
+    meta.version > SYNC_FORMAT_VERSION
+  ) {
+    const error = new Error('The synchronized SpaceTab data uses a newer format.');
+    error.code = 'UNSUPPORTED_SYNC_FORMAT';
+    error.requiredSyncFormatVersion = meta.version;
+    error.supportedSyncFormatVersion = SYNC_FORMAT_VERSION;
+    throw error;
+  }
+
+  if (
     meta.version !== SYNC_FORMAT_VERSION ||
     !Number.isInteger(meta.chunkCount) ||
     meta.chunkCount < 1
@@ -229,6 +244,7 @@ async function writeSyncData(data) {
 
   items[SYNC_META_KEY] = {
     version: SYNC_FORMAT_VERSION,
+    schemaVersion: DATA_SCHEMA_VERSION,
     chunkCount: chunks.length,
     updatedAt: Date.now()
   };
@@ -324,9 +340,9 @@ async function clearSyncData() {
   const values = await callStorage(chrome.storage.sync, 'get', null);
   const keys = Object.keys(values).filter(isSpaceTabSyncKey);
 
-  if (!keys.length) return false;
-  await callStorage(chrome.storage.sync, 'remove', keys);
-  return true;
+  if (keys.length) await callStorage(chrome.storage.sync, 'remove', keys);
+  await clearSyncCompatibility();
+  return keys.length > 0;
 }
 
 /**
@@ -360,13 +376,113 @@ function writeData(mode, data) {
 async function initialize() {
   if (initialized) return activeMode;
 
-  const result = await callStorage(chrome.storage.local, 'get', STORAGE_MODE_KEY);
-  activeMode = result[STORAGE_MODE_KEY] === STORAGE_MODES.SYNC
-    ? STORAGE_MODES.SYNC
-    : STORAGE_MODES.LOCAL;
+  const result = await callStorage(
+    chrome.storage.local,
+    'get',
+    [STORAGE_MODE_KEY, SYNC_COMPATIBILITY_KEY]
+  );
+  syncCompatibility = normalizeSyncCompatibility(
+    result[SYNC_COMPATIBILITY_KEY]
+  );
+
+  if (syncCompatibility) {
+    activeMode = STORAGE_MODES.LOCAL;
+    if (result[STORAGE_MODE_KEY] !== STORAGE_MODES.LOCAL) {
+      await callStorage(chrome.storage.local, 'set', {
+        [STORAGE_MODE_KEY]: STORAGE_MODES.LOCAL
+      });
+    }
+  } else {
+    activeMode = result[STORAGE_MODE_KEY] === STORAGE_MODES.SYNC
+      ? STORAGE_MODES.SYNC
+      : STORAGE_MODES.LOCAL;
+
+    if (result[SYNC_COMPATIBILITY_KEY] !== undefined) {
+      await callStorage(chrome.storage.local, 'remove', SYNC_COMPATIBILITY_KEY);
+    }
+  }
   initialized = true;
 
   return activeMode;
+}
+
+/**
+ * Keeps only compatibility blocks that still require a newer SpaceTab build.
+ * Stale blocks disappear automatically after the extension is upgraded.
+ *
+ * @param {*} value
+ * @returns {SyncCompatibilityBlock|null}
+ */
+function normalizeSyncCompatibility(value) {
+  if (!value || value.reason !== 'newer-sync-data') return null;
+
+  const requiredSchemaVersion = Number.isInteger(value.requiredSchemaVersion)
+    ? value.requiredSchemaVersion
+    : null;
+  const requiredSyncFormatVersion = Number.isInteger(value.requiredSyncFormatVersion)
+    ? value.requiredSyncFormatVersion
+    : null;
+  const stillBlocked = (
+    requiredSchemaVersion > DATA_SCHEMA_VERSION
+    || requiredSyncFormatVersion > SYNC_FORMAT_VERSION
+  );
+  if (!stillBlocked) return null;
+
+  return {
+    reason: 'newer-sync-data',
+    requiredSchemaVersion,
+    supportedSchemaVersion: DATA_SCHEMA_VERSION,
+    requiredSyncFormatVersion,
+    supportedSyncFormatVersion: SYNC_FORMAT_VERSION,
+    detectedAt: Number.isFinite(value.detectedAt) ? value.detectedAt : Date.now()
+  };
+}
+
+/** @param {*} error */
+function isNewerSyncDataError(error) {
+  return error?.code === 'UNSUPPORTED_DATA_VERSION'
+    || error?.code === 'UNSUPPORTED_SYNC_FORMAT';
+}
+
+/**
+ * Switches this device to its compatible local data without modifying the
+ * newer synchronized payload.
+ *
+ * @param {*} error
+ * @returns {Promise<PersistedData>}
+ */
+async function fallBackToLocalData(error) {
+  const localData = normalizePersistedData(await readLocalData());
+  syncCompatibility = {
+    reason: 'newer-sync-data',
+    requiredSchemaVersion: Number.isInteger(error.requiredSchemaVersion)
+      ? error.requiredSchemaVersion
+      : null,
+    supportedSchemaVersion: DATA_SCHEMA_VERSION,
+    requiredSyncFormatVersion: Number.isInteger(error.requiredSyncFormatVersion)
+      ? error.requiredSyncFormatVersion
+      : null,
+    supportedSyncFormatVersion: SYNC_FORMAT_VERSION,
+    detectedAt: Date.now()
+  };
+
+  await callStorage(chrome.storage.local, 'set', {
+    [STORAGE_MODE_KEY]: STORAGE_MODES.LOCAL,
+    [SYNC_COMPATIBILITY_KEY]: syncCompatibility
+  });
+  activeMode = STORAGE_MODES.LOCAL;
+  return localData;
+}
+
+async function clearSyncCompatibility() {
+  syncCompatibility = null;
+  await callStorage(chrome.storage.local, 'remove', SYNC_COMPATIBILITY_KEY);
+}
+
+function createSyncCompatibilityError() {
+  const error = new Error('Sync requires a newer version of SpaceTab.');
+  error.code = 'SYNC_REQUIRES_NEWER_VERSION';
+  return error;
 }
 
 /**
@@ -383,6 +499,11 @@ export const storage = {
     return activeMode;
   },
 
+  /** @returns {SyncCompatibilityBlock|null} */
+  getSyncCompatibility() {
+    return syncCompatibility ? structuredClone(syncCompatibility) : null;
+  },
+
   /**
    * Retrieves persisted data from the active area.
    *
@@ -391,7 +512,18 @@ export const storage = {
    */
   async get(keys) {
     await initialize();
-    const data = normalizePersistedData(await readData(activeMode));
+    const requestedMode = activeMode;
+    let data;
+
+    try {
+      data = normalizePersistedData(await readData(requestedMode));
+    } catch (error) {
+      if (requestedMode !== STORAGE_MODES.SYNC || !isNewerSyncDataError(error)) {
+        throw error;
+      }
+
+      data = await fallBackToLocalData(error);
+    }
 
     if (keys === null) return data;
 
@@ -454,6 +586,10 @@ export const storage = {
       throw new TypeError(`Unsupported storage mode: ${mode}`);
     }
 
+    if (mode === STORAGE_MODES.SYNC && syncCompatibility) {
+      throw createSyncCompatibilityError();
+    }
+
     if (mode === activeMode) {
       return {
         data: normalizePersistedData(currentData),
@@ -465,7 +601,16 @@ export const storage = {
     let source = 'migrated';
 
     if (mode === STORAGE_MODES.SYNC) {
-      const existingSyncData = await readSyncData();
+      let existingSyncData;
+
+      try {
+        existingSyncData = await readSyncData();
+        if (existingSyncData) normalizePersistedData(existingSyncData);
+      } catch (error) {
+        if (!isNewerSyncDataError(error)) throw error;
+        await fallBackToLocalData(error);
+        throw createSyncCompatibilityError();
+      }
 
       if (existingSyncData) {
         nextData = normalizePersistedData(existingSyncData);

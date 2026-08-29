@@ -95,7 +95,11 @@ test('round-trips a versioned bookmarks-only export without replacing settings',
 test('rejects data written by a future schema', () => {
   assert.throws(
     () => migratePersistedData({ schemaVersion: DATA_SCHEMA_VERSION + 1 }),
-    error => error.code === 'UNSUPPORTED_DATA_VERSION'
+    error => (
+      error.code === 'UNSUPPORTED_DATA_VERSION'
+      && error.requiredSchemaVersion === DATA_SCHEMA_VERSION + 1
+      && error.supportedSchemaVersion === DATA_SCHEMA_VERSION
+    )
   );
 });
 

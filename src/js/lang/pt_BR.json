@@ -48,6 +48,7 @@
       "localEnabled": "Modo local ativado",
       "remoteLoaded": "Dados sincronizados carregados",
       "error": "Não foi possível alterar o modo de armazenamento",
+      "versionBlocked": "A sincronização foi pausada porque os dados na nuvem exigem uma versão mais recente do SpaceTab. Os dados locais deste dispositivo estão sendo exibidos.",
       "quotaError": "Os dados excedem o espaço disponível para sincronização",
       "deleted": "Dados sincronizados excluídos",
       "deleteError": "Não foi possível excluir os dados sincronizados"
@@ -261,6 +262,9 @@
       "synced": {
         "title": "Sincronizado",
         "description": "Disponível em perfis do Google Chrome conectados à mesma conta."
+      },
+      "compatibility": {
+        "newerVersion": "A sincronização está bloqueada neste dispositivo porque os dados na nuvem foram criados por uma versão mais recente do SpaceTab. Seus dados sincronizados estão seguros e não foram modificados. Atualize o SpaceTab para reconectar."
       },
       "usage": {
         "title": "Disponibilidade de armazenamento",

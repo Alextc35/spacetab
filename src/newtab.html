@@ -299,6 +299,16 @@
               </label>
             </div>
 
+            <div id="storage-sync-notice" class="storage-sync-notice">
+              <p id="storage-sync-compatibility-notice" class="is-hidden" role="status"
+                data-i18n="settingsModal.sync.compatibility.newerVersion">
+                Sync is paused because these data require a newer SpaceTab version.
+              </p>
+              <p id="storage-sync-browser-notice" data-i18n="settingsModal.sync.browserSupport.chrome">Google Chrome sincroniza SpaceTab mediante tu cuenta de Google.</p>
+              <p id="storage-sync-existing-notice" data-i18n="settingsModal.sync.existingNotice">Si ya existen datos sincronizados de SpaceTab, se cargarán al guardar.</p>
+              <p id="storage-persistence-status" class="storage-persistence-status" aria-live="polite"></p>
+            </div>
+
             <section class="storage-usage" aria-labelledby="storage-usage-title">
               <h3 id="storage-usage-title" data-i18n="settingsModal.sync.usage.title">Disponibilidad de almacenamiento</h3>
               <article class="storage-usage-item" data-storage-usage-active>
@@ -313,11 +323,6 @@
               </article>
             </section>
 
-            <div id="storage-sync-notice" class="storage-sync-notice">
-              <p id="storage-sync-browser-notice" data-i18n="settingsModal.sync.browserSupport.chrome">Google Chrome sincroniza SpaceTab mediante tu cuenta de Google.</p>
-              <p id="storage-sync-existing-notice" data-i18n="settingsModal.sync.existingNotice">Si ya existen datos sincronizados de SpaceTab, se cargarán al guardar.</p>
-              <p id="storage-persistence-status" class="storage-persistence-status" aria-live="polite"></p>
-            </div>
             <div class="storage-sync-management">
               <p id="storage-sync-last-updated" class="storage-sync-last-updated" aria-live="polite">
                 Comprobando datos sincronizados…

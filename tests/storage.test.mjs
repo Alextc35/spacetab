@@ -69,6 +69,7 @@ globalThis.chrome = {
 };
 
 const { storage, STORAGE_MODES } = await import('../src/js/core/storage.js');
+const { DATA_SCHEMA_VERSION } = await import('../src/js/core/defaults.js');
 
 const SETTINGS = {
   language: 'es',
@@ -223,4 +224,38 @@ test('follows storage-mode changes made by another open tab', async () => {
   assert.equal(storage.getMode(), STORAGE_MODES.LOCAL);
   assert.equal(notifications, 1);
   unsubscribe();
+});
+
+test('falls back to compatible local data when sync was written by a newer version', async () => {
+  await storage.set(LOCAL_DATA);
+  const futureSchemaVersion = DATA_SCHEMA_VERSION + 1;
+  const futureSyncData = {
+    schemaVersion: futureSchemaVersion,
+    bookmarks: [{ id: 'future', name: 'Future bookmark' }],
+    folders: [],
+    settings: SETTINGS
+  };
+
+  chrome.storage.sync.set(futureSyncData, () => {});
+  chrome.storage.local.set({ spacetabStorageMode: STORAGE_MODES.SYNC }, () => {});
+
+  const recovered = await storage.get(null);
+  const compatibility = storage.getSyncCompatibility();
+
+  assert.equal(storage.getMode(), STORAGE_MODES.LOCAL);
+  assert.equal(recovered.bookmarks[0].id, 'local');
+  assert.equal(compatibility.reason, 'newer-sync-data');
+  assert.equal(compatibility.requiredSchemaVersion, futureSchemaVersion);
+  assert.equal(compatibility.supportedSchemaVersion, DATA_SCHEMA_VERSION);
+  assert.equal(chrome.storage.local.data.spacetabStorageMode, STORAGE_MODES.LOCAL);
+  assert.equal(chrome.storage.sync.data.schemaVersion, futureSchemaVersion);
+  assert.equal(chrome.storage.sync.data.bookmarks[0].id, 'future');
+
+  await assert.rejects(
+    storage.changeMode(STORAGE_MODES.SYNC, recovered),
+    error => error.code === 'SYNC_REQUIRES_NEWER_VERSION'
+  );
+
+  await storage.clearSyncData();
+  assert.equal(storage.getSyncCompatibility(), null);
 });

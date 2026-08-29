@@ -7,6 +7,7 @@ import {
   deleteSyncedData,
   getStorageMode,
   getStorageUsage,
+  getSyncCompatibility,
   getSyncedDataMetadata,
   subscribe
 } from '../../../core/store.js';
@@ -74,6 +75,7 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   );
   const browserSupport = getSyncBrowserSupport();
   const syncNotice = document.getElementById('storage-sync-notice');
+  const compatibilityNotice = document.getElementById('storage-sync-compatibility-notice');
   const browserNotice = document.getElementById('storage-sync-browser-notice');
   const existingNotice = document.getElementById('storage-sync-existing-notice');
   const persistenceStatus = document.getElementById('storage-persistence-status');
@@ -227,17 +229,35 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   function syncUI() {
     const selectedMode = getDraftStorageMode();
     const browserNoticeKey = getBrowserNoticeKey(browserSupport.browser);
+    const compatibility = getSyncCompatibility();
+    const isVersionBlocked = compatibility?.reason === 'newer-sync-data';
 
     if (browserNotice) {
       browserNotice.dataset.i18n = browserNoticeKey;
       browserNotice.textContent = t(browserNoticeKey);
+      browserNotice.classList.toggle('is-hidden', isVersionBlocked);
     }
 
-    existingNotice?.classList.toggle('is-hidden', !browserSupport.canSync);
-    syncNotice?.classList.toggle('is-unsupported', !browserSupport.canSync);
+    if (compatibilityNotice) {
+      compatibilityNotice.classList.toggle('is-hidden', !isVersionBlocked);
+      compatibilityNotice.textContent = t(
+        'settingsModal.sync.compatibility.newerVersion'
+      );
+    }
+
+    existingNotice?.classList.toggle(
+      'is-hidden',
+      !browserSupport.canSync || isVersionBlocked
+    );
+    syncNotice?.classList.toggle(
+      'is-unsupported',
+      !browserSupport.canSync && !isVersionBlocked
+    );
+    syncNotice?.classList.toggle('is-version-blocked', isVersionBlocked);
 
     for (const input of modeInputs) {
-      const isUnsupportedSync = input.value === 'sync' && !browserSupport.canSync;
+      const isUnsupportedSync = input.value === 'sync'
+        && (!browserSupport.canSync || isVersionBlocked);
       const option = input.closest('.storage-mode-option');
 
       input.disabled = isUnsupportedSync;
@@ -262,6 +282,11 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
     input.addEventListener('change', () => {
       if (!input.checked) return;
       if (input.value === 'sync' && !browserSupport.canSync) {
+        syncUI();
+        return;
+      }
+
+      if (input.value === 'sync' && getSyncCompatibility()) {
         syncUI();
         return;
       }

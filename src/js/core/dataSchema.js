@@ -30,6 +30,8 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
   if (sourceVersion > DATA_SCHEMA_VERSION) {
     const error = new Error('This SpaceTab data was created by a newer version.');
     error.code = 'UNSUPPORTED_DATA_VERSION';
+    error.requiredSchemaVersion = sourceVersion;
+    error.supportedSchemaVersion = DATA_SCHEMA_VERSION;
     throw error;
   }
 

@@ -48,6 +48,7 @@
       "localEnabled": "Local mode enabled",
       "remoteLoaded": "Synced data loaded",
       "error": "Could not change storage mode",
+      "versionBlocked": "Sync was paused because the cloud data requires a newer SpaceTab version. This device's local data is being shown.",
       "quotaError": "The data exceeds the available sync storage",
       "deleted": "Synced data deleted",
       "deleteError": "Could not delete synced data"
@@ -261,6 +262,9 @@
       "synced": {
         "title": "Synced",
         "description": "Available in Google Chrome profiles connected to the same account."
+      },
+      "compatibility": {
+        "newerVersion": "Sync is locked on this device because the cloud data was created by a newer SpaceTab version. Your synchronized data is safe and has not been modified. Update SpaceTab to reconnect."
       },
       "usage": {
         "title": "Storage availability",

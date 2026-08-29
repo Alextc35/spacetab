@@ -1182,6 +1182,54 @@ test('localizes sync status and confirms synchronized data deletion', async ({ p
   await expect(page.getByText('Data is ready.')).toHaveCount(0);
 });
 
+test('shows local bookmarks and locks sync when cloud data needs a newer version', async ({ page }) => {
+  const futureSyncData = {
+    schemaVersion: 4,
+    bookmarks: [{
+      id: 'future-bookmark',
+      name: 'Future cloud bookmark',
+      url: 'https://future.example'
+    }],
+    folders: [],
+    settings: { language: 'en' }
+  };
+  const localData = {
+    spacetabStorageMode: 'sync',
+    schemaVersion: 3,
+    bookmarks: [{
+      id: 'local-bookmark',
+      name: 'Available local bookmark',
+      url: 'https://local.example'
+    }],
+    folders: [],
+    settings: { language: 'en' }
+  };
+
+  await page.evaluate(({ local, synced }) => {
+    sessionStorage.setItem('spacetab-test-local', JSON.stringify(local));
+    sessionStorage.setItem('spacetab-test-sync', JSON.stringify(synced));
+  }, { local: localData, synced: futureSyncData });
+  await page.reload();
+
+  await expect(page.getByRole('link', { name: /Available local bookmark/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Future cloud bookmark/ })).toHaveCount(0);
+  await expect(page.getByText(/Sync was paused because the cloud data/)).toBeVisible();
+
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '☁️ Sync' }).click();
+
+  await expect(page.getByRole('radio', { name: /This device only/ })).toBeChecked();
+  await expect(page.getByRole('radio', { name: /Synced/ })).toBeDisabled();
+  await expect(page.locator('#storage-sync-compatibility-notice')).toContainText(
+    'Your synchronized data is safe and has not been modified'
+  );
+  await expect.poll(() => page.evaluate(() => {
+    const synced = JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}');
+    return `${synced.schemaVersion}:${synced.bookmarks?.[0]?.id}`;
+  })).toBe('4:future-bookmark');
+});
+
 test('blocks synchronized storage in Brave and explains why', async ({ page }) => {
   await page.goto('/tests/browser-harness.html?browser=brave');
   await page.evaluate(() => sessionStorage.clear());

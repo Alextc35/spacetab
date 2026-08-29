@@ -126,6 +126,14 @@ persistence status and synchronized update metadata. Confirmed deletion removes
 only SpaceTab's synchronized keys; if Sync is active, it preserves the working
 data in Local first.
 
+Future sync schemas and transport formats are treated as a recoverable
+compatibility state rather than a fatal hydration error. The storage facade
+records a device-local compatibility marker, selects compatible Local data and
+never writes to the newer remote payload. Settings reads that marker to disable
+Sync and explain the required update. The marker expires automatically when the
+installed schema/format catches up, and explicit remote-data deletion also
+clears it.
+
 Complete backups use the `spacetab-backup` format; bookmark-only files use
 `spacetab-bookmarks`. Both versioned formats preserve folders and membership.
 Legacy raw bookmark arrays remain importable without folders.

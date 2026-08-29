@@ -199,6 +199,11 @@ export function getStorageMode() {
   return storage.getMode();
 }
 
+/** @returns {SyncCompatibilityBlock|null} */
+export function getSyncCompatibility() {
+  return storage.getSyncCompatibility();
+}
+
 /** @returns {Promise<{hasData: boolean, updatedAt: number|null}>} */
 export function getSyncedDataMetadata() {
   return storage.getSyncMetadata();

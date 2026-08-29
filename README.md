@@ -187,6 +187,13 @@ does not already contain SpaceTab data. Existing synchronized data wins to avoid
 accidental overwrites. Returning to Local mode creates a local copy and leaves
 the synchronized copy untouched.
 
+If an older SpaceTab installation encounters synchronized data written by a
+newer schema or sync format, startup remains usable: that device automatically
+returns to its compatible Local data, leaves the cloud payload untouched and
+locks the Sync option with an update notice. The lock is device-specific and
+disappears after installing a compatible version (or explicitly deleting the
+synchronized SpaceTab data).
+
 Chrome's sync quotas are handled by splitting the versioned payload into safe
 chunks. SpaceTab reports quota/persistence errors and shows the current save
 status in Settings. The Sync panel shows live used, total and available capacity
