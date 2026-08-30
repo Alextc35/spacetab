@@ -380,46 +380,91 @@
               <button id="settings-bookmark-configure" class="btn btn-secondary" type="button"
                 data-i18n="settingsModal.bookmark.configure">Configurar favorito por defecto</button>
             </section>
-            <section class="bookmark-drag-settings"
+            <section class="bookmark-behavior-settings bookmark-drag-settings"
               aria-labelledby="bookmark-drag-settings-title">
-              <h3 id="bookmark-drag-settings-title"
-                data-i18n="settingsModal.bookmark.drag.title">Comportamiento al arrastrar</h3>
-              <p data-i18n="settingsModal.bookmark.drag.description">
-                Elige cómo se reorganizan los favoritos cuando ocupas su posición.
-              </p>
-              <div class="drag-mode-options" role="radiogroup"
-                aria-labelledby="bookmark-drag-settings-title">
-                <label class="drag-mode-option">
-                  <input type="radio" name="bookmark-drag-mode" value="none">
-                  <span class="drag-mode-copy">
-                    <strong data-i18n="settingsModal.bookmark.drag.none.title">Ninguna</strong>
-                    <small data-i18n="settingsModal.bookmark.drag.none.description">
-                      Solo permite mover a huecos libres.
-                    </small>
-                  </span>
-                </label>
-                <label class="drag-mode-option">
-                  <input type="radio" name="bookmark-drag-mode" value="relocate">
-                  <span class="drag-mode-copy">
-                    <strong data-i18n="settingsModal.bookmark.drag.relocate.title">Recolocación</strong>
-                    <small data-i18n="settingsModal.bookmark.drag.relocate.description">
-                      Recoloca los favoritos que ocupan el destino.
-                    </small>
-                  </span>
-                </label>
-                <label class="drag-mode-option">
-                  <input type="radio" name="bookmark-drag-mode" value="cascade">
-                  <span class="drag-mode-copy">
-                    <strong data-i18n="settingsModal.bookmark.drag.cascade.title">Sucesión</strong>
-                    <small data-i18n="settingsModal.bookmark.drag.cascade.description">
-                      Desplaza en cadena hasta encontrar un hueco libre.
-                    </small>
-                    <small class="drag-mode-warning"
-                      data-i18n="settingsModal.bookmark.drag.cascade.experimental">
-                      Experimental · Puede contener errores menores.
-                    </small>
-                  </span>
-                </label>
+              <button id="bookmark-drag-settings-title"
+                class="settings-collapsible-toggle" type="button"
+                aria-expanded="false" aria-controls="bookmark-drag-settings-body">
+                <span class="settings-collapsible-heading">
+                  <span data-i18n="settingsModal.bookmark.drag.title">Comportamiento al arrastrar</span>
+                  <small id="bookmark-drag-settings-summary">Ninguna</small>
+                </span>
+              </button>
+              <div id="bookmark-drag-settings-body" class="settings-collapsible-body" hidden>
+                <p data-i18n="settingsModal.bookmark.drag.description">
+                  Elige cómo se reorganizan los favoritos cuando ocupas su posición.
+                </p>
+                <div class="drag-mode-options" role="radiogroup"
+                  aria-labelledby="bookmark-drag-settings-title">
+                  <label class="drag-mode-option">
+                    <input type="radio" name="bookmark-drag-mode" value="none">
+                    <span class="drag-mode-copy">
+                      <strong data-i18n="settingsModal.bookmark.drag.none.title">Ninguna</strong>
+                      <small data-i18n="settingsModal.bookmark.drag.none.description">
+                        Solo permite mover a huecos libres.
+                      </small>
+                    </span>
+                  </label>
+                  <label class="drag-mode-option">
+                    <input type="radio" name="bookmark-drag-mode" value="relocate">
+                    <span class="drag-mode-copy">
+                      <strong data-i18n="settingsModal.bookmark.drag.relocate.title">Recolocación</strong>
+                      <small data-i18n="settingsModal.bookmark.drag.relocate.description">
+                        Recoloca los favoritos que ocupan el destino.
+                      </small>
+                    </span>
+                  </label>
+                  <label class="drag-mode-option">
+                    <input type="radio" name="bookmark-drag-mode" value="cascade">
+                    <span class="drag-mode-copy">
+                      <strong data-i18n="settingsModal.bookmark.drag.cascade.title">Sucesión</strong>
+                      <small data-i18n="settingsModal.bookmark.drag.cascade.description">
+                        Desplaza en cadena hasta encontrar un hueco libre.
+                      </small>
+                      <small class="drag-mode-warning"
+                        data-i18n="settingsModal.bookmark.drag.cascade.experimental">
+                        Experimental · Puede contener errores menores.
+                      </small>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </section>
+            <section class="bookmark-behavior-settings bookmark-resize-settings"
+              aria-labelledby="bookmark-resize-settings-title">
+              <button id="bookmark-resize-settings-title"
+                class="settings-collapsible-toggle" type="button"
+                aria-expanded="false" aria-controls="bookmark-resize-settings-body">
+                <span class="settings-collapsible-heading">
+                  <span data-i18n="settingsModal.bookmark.resize.title">Comportamiento al redimensionar</span>
+                  <small id="bookmark-resize-settings-summary">Suave</small>
+                </span>
+              </button>
+              <div id="bookmark-resize-settings-body" class="settings-collapsible-body" hidden>
+                <p data-i18n="settingsModal.bookmark.resize.description">
+                  Elige cómo responde el tamaño al mover los tiradores.
+                </p>
+                <div class="drag-mode-options" role="radiogroup"
+                  aria-labelledby="bookmark-resize-settings-title">
+                  <label class="drag-mode-option">
+                    <input type="radio" name="bookmark-resize-mode" value="none">
+                    <span class="drag-mode-copy">
+                      <strong data-i18n="settingsModal.bookmark.resize.none.title">Ninguno</strong>
+                      <small data-i18n="settingsModal.bookmark.resize.none.description">
+                        Salta de celda al cruzar el 50% de la celda contigua.
+                      </small>
+                    </span>
+                  </label>
+                  <label class="drag-mode-option">
+                    <input type="radio" name="bookmark-resize-mode" value="smooth">
+                    <span class="drag-mode-copy">
+                      <strong data-i18n="settingsModal.bookmark.resize.smooth.title">Suave</strong>
+                      <small data-i18n="settingsModal.bookmark.resize.smooth.description">
+                        Estira el elemento al arrastrar y encaja en la cuadrícula al soltar.
+                      </small>
+                    </span>
+                  </label>
+                </div>
               </div>
             </section>
             <section class="preset-library" aria-labelledby="preset-library-title">

@@ -8,6 +8,10 @@ import { GRID_COLS, GRID_ROWS, PADDING } from '../../core/config.js';
 import { FOLDER_GRID_CAPACITY } from '../../core/folderGrid.js';
 import { isAreaFree } from '../../core/grid.js';
 import { getState } from '../../core/store.js';
+import {
+  BOOKMARK_RESIZE_MODES,
+  normalizeBookmarkResizeMode
+} from '../../core/bookmarkResizeModes.js';
 import { flashError, flashSuccess } from '../flash.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { toggleBookmarkSelection } from './selection.js';
@@ -425,6 +429,9 @@ function handleResize(container, e, div, item, direction, handle, indicator) {
   const start = pickGridRectangle(item);
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
+  const resizeMode = normalizeBookmarkResizeMode(
+    getState().data.settings.bookmarkResizeMode
+  );
   let latestIsValid = true;
   let latestGeometry = calculateResizeGeometry({
     direction,
@@ -479,9 +486,13 @@ function handleResize(container, e, div, item, direction, handle, indicator) {
 
   const queueResizeFrame = () => {
     if (animationFrame != null) return;
-    animationFrame = requestAnimationFrame(() => {
-      animationFrame = null;
-      applyContinuousResize(div, latestGeometry.pixel);
+      animationFrame = requestAnimationFrame(() => {
+        animationFrame = null;
+        if (resizeMode === BOOKMARK_RESIZE_MODES.SMOOTH) {
+          applyContinuousResize(div, latestGeometry.pixel);
+        } else {
+          applyGridGeometry(container, div, latestGeometry.grid);
+        }
     });
   };
 

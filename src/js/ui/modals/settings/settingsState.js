@@ -1,5 +1,6 @@
 // settingsState.js
 import { normalizeBookmarkDragMode } from '../../../core/bookmarkDragModes.js';
+import { normalizeBookmarkResizeMode } from '../../../core/bookmarkResizeModes.js';
 import { getState } from '../../../core/store.js';
 
 /**
@@ -22,6 +23,9 @@ let draftBookmarkPresets = null;
 
 /** Drag collision behavior selected for bookmarks. */
 let draftBookmarkDragMode = null;
+
+/** Resize feedback behavior selected for bookmarks and folders. */
+let draftBookmarkResizeMode = null;
 
 /**
  * Per-device persistence mode selected in the settings modal.
@@ -57,6 +61,7 @@ export function initDraft(settings, storageMode) {
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
   draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
   draftBookmarkDragMode = normalizeBookmarkDragMode(settings.bookmarkDragMode);
+  draftBookmarkResizeMode = normalizeBookmarkResizeMode(settings.bookmarkResizeMode);
   draftStorageMode = storageMode;
 }
 
@@ -71,6 +76,7 @@ export function resetState() {
   draftBookmarkDefault = null;
   draftBookmarkPresets = null;
   draftBookmarkDragMode = null;
+  draftBookmarkResizeMode = null;
   draftStorageMode = null;
   initialSnapshot = null;
 }
@@ -118,6 +124,12 @@ export function getDraftBookmarkDragMode() {
   const { data: { settings } } = getState();
   return draftBookmarkDragMode
     ?? normalizeBookmarkDragMode(settings.bookmarkDragMode);
+}
+
+export function getDraftBookmarkResizeMode() {
+  const { data: { settings } } = getState();
+  return draftBookmarkResizeMode
+    ?? normalizeBookmarkResizeMode(settings.bookmarkResizeMode);
 }
 
 /**
@@ -173,6 +185,10 @@ export function setDraftBookmarkDragMode(mode) {
   draftBookmarkDragMode = normalizeBookmarkDragMode(mode);
 }
 
+export function setDraftBookmarkResizeMode(mode) {
+  draftBookmarkResizeMode = normalizeBookmarkResizeMode(mode);
+}
+
 /**
  * Updates a single field inside the draft theme object.
  *
@@ -219,6 +235,7 @@ export function replaceDraftSettings(settings) {
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
   draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
   draftBookmarkDragMode = normalizeBookmarkDragMode(settings.bookmarkDragMode);
+  draftBookmarkResizeMode = normalizeBookmarkResizeMode(settings.bookmarkResizeMode);
 }
 
 /* ==================================================
@@ -245,6 +262,7 @@ export function hasChanges() {
     language: draftLanguage,
     theme: draftTheme,
     bookmarkDragMode: draftBookmarkDragMode,
+    bookmarkResizeMode: draftBookmarkResizeMode,
     bookmarkDefault: draftBookmarkDefault,
     bookmarkPresets: draftBookmarkPresets
   };
@@ -253,6 +271,7 @@ export function hasChanges() {
     language: initialSnapshot.language,
     theme: initialSnapshot.theme,
     bookmarkDragMode: normalizeBookmarkDragMode(initialSnapshot.bookmarkDragMode),
+    bookmarkResizeMode: normalizeBookmarkResizeMode(initialSnapshot.bookmarkResizeMode),
     bookmarkDefault: initialSnapshot.bookmarkDefault,
     bookmarkPresets: initialSnapshot.bookmarkPresets ?? []
   };
@@ -277,6 +296,7 @@ export function buildNewSettings() {
     language: draftLanguage,
     theme: structuredClone(draftTheme),
     bookmarkDragMode: draftBookmarkDragMode,
+    bookmarkResizeMode: draftBookmarkResizeMode,
     bookmarkDefault: structuredClone(draftBookmarkDefault),
     bookmarkPresets: structuredClone(draftBookmarkPresets),
     bookmarkGroups: structuredClone(initialSnapshot?.bookmarkGroups ?? []),

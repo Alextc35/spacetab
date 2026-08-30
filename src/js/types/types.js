@@ -64,6 +64,7 @@
  * @typedef {Object} Settings
  * @property {'en'|'es'|'es_419'|'pt_BR'} language
  * @property {'none'|'cascade'|'relocate'} bookmarkDragMode
+ * @property {'smooth'|'none'} bookmarkResizeMode
  * @property {Object} theme
  * @property {boolean} theme.backgroundDefault
  * @property {string} theme.backgroundColor

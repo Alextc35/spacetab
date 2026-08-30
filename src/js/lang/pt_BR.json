@@ -335,6 +335,18 @@
           "description": "Realoca os favoritos que ocupam o destino."
         }
       },
+      "resize": {
+        "title": "Comportamento ao redimensionar",
+        "description": "Escolha como o tamanho responde ao mover as alças.",
+        "smooth": {
+          "title": "Suave",
+          "description": "Estica o item ao arrastar e encaixa na grade ao soltar."
+        },
+        "none": {
+          "title": "Nenhum",
+          "description": "Salta por célula ao cruzar 50% da célula vizinha."
+        }
+      },
       "presets": {
         "title": "Biblioteca de estilos",
         "name": "Nome do estilo",

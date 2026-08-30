@@ -1,5 +1,6 @@
 import '../types/types.js'; // typedefs
 import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
+import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
 
 export const DATA_SCHEMA_VERSION = 4;
 
@@ -114,6 +115,7 @@ export const DEFAULT_BOOKMARKS = [
 export const DEFAULT_SETTINGS = {
   language: 'en',
   bookmarkDragMode: BOOKMARK_DRAG_MODES.NONE,
+  bookmarkResizeMode: BOOKMARK_RESIZE_MODES.SMOOTH,
 
   theme: {
     backgroundDefault: true,

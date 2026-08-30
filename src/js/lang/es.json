@@ -335,6 +335,18 @@
           "description": "Recoloca los favoritos que ocupan el destino."
         }
       },
+      "resize": {
+        "title": "Comportamiento al redimensionar",
+        "description": "Elige cómo responde el tamaño al mover los tiradores.",
+        "smooth": {
+          "title": "Suave",
+          "description": "Estira el elemento al arrastrar y encaja en la cuadrícula al soltar."
+        },
+        "none": {
+          "title": "Ninguno",
+          "description": "Salta de celda al cruzar el 50% de la celda contigua."
+        }
+      },
       "presets": {
         "title": "Biblioteca de estilos",
         "name": "Nombre del estilo",

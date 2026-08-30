@@ -9,6 +9,7 @@ import {
   normalizeBookmarkPreset
 } from './bookmarkModel.js';
 import { normalizeBookmarkDragMode } from './bookmarkDragModes.js';
+import { normalizeBookmarkResizeMode } from './bookmarkResizeModes.js';
 import { normalizeFolderStyle } from './folderModel.js';
 
 /**
@@ -91,6 +92,7 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
       },
       bookmarkDefault: normalizeBookmarkPreset(rawSettings.bookmarkDefault),
       bookmarkDragMode: normalizeBookmarkDragMode(rawSettings.bookmarkDragMode),
+      bookmarkResizeMode: normalizeBookmarkResizeMode(rawSettings.bookmarkResizeMode),
       bookmarkPresets: normalizeNamedPresets(rawSettings.bookmarkPresets),
       bookmarkGroups,
       activeBookmarkGroupId

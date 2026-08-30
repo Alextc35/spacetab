@@ -335,6 +335,18 @@
           "description": "Relocates bookmarks occupying the destination."
         }
       },
+      "resize": {
+        "title": "Resize behavior",
+        "description": "Choose how items respond while moving a resize handle.",
+        "smooth": {
+          "title": "Smooth",
+          "description": "Stretches the item while dragging, then snaps to the grid."
+        },
+        "none": {
+          "title": "None",
+          "description": "Jumps by cell when you cross 50% of the neighboring cell."
+        }
+      },
       "presets": {
         "title": "Style library",
         "name": "Preset name",

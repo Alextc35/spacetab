@@ -104,7 +104,8 @@
 }
 
 .default-bookmark-settings,
-.bookmark-drag-settings {
+.bookmark-drag-settings,
+.bookmark-resize-settings {
   display: grid;
   gap: 8px;
   padding: 14px;
@@ -113,22 +114,95 @@
   background: #181818;
 }
 
-:is(.default-bookmark-settings, .bookmark-drag-settings) :is(h3, p) {
+:is(.default-bookmark-settings, .bookmark-drag-settings, .bookmark-resize-settings) :is(h3, p) {
   margin: 0;
 }
 
-:is(.default-bookmark-settings, .bookmark-drag-settings) > p {
+:is(
+  .default-bookmark-settings,
+  .bookmark-drag-settings,
+  .bookmark-resize-settings,
+  .settings-collapsible-body
+) > p {
   color: #aaa;
   font-size: 13px;
   line-height: 1.5;
+  margin: 0;
 }
 
 .default-bookmark-settings .btn {
   justify-self: start;
 }
 
-:is(.default-bookmark-settings, .bookmark-drag-settings) {
+:is(.default-bookmark-settings, .bookmark-drag-settings, .bookmark-resize-settings) {
   margin-bottom: 12px;
+}
+
+.settings-collapsible-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.settings-collapsible-toggle::after {
+  content: "+";
+  display: grid;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #202020;
+  color: #b9c5d6;
+  font-size: 16px;
+  line-height: 1;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.settings-collapsible-toggle:hover::after {
+  background: #243043;
+  border-color: #4da3ff;
+  color: #fff;
+}
+
+.bookmark-behavior-settings.is-expanded .settings-collapsible-toggle::after {
+  content: "-";
+}
+
+.settings-collapsible-heading {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-collapsible-heading > span {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.settings-collapsible-heading > small {
+  color: #8fbdf1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.settings-collapsible-body {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-collapsible-body[hidden] {
+  display: none;
 }
 
 .settings-bookmark-actions {

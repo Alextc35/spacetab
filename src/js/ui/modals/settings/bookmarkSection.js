@@ -9,9 +9,11 @@ import {
   getDraftBookmarkDefault,
   getDraftBookmarkDragMode,
   getDraftBookmarkPresets,
+  getDraftBookmarkResizeMode,
   replaceDraftBookmarkDefault,
   replaceDraftBookmarkPresets,
-  setDraftBookmarkDragMode
+  setDraftBookmarkDragMode,
+  setDraftBookmarkResizeMode
 } from './settingsState.js';
 
 /**
@@ -36,6 +38,17 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   const dragModeInputs = Array.from(document.querySelectorAll(
     'input[name="bookmark-drag-mode"]'
   ));
+  const resizeModeInputs = Array.from(document.querySelectorAll(
+    'input[name="bookmark-resize-mode"]'
+  ));
+  const behaviorSections = Array.from(document.querySelectorAll(
+    '.bookmark-behavior-settings'
+  ));
+  const dragModeSummary = document.getElementById('bookmark-drag-settings-summary');
+  const resizeModeSummary = document.getElementById('bookmark-resize-settings-summary');
+
+  for (const section of behaviorSections) initCollapsibleSection(section);
+  collapseBehaviorSections();
 
   initImportExportButtons(exportBtn, importInput);
 
@@ -92,6 +105,15 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
     });
   }
 
+  for (const input of resizeModeInputs) {
+    input.addEventListener('change', () => {
+      if (!input.checked) return;
+      setDraftBookmarkResizeMode(input.value);
+      renderResizeMode();
+      onRequestSaveStateUpdate();
+    });
+  }
+
   presetApply.addEventListener('click', () => {
     const selected = getDraftBookmarkPresets().find(preset => preset.id === presetSelect.value);
     if (!selected) return;
@@ -134,10 +156,28 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
         input.checked
       );
     }
+    if (dragModeSummary) {
+      dragModeSummary.textContent = t(`settingsModal.bookmark.drag.${mode}.title`);
+    }
+  }
+
+  function renderResizeMode() {
+    const mode = getDraftBookmarkResizeMode();
+    for (const input of resizeModeInputs) {
+      input.checked = input.value === mode;
+      input.closest('.drag-mode-option')?.classList.toggle(
+        'is-selected',
+        input.checked
+      );
+    }
+    if (resizeModeSummary) {
+      resizeModeSummary.textContent = t(`settingsModal.bookmark.resize.${mode}.title`);
+    }
   }
 
   function syncUI() {
     renderDragMode();
+    renderResizeMode();
     renderPresetOptions();
     onRequestSaveStateUpdate();
   }
@@ -148,4 +188,33 @@ export function initBookmarkSection({ onRequestSaveStateUpdate }) {
   return {
     syncUI
   };
+}
+
+function initCollapsibleSection(section) {
+  const toggle = section.querySelector('.settings-collapsible-toggle');
+  const bodyId = toggle?.getAttribute('aria-controls');
+  const body = bodyId ? document.getElementById(bodyId) : null;
+  if (!toggle || !body) return;
+
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    setSectionExpanded(section, toggle, body, !expanded);
+  });
+}
+
+function collapseBehaviorSections() {
+  for (const section of document.querySelectorAll('.bookmark-behavior-settings')) {
+    const toggle = section.querySelector('.settings-collapsible-toggle');
+    const bodyId = toggle?.getAttribute('aria-controls');
+    const body = bodyId ? document.getElementById(bodyId) : null;
+    if (!toggle || !body) continue;
+    setSectionExpanded(section, toggle, body, false);
+  }
+}
+
+function setSectionExpanded(section, toggle, body, expanded) {
+  toggle.setAttribute('aria-expanded', String(expanded));
+  body.hidden = !expanded;
+  section.classList.toggle('is-expanded', expanded);
+  section.classList.toggle('is-collapsed', !expanded);
 }
