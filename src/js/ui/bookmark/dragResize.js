@@ -111,10 +111,8 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     newGX = Math.max(0, Math.min(newGX, GRID_COLS - item.w));
     newGY = Math.max(0, Math.min(newGY, GRID_ROWS - item.h));
 
-    updateCascadeDirection(dragSession, { gx: newGX, gy: newGY });
-
     const nextFolderTarget = kind === 'bookmark'
-      ? findFolderTarget(e.clientX, e.clientY)
+      ? findFolderTarget(e.clientX, e.clientY, dragSession.folderTargets)
       : null;
     if (nextFolderTarget) {
       setFolderTarget(nextFolderTarget);
@@ -123,10 +121,19 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     }
     setFolderTarget(null);
 
+    const target = { gx: newGX, gy: newGY };
+    // Pointer events can fire dozens of times while the pointer remains inside
+    // one grid cell. The smart-layout calculation is the expensive part of a
+    // drag, so there is no visual or logical work to do until that cell changes.
+    if (sameGridPosition(target, dragSession.lastPreviewTarget)) return;
+
+    updateCascadeDirection(dragSession, target);
+    dragSession.lastPreviewTarget = target;
+
     const layout = calculateSmartDragLayout({
       items: dragSession.items,
       draggedId: item.id,
-      target: { gx: newGX, gy: newGY },
+      target,
       movableIds: dragSession.movableIds,
       mode: dragSession.mode,
       cascadeStep: dragSession.cascadeStep,
@@ -262,6 +269,15 @@ function createSmartDragSession(container, item, kind) {
   const owner = {};
   for (const element of elements.values()) smartDragOwners.set(element, owner);
   const currentItem = items.find(gridItem => gridItem.id === item.id) ?? item;
+  const gridMetrics = {
+    rowWidth: container.clientWidth / GRID_COLS,
+    rowHeight: container.clientHeight / GRID_ROWS
+  };
+  const folderTargets = kind === 'bookmark'
+    ? Array.from(elements.values())
+      .filter(element => element.matches('.bookmark-folder[data-folder-id]'))
+      .map(element => ({ element, rect: element.getBoundingClientRect() }))
+    : [];
 
   return {
     owner,
@@ -273,6 +289,10 @@ function createSmartDragSession(container, item, kind) {
     elements,
     touchedIds: inheritedTouchedIds,
     lastTarget: pickGridPosition(currentItem),
+    lastPreviewTarget: pickGridPosition(currentItem),
+    previewPositions: new Map(originals),
+    gridMetrics,
+    folderTargets,
     cascadeStep: null,
     dropIsValid: true,
     activeLayout: {
@@ -297,7 +317,7 @@ function applySmartDragPreview(container, session, layout) {
 
     if (id === session.draggedId) {
       const position = positions.get(id) ?? original;
-      applyPosition(container, element, position.gx, position.gy);
+      applyPreviewPosition(container, session, id, element, position);
       continue;
     }
 
@@ -305,7 +325,7 @@ function applySmartDragPreview(container, session, layout) {
 
     prepareSmartMovement(element);
     const position = positions.get(id) ?? original;
-    applyPosition(container, element, position.gx, position.gy);
+    applyPreviewPosition(container, session, id, element, position);
     element.classList.toggle('is-smart-displaced', displaced.has(id));
     session.touchedIds.add(id);
   }
@@ -320,7 +340,7 @@ function restoreSmartDragPreview(container, session) {
     if (!element) continue;
 
     if (id !== session.draggedId) prepareSmartMovement(element);
-    applyPosition(container, element, original.gx, original.gy);
+    applyPreviewPosition(container, session, id, element, original);
     element.classList.remove('is-smart-displaced');
   }
 
@@ -363,6 +383,24 @@ function updateCascadeDirection(session, target) {
     session.cascadeStep = { gx: 0, gy: -Math.sign(dy) };
   }
   session.lastTarget = target;
+}
+
+function sameGridPosition(a, b) {
+  return a.gx === b.gx && a.gy === b.gy;
+}
+
+function applyPreviewPosition(container, session, id, element, position) {
+  const previous = session.previewPositions.get(id);
+  if (previous && sameGridPosition(previous, position)) return;
+
+  applyPosition(
+    container,
+    element,
+    position.gx,
+    position.gy,
+    session.gridMetrics
+  );
+  session.previewPositions.set(id, { gx: position.gx, gy: position.gy });
 }
 
 function getGridItemId(element) {
@@ -429,9 +467,11 @@ function handleResize(container, e, div, item, direction, handle, indicator) {
   const start = pickGridRectangle(item);
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
-  const resizeMode = normalizeBookmarkResizeMode(
-    getState().data.settings.bookmarkResizeMode
-  );
+  const { data } = getState();
+  const resizeMode = normalizeBookmarkResizeMode(data.settings.bookmarkResizeMode);
+  // Grid contents do not change until this resize is committed. Capturing them
+  // once avoids cloning the complete application state for every pointer move.
+  const gridItems = getGridItemsInGroup(data, item.groupId);
   let latestIsValid = true;
   let latestGeometry = calculateResizeGeometry({
     direction,
@@ -470,7 +510,7 @@ function handleResize(container, e, div, item, direction, handle, indicator) {
 
     const { grid } = latestGeometry;
     const isValid = isAreaFree(
-      getGridItemsInGroup(getState().data, item.groupId),
+      gridItems,
       grid.gx,
       grid.gy,
       grid.w,
@@ -530,7 +570,7 @@ function handleResize(container, e, div, item, direction, handle, indicator) {
         rows: GRID_ROWS
       }).grid;
       const clickIsValid = isAreaFree(
-        getGridItemsInGroup(getState().data, item.groupId),
+        gridItems,
         clickTarget.gx,
         clickTarget.gy,
         clickTarget.w,
@@ -603,15 +643,14 @@ function applyGridGeometry(container, element, geometry) {
   element.style.height = `${geometry.h * rowHeight - PADDING}px`;
 }
 
-function findFolderTarget(clientX, clientY) {
-  return Array.from(document.querySelectorAll('.bookmark-folder[data-folder-id]'))
-    .find(element => {
-      const rect = element.getBoundingClientRect();
+function findFolderTarget(clientX, clientY, folderTargets) {
+  return folderTargets
+    .find(({ rect }) => {
       return clientX >= rect.left
         && clientX <= rect.right
         && clientY >= rect.top
         && clientY <= rect.bottom;
-    }) ?? null;
+    })?.element ?? null;
 }
 
 /**
@@ -626,9 +665,9 @@ function findFolderTarget(clientX, clientY) {
  * @param {number} gy - Grid row position.
  * @returns {void}
  */
-function applyPosition(container, div, gx, gy) {
-  const rowWidth = container.clientWidth / GRID_COLS;
-  const rowHeight = container.clientHeight / GRID_ROWS;
+function applyPosition(container, div, gx, gy, gridMetrics = null) {
+  const rowWidth = gridMetrics?.rowWidth ?? container.clientWidth / GRID_COLS;
+  const rowHeight = gridMetrics?.rowHeight ?? container.clientHeight / GRID_ROWS;
 
   div.style.left = gx * rowWidth + 'px';
   div.style.top = gy * rowHeight + 'px';

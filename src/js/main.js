@@ -7,7 +7,7 @@ import {
 } from './core/store.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
-import { renderBookmarks } from './ui/bookmark/renderer.js';
+import { enableGridEditing, renderBookmarks } from './ui/bookmark/renderer.js';
 import { clearBookmarkSelection } from './ui/bookmark/selection.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
 import { initWorkspaceToolbar } from './ui/workspaceToolbar.js';
@@ -165,8 +165,14 @@ function handleStateChange(state, prev) {
     changeLanguage(state.data.settings)
   }
 
-  if (settingsChanged || bookmarksChanged || foldersChanged || editingChanged) {
+  if (settingsChanged || bookmarksChanged || foldersChanged) {
     renderBookmarks(container);
+  } else if (editingChanged) {
+    if (state.ui.isEditing) {
+      enableGridEditing(container);
+    } else {
+      renderBookmarks(container);
+    }
   }
 
   if (editingChanged) {

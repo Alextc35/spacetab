@@ -5,7 +5,7 @@ import { addDragAndResize } from './dragResize.js';
 import { addBookmarkActions } from './actions.js';
 import { isBookmarkSelected } from './selection.js';
 import { applyGridItemPosition } from '../gridItemLayout.js';
-import { createFolderElement } from '../folder/renderer.js';
+import { createFolderElement, enableFolderEditing } from '../folder/renderer.js';
 
 /**
  * Renders all bookmarks into the given container element.
@@ -33,9 +33,16 @@ export function renderBookmarks(container) {
   const visibleFolders = folders.filter(
     folder => (folder.groupId ?? null) === settings.activeBookmarkGroupId
   );
+  const bookmarksByFolderId = new Map();
+  for (const bookmark of bookmarks) {
+    if (!bookmark.folderId) continue;
+    const folderBookmarks = bookmarksByFolderId.get(bookmark.folderId) ?? [];
+    folderBookmarks.push(bookmark);
+    bookmarksByFolderId.set(bookmark.folderId, folderBookmarks);
+  }
 
   updateGridSize(container);
-  container.innerHTML = '';
+  const items = document.createDocumentFragment();
 
   visibleBookmarks.forEach((bookmark) => {
     const div = document.createElement('div');
@@ -48,28 +55,73 @@ export function renderBookmarks(container) {
     createBookmarkContent(div, bookmark, isEditing);
 
     if (isEditing) {
-      addBookmarkActions(div, bookmark);
-      addDragAndResize(container, div, bookmark);
+      enableBookmarkEditing(container, div, bookmark);
     }
 
     div.addEventListener('click', (e) => {
-      if (isEditing) {
+      if (div.classList.contains('is-editing')) {
         e.preventDefault();
         e.stopPropagation();
       }
     });
 
-    container.appendChild(div);
+    items.appendChild(div);
   });
 
   visibleFolders.forEach(folder => {
-    container.appendChild(createFolderElement({
+    items.appendChild(createFolderElement({
       container,
       folder,
-      bookmarks: bookmarks.filter(bookmark => bookmark.folderId === folder.id),
+      bookmarks: bookmarksByFolderId.get(folder.id) ?? [],
       isEditing
     }));
   });
+
+  container.replaceChildren(items);
+}
+
+/**
+ * Adds edit-only controls to the already-rendered grid.
+ *
+ * Entering edit mode used to rebuild every bookmark, including every favicon.
+ * Decorating the existing cards keeps that transition responsive on busy
+ * workspaces. Leaving edit mode still renders from state, which removes the
+ * transient controls and their listeners in one pass.
+ *
+ * @param {HTMLElement} container
+ * @returns {void}
+ */
+export function enableGridEditing(container) {
+  if (!container) return;
+
+  const { data: { bookmarks, folders } } = getState();
+  const bookmarksById = new Map(bookmarks.map(bookmark => [bookmark.id, bookmark]));
+  const foldersById = new Map(folders.map(folder => [folder.id, folder]));
+
+  for (const element of container.querySelectorAll('.bookmark[data-bookmark-id]')) {
+    const bookmark = bookmarksById.get(element.dataset.bookmarkId);
+    if (!bookmark) continue;
+
+    element.classList.add('is-editing');
+    element.querySelector('.bookmark-link')?.classList.add('is-editing');
+    enableBookmarkEditing(container, element, bookmark);
+  }
+
+  for (const element of container.querySelectorAll('.bookmark-folder[data-folder-id]')) {
+    const folder = foldersById.get(element.dataset.folderId);
+    if (!folder) continue;
+
+    element.classList.add('is-editing');
+    enableFolderEditing(container, element, folder);
+  }
+}
+
+function enableBookmarkEditing(container, element, bookmark) {
+  if (element.dataset.editingControlsAttached === 'true') return;
+
+  element.dataset.editingControlsAttached = 'true';
+  addBookmarkActions(element, bookmark);
+  addDragAndResize(container, element, bookmark);
 }
 
 /**

@@ -51,9 +51,17 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
   element.append(button);
 
   if (isEditing) {
-    addFolderActions(element, folder);
-    addDragAndResize(container, element, folder, { kind: 'folder' });
+    enableFolderEditing(container, element, folder);
   }
 
   return element;
+}
+
+/** Adds controls and interactions which only exist while the grid is editable. */
+export function enableFolderEditing(container, element, folder) {
+  if (element.dataset.editingControlsAttached === 'true') return;
+
+  element.dataset.editingControlsAttached = 'true';
+  addFolderActions(element, folder);
+  addDragAndResize(container, element, folder, { kind: 'folder' });
 }
