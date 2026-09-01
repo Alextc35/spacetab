@@ -1,5 +1,6 @@
 import '../types/types.js';
 import { DEFAULT_FOLDER_STYLE } from './defaults.js';
+import { isLocalImageReference } from './localImages.js';
 
 export const FOLDER_STYLE_KEYS = Object.freeze([
   'noBackground',
@@ -43,7 +44,7 @@ export function validateFolderDraft(value = {}) {
   if (style.backgroundImageUrl) {
     try {
       const parsed = new URL(style.backgroundImageUrl);
-      if (!IMAGE_PROTOCOLS.has(parsed.protocol)) {
+      if (!IMAGE_PROTOCOLS.has(parsed.protocol) && !isLocalImageReference(style.backgroundImageUrl)) {
         errors.backgroundImageUrl = 'unsupportedProtocol';
       }
     } catch {

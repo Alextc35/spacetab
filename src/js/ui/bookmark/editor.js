@@ -1,5 +1,10 @@
 import { renderBookmarkPreview } from './preview.js';
 import { createLockableInputController } from '../modals/helper/stateLocked.js';
+import {
+  getImageInputValue,
+  initLocalImageUpload,
+  setImageInputValue
+} from '../localImageUpload.js';
 
 /**
  * Creates a bookmark editor that keeps form inputs,
@@ -34,7 +39,9 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     urlClearBtn,
     bgToggleBtn,
     bgCopyBtn,
-    bgClearBtn
+    bgClearBtn,
+    bgUploadBtn,
+    bgUploadInput
   } = elements;
 
   /**
@@ -83,6 +90,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     if (backgroundColor) backgroundColor.disabled = bookmark.noBackground;
     if (textColor) textColor.disabled = !bookmark.showText;
     if (backgroundImage) backgroundImage.disabled = bookmark.backgroundFavicon;
+    if (bgUploadBtn) bgUploadBtn.disabled = bookmark.backgroundFavicon;
     if (showFavicon) showFavicon.disabled = bookmark.backgroundFavicon;
     if (invertBg) invertBg.disabled = bookmark.backgroundFavicon || !hasBgImage;
     if (invertIcon) invertIcon.disabled = !bookmark.backgroundFavicon && !bookmark.showFavicon;
@@ -108,7 +116,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
       onChange: () => {
         if (syncing) return;
 
-        bookmark.backgroundImageUrl = backgroundImage.value.trim() || null;
+        bookmark.backgroundImageUrl = getImageInputValue(backgroundImage) || null;
         bookmark.backgroundImageUrlLocked = bgController?.isLocked() ?? false;
 
         updateStates();
@@ -116,6 +124,13 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
       }
     });
   }
+
+  initLocalImageUpload({
+    button: bgUploadBtn,
+    fileInput: bgUploadInput,
+    targetInput: backgroundImage,
+    signal: abortController.signal
+  });
 
   /**
    * Creates the lockable controller for the URL input.
@@ -218,7 +233,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     if (name) name.value = bookmark.name ?? "";
     if (url) url.value = bookmark.url ?? "";
     if (backgroundColor) backgroundColor.value = bookmark.backgroundColor ?? "";
-    if (backgroundImage) backgroundImage.value = bookmark.backgroundImageUrl ?? "";
+    setImageInputValue(backgroundImage, bookmark.backgroundImageUrl);
     if (backgroundFavicon) backgroundFavicon.checked = bookmark.backgroundFavicon ?? false;
     if (noBackground) noBackground.checked = bookmark.noBackground ?? false;
     if (invertBg) invertBg.checked = bookmark.invertColorBg ?? false;

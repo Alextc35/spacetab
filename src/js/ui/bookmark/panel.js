@@ -237,7 +237,9 @@ function resolveElements(root) {
     urlClearBtn: field('urlClear'),
     bgToggleBtn: field('bgToggle'),
     bgCopyBtn: field('bgCopy'),
-    bgClearBtn: field('bgClear')
+    bgClearBtn: field('bgClear'),
+    bgUploadBtn: field('bgUpload'),
+    bgUploadInput: field('bgUploadInput')
   };
 }
 

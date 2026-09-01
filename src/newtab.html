@@ -183,6 +183,15 @@
                     type="button" aria-label="Clear image URL"
                     data-i18n-aria-label="folder.editor.clearImage">✕</button>
                 </div>
+                <div class="local-image-upload">
+                  <input id="folder-editor-image-upload-input" class="is-hidden" type="file"
+                    accept="image/avif,image/gif,image/jpeg,image/png,image/webp">
+                  <button id="folder-editor-image-upload" class="btn btn-secondary" type="button"
+                    data-i18n="localImage.upload">Upload from this device</button>
+                  <p class="local-image-notice" data-i18n="localImage.notice">
+                    Saved only on this device; it is not synced, even when Sync is on.
+                  </p>
+                </div>
                 <p id="folder-editor-image-error" class="field-error is-hidden" role="alert"></p>
               </div>
             </div>
@@ -360,6 +369,15 @@
                 <button id="settings-theme-clear-bg-image" class="input-action input-clear" type="button"
                   title="Clear input">✕
                 </button>
+              </div>
+              <div class="local-image-upload">
+                <input id="settings-theme-bg-upload-input" class="is-hidden" type="file"
+                  accept="image/avif,image/gif,image/jpeg,image/png,image/webp">
+                <button id="settings-theme-bg-upload" class="btn btn-secondary" type="button"
+                  data-i18n="localImage.upload">Upload from this device</button>
+                <p class="local-image-notice" data-i18n="localImage.notice">
+                  Saved only on this device; it is not synced, even when Sync is on.
+                </p>
               </div>
               <div id="settings-theme-bg-preview" class="bg-preview"></div>
               <button id="settings-theme-reset-bg" class="btn btn-secondary" type="button"
@@ -618,6 +636,15 @@
                         class="input-action input-clear"
                         type="button">✕
                 </button>
+              </div>
+              <div class="local-image-upload">
+                <input data-field="bgUploadInput" class="is-hidden" type="file"
+                  accept="image/avif,image/gif,image/jpeg,image/png,image/webp">
+                <button data-field="bgUpload" class="btn btn-secondary" type="button"
+                  data-i18n="localImage.upload">Upload from this device</button>
+                <p class="local-image-notice" data-i18n="localImage.notice">
+                  Saved only on this device; it is not synced, even when Sync is on.
+                </p>
               </div>
             </div>
             <div class="checkbox-wrapper">

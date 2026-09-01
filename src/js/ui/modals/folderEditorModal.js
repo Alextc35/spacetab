@@ -9,6 +9,11 @@ import { createFolderVisual, applyFolderAppearance } from '../folder/visual.js';
 import { flashSuccess } from '../flash.js';
 import { initTabs } from '../tabs.js';
 import { closeModal, openModal, registerModal } from '../modalManager.js';
+import {
+  getImageInputValue,
+  initLocalImageUpload,
+  setImageInputValue
+} from '../localImageUpload.js';
 import { showAlert } from './alert.js';
 import { createLockableInputController } from './helper/stateLocked.js';
 
@@ -20,6 +25,8 @@ let nameInput;
 let noBackgroundInput;
 let colorInput;
 let imageInput;
+let imageUploadInput;
+let imageUploadButton;
 let textColorInput;
 let preview;
 let saveButton;
@@ -36,6 +43,8 @@ export function initFolderEditorModal() {
   noBackgroundInput = document.getElementById('folder-editor-no-background');
   colorInput = document.getElementById('folder-editor-color');
   imageInput = document.getElementById('folder-editor-image');
+  imageUploadInput = document.getElementById('folder-editor-image-upload-input');
+  imageUploadButton = document.getElementById('folder-editor-image-upload');
   textColorInput = document.getElementById('folder-editor-text-color');
   preview = document.getElementById('folder-editor-preview');
   saveButton = document.getElementById('edit-folder-modal-save');
@@ -58,6 +67,12 @@ export function initFolderEditorModal() {
     copyBtn: document.getElementById('folder-editor-image-copy'),
     clearBtn: document.getElementById('folder-editor-image-clear'),
     onChange: handleInput
+  });
+  initLocalImageUpload({
+    button: imageUploadButton,
+    fileInput: imageUploadInput,
+    targetInput: imageInput,
+    onUploaded: () => imageController?.refresh?.()
   });
   document.getElementById('edit-folder-modal-cancel')
     .addEventListener('click', handleCancel);
@@ -82,7 +97,7 @@ export function openFolderEditor(folderId) {
   nameInput.value = initialValue.name;
   noBackgroundInput.checked = initialValue.noBackground;
   colorInput.value = initialValue.backgroundColor;
-  imageInput.value = initialValue.backgroundImageUrl ?? '';
+  setImageInputValue(imageInput, initialValue.backgroundImageUrl);
   textColorInput.value = initialValue.textColor;
   imageController.setLocked(initialValue.backgroundImageUrlLocked);
   clearErrors();
@@ -110,7 +125,7 @@ function currentValue() {
     name: nameInput.value,
     noBackground: noBackgroundInput.checked,
     backgroundColor: colorInput.value,
-    backgroundImageUrl: imageInput.value.trim() || null,
+    backgroundImageUrl: getImageInputValue(imageInput) || null,
     backgroundImageUrlLocked: imageController?.isLocked() ?? false,
     textColor: textColorInput.value
   };

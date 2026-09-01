@@ -6,6 +6,7 @@ import { addBookmarkActions } from './actions.js';
 import { isBookmarkSelected } from './selection.js';
 import { applyGridItemPosition } from '../gridItemLayout.js';
 import { createFolderElement, enableFolderEditing } from '../folder/renderer.js';
+import { resolveImageSource } from '../../core/localImages.js';
 
 /**
  * Renders all bookmarks into the given container element.
@@ -214,12 +215,13 @@ function resetBookmarkVisualState(div) {
  * @returns {void}
  */
 function applyBackgroundStyle(div, bookmark) {
-  if (bookmark.backgroundImageUrl) {
+  const backgroundImage = resolveImageSource(bookmark.backgroundImageUrl);
+  if (backgroundImage) {
     div.classList.add('has-bg-image');
 
     div.style.setProperty(
       '--bookmark-bg-image',
-      `url("${bookmark.backgroundImageUrl}")`
+      `url("${backgroundImage}")`
     );
 
     if (bookmark.invertColorBg) {

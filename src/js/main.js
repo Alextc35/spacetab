@@ -2,9 +2,11 @@ import { VERSION, DEBUG  } from './core/config.js';
 import {
   subscribe,
   hydrateStore,
+  getState,
   getStorageMode,
   getSyncCompatibility
 } from './core/store.js';
+import { preloadLocalImages } from './core/localImages.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { enableGridEditing, renderBookmarks } from './ui/bookmark/renderer.js';
@@ -49,6 +51,7 @@ async function initApp() {
   }
 
   await initState();
+  await preloadLocalImages(getState().data);
 
   if (DEBUG) logStorageUsage();
 
@@ -161,12 +164,18 @@ function handleStateChange(state, prev) {
   }
 
   if (settingsChanged) {
-    applyGlobalTheme(state.data.settings);
     changeLanguage(state.data.settings)
   }
 
   if (settingsChanged || bookmarksChanged || foldersChanged) {
-    renderBookmarks(container);
+    void preloadLocalImages(state.data).then(() => {
+      if (settingsChanged) applyGlobalTheme(state.data.settings);
+      renderBookmarks(container);
+    }).catch(error => {
+      console.error('[LOCAL_IMAGE] Could not load local image:', error);
+      if (settingsChanged) applyGlobalTheme(state.data.settings);
+      renderBookmarks(container);
+    });
   } else if (editingChanged) {
     if (state.ui.isEditing) {
       enableGridEditing(container);

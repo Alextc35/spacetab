@@ -9,6 +9,7 @@ import {
   normalizeBookmarkUrl,
   validateBookmarkDraft
 } from '../src/js/core/bookmarkModel.js';
+import { validateFolderDraft } from '../src/js/core/folderModel.js';
 import { findFirstFreeSlot, isAreaFree } from '../src/js/core/grid.js';
 
 test('a preset contains appearance fields only', () => {
@@ -90,6 +91,19 @@ test('URLs are normalized and unsupported protocols are rejected', () => {
     validateBookmarkDraft({ name: 'Unsafe', url: 'javascript:alert(1)' }).errors.url,
     'unsupportedProtocol'
   );
+});
+
+test('accepts device-local image references without placing image bytes in app data', () => {
+  const localImage = 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
+
+  assert.equal(validateBookmarkDraft({
+    name: 'Local image',
+    backgroundImageUrl: localImage
+  }).isValid, true);
+  assert.equal(validateFolderDraft({
+    name: 'Local image folder',
+    backgroundImageUrl: localImage
+  }).isValid, true);
 });
 
 test('grid placement scans columns then rows and reports a full grid', () => {

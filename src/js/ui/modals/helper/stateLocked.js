@@ -70,8 +70,7 @@ export function createLockableInputController({
     clearBtn.addEventListener('click', () => {
       if (locked) return;
       input.value = '';
-      updateUI();
-      onChange();
+      input.dispatchEvent(new Event('input', { bubbles: true }));
     }, eventOptions);
   }
 

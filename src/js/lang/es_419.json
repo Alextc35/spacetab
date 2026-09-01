@@ -43,6 +43,12 @@
       "copied": "Valor copiado al portapapeles",
       "resetBg": "Tema restablecido"
     },
+    "localImage": {
+      "invalid": "Elige una imagen PNG, JPEG, WebP, GIF o AVIF.",
+      "tooLarge": "Esta imagen es demasiado grande para guardarla en este dispositivo.",
+      "storageFull": "No hay espacio local suficiente para esta imagen.",
+      "processing": "No se pudo procesar esta imagen."
+    },
     "sync": {
       "enabled": "Sincronización activada",
       "localEnabled": "Modo local activado",
@@ -110,6 +116,11 @@
     "accept": "Aceptar",
     "cancel": "Cancelar",
     "close": "Cerrar"
+  },
+  "localImage": {
+    "upload": "Subir desde este dispositivo",
+    "notice": "Se guarda solo en este dispositivo; no se sincroniza aunque actives Sync.",
+    "unnamed": "Imagen local"
   },
   "workspace": {
     "ariaLabel": "Controles del espacio de trabajo",

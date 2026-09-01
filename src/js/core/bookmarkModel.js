@@ -4,6 +4,7 @@ import {
   DEFAULT_BOOKMARK_STRUCTURE,
   DEFAULT_BOOKMARK_STYLE
 } from './defaults.js';
+import { isLocalImageReference } from './localImages.js';
 
 export const BOOKMARK_STYLE_KEYS = Object.freeze([
   'backgroundImageUrl',
@@ -176,7 +177,10 @@ export function validateBookmarkDraft(value = {}) {
   if (draft.backgroundImageUrl) {
     try {
       const parsed = new URL(draft.backgroundImageUrl);
-      if (!['http:', 'https:', 'data:'].includes(parsed.protocol)) {
+      if (
+        !['http:', 'https:', 'data:'].includes(parsed.protocol)
+        && !isLocalImageReference(draft.backgroundImageUrl)
+      ) {
         errors.backgroundImageUrl = 'unsupportedProtocol';
       }
     } catch {

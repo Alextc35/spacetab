@@ -72,6 +72,59 @@ async function moveGridItemByCells(page, bookmark, deltaX, deltaY) {
     .toBeCloseTo(start.y + deltaY * gridBox.height / 6, 0);
 }
 
+test('keeps a locally uploaded theme image out of synchronized storage', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await page.getByRole('radio', { name: /Synced/ }).check();
+  await page.locator('#settings-modal-save').click();
+
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+
+  const fileInput = page.locator('#settings-theme-bg-upload-input');
+  await fileInput.setInputFiles({
+    name: 'theme.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL1SQAAAABJRU5ErkJggg==',
+      'base64'
+    )
+  });
+
+  const imageReference = page.locator('#settings-theme-bg-image');
+  await expect(imageReference).toHaveValue('theme.png');
+  await expect(page.locator('#settings-modal .local-image-notice')).toBeVisible();
+  await page.locator('#settings-modal-save').click();
+
+  await expect.poll(() => page.evaluate(() => {
+    const local = JSON.parse(sessionStorage.getItem('spacetab-test-local') || '{}');
+    const sync = JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}');
+    const serialized = sync['spacetabSyncChunk:0'];
+    const syncedImage = serialized
+      ? JSON.parse(serialized).settings.theme.backgroundImageUrl
+      : null;
+    return {
+      localAssetCount: Object.keys(local).filter(key => key.startsWith('spacetabLocalImage:')).length,
+      syncedImage
+    };
+  })).toEqual({
+    localAssetCount: 1,
+    syncedImage: expect.stringMatching(/^spacetab-local-image:/)
+  });
+
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => (
+    document.documentElement.style.getPropertyValue('--image-bg-body')
+  ))).toContain('data:image/webp');
+
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+  await expect(imageReference).toHaveValue('theme.png');
+});
+
 test('reveals the bottom workspace dock on hover and keyboard focus', async ({ page }) => {
   const toolbar = page.getByRole('navigation', { name: 'Workspace controls' });
   const viewportHeight = page.viewportSize().height;

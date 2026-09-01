@@ -43,6 +43,12 @@
       "copied": "Value copied to clipboard",
       "resetBg": "Theme reset"
     },
+    "localImage": {
+      "invalid": "Choose a PNG, JPEG, WebP, GIF, or AVIF image.",
+      "tooLarge": "This image is too large to store on this device.",
+      "storageFull": "There is not enough local space for this image.",
+      "processing": "This image could not be processed."
+    },
     "sync": {
       "enabled": "Sync enabled",
       "localEnabled": "Local mode enabled",
@@ -110,6 +116,11 @@
     "accept": "Accept",
     "cancel": "Cancel",
     "close": "Close"
+  },
+  "localImage": {
+    "upload": "Upload from this device",
+    "notice": "Saved only on this device; it is not synced, even when Sync is on.",
+    "unnamed": "Local image"
   },
   "workspace": {
     "ariaLabel": "Workspace controls",
