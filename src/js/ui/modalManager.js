@@ -40,6 +40,8 @@ export function hasOpenModal() {
 }
 
 document.addEventListener('keydown', (e) => {
+  if (e.defaultPrevented) return;
+
   const isTyping =
     ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)
     || document.activeElement?.isContentEditable;

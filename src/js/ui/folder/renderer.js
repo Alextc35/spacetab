@@ -2,6 +2,7 @@ import { t } from '../../core/i18n.js';
 import { applyGridItemPosition } from '../gridItemLayout.js';
 import { addDragAndResize } from '../bookmark/dragResize.js';
 import { openFolderModal } from '../modals/folderModal.js';
+import { isGridKeyboardActive } from '../bookmark/gridKeyboardNavigation.js';
 import { addFolderActions } from './actions.js';
 import { applyFolderAppearance, createFolderVisual } from './visual.js';
 
@@ -11,6 +12,7 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
   element.className = 'bookmark bookmark-folder';
   element.dataset.folderId = folder.id;
   element.classList.toggle('is-editing', isEditing);
+  element.classList.toggle('is-keyboard-active', isGridKeyboardActive(folder.id));
   applyFolderAppearance(element, folder);
   applyGridItemPosition(container, element, folder);
 

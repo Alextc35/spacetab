@@ -4,6 +4,7 @@ import { createFavicon } from './favicon.js';
 import { addDragAndResize } from './dragResize.js';
 import { addBookmarkActions } from './actions.js';
 import { isBookmarkSelected } from './selection.js';
+import { isGridKeyboardActive } from './gridKeyboardNavigation.js';
 import { applyGridItemPosition } from '../gridItemLayout.js';
 import { createFolderElement, enableFolderEditing } from '../folder/renderer.js';
 import { resolveImageSource } from '../../core/localImages.js';
@@ -51,6 +52,7 @@ export function renderBookmarks(container) {
     div.dataset.bookmarkId = bookmark.id;
     div.classList.toggle('is-editing', isEditing);
     div.classList.toggle('is-selected', isBookmarkSelected(bookmark.id));
+    div.classList.toggle('is-keyboard-active', isGridKeyboardActive(bookmark.id));
 
     applyBookmarkStyle(container, div, bookmark);
     createBookmarkContent(div, bookmark, isEditing);

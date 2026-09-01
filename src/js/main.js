@@ -15,6 +15,7 @@ import { initUIController, updateEditUI } from './ui/uiController.js';
 import { initWorkspaceToolbar } from './ui/workspaceToolbar.js';
 import { initBulkBookmarkActions } from './ui/bookmark/bulkActions.js';
 import { initBookmarkKeyboardMovement } from './ui/bookmark/keyboardMovement.js';
+import { initGridKeyboardNavigation } from './ui/bookmark/gridKeyboardNavigation.js';
 import { initFolderController } from './ui/folder/controller.js';
 import { flashInfo } from './ui/flash.js';
 import { initBookmarkModal,
@@ -62,6 +63,7 @@ async function initApp() {
   initModals();
   initWorkspaceToolbar();
   initBulkBookmarkActions();
+  initGridKeyboardNavigation(container);
   initBookmarkKeyboardMovement();
   initFolderController();
 

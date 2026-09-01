@@ -91,6 +91,22 @@
     box-shadow: 0 0 0 4px rgba(77, 163, 255, .25);
   }
 
+  &.is-keyboard-active {
+    outline: 3px solid #facc15;
+    outline-offset: -3px;
+    box-shadow: 0 0 0 4px rgba(250, 204, 21, .3);
+  }
+
+  &.is-selected.is-keyboard-active {
+    /* Keep bulk selection visible while the keyboard focus is on this card. */
+    box-shadow: 0 0 0 4px #4da3ff,
+      0 0 0 7px rgba(77, 163, 255, .28);
+  }
+
+  &.is-keyboard-selection-blocked {
+    animation: keyboardSelectionBlocked .52s ease-in-out;
+  }
+
   &.is-smart-moving {
     transition: left .18s cubic-bezier(.22, 1, .36, 1),
       top .18s cubic-bezier(.22, 1, .36, 1),
@@ -294,6 +310,18 @@
     & a {
       pointer-events: none;
     }
+  }
+}
+
+@keyframes keyboardSelectionBlocked {
+  0%, 100% {
+    outline-color: #facc15;
+    box-shadow: 0 0 0 4px rgba(250, 204, 21, .3);
+  }
+
+  25%, 75% {
+    outline-color: #ef4444;
+    box-shadow: 0 0 0 7px rgba(239, 68, 68, .52);
   }
 }
 

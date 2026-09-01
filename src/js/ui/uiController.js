@@ -67,6 +67,8 @@ export function updateEditUI(isEditing) {
 async function toggleEditMode() {
   const isEditing = await toggleEditing();
 
+  if (isEditing) containerRef?.focus({ preventScroll: true });
+
   flash(
     isEditing
       ? t('flash.editMode.enabled')

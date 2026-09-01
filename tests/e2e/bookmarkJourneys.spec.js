@@ -59,6 +59,12 @@ async function moveGridItemByCells(page, bookmark, deltaX, deltaY) {
 
   await page.mouse.move(pointer.x, pointer.y);
   await page.mouse.down();
+  await expect(bookmark).not.toHaveClass(/is-dragging/);
+  const distance = Math.hypot(deltaX, deltaY);
+  await page.mouse.move(
+    pointer.x + deltaX / distance * 6,
+    pointer.y + deltaY / distance * 6
+  );
   await expect(bookmark).toHaveClass(/is-dragging/);
   await page.mouse.move(
     pointer.x + deltaX * gridBox.width / 12,
@@ -215,6 +221,123 @@ test('selects on a short click and exposes only the direct edit control', async 
   await expect(edit).not.toHaveCSS('background-color', 'rgb(37, 99, 235)');
 });
 
+test('navigates the grid with Tab and opens the keyboard-focused bookmark', async ({ page }) => {
+  const bookmarks = page.locator('#bookmark-container > .bookmark[data-bookmark-id]');
+  const first = bookmarks.nth(0);
+  const second = bookmarks.nth(1);
+
+  await page.keyboard.press('Tab');
+  await expect(first).toHaveClass(/is-keyboard-active/);
+
+  await page.keyboard.press('ArrowRight');
+  await expect(second).toHaveClass(/is-keyboard-active/);
+
+  await page.keyboard.press('ArrowLeft');
+  await expect(first).toHaveClass(/is-keyboard-active/);
+
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.bookmark.is-keyboard-active')).toHaveCount(0);
+
+  await page.keyboard.press('Tab');
+  await expect(first).toHaveClass(/is-keyboard-active/);
+
+  await first.locator('.bookmark-link').evaluate(link => {
+    link.setAttribute('href', '#keyboard-opened');
+  });
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/#keyboard-opened$/);
+});
+
+test('marks the keyboard-focused bookmark with S while editing', async ({ page }) => {
+  await enableEditMode(page);
+  const grid = page.locator('#bookmark-container');
+  const bookmarks = page.locator('#bookmark-container > .bookmark[data-bookmark-id]');
+  const first = bookmarks.nth(0);
+  const second = bookmarks.nth(1);
+
+  await expect(grid).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(first).toHaveClass(/is-keyboard-active/);
+
+  await page.keyboard.press('s');
+  await expect(first).toHaveClass(/is-selected/);
+
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#edit-bookmark-modal')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#edit-bookmark-modal')).toBeHidden();
+
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowRight');
+  await expect(second).toHaveClass(/is-keyboard-active/);
+  await expect(first).toHaveClass(/is-selected/);
+});
+
+test('navigates folders and opens them according to the current edit mode', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('Keyboard folder');
+  await page.getByRole('button', { name: 'Accept' }).click();
+
+  const grid = page.locator('#bookmark-container');
+  const folder = page.locator('.bookmark-folder', { hasText: 'Keyboard folder' });
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowDown');
+  await expect(folder).toHaveClass(/is-keyboard-active/);
+
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#folder-modal')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#folder-modal')).toBeHidden();
+
+  await enableEditMode(page);
+  await expect(grid).toBeFocused();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowDown');
+  await expect(folder).toHaveClass(/is-keyboard-active/);
+
+  await page.keyboard.press('s');
+  await expect(folder).toHaveClass(/is-keyboard-selection-blocked/);
+  await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#edit-folder-modal')).toBeVisible();
+});
+
+test('prefers the item aligned with the active grid column', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('Column folder');
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await createBookmark(page, 'Directly below', 'below.test');
+  await createBookmark(page, 'Left below', 'left-below.test');
+
+  await page.evaluate(() => {
+    const storageKey = 'spacetab-test-local';
+    const stored = JSON.parse(sessionStorage.getItem(storageKey));
+    const folder = stored.folders.find(entry => entry.name === 'Column folder');
+    const below = stored.bookmarks.find(entry => entry.name === 'Directly below');
+    const leftBelow = stored.bookmarks.find(entry => entry.name === 'Left below');
+
+    Object.assign(stored.bookmarks[0], { gx: 0, gy: 3 });
+    Object.assign(stored.bookmarks[1], { gx: 1, gy: 3 });
+    Object.assign(folder, { gx: 5, gy: 0 });
+    Object.assign(below, { gx: 5, gy: 1 });
+    Object.assign(leftBelow, { gx: 4, gy: 1 });
+    sessionStorage.setItem(storageKey, JSON.stringify(stored));
+  });
+  await page.reload();
+
+  await page.locator('#bookmark-container').focus();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.bookmark-folder', { hasText: 'Column folder' }))
+    .toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator('.bookmark', { hasText: 'Directly below' }))
+    .toHaveClass(/is-keyboard-active/);
+});
+
 test('skips occupied cells to the next free gap with arrow keys in none mode', async ({ page }) => {
   await setBookmarkDragMode(page, 'none');
   await createBookmark(page, 'Arrow blocker', 'arrow-blocker.test');
@@ -305,6 +428,8 @@ test('turns cascades across rows and persists the whole path atomically', async 
 
   await page.mouse.move(pointerStart.x, pointerStart.y);
   await page.mouse.down();
+  await expect(dragged).not.toHaveClass(/is-dragging/);
+  await page.mouse.move(pointerStart.x - 6, pointerStart.y);
   await expect(dragged).toHaveClass(/is-dragging/);
   await page.mouse.move(pointerStart.x - cellWidth * 3, pointerStart.y, { steps: 12 });
 
@@ -436,6 +561,8 @@ test('defaults to none, warns about sequence, and persists drag modes', async ({
 
   await page.mouse.move(pointerStart.x, pointerStart.y);
   await page.mouse.down();
+  await expect(dragged).not.toHaveClass(/is-dragging/);
+  await page.mouse.move(pointerStart.x - 6, pointerStart.y);
   await expect(dragged).toHaveClass(/is-dragging/);
   await page.mouse.move(pointerStart.x - gridBox.width / 6, pointerStart.y, { steps: 10 });
 
@@ -684,6 +811,8 @@ test('keeps a relocated bookmark still while a wide folder continues moving', as
 
   await page.mouse.move(pointer.x, pointer.y);
   await page.mouse.down();
+  await expect(folder).not.toHaveClass(/is-dragging/);
+  await page.mouse.move(pointer.x + 6, pointer.y);
   await expect(folder).toHaveClass(/is-dragging/);
   await page.mouse.move(pointer.x + cellWidth, pointer.y, { steps: 8 });
   await expect(folder).not.toHaveClass(/is-invalid/);

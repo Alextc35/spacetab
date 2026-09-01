@@ -91,7 +91,6 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     moved = false;
     dragSession = createSmartDragSession(container, item, kind);
 
-    div.classList.add('is-dragging');
     div.setPointerCapture(e.pointerId);
   });
 
@@ -100,7 +99,11 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
 
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
-    if (Math.hypot(dx, dy) > 4) moved = true;
+    if (!moved) {
+      if (Math.hypot(dx, dy) <= 4) return;
+      moved = true;
+      div.classList.add('is-dragging');
+    }
 
     let newLeft = startLeft + dx;
     let newTop = startTop + dy;
