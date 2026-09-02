@@ -163,6 +163,32 @@ test('uses existing synchronized data instead of overwriting it', async () => {
   assert.equal(result.data.bookmarks[0].id, 'local');
 });
 
+test('identifies synchronized writes from this and other devices', async () => {
+  const events = [];
+  const unsubscribe = storage.subscribe(change => events.push(change));
+
+  await storage.set(LOCAL_DATA);
+
+  const ownMeta = chrome.storage.sync.data.spacetabSyncMeta;
+  assert.equal(typeof ownMeta.writerDeviceId, 'string');
+  assert.equal(typeof ownMeta.writeId, 'string');
+  assert.equal(events.at(-1).areaName, STORAGE_MODES.SYNC);
+  assert.equal(events.at(-1).origin, 'same-device');
+
+  chrome.storage.sync.set({
+    spacetabSyncMeta: {
+      ...ownMeta,
+      updatedAt: ownMeta.updatedAt + 1,
+      writerDeviceId: 'another-device',
+      writeId: 'another-device-write'
+    }
+  }, () => {});
+
+  assert.equal(events.at(-1).areaName, STORAGE_MODES.SYNC);
+  assert.equal(events.at(-1).origin, 'other-device');
+  unsubscribe();
+});
+
 test('chunks values safely below Chrome per-item quota', async () => {
   const chunkedData = {
     bookmarks: [{

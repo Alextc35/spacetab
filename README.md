@@ -201,7 +201,9 @@ chunks. SpaceTab reports quota/persistence errors and shows the current save
 status in Settings. The Sync panel shows live used, total and available capacity
 for the currently selected mode, reports the latest synchronized update and can
 delete all synchronized SpaceTab data after confirmation. Deleting sync data first
-keeps the working data locally when necessary.
+keeps the working data locally when necessary. An open SpaceTab page also shows
+a flash message when its data is updated by another synchronized device; writes
+made on the current device do not trigger that message locally.
 
 > Cross-device sync requires the same extension ID on every installation. A
 > Chrome Web Store release provides this automatically. Development installs
@@ -221,7 +223,8 @@ keeps the working data locally when necessary.
 
 Press `Tab` while the page is focused to enter keyboard grid navigation; press
 `Tab` again to leave it. The first visible top-level item receives focus and
-`↑/↓/←/→` moves to the nearest bookmark or folder in that direction. While
+an informational flash confirms both mode changes. `↑/↓/←/→` moves to the
+nearest bookmark or folder in that direction. While
 this navigation is active, `Enter` opens the focused bookmark or folder outside
 edit mode. In edit mode, `Enter` opens the focused item's editor when there is
 no selection or when that bookmark is the sole selected item; `S` toggles the

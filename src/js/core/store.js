@@ -19,6 +19,9 @@ let isHydrating = true;
 /** @type {ReturnType<typeof setTimeout>|null} */
 let storageRefreshTimer = null;
 
+/** @type {{areaName: 'local'|'sync', origin: 'same-device'|'other-device'}|null} */
+let pendingStorageChange = null;
+
 /** @type {(() => void)|null} */
 let unsubscribeFromStorage = null;
 
@@ -36,6 +39,9 @@ const redoStack = [];
  * @type {Array<(state: AppState, prevState: AppState|null) => void>}
  */
 const listeners = [];
+
+/** @type {Array<() => void>} */
+const remoteSyncUpdateListeners = [];
 
 /**
  * Returns a deep clone of the current state.
@@ -278,6 +284,22 @@ export function subscribe(listener) {
 }
 
 /**
+ * Subscribes to data updates received from another synchronized device.
+ * Unlike the regular store subscription, this is not invoked immediately.
+ *
+ * @param {() => void} listener
+ * @returns {() => void} Function to unsubscribe.
+ */
+export function subscribeToRemoteSyncUpdates(listener) {
+  remoteSyncUpdateListeners.push(listener);
+
+  return () => {
+    const index = remoteSyncUpdateListeners.indexOf(listener);
+    if (index > -1) remoteSyncUpdateListeners.splice(index, 1);
+  };
+}
+
+/**
  * Toggles the UI editing mode.
  * @returns {Promise<boolean>}
  */
@@ -322,9 +344,10 @@ function finishHydration() { isHydrating = false; }
  * Used for changes received from another tab or synchronized device.
  *
  * @param {PersistedData} data
+ * @returns {boolean} Whether the in-memory data changed.
  */
 function replacePersistedData(data) {
-  if (JSON.stringify(state.data) === JSON.stringify(data)) return;
+  if (JSON.stringify(state.data) === JSON.stringify(data)) return false;
 
   const prevState = state;
   state = {
@@ -335,6 +358,7 @@ function replacePersistedData(data) {
   clearBookmarkHistory();
 
   notify(state, prevState);
+  return true;
 }
 
 /**
@@ -345,15 +369,32 @@ function replacePersistedData(data) {
 function subscribeToStorageChanges() {
   if (unsubscribeFromStorage) return;
 
-  unsubscribeFromStorage = storage.subscribe(() => {
+  unsubscribeFromStorage = storage.subscribe(change => {
+    if (
+      change.origin === 'other-device'
+      || pendingStorageChange?.origin !== 'other-device'
+    ) {
+      pendingStorageChange = change;
+    }
+
     if (storageRefreshTimer) clearTimeout(storageRefreshTimer);
 
     storageRefreshTimer = setTimeout(async () => {
       storageRefreshTimer = null;
+      const refreshChange = pendingStorageChange;
+      pendingStorageChange = null;
 
       try {
         const persisted = await storage.get(null);
-        replacePersistedData(persisted);
+        const dataChanged = replacePersistedData(persisted);
+
+        if (
+          dataChanged
+          && refreshChange?.areaName === STORAGE_MODES.SYNC
+          && refreshChange.origin === 'other-device'
+        ) {
+          for (const listener of remoteSyncUpdateListeners) listener();
+        }
       } catch (err) {
         console.error('[STORE] Storage refresh failed:', err);
       }

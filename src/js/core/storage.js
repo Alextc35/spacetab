@@ -9,6 +9,7 @@ export const STORAGE_MODES = Object.freeze({
 
 const STORAGE_MODE_KEY = 'spacetabStorageMode';
 const SYNC_COMPATIBILITY_KEY = 'spacetabSyncCompatibility';
+const DEVICE_ID_KEY = 'spacetabDeviceId';
 const SYNC_META_KEY = 'spacetabSyncMeta';
 const SYNC_CHUNK_PREFIX = 'spacetabSyncChunk:';
 const SYNC_FORMAT_VERSION = 1;
@@ -18,6 +19,12 @@ const LEGACY_SYNC_KEYS = ['schemaVersion', 'bookmarks', 'folders', 'settings'];
 /** @type {'local'|'sync'} */
 let activeMode = STORAGE_MODES.LOCAL;
 let initialized = false;
+
+/** @type {string|null} */
+let deviceId = null;
+
+/** @type {string|null} */
+let lastObservedSyncWriterDeviceId = null;
 
 /** @type {SyncCompatibilityBlock|null} */
 let syncCompatibility = null;
@@ -176,6 +183,10 @@ async function readSyncData() {
     };
   }
 
+  lastObservedSyncWriterDeviceId = typeof meta.writerDeviceId === 'string'
+    ? meta.writerDeviceId
+    : null;
+
   if (
     meta.version > SYNC_FORMAT_VERSION
   ) {
@@ -246,7 +257,9 @@ async function writeSyncData(data) {
     version: SYNC_FORMAT_VERSION,
     schemaVersion: DATA_SCHEMA_VERSION,
     chunkCount: chunks.length,
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
+    writerDeviceId: deviceId,
+    writeId: crypto.randomUUID()
   };
 
   const quotaBytes = chrome.storage.sync.QUOTA_BYTES ?? 102400;
@@ -379,8 +392,19 @@ async function initialize() {
   const result = await callStorage(
     chrome.storage.local,
     'get',
-    [STORAGE_MODE_KEY, SYNC_COMPATIBILITY_KEY]
+    [STORAGE_MODE_KEY, SYNC_COMPATIBILITY_KEY, DEVICE_ID_KEY]
   );
+  deviceId = typeof result[DEVICE_ID_KEY] === 'string'
+    && result[DEVICE_ID_KEY].length > 0
+    ? result[DEVICE_ID_KEY]
+    : crypto.randomUUID();
+
+  if (result[DEVICE_ID_KEY] !== deviceId) {
+    await callStorage(chrome.storage.local, 'set', {
+      [DEVICE_ID_KEY]: deviceId
+    });
+  }
+
   syncCompatibility = normalizeSyncCompatibility(
     result[SYNC_COMPATIBILITY_KEY]
   );
@@ -633,7 +657,10 @@ export const storage = {
   /**
    * Subscribes to persisted-data changes in the currently active area.
    *
-   * @param {() => void} listener
+   * @param {(change: {
+   *   areaName: 'local'|'sync',
+   *   origin: 'same-device'|'other-device'
+   * }) => void} listener
    * @returns {() => void}
    */
   subscribe(listener) {
@@ -648,27 +675,40 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
       ? STORAGE_MODES.SYNC
       : STORAGE_MODES.LOCAL;
 
-    for (const listener of changeListeners) listener();
+    for (const listener of changeListeners) {
+      listener({ areaName, origin: 'same-device' });
+    }
     return;
   }
 
   if (areaName !== activeMode) return;
 
   const changedKeys = Object.keys(changes);
+  const hasLegacySyncWrite = LEGACY_SYNC_KEYS.some(key => (
+    changes[key]?.newValue !== undefined
+  ));
   const isApplicationChange = activeMode === STORAGE_MODES.LOCAL
     ? changedKeys.some(key => (
         key === 'schemaVersion' || key === 'bookmarks' || key === 'settings'
         || key === 'folders'
       ))
-    : changedKeys.some(key => (
-        key === SYNC_META_KEY ||
-        key === 'schemaVersion' ||
-        key === 'bookmarks' ||
-        key === 'folders' ||
-        key === 'settings' ||
-        key.startsWith(SYNC_CHUNK_PREFIX)
-      ));
+    : changes[SYNC_META_KEY] !== undefined
+      || hasLegacySyncWrite
+      || changedKeys.some(key => key.startsWith(SYNC_CHUNK_PREFIX));
 
   if (!isApplicationChange) return;
-  for (const listener of changeListeners) listener();
+
+  if (changes[SYNC_META_KEY]) {
+    const metaWriterDeviceId = changes[SYNC_META_KEY].newValue?.writerDeviceId;
+    lastObservedSyncWriterDeviceId = typeof metaWriterDeviceId === 'string'
+      ? metaWriterDeviceId
+      : null;
+  }
+
+  const origin = areaName === STORAGE_MODES.SYNC
+    && lastObservedSyncWriterDeviceId !== deviceId
+    ? 'other-device'
+    : 'same-device';
+
+  for (const listener of changeListeners) listener({ areaName, origin });
 });

@@ -1,4 +1,5 @@
 import { getState } from '../../core/store.js';
+import { flashInfo } from '../flash.js';
 import { hasOpenModal } from '../modalManager.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { openFolderEditor } from '../modals/folderEditorModal.js';
@@ -58,6 +59,7 @@ function handleGridKeyboardNavigation(event) {
     if (activeItemId) {
       event.preventDefault();
       clearGridKeyboardNavigation();
+      flashInfo('flash.selectionMode.disabled');
       return;
     }
 
@@ -66,6 +68,7 @@ function handleGridKeyboardNavigation(event) {
     if (!items.length) return;
     event.preventDefault();
     setActiveItem(items[0].id);
+    flashInfo('flash.selectionMode.enabled');
     return;
   }
 

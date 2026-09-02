@@ -7,6 +7,10 @@
       "enabled": "Modo edición activado",
       "disabled": "Modo edición desactivado"
     },
+    "selectionMode": {
+      "enabled": "Modo selección activado",
+      "disabled": "Modo selección desactivado"
+    },
     "bookmark": {
       "added": "Favorito añadido correctamente",
       "notFound": "Favorito no encontrado",
@@ -53,6 +57,7 @@
       "enabled": "Sincronización activada",
       "localEnabled": "Modo local activado",
       "remoteLoaded": "Datos sincronizados cargados",
+      "updatedFromOtherDevice": "Cambios sincronizados recibidos de otro dispositivo",
       "error": "No se pudo cambiar el modo de almacenamiento",
       "versionBlocked": "Sincronización pausada: los datos en la nube requieren una versión más reciente de SpaceTab. Se muestran los datos locales de este dispositivo.",
       "quotaError": "Los datos superan el espacio disponible para sincronización",

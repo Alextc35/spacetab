@@ -4,7 +4,8 @@ import {
   hydrateStore,
   getState,
   getStorageMode,
-  getSyncCompatibility
+  getSyncCompatibility,
+  subscribeToRemoteSyncUpdates
 } from './core/store.js';
 import { preloadLocalImages } from './core/localImages.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
@@ -58,6 +59,9 @@ async function initApp() {
 
   await initI18n();
   subscribe(handleStateChange);
+  subscribeToRemoteSyncUpdates(() => {
+    flashInfo('flash.sync.updatedFromOtherDevice', 4000);
+  });
 
   initUI();
   initModals();

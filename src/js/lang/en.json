@@ -7,6 +7,10 @@
       "enabled": "Edit mode enabled",
       "disabled": "Edit mode disabled"
     },
+    "selectionMode": {
+      "enabled": "Selection mode enabled",
+      "disabled": "Selection mode disabled"
+    },
     "bookmark": {
       "added": "Bookmark added successfully",
       "notFound": "Bookmark not found",
@@ -53,6 +57,7 @@
       "enabled": "Sync enabled",
       "localEnabled": "Local mode enabled",
       "remoteLoaded": "Synced data loaded",
+      "updatedFromOtherDevice": "Synced changes received from another device",
       "error": "Could not change storage mode",
       "versionBlocked": "Sync was paused because the cloud data requires a newer SpaceTab version. This device's local data is being shown.",
       "quotaError": "The data exceeds the available sync storage",

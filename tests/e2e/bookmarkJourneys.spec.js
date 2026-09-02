@@ -279,6 +279,7 @@ test('navigates the grid with Tab and opens the keyboard-focused bookmark', asyn
 
   await page.keyboard.press('Tab');
   await expect(first).toHaveClass(/is-keyboard-active/);
+  await expect(page.locator('.flash-message').last()).toHaveText('Selection mode enabled');
 
   await page.keyboard.press('ArrowRight');
   await expect(second).toHaveClass(/is-keyboard-active/);
@@ -288,6 +289,7 @@ test('navigates the grid with Tab and opens the keyboard-focused bookmark', asyn
 
   await page.keyboard.press('Tab');
   await expect(page.locator('.bookmark.is-keyboard-active')).toHaveCount(0);
+  await expect(page.locator('.flash-message').last()).toHaveText('Selection mode disabled');
 
   await page.keyboard.press('Tab');
   await expect(first).toHaveClass(/is-keyboard-active/);
