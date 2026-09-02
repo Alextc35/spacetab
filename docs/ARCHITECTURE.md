@@ -104,10 +104,21 @@ included in collision checks.
 Selection lives in `selection.js` and is intentionally transient. A short
 primary click toggles a bookmark, while a held primary click becomes a drag.
 Middle click delegates to the same editor entry point as the direct pencil and
-prevents the bookmark link from opening a tab. `keyboardMovement.js` acts only
-when exactly one visible, top-level bookmark is selected in edit mode. None
-mode scans to the next free rectangle; the smart modes exchange bookmarks one
-keypress at a time and skip fixed folder rectangles. The resulting bookmark
+prevents the bookmark link from opening a tab.
+
+`gridKeyboardNavigation.js` owns explicit top-level grid focus. `Tab` enters
+or leaves the mode, and arrows select the nearest visible bookmark or folder in
+the requested direction. Outside edit mode, `Enter` opens the focused item. In
+edit mode, `Enter` opens its editor when there is no selection or when the
+focused bookmark is the sole selected item; `S` toggles only bookmark selection
+and gives folders a transient unavailable-state signal. The active item is
+transient UI state rendered as a
+keyboard-focus affordance.
+
+`keyboardMovement.js` remains responsible for moving one visible, top-level
+selected bookmark in edit mode when keyboard grid navigation is not active.
+None mode scans to the next free rectangle; the smart modes exchange bookmarks
+one keypress at a time and skip fixed folder rectangles. The resulting bookmark
 and displacement updates use one state transition and therefore one undo entry.
 
 ## Persistence

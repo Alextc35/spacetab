@@ -5,7 +5,7 @@ grid workspace.
 
 ![Chrome Extension](https://img.shields.io/badge/Chrome_Extension-Manifest_V3-4285F4?logo=googlechrome)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript)
-![version](https://img.shields.io/badge/version-0.7.0-blue)
+![version](https://img.shields.io/badge/version-0.7.1-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
 ![demo](assets/gifs/demo.gif)
@@ -20,7 +20,8 @@ items on a desktop without relying on a SpaceTab account or backend.
 * Configurable drag behavior: None (default), Relocation and experimental
   Sequence
 * Direct bookmark editing plus short-click selection and a middle-click editor
-* Arrow-key movement for a single selected bookmark
+* Keyboard grid navigation across bookmarks and folders with `Tab` and arrows
+* Arrow-key movement for a single selected bookmark outside grid navigation
 * Compact bookmark creation that expands into the shared full style editor
 * Named appearance presets
 * Independent bookmark workspaces with smooth `Alt/⌥ + ↑/↓` navigation
@@ -156,6 +157,7 @@ src/js/ui/bookmark/panel.js        reusable create/edit/preset panel
 src/js/ui/bookmark/renderer.js     bookmark and folder grid rendering
 src/js/ui/bookmark/dragResize.js   shared pointer drag and resize controller
 src/js/ui/bookmark/smartDragLayout.js pure collision and displacement planner
+src/js/ui/bookmark/gridKeyboardNavigation.js Tab-based grid focus and actions
 src/js/ui/bookmark/keyboardMovement.js selected-bookmark arrow movement
 src/js/ui/folder/                  folder card, actions and contents controller
 src/js/ui/modals/folderModal.js    compact folder workspace and drag controller
@@ -213,12 +215,23 @@ keeps the working data locally when necessary.
 * `.` opens Settings.
 * `/` opens global search.
 * `Middle click` opens that bookmark's editor while editing the grid.
-* `↑/↓/←/→` moves exactly one selected top-level bookmark while editing.
 * `Alt/⌥ + ↑/↓` cycles through workspaces.
 * `Ctrl/Cmd + Z` undoes the latest bookmark operation.
 * `Ctrl/Cmd + Shift + Z` redoes it.
 
-Arrow movement follows the configured drag behavior. In None mode it skips
+Press `Tab` while the page is focused to enter keyboard grid navigation; press
+`Tab` again to leave it. The first visible top-level item receives focus and
+`↑/↓/←/→` moves to the nearest bookmark or folder in that direction. While
+this navigation is active, `Enter` opens the focused bookmark or folder outside
+edit mode. In edit mode, `Enter` opens the focused item's editor when there is
+no selection or when that bookmark is the sole selected item; `S` toggles the
+focused bookmark's selection.
+Folders cannot be added to the bookmark selection and flash red when `S` is
+pressed on one.
+
+Outside keyboard grid navigation, `↑/↓/←/→` moves exactly one selected
+top-level bookmark while editing. Arrow movement follows the configured drag
+behavior. In None mode it skips
 occupied cells until the next free rectangle. Relocation and Sequence exchange
 bookmarks one step at a time and jump over the complete rectangle of a folder
 without moving it. Arrow shortcuts are ignored with zero or multiple
