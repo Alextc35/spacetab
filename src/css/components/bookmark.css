@@ -421,6 +421,21 @@
   }
 }
 
+.local-image-field {
+  margin-top: 8px;
+}
+
+.local-image-field label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.local-image-field .input-with-actions input {
+  padding-right: 36px;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
 .local-image-upload {
   display: flex;
   align-items: center;

@@ -124,7 +124,9 @@
   },
   "localImage": {
     "upload": "Enviar deste dispositivo",
-    "notice": "Salva somente neste dispositivo; não é sincronizada mesmo com o Sync ativado.",
+    "label": "Imagem local:",
+    "remove": "Remover imagem local",
+    "notice": "Salva somente neste dispositivo. Se a imagem local não estiver disponível, a URL da imagem será usada.",
     "unnamed": "Imagem local"
   },
   "workspace": {

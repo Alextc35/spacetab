@@ -11,6 +11,35 @@ import {
 import { DATA_SCHEMA_VERSION, DEFAULT_SETTINGS } from '../src/js/core/defaults.js';
 import { BOOKMARK_DRAG_MODES } from '../src/js/core/bookmarkDragModes.js';
 
+test('separates legacy local images from URLs across themes, bookmarks, folders and presets', () => {
+  const reference = 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
+  const legacyStyle = { backgroundImageUrl: reference, backgroundImageUrlLocked: true };
+  const migrated = migratePersistedData({
+    schemaVersion: 4,
+    bookmarks: [{ id: 'one', name: 'One', ...legacyStyle }],
+    folders: [{ id: 'folder', name: 'Folder', ...legacyStyle }],
+    settings: {
+      theme: legacyStyle,
+      bookmarkDefault: legacyStyle,
+      bookmarkPresets: [{ id: 'preset', name: 'Preset', style: legacyStyle }]
+    }
+  });
+
+  for (const style of [
+    migrated.bookmarks[0], migrated.folders[0], migrated.settings.theme,
+    migrated.settings.bookmarkDefault, migrated.settings.bookmarkPresets[0].style
+  ]) {
+    assert.equal(style.backgroundImageLocal, reference);
+    assert.equal(style.backgroundImageUrl, null);
+    assert.equal(style.backgroundImageUrlLocked, false);
+    style.backgroundImageUrl = 'https://images.test/fallback.gif';
+    style.backgroundImageUrlLocked = true;
+  }
+
+  assert.deepEqual(migratePersistedData(migrated), migrated);
+  assert.deepEqual(parseBackupPayload(createBackupEnvelope(migrated)), migrated);
+});
+
 test('migrates legacy data and removes identity from the default preset', () => {
   const migrated = migratePersistedData({
     bookmarks: [{ id: 'one', name: 'One', url: 'one.test' }],

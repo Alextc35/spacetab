@@ -7,7 +7,6 @@ import { t } from '../core/i18n.js';
 import { flashError } from './flash.js';
 
 const LOCAL_IMAGE_REFERENCE_DATASET_KEY = 'localImageReference';
-const UPLOAD_EVENT_DATASET_KEY = 'localImageUploadEvent';
 
 function hasLocalImageReference(input) {
   return Boolean(input?.dataset[LOCAL_IMAGE_REFERENCE_DATASET_KEY]);
@@ -19,12 +18,6 @@ function emitImageInput(input) {
 
 function clearLocalImageInput(input) {
   setImageInputValue(input, '');
-  emitImageInput(input);
-}
-
-function replaceLocalImageInput(input, value) {
-  setImageInputValue(input, value);
-  input.setSelectionRange(value.length, value.length);
   emitImageInput(input);
 }
 
@@ -55,6 +48,8 @@ export function getImageInputValue(input) {
 export function setImageInputValue(input, value) {
   if (!input) return;
 
+  input.closest('.local-image-field')?.classList.toggle('is-hidden', !isLocalImageReference(value));
+
   if (isLocalImageReference(value)) {
     input.dataset[LOCAL_IMAGE_REFERENCE_DATASET_KEY] = value;
     input.value = getLocalImageName(value) ?? t('localImage.unnamed');
@@ -78,27 +73,39 @@ export function setLocalImageSyncNoticeVisibility(notice, storageMode) {
 }
 
 /**
- * Connects a visible button and its hidden file input to a background-image
- * URL field. The field receives a lightweight local reference rather than the
- * image bytes, keeping Chrome Sync free of local files.
+ * Connects uploads to a separate, atomic filename field. The URL fallback is
+ * never changed by uploading or removing a local file.
  *
  * @param {Object} options
  * @param {HTMLButtonElement|null} options.button
  * @param {HTMLInputElement|null} options.fileInput
  * @param {HTMLInputElement|null} options.targetInput
+ * @param {HTMLButtonElement|null} options.clearButton
  * @param {AbortSignal} [options.signal]
- * @param {() => void} [options.onUploaded]
+ * @param {() => void} [options.onChange]
  * @returns {void}
  */
 export function initLocalImageUpload({
   button,
   fileInput,
   targetInput,
+  clearButton,
   signal,
-  onUploaded
+  onChange
 }) {
   if (!button || !fileInput || !targetInput) return;
 
+  targetInput.readOnly = true;
+  const clear = () => {
+    if (targetInput.disabled) return;
+    clearLocalImageInput(targetInput);
+    button.focus({ preventScroll: true });
+  };
+  clearButton?.addEventListener('click', clear, { signal });
+  targetInput.addEventListener('input', () => onChange?.(), { signal });
+  for (const type of ['copy', 'cut', 'paste', 'beforeinput', 'drop']) {
+    targetInput.addEventListener(type, event => event.preventDefault(), { signal });
+  }
   button.addEventListener('click', () => fileInput.click(), { signal });
   targetInput.addEventListener('focus', () => {
     if (hasLocalImageReference(targetInput)) {
@@ -114,6 +121,11 @@ export function initLocalImageUpload({
   }, { signal });
   targetInput.addEventListener('keydown', event => {
     if (!hasLocalImageReference(targetInput)) return;
+    if (['Backspace', 'Delete'].includes(event.key)) {
+      event.preventDefault();
+      clear();
+      return;
+    }
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
 
     event.preventDefault();
@@ -126,30 +138,6 @@ export function initLocalImageUpload({
     }
     selectWholeLocalImageInput(targetInput);
   }, { signal });
-  targetInput.addEventListener('beforeinput', event => {
-    if (!hasLocalImageReference(targetInput)) return;
-
-    if (event.inputType.startsWith('delete')) {
-      event.preventDefault();
-      clearLocalImageInput(targetInput);
-      return;
-    }
-
-    if (!event.inputType.startsWith('insert')) return;
-
-    event.preventDefault();
-    const replacement = event.data
-      ?? event.dataTransfer?.getData('text/plain')
-      ?? '';
-    replaceLocalImageInput(targetInput, replacement);
-  }, { signal });
-  targetInput.addEventListener('input', () => {
-    if (targetInput.dataset[UPLOAD_EVENT_DATASET_KEY] === 'true') {
-      delete targetInput.dataset[UPLOAD_EVENT_DATASET_KEY];
-      return;
-    }
-    delete targetInput.dataset[LOCAL_IMAGE_REFERENCE_DATASET_KEY];
-  }, { capture: true, signal });
   fileInput.addEventListener('change', async () => {
     const [file] = fileInput.files ?? [];
     fileInput.value = '';
@@ -159,10 +147,9 @@ export function initLocalImageUpload({
     button.disabled = true;
     try {
       const reference = await saveLocalImage(file);
+      if (signal?.aborted) return;
       setImageInputValue(targetInput, reference);
-      targetInput.dataset[UPLOAD_EVENT_DATASET_KEY] = 'true';
-      targetInput.dispatchEvent(new Event('input', { bubbles: true }));
-      onUploaded?.();
+      emitImageInput(targetInput);
     } catch (error) {
       console.error('[LOCAL_IMAGE] Upload failed:', error);
       flashError(getUploadErrorMessage(error));

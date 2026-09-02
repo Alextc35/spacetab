@@ -4,10 +4,11 @@ import {
   DEFAULT_BOOKMARK_STRUCTURE,
   DEFAULT_BOOKMARK_STYLE
 } from './defaults.js';
-import { isLocalImageReference } from './localImages.js';
+import { normalizeBackgroundImage } from './localImages.js';
 
 export const BOOKMARK_STYLE_KEYS = Object.freeze([
   'backgroundImageUrl',
+  'backgroundImageLocal',
   'backgroundImageUrlLocked',
   'backgroundFavicon',
   'invertColorBg',
@@ -69,7 +70,7 @@ export function normalizeBookmarkPreset(value = {}) {
       : null;
   }
 
-  return preset;
+  return { ...preset, ...normalizeBackgroundImage(source) };
 }
 
 /**
@@ -177,10 +178,7 @@ export function validateBookmarkDraft(value = {}) {
   if (draft.backgroundImageUrl) {
     try {
       const parsed = new URL(draft.backgroundImageUrl);
-      if (
-        !['http:', 'https:', 'data:'].includes(parsed.protocol)
-        && !isLocalImageReference(draft.backgroundImageUrl)
-      ) {
+      if (!['http:', 'https:', 'data:'].includes(parsed.protocol)) {
         errors.backgroundImageUrl = 'unsupportedProtocol';
       }
     } catch {

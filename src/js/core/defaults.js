@@ -2,13 +2,14 @@ import '../types/types.js'; // typedefs
 import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
 
-export const DATA_SCHEMA_VERSION = 4;
+export const DATA_SCHEMA_VERSION = 5;
 
 /** Default appearance applied to new and legacy folders. */
 export const DEFAULT_FOLDER_STYLE = Object.freeze({
   noBackground: false,
   backgroundColor: '#38bdf8',
   backgroundImageUrl: null,
+  backgroundImageLocal: null,
   backgroundImageUrlLocked: false,
   textColor: '#f8fafc'
 });
@@ -21,6 +22,7 @@ export const DEFAULT_FOLDER_STYLE = Object.freeze({
  */
 export const DEFAULT_BOOKMARK_STYLE = {
   backgroundImageUrl: null,
+  backgroundImageLocal: null,
   backgroundImageUrlLocked: false,
   backgroundFavicon: true,
   invertColorBg: false,
@@ -121,6 +123,7 @@ export const DEFAULT_SETTINGS = {
     backgroundDefault: true,
     backgroundColor: '#ffffff',
     backgroundImageUrl: null,
+    backgroundImageLocal: null,
     backgroundImageUrlLocked: false
   },
 

@@ -1,11 +1,12 @@
 import '../types/types.js';
 import { DEFAULT_FOLDER_STYLE } from './defaults.js';
-import { isLocalImageReference } from './localImages.js';
+import { normalizeBackgroundImage } from './localImages.js';
 
 export const FOLDER_STYLE_KEYS = Object.freeze([
   'noBackground',
   'backgroundColor',
   'backgroundImageUrl',
+  'backgroundImageLocal',
   'backgroundImageUrlLocked',
   'textColor'
 ]);
@@ -15,18 +16,15 @@ const IMAGE_PROTOCOLS = new Set(['http:', 'https:', 'data:']);
 /** Returns a complete, persistence-safe folder appearance object. */
 export function normalizeFolderStyle(value = {}) {
   const source = value && typeof value === 'object' ? value : {};
-  const backgroundImageUrl = typeof source.backgroundImageUrl === 'string'
-    && source.backgroundImageUrl.trim()
-    ? source.backgroundImageUrl.trim()
-    : null;
+  const image = normalizeBackgroundImage(source);
   return {
     noBackground: source.noBackground === true,
     backgroundColor: isHexColor(source.backgroundColor)
       ? source.backgroundColor.toLowerCase()
       : DEFAULT_FOLDER_STYLE.backgroundColor,
-    backgroundImageUrl,
-    backgroundImageUrlLocked: Boolean(backgroundImageUrl)
-      && source.backgroundImageUrlLocked === true,
+    ...image,
+    backgroundImageUrlLocked: Boolean(image.backgroundImageUrl)
+      && image.backgroundImageUrlLocked,
     textColor: isHexColor(source.textColor)
       ? source.textColor.toLowerCase()
       : DEFAULT_FOLDER_STYLE.textColor
@@ -44,7 +42,7 @@ export function validateFolderDraft(value = {}) {
   if (style.backgroundImageUrl) {
     try {
       const parsed = new URL(style.backgroundImageUrl);
-      if (!IMAGE_PROTOCOLS.has(parsed.protocol) && !isLocalImageReference(style.backgroundImageUrl)) {
+      if (!IMAGE_PROTOCOLS.has(parsed.protocol)) {
         errors.backgroundImageUrl = 'unsupportedProtocol';
       }
     } catch {

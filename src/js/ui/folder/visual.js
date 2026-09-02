@@ -1,5 +1,5 @@
 import { createFavicon } from '../bookmark/favicon.js';
-import { resolveImageSource } from '../../core/localImages.js';
+import { resolveBackgroundImage } from '../../core/localImages.js';
 
 /** Creates the shared folder glyph used by cards, previews and headers. */
 export function createFolderVisual(folder, bookmarks = [], { compact = false } = {}) {
@@ -17,7 +17,7 @@ export function createFolderVisual(folder, bookmarks = [], { compact = false } =
   previews.className = 'folder-previews';
 
   if (!compact) {
-    const hasCover = Boolean(folder?.backgroundImageUrl);
+    const hasCover = Boolean(resolveBackgroundImage(folder));
     const previewLimit = hasCover ? 3 : 4;
     for (const bookmark of bookmarks.slice(0, previewLimit)) {
       const image = createFavicon(bookmark);
@@ -50,7 +50,7 @@ export function applyFolderAppearance(element, folder = {}) {
     folder.textColor || '#f8fafc'
   );
 
-  const backgroundImage = resolveImageSource(folder.backgroundImageUrl) ?? '';
+  const backgroundImage = resolveBackgroundImage(folder) ?? '';
   element.classList.toggle('has-folder-bg-image', Boolean(backgroundImage));
   if (backgroundImage) {
     element.style.setProperty('--folder-bg-image', `url("${backgroundImage}")`);

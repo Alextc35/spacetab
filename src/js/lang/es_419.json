@@ -124,7 +124,9 @@
   },
   "localImage": {
     "upload": "Subir desde este dispositivo",
-    "notice": "Se guarda solo en este dispositivo; no se sincroniza aunque actives Sync.",
+    "label": "Imagen local:",
+    "remove": "Quitar imagen local",
+    "notice": "Se guarda solo en este dispositivo. Si la imagen local no está disponible, se usará la URL de la imagen.",
     "unnamed": "Imagen local"
   },
   "workspace": {

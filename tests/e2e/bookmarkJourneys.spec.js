@@ -90,6 +90,17 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
   await page.getByRole('button', { name: '🖼️ Theme' }).click();
 
   const fileInput = page.locator('#settings-theme-bg-upload-input');
+  const fallbackUrl = 'https://images.test/fallback.gif';
+  await page.route(fallbackUrl, route => route.fulfill({
+    contentType: 'image/gif',
+    body: Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64')
+  }));
+  const imageUrl = page.locator('#settings-theme-bg-image');
+  const imageReference = page.locator('#settings-theme-bg-local');
+  await expect(imageReference).toBeHidden();
+  await page.locator('#settings-theme-bg-default').uncheck();
+  await imageUrl.fill(fallbackUrl);
+  await page.locator('#settings-theme-toggle-bg-image').click();
   await fileInput.setInputFiles({
     name: 'theme.png',
     mimeType: 'image/png',
@@ -99,8 +110,9 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
     )
   });
 
-  const imageReference = page.locator('#settings-theme-bg-image');
   await expect(imageReference).toHaveValue('theme.png');
+  await expect(imageUrl).toHaveValue(fallbackUrl);
+  await expect(page.locator('#settings-theme-bg-preview')).toHaveCSS('background-image', /data:image\/webp/);
   await expect(page.locator('#settings-modal .local-image-notice')).toBeVisible();
   await page.locator('#settings-modal-save').click();
 
@@ -109,15 +121,21 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
     const sync = JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}');
     const serialized = sync['spacetabSyncChunk:0'];
     const syncedImage = serialized
-      ? JSON.parse(serialized).settings.theme.backgroundImageUrl
+      ? JSON.parse(serialized).settings.theme.backgroundImageLocal
       : null;
     return {
       localAssetCount: Object.keys(local).filter(key => key.startsWith('spacetabLocalImage:')).length,
-      syncedImage
+      syncedImage,
+      syncedUrl: JSON.parse(serialized).settings.theme.backgroundImageUrl,
+      containsImageBytes: serialized.includes('data:image/'),
+      containsFilename: serialized.includes('theme.png')
     };
   })).toEqual({
     localAssetCount: 1,
-    syncedImage: expect.stringMatching(/^spacetab-local-image:/)
+    syncedImage: expect.stringMatching(/^spacetab-local-image:/),
+    syncedUrl: fallbackUrl,
+    containsImageBytes: false,
+    containsFilename: false
   });
 
   await page.reload();
@@ -129,6 +147,24 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🖼️ Theme' }).click();
   await expect(imageReference).toHaveValue('theme.png');
+  await expect(imageUrl).toHaveValue(fallbackUrl);
+
+  // Simulate a second device with synchronized settings but no local image files.
+  await page.evaluate(() => {
+    const local = JSON.parse(sessionStorage.getItem('spacetab-test-local'));
+    for (const key of Object.keys(local)) {
+      if (key.startsWith('spacetabLocalImage:')) delete local[key];
+    }
+    sessionStorage.setItem('spacetab-test-local', JSON.stringify(local));
+  });
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => (
+    document.documentElement.style.getPropertyValue('--image-bg-body')
+  ))).toContain(fallbackUrl);
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+  await expect(page.locator('#settings-theme-bg-preview')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
 });
 
 test('hides local image sync notices in This Device Only mode', async ({ page }) => {
@@ -147,11 +183,14 @@ test('hides local image sync notices in This Device Only mode', async ({ page })
   await expect(page.locator('#edit-bookmark-modal .local-image-notice')).toBeHidden();
 });
 
-test('treats a local image reference as one editable value', async ({ page }) => {
+test('treats a local image as one removable value without copying or changing its URL fallback', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🖼️ Theme' }).click();
 
+  const imageUrl = page.locator('#settings-theme-bg-image');
+  await page.locator('#settings-theme-bg-default').uncheck();
+  await imageUrl.fill('https://images.test/fallback.png');
   await page.locator('#settings-theme-bg-upload-input').setInputFiles({
     name: 'theme.png',
     mimeType: 'image/png',
@@ -161,7 +200,7 @@ test('treats a local image reference as one editable value', async ({ page }) =>
     )
   });
 
-  const imageReference = page.locator('#settings-theme-bg-image');
+  const imageReference = page.locator('#settings-theme-bg-local');
   await expect(imageReference).toHaveValue('theme.png');
   await imageReference.click({ position: { x: 4, y: 8 } });
   await expect.poll(() => imageReference.evaluate(input => [
@@ -173,9 +212,19 @@ test('treats a local image reference as one editable value', async ({ page }) =>
     input.selectionStart,
     input.selectionEnd
   ])).toEqual([0, 'theme.png'.length]);
+  await expect(page.locator('#settings-modal .local-image-field .input-copy')).toHaveCount(0);
+  for (const type of ['copy', 'cut', 'paste']) {
+    expect(await imageReference.evaluate((input, eventType) => (
+      input.dispatchEvent(new ClipboardEvent(eventType, { bubbles: true, cancelable: true }))
+    ), type)).toBe(false);
+  }
+  await page.keyboard.type('replacement');
+  await expect(imageReference).toHaveValue('theme.png');
   await page.keyboard.press('Backspace');
 
   await expect(imageReference).toHaveValue('');
+  await expect(imageReference).toBeHidden();
+  await expect(imageUrl).toHaveValue('https://images.test/fallback.png');
   await expect.poll(() => imageReference.evaluate(input => (
     input.dataset.localImageReference ?? null
   ))).toBeNull();

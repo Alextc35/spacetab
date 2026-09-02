@@ -183,6 +183,15 @@
                     type="button" aria-label="Clear image URL"
                     data-i18n-aria-label="folder.editor.clearImage">✕</button>
                 </div>
+                <div class="local-image-field is-hidden">
+                  <label for="folder-editor-image-local" data-i18n="localImage.label">Local image:</label>
+                  <div class="input-with-actions">
+                    <input id="folder-editor-image-local" type="text" readonly>
+                    <button id="folder-editor-image-local-clear" class="input-action input-clear"
+                      type="button" aria-label="Remove local image"
+                      data-i18n-aria-label="localImage.remove">✕</button>
+                  </div>
+                </div>
                 <div class="local-image-upload">
                   <input id="folder-editor-image-upload-input" class="is-hidden" type="file"
                     accept="image/avif,image/gif,image/jpeg,image/png,image/webp">
@@ -369,6 +378,15 @@
                 <button id="settings-theme-clear-bg-image" class="input-action input-clear" type="button"
                   title="Clear input">✕
                 </button>
+              </div>
+              <div class="local-image-field is-hidden">
+                <label for="settings-theme-bg-local" data-i18n="localImage.label">Local image:</label>
+                <div class="input-with-actions">
+                  <input id="settings-theme-bg-local" type="text" readonly>
+                  <button id="settings-theme-clear-bg-local" class="input-action input-clear"
+                    type="button" aria-label="Remove local image"
+                    data-i18n-aria-label="localImage.remove">✕</button>
+                </div>
               </div>
               <div class="local-image-upload">
                 <input id="settings-theme-bg-upload-input" class="is-hidden" type="file"
@@ -636,6 +654,15 @@
                         class="input-action input-clear"
                         type="button">✕
                 </button>
+              </div>
+              <div class="local-image-field is-hidden">
+                <label data-i18n="localImage.label">Local image:</label>
+                <div class="input-with-actions">
+                  <input data-field="backgroundImageLocal" type="text" readonly>
+                  <button data-field="bgLocalClear" class="input-action input-clear"
+                    type="button" aria-label="Remove local image"
+                    data-i18n-aria-label="localImage.remove">✕</button>
+                </div>
               </div>
               <div class="local-image-upload">
                 <input data-field="bgUploadInput" class="is-hidden" type="file"

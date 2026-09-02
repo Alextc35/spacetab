@@ -9,7 +9,7 @@ import {
   setLocalImageSyncNoticeVisibility,
   setImageInputValue
 } from '../../localImageUpload.js';
-import { resolveImageSource } from '../../../core/localImages.js';
+import { resolveBackgroundImage } from '../../../core/localImages.js';
 import { getStorageMode } from '../../../core/store.js';
 import {
   getDraftStorageMode,
@@ -45,6 +45,8 @@ export function initThemeSection({
   const labelBgDefault = document.querySelector('label[for="settings-theme-bg-default"]');
   const bgColorInput = document.getElementById('settings-theme-bg-color');
   const bgImageInput = document.getElementById('settings-theme-bg-image');
+  const bgLocalInput = document.getElementById('settings-theme-bg-local');
+  const clearBgLocalBtn = document.getElementById('settings-theme-clear-bg-local');
   const bgImageUploadInput = document.getElementById('settings-theme-bg-upload-input');
   const bgImageUploadButton = document.getElementById('settings-theme-bg-upload');
   const bgImageUploadNotice = bgImageUploadButton?.parentElement?.querySelector('.local-image-notice');
@@ -105,7 +107,7 @@ export function initThemeSection({
 
     bgPreview.style.backgroundColor = draft.backgroundColor;
 
-    const backgroundImage = resolveImageSource(draft.backgroundImageUrl);
+    const backgroundImage = resolveBackgroundImage(draft);
     if (backgroundImage) {
       bgPreview.style.backgroundImage = `url(${backgroundImage})`;
     }
@@ -136,7 +138,8 @@ export function initThemeSection({
    */
   function updateStates() {
     const draft = getDraftTheme();
-    const hasImage = hasImageValue(draft.backgroundImageUrl);
+    const hasImage = hasImageValue(draft.backgroundImageUrl)
+      || hasImageValue(draft.backgroundImageLocal);
 
     bgDefault.disabled = hasImage;
     labelBgDefault.classList.toggle('is-disabled', bgDefault.disabled);
@@ -150,6 +153,8 @@ export function initThemeSection({
 
     bgColorInput.disabled = backgroundDefault;
     bgImageInput.disabled = backgroundDefault;
+    bgLocalInput.disabled = backgroundDefault;
+    clearBgLocalBtn.disabled = backgroundDefault;
     bgImageUploadButton.disabled = backgroundDefault;
     toggleBtn.disabled = backgroundDefault;
     clearBgImageBtn.disabled = backgroundDefault;
@@ -179,6 +184,7 @@ export function initThemeSection({
     bgDefault.checked = draft.backgroundDefault || false;
     bgColorInput.value = draft.backgroundColor;
     setImageInputValue(bgImageInput, draft.backgroundImageUrl);
+    setImageInputValue(bgLocalInput, draft.backgroundImageLocal);
 
     if (!bgController) {
       bgController = createLockableInputController({
@@ -213,8 +219,13 @@ export function initThemeSection({
       initLocalImageUpload({
         button: bgImageUploadButton,
         fileInput: bgImageUploadInput,
-        targetInput: bgImageInput,
-        onUploaded: () => bgController?.refresh?.()
+        targetInput: bgLocalInput,
+        clearButton: clearBgLocalBtn,
+        onChange: () => {
+          setDraftThemeValue('backgroundImageLocal', getImageInputValue(bgLocalInput) || null);
+          updateStates();
+          onRequestSaveStateUpdate();
+        }
       });
     }
 
@@ -272,6 +283,7 @@ export function initThemeSection({
     bgDefault.checked = draft.backgroundDefault;
     bgColorInput.value = draft.backgroundColor;
     setImageInputValue(bgImageInput, draft.backgroundImageUrl);
+    setImageInputValue(bgLocalInput, draft.backgroundImageLocal);
 
     setDraftThemeValue('backgroundImageUrlLocked', false);
 

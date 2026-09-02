@@ -29,6 +29,8 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     url,
     backgroundColor,
     backgroundImage,
+    backgroundImageLocal,
+    bgLocalClearBtn,
     backgroundFavicon,
     noBackground,
     invertBg,
@@ -86,12 +88,14 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
    * based on the current bookmark configuration.
    */
   const updateStates = () => {
-    const hasBgImage = hasImage(bookmark.backgroundImageUrl);
+    const hasBgImage = hasImage(bookmark.backgroundImageUrl) || hasImage(bookmark.backgroundImageLocal);
 
     if (backgroundFavicon) backgroundFavicon.disabled = hasBgImage;
     if (backgroundColor) backgroundColor.disabled = bookmark.noBackground;
     if (textColor) textColor.disabled = !bookmark.showText;
     if (backgroundImage) backgroundImage.disabled = bookmark.backgroundFavicon;
+    if (backgroundImageLocal) backgroundImageLocal.disabled = bookmark.backgroundFavicon;
+    if (bgLocalClearBtn) bgLocalClearBtn.disabled = bookmark.backgroundFavicon;
     if (bgUploadBtn) bgUploadBtn.disabled = bookmark.backgroundFavicon;
     if (showFavicon) showFavicon.disabled = bookmark.backgroundFavicon;
     if (invertBg) invertBg.disabled = bookmark.backgroundFavicon || !hasBgImage;
@@ -130,8 +134,15 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
   initLocalImageUpload({
     button: bgUploadBtn,
     fileInput: bgUploadInput,
-    targetInput: backgroundImage,
-    signal: abortController.signal
+    targetInput: backgroundImageLocal,
+    clearButton: bgLocalClearBtn,
+    signal: abortController.signal,
+    onChange: () => {
+      if (syncing) return;
+      bookmark.backgroundImageLocal = getImageInputValue(backgroundImageLocal) || null;
+      updateStates();
+      emitChange();
+    }
   });
   setLocalImageSyncNoticeVisibility(
     bgUploadBtn?.parentElement?.querySelector('.local-image-notice'),
@@ -240,6 +251,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     if (url) url.value = bookmark.url ?? "";
     if (backgroundColor) backgroundColor.value = bookmark.backgroundColor ?? "";
     setImageInputValue(backgroundImage, bookmark.backgroundImageUrl);
+    setImageInputValue(backgroundImageLocal, bookmark.backgroundImageLocal);
     if (backgroundFavicon) backgroundFavicon.checked = bookmark.backgroundFavicon ?? false;
     if (noBackground) noBackground.checked = bookmark.noBackground ?? false;
     if (invertBg) invertBg.checked = bookmark.invertColorBg ?? false;

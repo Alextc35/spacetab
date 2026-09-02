@@ -1,6 +1,6 @@
 import '../types/types.js'; // typedefs
 import { VERSION } from './config.js';
-import { resolveImageSource } from './localImages.js';
+import { resolveBackgroundImage } from './localImages.js';
 
 /**
  * Applies the global theme variables to the document root element.
@@ -26,7 +26,7 @@ export function applyGlobalTheme(settings = {}) {
 
   root.classList.remove('is-default-bg');
 
-  const backgroundImage = resolveImageSource(theme.backgroundImageUrl);
+  const backgroundImage = resolveBackgroundImage(theme);
   if (backgroundImage) {
     root.style.setProperty(
       '--image-bg-body',

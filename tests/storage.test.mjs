@@ -119,13 +119,14 @@ test('migrates local data to an empty synchronized area', async () => {
   assert.equal(result.source, 'migrated');
   assert.equal(storage.getMode(), STORAGE_MODES.SYNC);
   const stored = await storage.get(null);
-  assert.equal(stored.schemaVersion, 4);
+  assert.equal(stored.schemaVersion, DATA_SCHEMA_VERSION);
   assert.equal(stored.bookmarks[0].id, 'local');
   assert.equal(stored.bookmarks[0].name, 'Local bookmark');
   assert.equal(stored.bookmarks[0].folderId, 'saved');
   assert.equal(stored.folders[0].name, 'Saved');
   assert.deepEqual(stored.settings.bookmarkDefault, {
     backgroundImageUrl: null,
+    backgroundImageLocal: null,
     backgroundImageUrlLocked: false,
     backgroundFavicon: true,
     invertColorBg: false,

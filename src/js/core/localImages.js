@@ -46,6 +46,27 @@ export function resolveImageSource(value) {
   return isLocalImageReference(value) ? cachedImages.get(value) ?? null : value;
 }
 
+/** Keeps the URL fallback separate from the device-local file, including legacy data. */
+export function normalizeBackgroundImage(value = {}) {
+  const url = typeof value?.backgroundImageUrl === 'string'
+    ? value.backgroundImageUrl.trim() || null
+    : null;
+  const legacyLocal = isLocalImageReference(url);
+  return {
+    backgroundImageUrl: legacyLocal ? null : url,
+    backgroundImageLocal: isLocalImageReference(value?.backgroundImageLocal)
+      ? value.backgroundImageLocal
+      : legacyLocal ? url : null,
+    backgroundImageUrlLocked: !legacyLocal && value?.backgroundImageUrlLocked === true
+  };
+}
+
+/** Prefers an available local file and otherwise uses the saved image URL. */
+export function resolveBackgroundImage(value = {}) {
+  const { backgroundImageLocal, backgroundImageUrl } = normalizeBackgroundImage(value);
+  return resolveImageSource(backgroundImageLocal) ?? resolveImageSource(backgroundImageUrl);
+}
+
 /**
  * Returns the original filename for a locally stored image when it is known
  * on this device. File names are deliberately kept out of synchronized data.

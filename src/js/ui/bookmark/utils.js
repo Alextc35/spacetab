@@ -1,4 +1,5 @@
 import '../../types/types.js'; // typedefs
+import { resolveBackgroundImage } from '../../core/localImages.js';
 
 /**
  * Determines whether a bookmark should be considered visually dark.
@@ -15,7 +16,7 @@ import '../../types/types.js'; // typedefs
  */
 export function isVisuallyDark(bookmark) {
   let dark = isDarkColor(bookmark.backgroundColor);
-  if (bookmark.backgroundImageUrl) dark = true;
+  if (resolveBackgroundImage(bookmark)) dark = true;
   if (bookmark.invertColorBg) dark = !dark;
   return dark;
 }

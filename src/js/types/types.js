@@ -11,6 +11,7 @@
  * @property {string|null} groupId
  * @property {string|null} folderId
  * @property {string|null} backgroundImageUrl
+ * @property {string|null} backgroundImageLocal
  * @property {boolean} backgroundImageUrlLocked
  * @property {boolean} backgroundFavicon
  * @property {boolean} invertColorBg
@@ -36,6 +37,7 @@
  * @property {boolean} noBackground
  * @property {string} backgroundColor
  * @property {string|null} backgroundImageUrl
+ * @property {string|null} backgroundImageLocal
  * @property {boolean} backgroundImageUrlLocked
  * @property {string} textColor
  * @property {number} createdAt
@@ -49,6 +51,7 @@
 /**
  * @typedef {Object} BookmarkPreset
  * @property {string|null} backgroundImageUrl
+ * @property {string|null} backgroundImageLocal
  * @property {boolean} backgroundImageUrlLocked
  * @property {boolean} backgroundFavicon
  * @property {boolean} invertColorBg
@@ -69,6 +72,7 @@
  * @property {boolean} theme.backgroundDefault
  * @property {string} theme.backgroundColor
  * @property {string|null} theme.backgroundImageUrl
+ * @property {string|null} theme.backgroundImageLocal
  * @property {boolean} theme.backgroundImageUrlLocked
  * @property {BookmarkPreset} bookmarkDefault
  * @property {Array<{id: string, name: string, style: BookmarkPreset}>} bookmarkPresets

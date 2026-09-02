@@ -225,6 +225,8 @@ function resolveElements(root) {
     url: field('url'),
     backgroundColor: field('backgroundColor'),
     backgroundImage: field('backgroundImage'),
+    backgroundImageLocal: field('backgroundImageLocal'),
+    bgLocalClearBtn: field('bgLocalClear'),
     backgroundFavicon: field('backgroundFavicon'),
     noBackground: field('noBackground'),
     invertBg: field('invertBg'),

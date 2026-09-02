@@ -11,6 +11,7 @@ import {
 import { normalizeBookmarkDragMode } from './bookmarkDragModes.js';
 import { normalizeBookmarkResizeMode } from './bookmarkResizeModes.js';
 import { normalizeFolderStyle } from './folderModel.js';
+import { normalizeBackgroundImage } from './localImages.js';
 
 /**
  * Upgrades and normalizes application data from every supported SpaceTab
@@ -88,7 +89,8 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
         ...structuredClone(DEFAULT_SETTINGS.theme),
         ...(rawSettings.theme && typeof rawSettings.theme === 'object'
           ? rawSettings.theme
-          : {})
+          : {}),
+        ...normalizeBackgroundImage(rawSettings.theme)
       },
       bookmarkDefault: normalizeBookmarkPreset(rawSettings.bookmarkDefault),
       bookmarkDragMode: normalizeBookmarkDragMode(rawSettings.bookmarkDragMode),

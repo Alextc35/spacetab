@@ -26,6 +26,7 @@ let nameInput;
 let noBackgroundInput;
 let colorInput;
 let imageInput;
+let localImageInput;
 let imageUploadInput;
 let imageUploadButton;
 let imageUploadNotice;
@@ -45,6 +46,7 @@ export function initFolderEditorModal() {
   noBackgroundInput = document.getElementById('folder-editor-no-background');
   colorInput = document.getElementById('folder-editor-color');
   imageInput = document.getElementById('folder-editor-image');
+  localImageInput = document.getElementById('folder-editor-image-local');
   imageUploadInput = document.getElementById('folder-editor-image-upload-input');
   imageUploadButton = document.getElementById('folder-editor-image-upload');
   imageUploadNotice = imageUploadButton?.parentElement?.querySelector('.local-image-notice');
@@ -74,8 +76,9 @@ export function initFolderEditorModal() {
   initLocalImageUpload({
     button: imageUploadButton,
     fileInput: imageUploadInput,
-    targetInput: imageInput,
-    onUploaded: () => imageController?.refresh?.()
+    targetInput: localImageInput,
+    clearButton: document.getElementById('folder-editor-image-local-clear'),
+    onChange: handleInput
   });
   document.getElementById('edit-folder-modal-cancel')
     .addEventListener('click', handleCancel);
@@ -101,6 +104,7 @@ export function openFolderEditor(folderId) {
   noBackgroundInput.checked = initialValue.noBackground;
   colorInput.value = initialValue.backgroundColor;
   setImageInputValue(imageInput, initialValue.backgroundImageUrl);
+  setImageInputValue(localImageInput, initialValue.backgroundImageLocal);
   textColorInput.value = initialValue.textColor;
   imageController.setLocked(initialValue.backgroundImageUrlLocked);
   setLocalImageSyncNoticeVisibility(imageUploadNotice, getStorageMode());
@@ -130,6 +134,7 @@ function currentValue() {
     noBackground: noBackgroundInput.checked,
     backgroundColor: colorInput.value,
     backgroundImageUrl: getImageInputValue(imageInput) || null,
+    backgroundImageLocal: getImageInputValue(localImageInput) || null,
     backgroundImageUrlLocked: imageController?.isLocked() ?? false,
     textColor: textColorInput.value
   };
@@ -147,6 +152,7 @@ function isDirty() {
     || current.noBackground !== initialValue.noBackground
     || current.backgroundColor !== initialValue.backgroundColor
     || current.backgroundImageUrl !== initialValue.backgroundImageUrl
+    || current.backgroundImageLocal !== initialValue.backgroundImageLocal
     || current.backgroundImageUrlLocked !== initialValue.backgroundImageUrlLocked
     || current.textColor !== initialValue.textColor;
 }
