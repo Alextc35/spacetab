@@ -271,7 +271,13 @@
       "subtitle": "Configurações",
       "export": "Exportar backup",
       "import": "Restaurar backup",
-      "resetSettings": "Restaurar configurações"
+      "resetSettings": "Restaurar configurações",
+      "appearance": {
+        "title": "Aparência",
+        "system": "Sistema",
+        "light": "Claro",
+        "dark": "Escuro"
+      }
     },
     "sync": {
       "title": "Sincronização",
@@ -382,7 +388,8 @@
     },
     "languages": {
       "title": "Idiomas",
-      "text": "Selecione o idioma da interface:"
+      "text": "Selecione o idioma da interface:",
+      "system": "Sistema"
     },
     "information": {
       "title": "Informações",

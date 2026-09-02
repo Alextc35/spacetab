@@ -8,6 +8,7 @@ import { isGridKeyboardActive } from './gridKeyboardNavigation.js';
 import { applyGridItemPosition } from '../gridItemLayout.js';
 import { createFolderElement, enableFolderEditing } from '../folder/renderer.js';
 import { resolveBackgroundImage } from '../../core/localImages.js';
+import { lightSurfaceTextColor } from '../surfaceContrast.js';
 
 /**
  * Renders all bookmarks into the given container element.
@@ -218,6 +219,9 @@ function resetBookmarkVisualState(div) {
  */
 function applyBackgroundStyle(div, bookmark) {
   const backgroundImage = resolveBackgroundImage(bookmark);
+  div.classList.toggle('has-transparent-background', Boolean(
+    bookmark.noBackground && (!backgroundImage || bookmark.backgroundFavicon)
+  ));
   if (backgroundImage) {
     div.classList.add('has-bg-image');
 
@@ -250,6 +254,7 @@ function applyBackgroundStyle(div, bookmark) {
  * @returns {void}
  */
 function applyTextStyle(div, bookmark) {
+  div.style.setProperty('--bookmark-light-text', lightSurfaceTextColor(bookmark.textColor));
   if (bookmark.textColor) {
     div.style.setProperty('--color-text-bookmark', bookmark.textColor);
   }
@@ -334,6 +339,6 @@ function createTextSpan(bookmark) {
   const span = document.createElement('span');
   span.className = 'bookmark-title';
   span.textContent = bookmark.name || '';
-  span.style.color = 'var(--color-text-bookmark)';
+  span.style.color = 'var(--bookmark-context-text, var(--color-text-bookmark))';
   return span;
 }

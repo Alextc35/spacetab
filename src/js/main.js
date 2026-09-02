@@ -10,6 +10,7 @@ import {
 import { preloadLocalImages } from './core/localImages.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
+import { applyInterfaceTheme } from './core/interfacePreferences.js';
 import { enableGridEditing, renderBookmarks } from './ui/bookmark/renderer.js';
 import { clearBookmarkSelection } from './ui/bookmark/selection.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
@@ -53,6 +54,7 @@ async function initApp() {
   }
 
   await initState();
+  applyInterfaceTheme(getState().data.settings.interfaceTheme);
   await preloadLocalImages(getState().data);
 
   if (DEBUG) logStorageUsage();
@@ -170,7 +172,8 @@ function handleStateChange(state, prev) {
   }
 
   if (settingsChanged) {
-    changeLanguage(state.data.settings)
+    applyInterfaceTheme(state.data.settings.interfaceTheme);
+    void changeLanguage(state.data.settings);
   }
 
   if (settingsChanged || bookmarksChanged || foldersChanged) {

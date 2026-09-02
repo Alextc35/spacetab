@@ -28,6 +28,6 @@
   }
 }
 
-.flash-success { background-color: #4CAF50; }
-.flash-error   { background-color: #F44336; }
-.flash-info    { background-color: #2196F3; }
+.flash-success { background-color: var(--ui-success-bg); color: var(--ui-success-text); }
+.flash-error   { background-color: var(--ui-danger-bg); color: var(--ui-danger-text); }
+.flash-info    { background-color: var(--ui-info-bg); color: var(--ui-info-text); }

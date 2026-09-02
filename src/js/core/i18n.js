@@ -2,12 +2,19 @@ import '../types/types.js'; // typedefs
 import { VERSION } from './config.js';
 import { getState } from './store.js';
 import { loadTranslations } from '../lang/index.js';
+import { normalizeLanguagePreference, resolveLanguage } from './interfacePreferences.js';
 
 /** @type {TranslationTree} */
 let translations = {};
 
 /** @type {string|null} */
 let currentLang = null;
+let activePreference = 'system';
+let languageRequest = 0;
+
+function getDeviceLanguage() {
+  return globalThis.chrome?.i18n?.getUILanguage?.() || globalThis.navigator?.language;
+}
 
 /** @type {Set<(language: string) => void>} */
 const languageChangeListeners = new Set();
@@ -22,14 +29,10 @@ const languageChangeListeners = new Set();
  */
 export async function initI18n() {
   const { data: { settings } } = getState();
-  const lang = settings.language || 'en';
-
-  if (lang !== currentLang) {
-    translations = await loadTranslations(lang);
-    currentLang = lang;
-  }
-
-  applyI18n(document, { VERSION });
+  await changeLanguage(settings);
+  window.addEventListener('languagechange', () => {
+    if (activePreference === 'system') void changeLanguage({ language: 'system' });
+  });
 }
 
 /**
@@ -39,8 +42,12 @@ export async function initI18n() {
  * @returns {Promise<void>}
  */
 export async function changeLanguage(settings = {}) {
-  const language = settings.language || 'en';
-  translations = await loadTranslations(language);
+  activePreference = normalizeLanguagePreference(settings.language);
+  const language = resolveLanguage(activePreference, getDeviceLanguage());
+  const request = ++languageRequest;
+  const nextTranslations = language === currentLang ? translations : await loadTranslations(language);
+  if (request !== languageRequest) return;
+  translations = nextTranslations;
   currentLang = language;
 
   applyI18n(document, { VERSION });
@@ -88,9 +95,7 @@ export function t(key, params = {}) {
  * @returns {void}
  */
 export function applyI18n(root = document, params = {}) {
-  const { data: { settings } } = getState();
-  const lang = settings.language || 'en';
-  document.documentElement.lang = lang;
+  document.documentElement.lang = (currentLang || 'en').replaceAll('_', '-');
 
   const elements = root.querySelectorAll('[data-i18n], [data-i18n-aria-label]');
 

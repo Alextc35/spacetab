@@ -6,10 +6,10 @@
   width: 100%;
   box-sizing: border-box;
   padding: 12px 14px;
-  border: 1px solid #38445a;
+  border: 1px solid var(--ui-border);
   border-radius: 10px;
-  background: #181d27;
-  color: #fff;
+  background: var(--ui-input);
+  color: var(--ui-text);
   font-size: 15px;
 }
 
@@ -25,19 +25,19 @@
   gap: 3px;
   padding: 10px 12px;
   border-radius: 8px;
-  color: #fff;
+  color: var(--ui-text);
   text-decoration: none;
 }
 
 .search-result:hover,
 .search-result:focus {
-  background: #252d3b;
+  background: var(--ui-hover);
   outline: none;
 }
 
 .search-result small,
 .search-empty {
-  color: #9ba7ba;
+  color: var(--ui-muted);
 }
 
 .search-empty {

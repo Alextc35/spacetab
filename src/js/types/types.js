@@ -65,7 +65,8 @@
 
 /**
  * @typedef {Object} Settings
- * @property {'en'|'es'|'es_419'|'pt_BR'} language
+ * @property {'system'|'en'|'es'|'es_419'|'pt_BR'} language
+ * @property {'system'|'light'|'dark'} interfaceTheme
  * @property {'none'|'cascade'|'relocate'} bookmarkDragMode
  * @property {'smooth'|'none'} bookmarkResizeMode
  * @property {Object} theme

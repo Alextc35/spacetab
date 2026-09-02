@@ -1,6 +1,7 @@
 // settingsState.js
 import { normalizeBookmarkDragMode } from '../../../core/bookmarkDragModes.js';
 import { normalizeBookmarkResizeMode } from '../../../core/bookmarkResizeModes.js';
+import { normalizeInterfaceTheme } from '../../../core/interfacePreferences.js';
 import { getState } from '../../../core/store.js';
 
 /**
@@ -12,6 +13,7 @@ let draftTheme = null;
  * Draft language state used while the settings modal is open.
  */
 let draftLanguage = null;
+let draftInterfaceTheme = null;
 
 /**
  * Draft bookmark default state used while the settings modal is open.
@@ -58,6 +60,7 @@ export function initDraft(settings, storageMode) {
 
   draftTheme = structuredClone(settings.theme);
   draftLanguage = settings.language;
+  draftInterfaceTheme = normalizeInterfaceTheme(settings.interfaceTheme);
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
   draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
   draftBookmarkDragMode = normalizeBookmarkDragMode(settings.bookmarkDragMode);
@@ -73,6 +76,7 @@ export function initDraft(settings, storageMode) {
 export function resetState() {
   draftTheme = null;
   draftLanguage = null;
+  draftInterfaceTheme = null;
   draftBookmarkDefault = null;
   draftBookmarkPresets = null;
   draftBookmarkDragMode = null;
@@ -95,10 +99,19 @@ export function getDraftTheme() {
 }
 
 /**
- * Returns the current draft language value.
+ * Returns the current draft interface appearance.
  *
  * @returns {string|null}
  */
+export function getDraftInterfaceTheme() {
+  return draftInterfaceTheme;
+}
+
+export function setDraftInterfaceTheme(value) {
+  draftInterfaceTheme = normalizeInterfaceTheme(value);
+}
+
+/** Returns the draft language preference, including the automatic option. */
 export function getDraftLanguage() {
   return draftLanguage;
 }
@@ -232,6 +245,7 @@ export function replaceDraftBookmarkPresets(presets) {
 export function replaceDraftSettings(settings) {
   draftTheme = structuredClone(settings.theme);
   draftLanguage = settings.language;
+  draftInterfaceTheme = normalizeInterfaceTheme(settings.interfaceTheme);
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
   draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
   draftBookmarkDragMode = normalizeBookmarkDragMode(settings.bookmarkDragMode);
@@ -260,6 +274,7 @@ export function hasChanges() {
   const draftComparable = {
     storageMode: draftStorageMode,
     language: draftLanguage,
+    interfaceTheme: draftInterfaceTheme,
     theme: draftTheme,
     bookmarkDragMode: draftBookmarkDragMode,
     bookmarkResizeMode: draftBookmarkResizeMode,
@@ -269,6 +284,7 @@ export function hasChanges() {
   const initialComparable = {
     storageMode: initialSnapshot.storageMode,
     language: initialSnapshot.language,
+    interfaceTheme: normalizeInterfaceTheme(initialSnapshot.interfaceTheme),
     theme: initialSnapshot.theme,
     bookmarkDragMode: normalizeBookmarkDragMode(initialSnapshot.bookmarkDragMode),
     bookmarkResizeMode: normalizeBookmarkResizeMode(initialSnapshot.bookmarkResizeMode),
@@ -294,6 +310,7 @@ export function hasChanges() {
 export function buildNewSettings() {
   return {
     language: draftLanguage,
+    interfaceTheme: draftInterfaceTheme,
     theme: structuredClone(draftTheme),
     bookmarkDragMode: draftBookmarkDragMode,
     bookmarkResizeMode: draftBookmarkResizeMode,

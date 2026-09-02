@@ -14,7 +14,7 @@ import { updateSettings } from '../../../core/settings.js';
 
 import { showAlert } from '../alert.js';
 
-import { initGeneralSection } from './generalSection.js'; // TODO: implement general section
+import { initGeneralSection } from './generalSection.js';
 import { initThemeSection } from './themeSection.js';
 import { initBookmarkSection } from './bookmarkSection.js';
 import { initLanguageSection } from './languageSection.js';
@@ -95,9 +95,11 @@ export function initSettingsModal() {
     onRequestSaveStateUpdate: updateSaveButtonState
   });
 
-  initGeneralSection({
+  const generalSection = initGeneralSection({
+    onRequestSaveStateUpdate: updateSaveButtonState,
     onResetSettings: async () => {
       replaceDraftSettings(DEFAULT_SETTINGS);
+      generalSection.syncUI();
       themeSection.syncUI();
       bookmarkSection.syncUI();
       languageSection.syncUI();
@@ -156,6 +158,7 @@ export function initSettingsModal() {
 
     if (!ok) return false;
 
+    generalSection.restoreInitialTheme();
     await languageSection.restoreInitialLanguage();
     resetState();
     closeModal();
@@ -179,6 +182,8 @@ export function initSettingsModal() {
     const { data: { settings } } = getState();
 
     initDraft(settings, getStorageMode());
+
+    generalSection.syncUI();
 
     themeSection.syncUI();
     bookmarkSection.syncUI();

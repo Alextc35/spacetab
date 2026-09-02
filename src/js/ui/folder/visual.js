@@ -1,5 +1,6 @@
 import { createFavicon } from '../bookmark/favicon.js';
 import { resolveBackgroundImage } from '../../core/localImages.js';
+import { lightSurfaceTextColor } from '../surfaceContrast.js';
 
 /** Creates the shared folder glyph used by cards, previews and headers. */
 export function createFolderVisual(folder, bookmarks = [], { compact = false } = {}) {
@@ -40,6 +41,7 @@ export function createFolderVisual(folder, bookmarks = [], { compact = false } =
 
 /** Applies persisted folder colors and optional imagery through CSS variables. */
 export function applyFolderAppearance(element, folder = {}) {
+  element.style.setProperty('--folder-light-text', lightSurfaceTextColor(folder.textColor));
   element.classList.toggle('is-folder-transparent', folder.noBackground === true);
   element.style.setProperty(
     '--folder-color',

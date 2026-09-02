@@ -271,7 +271,13 @@
       "subtitle": "Configuración",
       "export": "Exportar copia de seguridad",
       "import": "Restaurar copia de seguridad",
-      "resetSettings": "Restablecer configuración"
+      "resetSettings": "Restablecer configuración",
+      "appearance": {
+        "title": "Apariencia",
+        "system": "Sistema",
+        "light": "Claro",
+        "dark": "Oscuro"
+      }
     },
     "sync": {
       "title": "Sincronización",
@@ -382,7 +388,8 @@
     },
     "languages": {
       "title": "Idiomas",
-      "text": "Selecciona el idioma de la interfaz:"
+      "text": "Selecciona el idioma de la interfaz:",
+      "system": "Sistema"
     },
     "information": {
       "title": "Información",

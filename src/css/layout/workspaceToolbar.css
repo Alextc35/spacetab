@@ -8,11 +8,11 @@
   gap: 6px;
   max-width: calc(100vw - 24px);
   padding: 12px 8px 8px;
-  border: 1px solid rgba(255, 255, 255, .12);
+  border: 1px solid var(--ui-glass-border);
   border-bottom: 0;
   border-radius: 14px 14px 0 0;
-  background: rgba(15, 20, 31, .82);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, .28);
+  background: var(--ui-glass);
+  box-shadow: 0 8px 30px var(--ui-control-shadow);
   backdrop-filter: blur(12px);
   transform: translate(-50%, calc(100% - 14px));
   opacity: .72;
@@ -28,14 +28,14 @@
   width: 42px;
   height: 4px;
   border-radius: 999px;
-  background: rgba(238, 243, 255, .55);
+  background: var(--ui-handle);
   transform: translateX(-50%);
 }
 
 #workspace-toolbar:hover,
 #workspace-toolbar:focus-within,
 #workspace-toolbar:has(#workspace-select:open) {
-  box-shadow: 0 -10px 32px rgba(0, 0, 0, .32);
+  box-shadow: 0 -10px 32px var(--ui-control-shadow);
   transform: translate(-50%, 0);
   opacity: 1;
 }
@@ -45,7 +45,7 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: #eef3ff;
+  color: var(--ui-menu-text);
 }
 
 #workspace-toolbar button {
@@ -54,7 +54,7 @@
 }
 
 #workspace-toolbar button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, .12);
+  background: var(--ui-glass-hover);
 }
 
 #workspace-toolbar button:disabled {
@@ -68,24 +68,24 @@
   padding: 0 10px;
   font-size: 13px;
   font-weight: 600;
-  color-scheme: dark;
+  color-scheme: inherit;
   cursor: pointer;
   text-overflow: ellipsis;
 }
 
 #workspace-select:hover,
 #workspace-select:open {
-  background: rgba(255, 255, 255, .08);
+  background: var(--ui-glass-hover);
 }
 
 #workspace-select:focus-visible {
-  outline: 2px solid #73b7ff;
+  outline: 2px solid var(--ui-accent);
   outline-offset: 2px;
 }
 
 #workspace-select option {
-  background: #141b28;
-  color: #eef3ff;
+  background: var(--ui-menu);
+  color: var(--ui-menu-text);
 }
 
 @supports (appearance: base-select) {
@@ -126,7 +126,7 @@
     height: 6px;
     border-right: 1.5px solid currentColor;
     border-bottom: 1.5px solid currentColor;
-    color: #9caac0;
+    color: var(--ui-menu-muted);
     rotate: 45deg;
     transition: rotate .15s ease;
   }
@@ -148,13 +148,13 @@
     max-height: min(320px, calc(100dvh - 88px));
     margin: 0;
     padding: 6px;
-    border: 1px solid rgba(255, 255, 255, .14);
+    border: 1px solid var(--ui-glass-border);
     border-radius: 12px;
-    background: #141b28;
-    color: #eef3ff;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, .45);
+    background: var(--ui-menu);
+    color: var(--ui-menu-text);
+    box-shadow: 0 12px 36px var(--ui-control-shadow);
     scrollbar-width: thin;
-    scrollbar-color: #46536b transparent;
+    scrollbar-color: var(--ui-menu-muted) transparent;
   }
 
   #workspace-select option {
@@ -172,31 +172,31 @@
   }
 
   #workspace-select option:checked {
-    background: rgba(73, 157, 255, .16);
-    color: #c5e2ff;
+    background: var(--ui-selected);
+    color: var(--ui-info-text);
     font-weight: 600;
   }
 
   #workspace-select option:is(:hover, :focus-visible) {
-    background: rgba(255, 255, 255, .09);
+    background: var(--ui-glass-hover);
     outline: none;
   }
 
   #workspace-select option:checked:is(:hover, :focus-visible) {
-    background: rgba(73, 157, 255, .24);
+    background: var(--ui-info-hover);
   }
 
   #workspace-select option::checkmark {
     order: 1;
     margin-inline-start: auto;
-    color: #73b7ff;
+    color: var(--ui-accent);
   }
 }
 
 .workspace-toolbar-divider {
   width: 1px;
   height: 20px;
-  background: rgba(255, 255, 255, .14);
+  background: var(--ui-glass-border);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -216,23 +216,23 @@
   gap: 8px;
   max-width: calc(100vw - 32px);
   padding: 8px 10px;
-  border: 1px solid rgba(255, 255, 255, .14);
+  border: 1px solid var(--ui-glass-border);
   border-radius: 12px;
-  background: rgba(15, 20, 31, .94);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, .4);
+  background: var(--ui-glass);
+  box-shadow: 0 12px 36px var(--ui-control-shadow);
   transform: translateX(-50%);
 }
 
 .bulk-actions select {
   max-width: 150px;
   padding: 7px 9px;
-  border: 1px solid #38445a;
+  border: 1px solid var(--ui-border);
   border-radius: 8px;
-  background: #181d27;
-  color: #fff;
+  background: var(--ui-input);
+  color: var(--ui-text);
 }
 
 #bulk-selection-count {
-  color: #eef3ff;
+  color: var(--ui-menu-text);
   white-space: nowrap;
 }

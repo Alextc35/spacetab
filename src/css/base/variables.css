@@ -1,4 +1,52 @@
 :root {
+  /* Interface palette. System mode follows prefers-color-scheme automatically. */
+  color-scheme: light dark;
+  --ui-surface: light-dark(#fcfcfc, #111);
+  --ui-sidebar: light-dark(#f2f2f3, #1a1a1a);
+  --ui-card: light-dark(#f6f6f7, #181818);
+  --ui-input: light-dark(#ffffff, #1c1c1c);
+  --ui-hover: light-dark(#ededf0, #2a2a2a);
+  --ui-active: light-dark(#e5e5e9, #333);
+  --ui-border: light-dark(#d7d7de, #333);
+  --ui-divider: light-dark(#e6e6ea, #222);
+  --ui-text: light-dark(#242428, #fff);
+  --ui-muted: light-dark(#64646f, #aaa);
+  --ui-subtle: light-dark(#74747f, #888);
+  --ui-accent: light-dark(#5264d9, #4da3ff);
+  --ui-accent-hover: light-dark(#4051c2, #6db4ff);
+  --ui-on-accent: light-dark(#fff, #091522);
+  --ui-selected: light-dark(#eef0fc, #182438);
+  --ui-info-bg: light-dark(#f0f2fb, #1f3a52);
+  --ui-info-text: light-dark(#4657ac, #8fbdf1);
+  --ui-info-hover: light-dark(#e4e8f9, #254865);
+  --ui-danger-bg: light-dark(#fbefef, #3a1f1f);
+  --ui-danger-text: light-dark(#b13842, #ff8a8a);
+  --ui-danger-hover: light-dark(#f5e0e2, #5a2a2a);
+  --ui-warning-bg: light-dark(#faf3e5, #262013);
+  --ui-warning-text: light-dark(#85601a, #e9bd65);
+  --ui-success-bg: light-dark(#edf6ef, #163c2a);
+  --ui-success-text: light-dark(#316c47, #80d69d);
+  --ui-glass: light-dark(rgba(252, 252, 253, .96), rgba(15, 20, 31, .86));
+  --ui-glass-border: light-dark(rgba(65, 65, 79, .15), rgba(255, 255, 255, .14));
+  --ui-glass-hover: light-dark(rgba(55, 55, 78, .065), rgba(255, 255, 255, .12));
+  --ui-handle: light-dark(rgba(86, 86, 103, .45), rgba(238, 243, 255, .58));
+  --ui-menu: light-dark(#ffffff, #141b28);
+  --ui-menu-text: light-dark(#303039, #eef3ff);
+  --ui-menu-muted: light-dark(#747480, #9caac0);
+  --ui-overlay: light-dark(rgba(20, 20, 30, .28), rgba(0, 0, 0, .45));
+  --ui-shadow: light-dark(rgba(20, 20, 35, .19), rgba(0, 0, 0, .6));
+  --ui-canvas: light-dark(#f7f7f8, rgba(2, 6, 23, .32));
+  --ui-grid-line: light-dark(rgba(65, 65, 82, .075), rgba(148, 163, 184, .08));
+  --ui-canvas-border: light-dark(#dedee5, rgba(148, 163, 184, .14));
+  --ui-preview-base: light-dark(#f8f8f9, #1c1c1c);
+  --ui-preview-square: light-dark(#efeff1, #2a2a2a);
+  --ui-scroll-thumb: light-dark(#b8b8c3, rgba(0, 173, 239, .5));
+  --ui-scroll-thumb-hover: light-dark(#92929f, rgba(0, 173, 239, .8));
+  --ui-control-shadow: light-dark(rgba(24, 24, 40, .07), rgba(0, 0, 0, .3));
+  --ui-focus-ring: light-dark(rgba(82, 100, 217, .18), rgba(77, 163, 255, .25));
+  --color-text-muted: var(--ui-muted);
+
+
   /* body */
   --color-bg-body: #fff;
   --image-bg-body: url();
@@ -7,7 +55,7 @@
   /* Floating Menu */
   --color-bg-floating-menu-btn: rgba(255,255,255,0.25);
   --color-bg-floating-menu-btn-hover: rgba(255,255,255,0.6);
-  --color-text-floating-menu-btn: white;
+  --color-text-floating-menu-btn: var(--ui-menu-text);
 
   /* Grid Overlay */
   --color-to-right-grid-overlay: rgba(255,255,255,0.5);
@@ -30,3 +78,5 @@
   --z-modal: 1000;
   --z-flash: 9999;
 }
+:root[data-interface-theme="light"] { color-scheme: light; }
+:root[data-interface-theme="dark"] { color-scheme: dark; }

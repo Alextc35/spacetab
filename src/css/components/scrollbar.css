@@ -7,11 +7,11 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 173, 239, 0.5);
+  background: var(--ui-scroll-thumb);
   border-radius: 10px;
   transition: background 0.2s ease;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 173, 239, 0.8);
+  background: var(--ui-scroll-thumb-hover);
 }

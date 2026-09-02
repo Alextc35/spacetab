@@ -280,6 +280,26 @@
         <div class="settings-modal-panel">
           <div id="settings-modal-tab-general" class="settings-modal-tab-content custom-scrollbar">
             <h2 data-i18n="settingsModal.general.title">General</h2>
+            <section class="interface-appearance" aria-labelledby="interface-theme-title">
+              <h3 id="interface-theme-title" data-i18n="settingsModal.general.appearance.title">Apariencia</h3>
+              <div class="interface-theme-options" role="radiogroup" aria-labelledby="interface-theme-title">
+                <label class="interface-theme-option">
+                  <input type="radio" name="interface-theme" value="system">
+                  <span class="interface-theme-swatch" data-mode="system" aria-hidden="true"></span>
+                  <span data-i18n="settingsModal.general.appearance.system">Sistema</span>
+                </label>
+                <label class="interface-theme-option">
+                  <input type="radio" name="interface-theme" value="light">
+                  <span class="interface-theme-swatch" data-mode="light" aria-hidden="true"></span>
+                  <span data-i18n="settingsModal.general.appearance.light">Claro</span>
+                </label>
+                <label class="interface-theme-option">
+                  <input type="radio" name="interface-theme" value="dark">
+                  <span class="interface-theme-swatch" data-mode="dark" aria-hidden="true"></span>
+                  <span data-i18n="settingsModal.general.appearance.dark">Oscuro</span>
+                </label>
+              </div>
+            </section>
             <h3 data-i18n="settingsModal.general.subtitle">Ajustes</h3>
             <div id="settings-modal-background-settings" class="modal-field">
               <button id="export-btn-general" class="btn btn-info" type="button"
@@ -560,8 +580,9 @@
           <div id="settings-modal-tab-lang" class="settings-modal-tab-content is-hidden custom-scrollbar">
             <h2 data-i18n="settingsModal.languages.title">Idiomas</h2>
             <div class="modal-field">
-              <p data-i18n="settingsModal.languages.text">Selecciona el idioma de la interfaz:</p>
+              <label for="language-select" data-i18n="settingsModal.languages.text">Selecciona el idioma de la interfaz:</label>
               <select id="language-select" class="modal-field">
+                <option value="system" data-i18n="settingsModal.languages.system">Sistema</option>
                 <option value="en">English</option>
                 <option value="es">Español</option>
                 <option value="es_419">Español (Latinoamérica)</option>
