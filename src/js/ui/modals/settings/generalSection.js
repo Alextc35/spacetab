@@ -7,10 +7,12 @@ import { showAlert } from '../alert.js';
 /** Connects complete backup/restore and the all-settings draft reset. */
 export function initGeneralSection({ onResetSettings, onBackupImported, onRequestSaveStateUpdate }) {
   const themeInputs = document.querySelectorAll('input[name="interface-theme"]');
+  const systemNote = document.getElementById('interface-theme-system-note');
 
   function syncUI() {
     const preference = getDraftInterfaceTheme();
     for (const input of themeInputs) input.checked = input.value === preference;
+    systemNote.classList.toggle('is-hidden', preference !== 'system');
     applyInterfaceTheme(preference);
   }
 

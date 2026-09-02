@@ -284,9 +284,9 @@
               <h3 id="interface-theme-title" data-i18n="settingsModal.general.appearance.title">Apariencia</h3>
               <div class="interface-theme-options" role="radiogroup" aria-labelledby="interface-theme-title">
                 <label class="interface-theme-option">
-                  <input type="radio" name="interface-theme" value="system">
+                  <input type="radio" name="interface-theme" value="system" aria-describedby="interface-theme-system-note">
                   <span class="interface-theme-swatch" data-mode="system" aria-hidden="true"></span>
-                  <span data-i18n="settingsModal.general.appearance.system">Sistema</span>
+                  <span data-i18n="settingsModal.general.appearance.system">Navegador</span>
                 </label>
                 <label class="interface-theme-option">
                   <input type="radio" name="interface-theme" value="light">
@@ -299,6 +299,8 @@
                   <span data-i18n="settingsModal.general.appearance.dark">Oscuro</span>
                 </label>
               </div>
+              <p id="interface-theme-system-note" class="settings-section-description is-hidden"
+                data-i18n="settingsModal.general.appearance.systemHint">Usa la apariencia del navegador.</p>
             </section>
             <h3 data-i18n="settingsModal.general.subtitle">Ajustes</h3>
             <div id="settings-modal-background-settings" class="modal-field">
@@ -582,13 +584,15 @@
             <div class="modal-field">
               <label for="language-select" data-i18n="settingsModal.languages.text">Selecciona el idioma de la interfaz:</label>
               <select id="language-select" class="modal-field">
-                <option value="system" data-i18n="settingsModal.languages.system">Sistema</option>
+                <option value="system" data-i18n="settingsModal.languages.system">Navegador</option>
                 <option value="en">English</option>
                 <option value="es">Español</option>
                 <option value="es_419">Español (Latinoamérica)</option>
                 <option value="pt_BR">Português (Brasil)</option>
               </select>
             </div>
+            <p id="language-system-note" class="settings-section-description is-hidden"
+              data-i18n="settingsModal.languages.systemHint">Usa el idioma del navegador; inglés si no está disponible.</p>
           </div>
           <div id="settings-modal-tab-info" class="settings-modal-tab-content is-hidden custom-scrollbar">
             <h2 data-i18n="settingsModal.information.title">Información</h2>

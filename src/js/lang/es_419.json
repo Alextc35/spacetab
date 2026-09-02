@@ -274,7 +274,8 @@
       "resetSettings": "Restablecer configuración",
       "appearance": {
         "title": "Apariencia",
-        "system": "Sistema",
+        "system": "Navegador",
+        "systemHint": "Usa la apariencia del navegador.",
         "light": "Claro",
         "dark": "Oscuro"
       }
@@ -389,7 +390,8 @@
     "languages": {
       "title": "Idiomas",
       "text": "Selecciona el idioma de la interfaz:",
-      "system": "Sistema"
+      "system": "Navegador",
+      "systemHint": "Usa el idioma del navegador; inglés si no está disponible."
     },
     "information": {
       "title": "Información",
