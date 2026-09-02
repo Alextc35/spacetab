@@ -6,7 +6,7 @@ import {
 } from '../core/bookmarkGroups.js';
 import { getState, redoBookmarks, subscribe, undoBookmarks } from '../core/store.js';
 import { t } from '../core/i18n.js';
-import { flash } from './flash.js';
+import { flash, flashSuccess } from './flash.js';
 import { hasOpenModal } from './modalManager.js';
 import { showAlert, showPrompt } from './modals/alert.js';
 import { openSearchModal } from './modals/searchModal.js';
@@ -41,7 +41,9 @@ export function initWorkspaceToolbar() {
     const name = await showPrompt(t('workspace.prompt'), {
       placeholder: t('workspace.namePlaceholder')
     });
-    if (name) createBookmarkGroup(name);
+    if (name && createBookmarkGroup(name)) {
+      flashSuccess('flash.workspace.created');
+    }
   });
   deleteButton.addEventListener('click', async () => {
     if (!select.value) return;
@@ -56,7 +58,9 @@ export function initWorkspaceToolbar() {
       bookmarkCount,
       folderCount
     }), { type: 'confirm' });
-    if (confirmed) deleteBookmarkGroup(select.value);
+    if (confirmed && deleteBookmarkGroup(group.id)) {
+      flashSuccess('flash.workspace.deleted');
+    }
   });
   undoButton.addEventListener('click', async () => {
     if (await undoBookmarks()) flash(t('flash.history.undone'), 'info', 1000);

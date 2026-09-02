@@ -26,6 +26,10 @@
       "folderFull": "This folder already has 18 bookmarks",
       "bookmarkRemoved": "Bookmark moved back to the grid"
     },
+    "workspace": {
+      "created": "Workspace created",
+      "deleted": "Workspace deleted"
+    },
     "history": {
       "undone": "Change undone",
       "redone": "Change redone"

@@ -26,6 +26,10 @@
       "folderFull": "Esta carpeta ya contiene 18 favoritos",
       "bookmarkRemoved": "Favorito devuelto a la cuadrícula"
     },
+    "workspace": {
+      "created": "Espacio de trabajo creado",
+      "deleted": "Espacio de trabajo eliminado"
+    },
     "history": {
       "undone": "Cambio deshecho",
       "redone": "Cambio rehecho"
