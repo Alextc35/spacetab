@@ -37,6 +37,7 @@ const toggleButton = document.getElementById('edit-toggle-mode');
 
 /* ======================= Bootstrap ======================= */
 
+const startupStartedAt = performance.now();
 const startupTrace = debug.start('Carga inicial');
 initApp().catch(error => {
   startupTrace.end({ status: 'error', error: error.message });
@@ -81,7 +82,7 @@ async function initApp() {
 
   startupTrace.mark('Inicializar interfaz');
   initDebugTools();
-  void finishDebugStartup(startupTrace).catch(error => {
+  void finishDebugStartup(startupTrace, startupStartedAt).catch(error => {
     debug.info('No se pudo completar el informe inicial', { error: error.message });
   });
 }

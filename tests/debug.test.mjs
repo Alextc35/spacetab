@@ -8,7 +8,7 @@ function outputSpy() {
   const calls = [];
   return {
     calls,
-    output: Object.fromEntries(['groupCollapsed', 'groupEnd', 'table', 'info'].map(method => (
+    output: Object.fromEntries(['group', 'groupCollapsed', 'groupEnd', 'table', 'info', 'clear'].map(method => (
       [method, (...args) => calls.push({ method, args })]
     )))
   };
@@ -22,6 +22,7 @@ test('disabled debug neither reads the clock nor logs or retains operations', ()
   trace.end();
   debug.info('event');
   debug.table('usage', []);
+  debug.guide('commands', []);
   assert.deepEqual(debug.history(), []);
   assert.deepEqual(calls, []);
 });
@@ -64,5 +65,52 @@ test('history stays bounded and callers cannot mutate stored records', () => {
   records[0].label = 'changed';
   assert.equal(debug.history()[0].label, 'operation-2');
   debug.clear();
+  assert.deepEqual(debug.history(), []);
+});
+
+test('runtime switching records only new operations in the active session', () => {
+  const { calls, output } = outputSpy();
+  const debug = createDebugger({ output, now: () => 1 });
+  const disabled = debug.start('disabled');
+  assert.equal(debug.setEnabled(true), true);
+  const interrupted = debug.start('interrupted');
+  debug.start('completed').end();
+  assert.equal(debug.setEnabled(false), false);
+  const count = calls.length;
+  debug.info('hidden');
+  interrupted.mark('ignored');
+  assert.equal(calls.length, count);
+  assert.equal(debug.enabled, false);
+  debug.setEnabled(true);
+  disabled.end();
+  interrupted.end();
+  debug.start('new session').end();
+  assert.deepEqual(debug.history().map(record => record.label), ['completed', 'new session']);
+});
+
+test('clear empties the console and history and prevents pending traces from returning', () => {
+  const { calls, output } = outputSpy();
+  const debug = createDebugger({ enabled: true, output, now: () => 1 });
+  debug.start('completed').end();
+  const pending = debug.start('pending');
+  assert.equal(debug.clear(), 1);
+  assert.equal(calls.at(-1).method, 'clear');
+  const count = calls.length;
+  pending.mark('late phase');
+  pending.end();
+  assert.equal(calls.length, count);
+  assert.deepEqual(debug.history(), []);
+  assert.equal(debug.enabled, true);
+  debug.start('after clear').end();
+  assert.equal(debug.history().length, 1);
+});
+
+test('explicit console queries can print while automatic debug output stays off', () => {
+  const { calls, output } = outputSpy();
+  const debug = createDebugger({ output });
+  debug.table('report', { version: '1' }, { force: true });
+  debug.info('empty history', undefined, { force: true });
+  assert.deepEqual(calls.map(call => call.method), ['groupCollapsed', 'table', 'groupEnd', 'info']);
+  assert.equal(debug.enabled, false);
   assert.deepEqual(debug.history(), []);
 });

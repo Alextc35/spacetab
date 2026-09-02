@@ -127,11 +127,19 @@ grid items.
 
 ## Debug console
 
-`DEBUG` in `src/js/core/config.js` enables console diagnostics and is currently
-set to `true`. Reload the extension and open a new SpaceTab tab, then open its
-DevTools console and filter by `[SpaceTab Debug]`.
+`DEBUG` in `src/js/core/config.js` defaults to `false`. Open the DevTools console
+of a SpaceTab tab and run `SpaceTabDebug.toggle()` to enable live diagnostics
+without reloading. Run it again to disable them. Filter by `[SpaceTab Debug]`
+to find the output. Startup prints a short activation hint. Enabling Debug lists
+the available commands and their purpose; run `SpaceTabDebug.report()` when you
+want the report.
 
-The initial report includes the extension version, active storage mode, Sync
+Messages use colored labels, grouped details and the browser's local time as
+`HH:mm:ss`. The history table also shows when each operation started; elapsed
+durations remain in milliseconds.
+All groups start collapsed and can be expanded when needed.
+
+The report includes the extension version, active storage mode, Sync
 support, local/sync quota usage, item counts and startup timings. Bookmark
 creation, editing, deletion, duplication and state changes report preparation,
 queue wait and storage-write durations in milliseconds. Grid rendering is
@@ -139,12 +147,18 @@ reported separately; startup readiness does not wait for remote images, and
 Sync timings measure browser storage writes rather than remote propagation.
 
 ```js
+SpaceTabDebug.toggle()       // Toggle live operation logging; returns true/false
+SpaceTabDebug.enabled        // Read the current state
 await SpaceTabDebug.report() // Fresh general information and storage usage
 SpaceTabDebug.history()      // Last 100 completed operations and their phases
-SpaceTabDebug.clear()        // Clear the in-memory timing history
+SpaceTabDebug.clear()        // Clear console + history and confirm the result
 ```
 
-Set `DEBUG` to `false` and reload to disable diagnostic output and console tools.
+The commands remain available while Debug is off. Initial load metrics are
+retained for the report, but operations are only recorded while Debug is on.
+Disabling keeps the existing history; clearing also discards pending traces
+and reports without disabling Debug. The toggle applies to the current tab
+and resets to the configured default on reload.
 
 ## Architecture
 

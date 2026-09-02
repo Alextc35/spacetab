@@ -8,10 +8,10 @@
 export const VERSION = chrome.runtime.getManifest().version;
 
 /**
- * Enables or disables debug logging throughout the app.
+ * Initial debug state. SpaceTabDebug.toggle() changes it for the current tab.
  * @type {boolean}
  */
-export const DEBUG = true;
+export const DEBUG = false;
 
 /**
  * Number of columns in the bookmark grid layout.

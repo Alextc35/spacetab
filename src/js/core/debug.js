@@ -2,6 +2,29 @@ import { DEBUG } from './config.js';
 
 const PREFIX = '[SpaceTab Debug]';
 const NO_TRACE = Object.freeze({ id: null, mark() {}, end() {} });
+const COLORS = { info: '#1d4ed8', success: '#166534', error: '#b91c1c', muted: '#475569' };
+const CLOCK_STYLE = 'color:#8492a6;font-weight:normal;';
+const TITLE_STYLE = 'color:inherit;font-weight:600;';
+const COMMAND_STYLE = 'color:#3b82f6;font-weight:600;';
+const DESCRIPTION_STYLE = 'color:inherit;font-weight:normal;';
+const STATUS_LABELS = { ok: 'OK', error: 'Error', skipped: 'Sin cambios' };
+
+/** Browser-local wall time for logs; elapsed durations still use performance.now(). */
+export function formatDebugTime(timestamp = new Date()) {
+  const date = new Date(timestamp);
+  return [date.getHours(), date.getMinutes(), date.getSeconds()]
+    .map(value => String(value).padStart(2, '0')).join(':');
+}
+
+function heading(label, tone = 'info') {
+  return [
+    `%c${PREFIX}%c ${formatDebugTime()} %c%s`,
+    `background:${COLORS[tone] || COLORS.info};color:#fff;padding:2px 6px;border-radius:4px;font-weight:700;`,
+    CLOCK_STYLE,
+    TITLE_STYLE,
+    label
+  ];
+}
 
 /** Small, bounded console profiler. Each operation owns its clock and phases. */
 export function createDebugger({
@@ -12,9 +35,11 @@ export function createDebugger({
 } = {}) {
   const records = [];
   let sequence = 0;
+  let revision = 0;
 
   function start(label, details = {}) {
     if (!enabled) return NO_TRACE;
+    const startedRevision = revision;
     const id = ++sequence;
     const started = now();
     const startedAt = new Date().toISOString();
@@ -25,7 +50,7 @@ export function createDebugger({
     return {
       id,
       mark(phase) {
-        if (finished) return;
+        if (finished || !enabled || startedRevision !== revision) return;
         const current = now();
         phases.push({ phase, durationMs: round(current - previous) });
         previous = current;
@@ -33,6 +58,7 @@ export function createDebugger({
       end({ status = 'ok', ...extra } = {}) {
         if (finished) return;
         finished = true;
+        if (!enabled || startedRevision !== revision) return;
         const record = {
           id, label, status, startedAt,
           durationMs: round(now() - started),
@@ -42,9 +68,12 @@ export function createDebugger({
         records.push(structuredClone(record));
         if (records.length > limit) records.shift();
         // Open and close groups together: concurrent async operations cannot nest them.
-        output.groupCollapsed(`${PREFIX} #${id} ${label} · ${record.durationMs} ms · ${status}`);
+        const tone = status === 'error' ? 'error' : status === 'ok' ? 'success' : 'muted';
+        output.groupCollapsed(...heading(`${label} · ${record.durationMs} ms · ${STATUS_LABELS[status] || status} · #${id}`, tone));
+        if (phases.length) output.table(phases.map(({ phase, durationMs }) => (
+          { Fase: phase, 'Duración': `${durationMs} ms` }
+        )));
         if (Object.keys(record.details).length) output.table(record.details);
-        if (phases.length) output.table(phases);
         output.groupEnd();
         return structuredClone(record);
       }
@@ -52,19 +81,42 @@ export function createDebugger({
   }
 
   return {
-    enabled,
-    start,
-    info(label, details = {}) {
-      if (enabled) output.info(`${PREFIX} ${label}`, details);
+    get enabled() { return enabled; },
+    get revision() { return revision; },
+    setEnabled(value) {
+      const nextEnabled = Boolean(value);
+      if (enabled !== nextEnabled) revision++;
+      enabled = nextEnabled;
+      return enabled;
     },
-    table(label, rows) {
-      if (!enabled) return;
-      output.groupCollapsed(`${PREFIX} ${label}`);
+    start,
+    info(label, details, { force = false, tone = 'info' } = {}) {
+      if (!enabled && !force) return;
+      if (details === undefined) output.info(...heading(label, tone));
+      else output.info(...heading(label, tone), details);
+    },
+    table(label, rows, { force = false } = {}) {
+      if (!enabled && !force) return;
+      output.groupCollapsed(...heading(label));
       output.table(rows);
       output.groupEnd();
     },
+    guide(label, commands, { force = false, tone = 'info' } = {}) {
+      if (!enabled && !force) return;
+      output.groupCollapsed(...heading(label, tone));
+      for (const { command, description } of commands) {
+        output.info('%c%s%c\n  %s', COMMAND_STYLE, command, DESCRIPTION_STYLE, description);
+      }
+      output.groupEnd();
+    },
     history() { return structuredClone(records); },
-    clear() { records.length = 0; }
+    clear() {
+      const cleared = records.length;
+      records.length = 0;
+      revision++;
+      output.clear();
+      return cleared;
+    }
   };
 }
 

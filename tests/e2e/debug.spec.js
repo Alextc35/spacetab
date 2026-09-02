@@ -5,10 +5,11 @@ test.beforeEach(async ({ page }) => {
     ? route.continue() : route.abort());
   await page.goto('/tests/browser-harness.html');
   await expect.poll(() => page.evaluate(() => typeof window.SpaceTabDebug?.report)).toBe('function');
-  await expect.poll(() => page.evaluate(() => window.SpaceTabDebug.history().some(record => record.label === 'Carga inicial'))).toBe(true);
+  expect(await page.evaluate(() => window.SpaceTabDebug.enabled)).toBe(false);
 });
 
 test('reports startup, actual quotas and persisted create/edit/delete timings', async ({ page }) => {
+  expect(await page.evaluate(() => window.SpaceTabDebug.toggle())).toBe(true);
   const initial = await page.evaluate(() => window.SpaceTabDebug.report());
   expect(initial.summary.version).toBe('0.1.3'); // Browser harness manifest.
   expect(initial.summary.syncEnabled).toBe(false);
@@ -59,6 +60,7 @@ test('reports startup, actual quotas and persisted create/edit/delete timings', 
 });
 
 test('a failed storage write is reported as an error and later writes still succeed', async ({ page }) => {
+  await page.evaluate(() => window.SpaceTabDebug.toggle());
   await page.evaluate(async () => {
     const original = chrome.storage.local.set;
     chrome.storage.local.set = (items, callback) => {
@@ -83,3 +85,122 @@ test('a failed storage write is reported as an error and later writes still succ
     record.label === 'Crear favorito' && record.status === 'ok' && record.details.persisted
   )))).toBe(true);
 });
+
+test('shows startup guidance and command help, reports on demand and clears the console', async ({ page }) => {
+  const messages = [];
+  const groups = [];
+  page.on('console', message => {
+    if (message.text().includes('[SpaceTab Debug]') && message.type().startsWith('startGroup')) {
+      groups.push(message.type());
+    }
+    if (message.text().includes('[SpaceTab Debug]') || message.text().includes('SpaceTabDebug.')) {
+      messages.push(message.text().replaceAll('%c', ''));
+    }
+  });
+  await page.reload();
+  await page.waitForFunction(() => typeof window.SpaceTabDebug?.toggle === 'function');
+  await createBookmark(page, 'Before debug');
+  expect(messages).toHaveLength(2);
+  expect(messages[0]).toMatch(/^\[SpaceTab Debug\] \d{2}:\d{2}:\d{2} /);
+  expect(messages[0]).toContain('Debug disponible');
+  expect(messages[1]).toContain('SpaceTabDebug.toggle()');
+  expect(messages[1]).toContain('Activa el modo Debug');
+  expect(await page.evaluate(() => window.SpaceTabDebug.history())).toEqual([]);
+
+  messages.length = 0;
+  expect(await page.evaluate(() => window.SpaceTabDebug.toggle())).toBe(true);
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  expect(messages).toHaveLength(6);
+  expect(messages[0]).toContain('Debug activado · Comandos');
+  for (const command of ['toggle()', 'report()', 'history()', 'clear()', 'enabled']) {
+    expect(messages.some(message => message.includes(`SpaceTabDebug.${command}`))).toBe(true);
+  }
+  expect(messages.some(message => message.includes('Información general · v'))).toBe(false);
+  await createBookmark(page, 'During debug');
+  const history = await page.evaluate(() => window.SpaceTabDebug.history());
+  expect(history.some(record => record.label === 'Crear favorito' && record.details.persisted)).toBe(true);
+  const startup = (await page.evaluate(() => window.SpaceTabDebug.report())).startup;
+  expect(messages.some(message => message.includes('Información general · v'))).toBe(true);
+  for (const message of messages.filter(message => message.includes('[SpaceTab Debug]'))) {
+    expect(message).toMatch(/^\[SpaceTab Debug\] \d{2}:\d{2}:\d{2} /);
+  }
+  const historyTimes = await page.evaluate(() => {
+    const originalTable = console.table;
+    let times;
+    console.table = rows => {
+      times = rows.map(row => row.Hora);
+      originalTable.call(console, rows);
+    };
+    window.SpaceTabDebug.history();
+    console.table = originalTable;
+    return times;
+  });
+  for (const time of historyTimes) expect(time).toMatch(/^\d{2}:\d{2}:\d{2}$/);
+  expect(groups.length).toBeGreaterThan(0);
+  expect(groups.every(type => type === 'startGroupCollapsed')).toBe(true);
+  expect(startup['Inicio JS → interfaz lista (ms)']).toBeGreaterThan(0);
+
+  expect(await page.evaluate(() => window.SpaceTabDebug.toggle())).toBe(false);
+  messages.length = 0;
+  await createBookmark(page, 'After debug');
+  expect(messages).toEqual([]);
+  expect(await page.evaluate(() => window.SpaceTabDebug.history())).toEqual(history);
+  const inactiveReport = await page.evaluate(() => window.SpaceTabDebug.report());
+  expect(inactiveReport.summary.debugEnabled).toBe(false);
+  expect(inactiveReport.startup).toEqual(startup);
+
+  messages.length = 0;
+  await page.evaluate(() => window.SpaceTabDebug.toggle());
+  expect(messages).toHaveLength(6);
+  expect(messages[0]).toContain('Debug activado · Comandos');
+  const cleared = await page.evaluate(() => {
+    const originalClear = console.clear;
+    let consoleCleared = false;
+    console.clear = () => { consoleCleared = true; originalClear.call(console); };
+    const result = window.SpaceTabDebug.clear();
+    console.clear = originalClear;
+    return { ...result, consoleCleared, history: window.SpaceTabDebug.history() };
+  });
+  expect(cleared).toEqual({ cleared: history.length, enabled: true, consoleCleared: true, history: [] });
+  await createBookmark(page, 'After clear');
+  expect((await page.evaluate(() => window.SpaceTabDebug.history()))
+    .some(record => record.label === 'Crear favorito')).toBe(true);
+  await page.reload();
+  await page.waitForFunction(() => typeof window.SpaceTabDebug?.toggle === 'function');
+  expect(await page.evaluate(() => window.SpaceTabDebug.enabled)).toBe(false);
+});
+
+for (const command of ['clear', 'toggle']) {
+  test(`${command} cancels a requested report waiting for storage usage`, async ({ page }) => {
+    await page.evaluate(() => {
+      const original = chrome.storage.local.getBytesInUse;
+      chrome.storage.local.getBytesInUse = (keys, callback) => {
+        window.releaseDebugUsage = () => {
+          chrome.storage.local.getBytesInUse = original;
+          original(keys, callback);
+        };
+      };
+      window.SpaceTabDebug.toggle();
+      window.pendingDebugReport = window.SpaceTabDebug.report();
+    });
+    await page.waitForFunction(() => typeof window.releaseDebugUsage === 'function');
+    await page.evaluate(command => window.SpaceTabDebug[command](), command);
+    const messages = [];
+    page.on('console', message => {
+      if (message.text().includes('[SpaceTab Debug]')) messages.push(message.text());
+    });
+    await page.evaluate(async () => {
+      window.releaseDebugUsage();
+      await window.pendingDebugReport;
+    });
+    expect(messages).toEqual([]);
+  });
+}
+
+async function createBookmark(page, name) {
+  await page.evaluate(async name => {
+    const { addBookmark } = await import('/src/js/core/bookmark.js');
+    addBookmark({ name, url: 'https://debug.internal' });
+  }, name);
+  await expect(page.locator('#bookmark-container .bookmark').filter({ hasText: name })).toBeVisible();
+}
