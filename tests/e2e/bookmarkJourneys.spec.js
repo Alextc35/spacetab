@@ -327,6 +327,32 @@ test('marks the keyboard-focused bookmark with S while editing', async ({ page }
   await expect(first).toHaveClass(/is-selected/);
 });
 
+test('does not move a selected bookmark until Tab navigation is disabled', async ({ page }) => {
+  await enableEditMode(page);
+  const grid = page.locator('#bookmark-container');
+  const first = page.locator('#bookmark-container > .bookmark[data-bookmark-id]').first();
+  const gridBox = await grid.boundingBox();
+
+  await first.click();
+  await expect(first).toHaveClass(/is-selected/);
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await expect(first).toHaveClass(/is-keyboard-active/);
+
+  const start = await first.boundingBox();
+  await page.keyboard.press('ArrowDown');
+  await page.waitForTimeout(100);
+  await expect.poll(async () => (await first.boundingBox()).y)
+    .toBeCloseTo(start.y, 0);
+
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.bookmark.is-keyboard-active')).toHaveCount(0);
+  await page.keyboard.press('ArrowDown');
+  await expect.poll(async () => (await first.boundingBox()).y)
+    .toBeCloseTo(start.y + gridBox.height / 6, 0);
+  await expect(first).toHaveClass(/is-selected/);
+});
+
 test('navigates folders and opens them according to the current edit mode', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: 'Create folder' }).click();

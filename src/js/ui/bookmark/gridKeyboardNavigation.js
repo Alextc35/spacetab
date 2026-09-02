@@ -45,6 +45,15 @@ export function isGridKeyboardActive(itemId) {
   return activeItemId === itemId;
 }
 
+/**
+ * Whether Tab-based grid navigation currently owns the arrow keys.
+ *
+ * @returns {boolean}
+ */
+export function isGridKeyboardNavigationActive() {
+  return activeItemId !== null;
+}
+
 function handleGridKeyboardNavigation(event) {
   if (
     event.defaultPrevented

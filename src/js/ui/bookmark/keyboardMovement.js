@@ -8,6 +8,7 @@ import {
 } from '../../core/config.js';
 import { getState } from '../../core/store.js';
 import { hasOpenModal } from '../modalManager.js';
+import { isGridKeyboardNavigationActive } from './gridKeyboardNavigation.js';
 import { getSelectedBookmarkIds } from './selection.js';
 import { calculateKeyboardMoveLayout } from './smartDragLayout.js';
 
@@ -39,6 +40,7 @@ function handleBookmarkArrowKey(event) {
     || event.shiftKey
     || event.defaultPrevented
     || hasOpenModal()
+    || isGridKeyboardNavigationActive()
     || isEditingTextOrControl(document.activeElement)
   ) return;
 

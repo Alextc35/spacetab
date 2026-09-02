@@ -233,8 +233,9 @@ Folders cannot be added to the bookmark selection and flash red when `S` is
 pressed on one.
 
 Outside keyboard grid navigation, `↑/↓/←/→` moves exactly one selected
-top-level bookmark while editing. Arrow movement follows the configured drag
-behavior. In None mode it skips
+top-level bookmark while editing. A bookmark that is already selected remains
+stationary while `Tab` navigation is active and becomes movable again after
+leaving that mode. Arrow movement follows the configured drag behavior. In None mode it skips
 occupied cells until the next free rectangle. Relocation and Sequence exchange
 bookmarks one step at a time and jump over the complete rectangle of a folder
 without moving it. Arrow shortcuts are ignored with zero or multiple
