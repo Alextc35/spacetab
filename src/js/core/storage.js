@@ -1,6 +1,12 @@
 import '../types/types.js'; // typedefs
 import { migratePersistedData } from './dataSchema.js';
 import { DATA_SCHEMA_VERSION } from './defaults.js';
+import {
+  DEVICE_IMAGE_SELECTIONS_KEY,
+  restoreDeviceImageSelections,
+  saveDeviceImageSelections,
+  withoutDeviceImages
+} from './deviceImages.js';
 
 export const STORAGE_MODES = Object.freeze({
   LOCAL: 'local',
@@ -230,6 +236,7 @@ async function readSyncData() {
  * @returns {Promise<void>}
  */
 async function writeLocalData(data) {
+  await saveDeviceImageSelections(data);
   await callStorage(chrome.storage.local, 'set', normalizePersistedData(data));
 }
 
@@ -241,13 +248,21 @@ async function writeLocalData(data) {
  */
 async function writeSyncData(data) {
   const normalized = normalizePersistedData(data);
-  const chunks = splitForSync(JSON.stringify(normalized));
+  await saveDeviceImageSelections(normalized);
+  const chunks = splitForSync(JSON.stringify(withoutDeviceImages(normalized)));
   const previous = await callStorage(
     chrome.storage.sync,
     'get',
-    [SYNC_META_KEY, 'schemaVersion', 'bookmarks', 'folders', 'settings']
+    [SYNC_META_KEY, ...LEGACY_SYNC_KEYS, ...chunks.map((_, index) => `${SYNC_CHUNK_PREFIX}${index}`)]
   );
   const previousChunkCount = previous[SYNC_META_KEY]?.chunkCount ?? 0;
+
+  // A device-only image change does not need a new synchronized write.
+  if (previous[SYNC_META_KEY]?.schemaVersion === DATA_SCHEMA_VERSION
+    && previousChunkCount === chunks.length
+    && chunks.every((chunk, index) => previous[`${SYNC_CHUNK_PREFIX}${index}`] === chunk)) {
+    return;
+  }
 
   const items = Object.fromEntries(
     chunks.map((chunk, index) => [`${SYNC_CHUNK_PREFIX}${index}`, chunk])
@@ -549,6 +564,8 @@ export const storage = {
       data = await fallBackToLocalData(error);
     }
 
+    data = await restoreDeviceImageSelections(data);
+
     if (keys === null) return data;
 
     const requestedKeys = Array.isArray(keys) ? keys : [keys];
@@ -570,7 +587,7 @@ export const storage = {
     const nextData = isComplete
       ? normalizePersistedData(data)
       : normalizePersistedData({
-          ...(await readData(activeMode) ?? {}),
+          ...(await storage.get(null)),
           ...data
         });
 
@@ -586,7 +603,7 @@ export const storage = {
   async remove(keys) {
     await initialize();
     const requestedKeys = Array.isArray(keys) ? keys : [keys];
-    const current = await readData(activeMode) ?? {};
+    const current = await storage.get(null);
 
     for (const key of requestedKeys) delete current[key];
     await writeData(activeMode, normalizePersistedData(current));
@@ -637,7 +654,8 @@ export const storage = {
       }
 
       if (existingSyncData) {
-        nextData = normalizePersistedData(existingSyncData);
+        await saveDeviceImageSelections(nextData);
+        nextData = await restoreDeviceImageSelections(normalizePersistedData(existingSyncData));
         source = 'existing';
       } else {
         await writeSyncData(nextData);
@@ -670,6 +688,10 @@ export const storage = {
 };
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === STORAGE_MODES.LOCAL && changes[DEVICE_IMAGE_SELECTIONS_KEY]) {
+    for (const listener of changeListeners) listener({ areaName, origin: 'same-device' });
+  }
+
   if (areaName === STORAGE_MODES.LOCAL && changes[STORAGE_MODE_KEY]) {
     activeMode = changes[STORAGE_MODE_KEY].newValue === STORAGE_MODES.SYNC
       ? STORAGE_MODES.SYNC

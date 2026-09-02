@@ -18,8 +18,7 @@ const cachedImageNames = new Map();
 
 /**
  * Returns whether a value points to an image intentionally kept on this
- * browser profile. References are safe to sync because they contain no image
- * bytes; another device simply will not resolve them.
+ * browser profile. Both files and their selections stay on this device.
  *
  * @param {*} value
  * @returns {boolean}
@@ -109,8 +108,8 @@ export async function preloadLocalImages(data) {
 
 /**
  * Optimizes and stores an uploaded image exclusively in chrome.storage.local.
- * The returned reference can be placed in synchronized app data without
- * adding the image itself to Chrome Sync's small quota.
+ * The returned reference is kept in the editor draft until its device-local
+ * selection is saved. Neither the file nor the selection is sent to Sync.
  *
  * @param {File} file
  * @returns {Promise<string>}

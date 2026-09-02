@@ -133,19 +133,18 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
     const local = JSON.parse(sessionStorage.getItem('spacetab-test-local') || '{}');
     const sync = JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}');
     const serialized = sync['spacetabSyncChunk:0'];
-    const syncedImage = serialized
-      ? JSON.parse(serialized).settings.theme.backgroundImageLocal
-      : null;
     return {
       localAssetCount: Object.keys(local).filter(key => key.startsWith('spacetabLocalImage:')).length,
-      syncedImage,
+      localSelection: local.spacetabLocalImageSelections?.theme,
+      containsLocalSelection: serialized.includes('backgroundImageLocal') || serialized.includes('spacetab-local-image:'),
       syncedUrl: JSON.parse(serialized).settings.theme.backgroundImageUrl,
       containsImageBytes: serialized.includes('data:image/'),
       containsFilename: serialized.includes('theme.png')
     };
   })).toEqual({
     localAssetCount: 1,
-    syncedImage: expect.stringMatching(/^spacetab-local-image:/),
+    localSelection: expect.stringMatching(/^spacetab-local-image:/),
+    containsLocalSelection: false,
     syncedUrl: fallbackUrl,
     containsImageBytes: false,
     containsFilename: false
@@ -178,6 +177,7 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🖼️ Theme' }).click();
   await expect(page.locator('#settings-theme-bg-preview')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+  await expect(imageReference).toBeHidden();
 });
 
 test('switches to the default wallpaper without losing the custom URL or local image', async ({ page }, testInfo) => {

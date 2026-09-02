@@ -28,7 +28,7 @@ function selectWholeLocalImageInput(input) {
 /**
  * Returns the persisted image value represented by an image input. A local
  * upload shows its filename to the person editing it, while its reference is
- * kept separately so app data stays lightweight and sync-safe.
+ * kept separately and persisted only on this device.
  *
  * @param {HTMLInputElement|null} input
  * @returns {string}

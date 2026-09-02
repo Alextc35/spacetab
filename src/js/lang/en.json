@@ -126,7 +126,7 @@
     "upload": "Upload from this device",
     "label": "Local image:",
     "remove": "Remove local image",
-    "notice": "Saved only on this device. If the local image is unavailable, the image URL will be used.",
+    "notice": "Local images are not synced.",
     "unnamed": "Local image"
   },
   "workspace": {

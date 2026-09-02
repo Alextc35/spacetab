@@ -168,7 +168,10 @@ test('identifies synchronized writes from this and other devices', async () => {
   const events = [];
   const unsubscribe = storage.subscribe(change => events.push(change));
 
-  await storage.set(LOCAL_DATA);
+  await storage.set({
+    ...LOCAL_DATA,
+    bookmarks: LOCAL_DATA.bookmarks.map(bookmark => ({ ...bookmark, name: 'Updated here' }))
+  });
 
   const ownMeta = chrome.storage.sync.data.spacetabSyncMeta;
   assert.equal(typeof ownMeta.writerDeviceId, 'string');
