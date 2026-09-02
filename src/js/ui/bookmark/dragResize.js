@@ -26,6 +26,7 @@ let dragging = false;
 let resizing = false;
 const SMART_MOVE_DURATION = 180;
 const SELECTION_CLICK_MAX_DURATION = 300;
+const DRAG_HOLD_DELAY = 180;
 const smartDragOwners = new WeakMap();
 
 /**
@@ -53,6 +54,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
   let itemDragging = false;
   let moved = false;
   let pressStartedAt = 0;
+  let dragHoldTimer = null;
 
   const rowWidth = container.clientWidth / GRID_COLS;
   const rowHeight = container.clientHeight / GRID_ROWS;
@@ -92,6 +94,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     dragSession = createSmartDragSession(container, item, kind);
 
     div.setPointerCapture(e.pointerId);
+    dragHoldTimer = setTimeout(startDragFeedback, DRAG_HOLD_DELAY);
   });
 
   div.addEventListener('pointermove', (e) => {
@@ -101,8 +104,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     const dy = e.clientY - startY;
     if (!moved) {
       if (Math.hypot(dx, dy) <= 4) return;
-      moved = true;
-      div.classList.add('is-dragging');
+      startDragFeedback();
     }
 
     let newLeft = startLeft + dx;
@@ -158,6 +160,8 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
   const finishDrag = (commit = true, event = null) => {
     if (!itemDragging || resizing || !dragSession) return;
 
+    clearTimeout(dragHoldTimer);
+    dragHoldTimer = null;
     itemDragging = false;
     dragging = false;
     div.classList.remove('is-dragging', 'is-invalid');
@@ -226,6 +230,12 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     folderTarget = nextTarget;
     folderTarget?.classList.add('is-drop-target');
     div.classList.toggle('is-over-folder', Boolean(folderTarget));
+  }
+
+  function startDragFeedback() {
+    if (!itemDragging || moved) return;
+    moved = true;
+    div.classList.add('is-dragging');
   }
 
   const resizeIndicator = document.createElement('span');

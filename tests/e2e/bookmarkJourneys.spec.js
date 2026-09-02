@@ -207,7 +207,8 @@ test('selects on a short click and exposes only the direct edit control', async 
     bookmarkBox.y + bookmarkBox.height / 2
   );
   await page.mouse.down();
-  await page.waitForTimeout(350);
+  await page.waitForTimeout(220);
+  await expect(bookmark).toHaveClass(/is-dragging/);
   await page.mouse.up();
   await expect(bookmark).not.toHaveClass(/is-selected/);
 
