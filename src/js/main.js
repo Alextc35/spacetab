@@ -1,9 +1,9 @@
-import { VERSION, DEBUG  } from './core/config.js';
+import { debug } from './core/debug.js';
+import { initDebugTools, finishDebugStartup } from './core/diagnostics.js';
 import {
   subscribe,
   hydrateStore,
   getState,
-  getStorageMode,
   getSyncCompatibility,
   subscribeToRemoteSyncUpdates
 } from './core/store.js';
@@ -37,7 +37,11 @@ const toggleButton = document.getElementById('edit-toggle-mode');
 
 /* ======================= Bootstrap ======================= */
 
-initApp();
+const startupTrace = debug.start('Carga inicial');
+initApp().catch(error => {
+  startupTrace.end({ status: 'error', error: error.message });
+  console.error('[SpaceTab] No se pudo inicializar la página:', error);
+});
 
 /**
  * Application bootstrap sequence.
@@ -49,17 +53,15 @@ initApp();
  * 4. Initialize modals and import/export
  */
 async function initApp() {
-  if (DEBUG) {
-    console.time("Execution time");
-  }
-
   await initState();
+  startupTrace.mark('Cargar y migrar datos');
   applyInterfaceTheme(getState().data.settings.interfaceTheme);
   await preloadLocalImages(getState().data);
 
-  if (DEBUG) logStorageUsage();
+  startupTrace.mark('Cargar imágenes locales');
 
   await initI18n();
+  startupTrace.mark('Cargar idioma');
   subscribe(handleStateChange);
   subscribeToRemoteSyncUpdates(() => {
     flashInfo('flash.sync.updatedFromOtherDevice', 4000);
@@ -77,26 +79,10 @@ async function initApp() {
     flashInfo('flash.sync.versionBlocked', 8000);
   }
 
-  if (DEBUG) {
-    console.info('Initializing SpaceTab ' + VERSION + ' alfa');
-    console.timeEnd("Execution time");
-  }
-}
-
-/**
- * Logs usage for the storage area selected on this device.
- */
-function logStorageUsage() {
-  const mode = getStorageMode();
-  const storageArea = chrome.storage[mode];
-  const maxBytes = storageArea.QUOTA_BYTES;
-
-  storageArea.getBytesInUse(null, usedBytes => {
-    const usedKB = (usedBytes / 1024).toFixed(2);
-    const maxKB = (maxBytes / 1024).toFixed(2);
-    const percentage = ((usedBytes / maxBytes) * 100).toFixed(2);
-
-    console.log(`[STORAGE] ${mode}: ${usedKB} KB / ${maxKB} KB (${percentage}%)`);
+  startupTrace.mark('Inicializar interfaz');
+  initDebugTools();
+  void finishDebugStartup(startupTrace).catch(error => {
+    debug.info('No se pudo completar el informe inicial', { error: error.message });
   });
 }
 
@@ -151,7 +137,9 @@ function handleStateChange(state, prev) {
   if (!prev) {
     applyGlobalTheme(state.data.settings);
     updateEditUI(state.ui.isEditing);
+    const trace = debug.start('Render inicial del grid');
     renderBookmarks(container);
+    trace.end();
     return;
   }
 
@@ -177,10 +165,15 @@ function handleStateChange(state, prev) {
   }
 
   if (settingsChanged || bookmarksChanged || foldersChanged) {
+    const trace = debug.start('Renderizar grid', { bookmarks: state.data.bookmarks.length, folders: state.data.folders.length });
     void preloadLocalImages(state.data).then(() => {
+      trace.mark('Resolver imágenes locales');
       if (settingsChanged) applyGlobalTheme(state.data.settings);
       renderBookmarks(container);
+      trace.mark('Construir DOM del grid');
+      trace.end();
     }).catch(error => {
+      trace.end({ status: 'error', error: error.message });
       console.error('[LOCAL_IMAGE] Could not load local image:', error);
       if (settingsChanged) applyGlobalTheme(state.data.settings);
       renderBookmarks(container);

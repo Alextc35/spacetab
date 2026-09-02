@@ -1,4 +1,5 @@
 import '../types/types.js'; // typedefs
+import { debug } from './debug.js';
 import { getState, setState } from './store.js';
 import {
   applyBookmarkPreset,
@@ -19,16 +20,20 @@ import { getGridItemsInGroup } from './bookmarkFolders.js';
  * @returns {Bookmark} The created bookmark.
  */
 export function addBookmark(data) {
+  const trace = debug.start('Crear favorito');
   const { data: { bookmarks, settings } } = getState();
   const validation = validateBookmarkDraft(data);
-  if (!validation.isValid) return null;
+  if (!validation.isValid) {
+    trace.end({ status: 'skipped', reason: 'Datos inválidos' });
+    return null;
+  }
 
   const bookmark = normalizeBookmarkValue(validation.value, {
     preset: settings.bookmarkDefault
   });
   const updated = [...bookmarks, bookmark];
 
-  setState({ data: { bookmarks: updated } });
+  setState({ data: { bookmarks: updated } }, { debugTrace: trace });
 
   return bookmark;
 }
@@ -44,6 +49,7 @@ export function addBookmark(data) {
  * @returns {Bookmark|null} The updated bookmark, or null if not found.
  */
 export function updateBookmarkById(bookmarkId, updatedData) {
+  const trace = debug.start('Editar favorito', { bookmarkId });
   const { data } = getState();
   const { bookmarks } = data;
 
@@ -66,9 +72,12 @@ export function updateBookmarkById(bookmarkId, updatedData) {
     return updatedBookmark;
   });
 
-  if (!updatedBookmark) return null;
+  if (!updatedBookmark) {
+    trace.end({ status: 'skipped', reason: 'No encontrado o datos inválidos' });
+    return null;
+  }
 
-  setState({ data: { bookmarks: updated } });
+  setState({ data: { bookmarks: updated } }, { debugTrace: trace });
 
   return updatedBookmark;
 }
@@ -79,7 +88,8 @@ export function updateBookmarkById(bookmarkId, updatedData) {
  * @return {boolean} True if the all bookmarks were removed, false otherwise.
  */
 export function clearBookmarks() {
-  setState({ data: { bookmarks: [] } });
+  const trace = debug.start('Eliminar todos los favoritos');
+  setState({ data: { bookmarks: [] } }, { debugTrace: trace });
   return true;
 }
 
@@ -91,8 +101,12 @@ export function clearBookmarks() {
  * @returns {Bookmark[]}
  */
 export function updateBookmarksByIds(bookmarkIds, updater) {
+  const trace = debug.start('Actualizar varios favoritos');
   const ids = new Set(bookmarkIds);
-  if (!ids.size) return [];
+  if (!ids.size) {
+    trace.end({ status: 'skipped', reason: 'Selección vacía' });
+    return [];
+  }
 
   const { data: { bookmarks } } = getState();
   const changed = [];
@@ -114,18 +128,24 @@ export function updateBookmarksByIds(bookmarkIds, updater) {
     return nextBookmark;
   });
 
-  if (changed.length) setState({ data: { bookmarks: updated } });
+  if (changed.length) setState({ data: { bookmarks: updated } }, { debugTrace: trace });
+  else trace.end({ status: 'skipped', reason: 'Sin cambios' });
   return changed;
 }
 
 /** @param {Iterable<string>} bookmarkIds */
 export function deleteBookmarksByIds(bookmarkIds) {
+  const trace = debug.start('Eliminar favoritos');
   const ids = new Set(bookmarkIds);
-  if (!ids.size) return 0;
+  if (!ids.size) {
+    trace.end({ status: 'skipped', reason: 'Selección vacía' });
+    return 0;
+  }
   const { data: { bookmarks } } = getState();
   const updated = bookmarks.filter(bookmark => !ids.has(bookmark.id));
   const deletedCount = bookmarks.length - updated.length;
-  if (deletedCount) setState({ data: { bookmarks: updated } });
+  if (deletedCount) setState({ data: { bookmarks: updated } }, { debugTrace: trace });
+  else trace.end({ status: 'skipped', reason: 'No encontrados' });
   return deletedCount;
 }
 
@@ -158,8 +178,12 @@ export function duplicateBookmarksByIds(bookmarkIds, {
   rows,
   nameSuffix = 'copy'
 } = {}) {
+  const trace = debug.start('Duplicar favoritos');
   const ids = new Set(bookmarkIds);
-  if (!ids.size) return { duplicates: [], skipped: 0 };
+  if (!ids.size) {
+    trace.end({ status: 'skipped', reason: 'Selección vacía' });
+    return { duplicates: [], skipped: 0 };
+  }
 
   const { data } = getState();
   const { bookmarks } = data;
@@ -193,8 +217,8 @@ export function duplicateBookmarksByIds(bookmarkIds, {
   }
 
   if (duplicates.length) {
-    setState({ data: { bookmarks: [...bookmarks, ...duplicates] } });
-  }
+    setState({ data: { bookmarks: [...bookmarks, ...duplicates] } }, { debugTrace: trace });
+  } else trace.end({ status: 'skipped', reason: 'Sin duplicados', skipped });
 
   return { duplicates, skipped };
 }

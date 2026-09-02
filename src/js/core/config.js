@@ -11,7 +11,7 @@ export const VERSION = chrome.runtime.getManifest().version;
  * Enables or disables debug logging throughout the app.
  * @type {boolean}
  */
-export const DEBUG = false;
+export const DEBUG = true;
 
 /**
  * Number of columns in the bookmark grid layout.

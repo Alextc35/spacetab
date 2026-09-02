@@ -125,6 +125,27 @@ A bookmark never displaces a folder: dropping it onto a folder adds it to that
 folder. Folders themselves use the same smart drag and resize system as other
 grid items.
 
+## Debug console
+
+`DEBUG` in `src/js/core/config.js` enables console diagnostics and is currently
+set to `true`. Reload the extension and open a new SpaceTab tab, then open its
+DevTools console and filter by `[SpaceTab Debug]`.
+
+The initial report includes the extension version, active storage mode, Sync
+support, local/sync quota usage, item counts and startup timings. Bookmark
+creation, editing, deletion, duplication and state changes report preparation,
+queue wait and storage-write durations in milliseconds. Grid rendering is
+reported separately; startup readiness does not wait for remote images, and
+Sync timings measure browser storage writes rather than remote propagation.
+
+```js
+await SpaceTabDebug.report() // Fresh general information and storage usage
+SpaceTabDebug.history()      // Last 100 completed operations and their phases
+SpaceTabDebug.clear()        // Clear the in-memory timing history
+```
+
+Set `DEBUG` to `false` and reload to disable diagnostic output and console tools.
+
 ## Architecture
 
 SpaceTab uses vanilla JavaScript modules with a small dependency direction:

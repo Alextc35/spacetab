@@ -1,4 +1,4 @@
-import { DEBUG } from '../core/config.js';
+import { debug } from '../core/debug.js';
 
 /**
  * Stack of currently open modals.
@@ -35,7 +35,6 @@ function getActive() {
  * @returns {boolean}
  */
 export function hasOpenModal() {
-  if (DEBUG && (stack.length != 0)) console.log('[MODAL MANAGER] stack:', stack.map(m => m.id));
   return stack.length > 0;
 }
 
@@ -203,6 +202,7 @@ export function openModal(id, {
   if (onCancel) activeModal.onCancel = onCancel;
 
   stack.push(activeModal);
+  debug.info('Abrir ventana', { modal: id, depth: stack.length });
 
   config.element.hidden = false;
   config.element.classList.add('is-open');
@@ -225,6 +225,7 @@ export function openModal(id, {
 export function closeModal() {
   const modal = stack.pop();
   if (!modal) return;
+  debug.info('Cerrar ventana', { modal: modal.id, depth: stack.length });
 
   modal.element.classList.remove('is-open');
   modal.element.hidden = true;

@@ -1,5 +1,5 @@
 import '../types/types.js'; // typedefs
-import { DEBUG } from './config.js';
+import { debug, describeStateChange } from './debug.js';
 import { DEFAULT_STATE } from './defaults.js';
 import { storage, STORAGE_MODES } from './storage.js';
 
@@ -57,10 +57,17 @@ export function getState() {
  * Notifies all subscribed listeners.
  * 
  * @param {Partial<AppState>} partial
+ * @param {{recordHistory?: boolean, debugTrace?: ReturnType<typeof debug.start>}} [options]
  * @returns {Promise<void>}
  */
-export async function setState(partial, { recordHistory = true } = {}) {
+export async function setState(partial, { recordHistory = true, debugTrace } = {}) {
   const prevState = state;
+  const trace = debugTrace ?? debug.start(debug.enabled
+    ? (isHydrating ? 'Hidratar datos' : describeStateChange(partial, prevState.data))
+    : '');
+  let persistenceError = null;
+  let persisted = false;
+  let persistenceMode = storage.getMode();
   const gridDataWillChange = (
     partial.data?.bookmarks !== undefined
     && partial.data.bookmarks !== state.data.bookmarks
@@ -93,69 +100,69 @@ export async function setState(partial, { recordHistory = true } = {}) {
     }
   };
 
-  if (DEBUG) {
-    console.groupCollapsed('[STORE] setState called');
-    console.log('Partial update:', partial);
-    console.log('Prev state:', prevState);
-    console.log('New state:', state);
+  const details = debug.enabled ? {
+    bookmarksBefore: prevState.data.bookmarks.length,
+    bookmarksAfter: state.data.bookmarks.length,
+    foldersBefore: prevState.data.folders.length,
+    foldersAfter: state.data.folders.length
+  } : {};
+  const shouldPersist = !isHydrating && (
+    state.data.bookmarks !== prevState.data.bookmarks ||
+    state.data.folders !== prevState.data.folders ||
+    state.data.settings !== prevState.data.settings
+  );
+  if (shouldPersist) {
+    const dataToPersist = structuredClone(state.data);
+    state.ui.persistence = {
+      status: 'saving',
+      error: null,
+      updatedAt: state.ui.persistence?.updatedAt ?? null
+    };
+    trace.mark('Preparación de datos');
 
-    const changedDataKeys = Object.keys(state.data).filter(
-      key => state.data[key] !== prevState.data[key]
-    );
-    const changedUIKeys = Object.keys(state.ui).filter(
-      key => state.ui[key] !== prevState.ui[key]
-    );
+    try {
+      persistenceQueue = persistenceQueue
+        .catch(() => undefined)
+        .then(async () => {
+          trace.mark('Espera en cola');
+          persistenceMode = storage.getMode();
+          try {
+            await storage.set(dataToPersist);
+          } finally {
+            trace.mark('Escritura en storage');
+          }
+        });
 
-    if (changedDataKeys.length) console.log('[STORE] Data changed keys:', changedDataKeys);
-    if (changedUIKeys.length) console.log('[STORE] UI changed keys:', changedUIKeys);
-  }
-
-  if (!isHydrating) {
-    if (
-      state.data.bookmarks !== prevState.data.bookmarks ||
-      state.data.folders !== prevState.data.folders ||
-      state.data.settings !== prevState.data.settings
-    ) {
-      const dataToPersist = structuredClone(state.data);
+      await persistenceQueue;
       state.ui.persistence = {
-        status: 'saving',
+        status: 'saved',
         error: null,
-        updatedAt: state.ui.persistence?.updatedAt ?? null
+        updatedAt: Date.now()
       };
 
-      try {
-        persistenceQueue = persistenceQueue
-          .catch(() => undefined)
-          .then(() => storage.set(dataToPersist));
-
-        await persistenceQueue;
-        state.ui.persistence = {
-          status: 'saved',
-          error: null,
-          updatedAt: Date.now()
-        };
-
-        if (DEBUG) {
-          console.log('[STORE] Persisted to storage:', {
-            bookmarks: dataToPersist.bookmarks,
-            folders: dataToPersist.folders,
-            settings: dataToPersist.settings
-          });
-        }
-      } catch (err) {
-        console.error('[STORE] Storage persist failed:', err);
-        state.ui.persistence = {
-          status: 'error',
-          error: err?.message || 'Storage persistence failed',
-          updatedAt: Date.now()
-        };
-      }
+      persisted = true;
+    } catch (err) {
+      persistenceError = err?.message || 'Storage persistence failed';
+      console.error('[STORE] Storage persist failed:', err);
+      state.ui.persistence = {
+        status: 'error',
+        error: err?.message || 'Storage persistence failed',
+        updatedAt: Date.now()
+      };
     }
+  } else {
+    trace.mark('Preparación de datos');
   }
 
-  notify(state, prevState);
-
-  if (DEBUG) console.groupEnd();
+  try {
+    notify(state, prevState);
+    trace.mark('Notificar interfaz');
+    trace.end({ ...details, storageMode: persistenceMode, persisted,
+      status: persistenceError ? 'error' : 'ok', ...(persistenceError ? { error: persistenceError } : {}) });
+  } catch (error) {
+    trace.end({ ...details, status: 'error', error: error.message, persisted });
+    throw error;
+  }
 }
 
 /**
@@ -172,7 +179,7 @@ export async function undoBookmarks() {
     bookmarks: state.data.bookmarks,
     folders: state.data.folders
   }));
-  await setState({ data: previous }, { recordHistory: false });
+  await setState({ data: previous }, { recordHistory: false, debugTrace: debug.start('Deshacer') });
   return true;
 }
 
@@ -185,7 +192,7 @@ export async function redoBookmarks() {
     bookmarks: state.data.bookmarks,
     folders: state.data.folders
   }));
-  await setState({ data: next }, { recordHistory: false });
+  await setState({ data: next }, { recordHistory: false, debugTrace: debug.start('Rehacer') });
   return true;
 }
 
@@ -260,10 +267,19 @@ export async function changeStorageMode(mode, nextData = state.data) {
     throw new TypeError(`Unsupported storage mode: ${mode}`);
   }
 
-  await persistenceQueue.catch(() => undefined);
-  const result = await storage.changeMode(mode, nextData);
-  replacePersistedData(result.data);
-  return result.source;
+  const trace = debug.start('Cambiar almacenamiento', { from: storage.getMode(), to: mode });
+  try {
+    await persistenceQueue.catch(() => undefined);
+    trace.mark('Espera en cola');
+    const result = await storage.changeMode(mode, nextData);
+    trace.mark('Cambio de almacenamiento');
+    replacePersistedData(result.data);
+    trace.end({ source: result.source, activeMode: storage.getMode() });
+    return result.source;
+  } catch (error) {
+    trace.end({ status: 'error', error: error.message, activeMode: storage.getMode() });
+    throw error;
+  }
 }
 
 /**
@@ -387,6 +403,7 @@ function subscribeToStorageChanges() {
       try {
         const persisted = await storage.get(null);
         const dataChanged = replacePersistedData(persisted);
+        if (dataChanged) debug.info('Datos actualizados desde storage', refreshChange);
 
         if (
           dataChanged

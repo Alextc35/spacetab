@@ -1,4 +1,4 @@
-import { DEBUG } from '../../core/config.js';
+import { debug } from '../../core/debug.js';
 import { getState, setState } from '../../core/store.js';
 import {
   createBookmarksEnvelope,
@@ -20,7 +20,7 @@ export function exportBookmarks() {
     const { data: { bookmarks, folders } } = getState();
     downloadJson(createBookmarksEnvelope(bookmarks, folders), 'spacetab-bookmarks.json');
 
-    if (DEBUG) console.log('Bookmarks exported:', bookmarks);
+    debug.info('Favoritos exportados', { bookmarks: bookmarks.length, folders: folders.length });
 
     flashSuccess('flash.bookmarks.exported');
   } catch (err) {
@@ -47,7 +47,7 @@ export async function importBookmarks(file) {
     const { bookmarks, folders } = parseBookmarksPayload(payload, currentData);
     await setState({ data: { bookmarks, folders } });
 
-    if (DEBUG) console.log('Bookmarks imported:', bookmarks);
+    debug.info('Favoritos importados', { bookmarks: bookmarks.length, folders: folders.length });
     flashSuccess('flash.bookmarks.imported');
   } catch (err) {
     console.error(err);
