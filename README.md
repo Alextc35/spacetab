@@ -8,7 +8,7 @@ grid workspace.
 ![version](https://img.shields.io/badge/version-0.9.1-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
-![demo](assets/gifs/demo.gif)
+https://github.com/user-attachments/assets/f57533bd-2499-4ff1-9c20-4afb5c9d9c94
 
 SpaceTab replaces the browser's default new tab with a private, customizable
 visual bookmark workspace. Bookmarks can be placed, resized and styled like
