@@ -4,7 +4,7 @@ import {
 } from '../../core/bookmarkFolders.js';
 import { validateFolderDraft } from '../../core/folderModel.js';
 import { t } from '../../core/i18n.js';
-import { getState } from '../../core/store.js';
+import { getState, getStorageMode } from '../../core/store.js';
 import { createFolderVisual, applyFolderAppearance } from '../folder/visual.js';
 import { flashSuccess } from '../flash.js';
 import { initTabs } from '../tabs.js';
@@ -12,6 +12,7 @@ import { closeModal, openModal, registerModal } from '../modalManager.js';
 import {
   getImageInputValue,
   initLocalImageUpload,
+  setLocalImageSyncNoticeVisibility,
   setImageInputValue
 } from '../localImageUpload.js';
 import { showAlert } from './alert.js';
@@ -27,6 +28,7 @@ let colorInput;
 let imageInput;
 let imageUploadInput;
 let imageUploadButton;
+let imageUploadNotice;
 let textColorInput;
 let preview;
 let saveButton;
@@ -45,6 +47,7 @@ export function initFolderEditorModal() {
   imageInput = document.getElementById('folder-editor-image');
   imageUploadInput = document.getElementById('folder-editor-image-upload-input');
   imageUploadButton = document.getElementById('folder-editor-image-upload');
+  imageUploadNotice = imageUploadButton?.parentElement?.querySelector('.local-image-notice');
   textColorInput = document.getElementById('folder-editor-text-color');
   preview = document.getElementById('folder-editor-preview');
   saveButton = document.getElementById('edit-folder-modal-save');
@@ -100,6 +103,7 @@ export function openFolderEditor(folderId) {
   setImageInputValue(imageInput, initialValue.backgroundImageUrl);
   textColorInput.value = initialValue.textColor;
   imageController.setLocked(initialValue.backgroundImageUrlLocked);
+  setLocalImageSyncNoticeVisibility(imageUploadNotice, getStorageMode());
   clearErrors();
   syncStyleControls();
   activateGeneralTab();

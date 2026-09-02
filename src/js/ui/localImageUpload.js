@@ -9,6 +9,29 @@ import { flashError } from './flash.js';
 const LOCAL_IMAGE_REFERENCE_DATASET_KEY = 'localImageReference';
 const UPLOAD_EVENT_DATASET_KEY = 'localImageUploadEvent';
 
+function hasLocalImageReference(input) {
+  return Boolean(input?.dataset[LOCAL_IMAGE_REFERENCE_DATASET_KEY]);
+}
+
+function emitImageInput(input) {
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function clearLocalImageInput(input) {
+  setImageInputValue(input, '');
+  emitImageInput(input);
+}
+
+function replaceLocalImageInput(input, value) {
+  setImageInputValue(input, value);
+  input.setSelectionRange(value.length, value.length);
+  emitImageInput(input);
+}
+
+function selectWholeLocalImageInput(input) {
+  input.setSelectionRange(0, input.value.length);
+}
+
 /**
  * Returns the persisted image value represented by an image input. A local
  * upload shows its filename to the person editing it, while its reference is
@@ -43,6 +66,18 @@ export function setImageInputValue(input, value) {
 }
 
 /**
+ * Shows the local-image synchronization notice only when settings are stored
+ * through Chrome Sync. Local images remain device-only in either mode, but
+ * the warning is only relevant when the rest of the data is synchronized.
+ *
+ * @param {HTMLElement|null} notice
+ * @param {'local'|'sync'|null|undefined} storageMode
+ */
+export function setLocalImageSyncNoticeVisibility(notice, storageMode) {
+  notice?.classList.toggle('is-hidden', storageMode !== 'sync');
+}
+
+/**
  * Connects a visible button and its hidden file input to a background-image
  * URL field. The field receives a lightweight local reference rather than the
  * image bytes, keeping Chrome Sync free of local files.
@@ -65,6 +100,49 @@ export function initLocalImageUpload({
   if (!button || !fileInput || !targetInput) return;
 
   button.addEventListener('click', () => fileInput.click(), { signal });
+  targetInput.addEventListener('focus', () => {
+    if (hasLocalImageReference(targetInput)) {
+      selectWholeLocalImageInput(targetInput);
+    }
+  }, { signal });
+  targetInput.addEventListener('pointerdown', event => {
+    if (!hasLocalImageReference(targetInput)) return;
+
+    event.preventDefault();
+    targetInput.focus({ preventScroll: true });
+    selectWholeLocalImageInput(targetInput);
+  }, { signal });
+  targetInput.addEventListener('keydown', event => {
+    if (!hasLocalImageReference(targetInput)) return;
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+
+    event.preventDefault();
+    selectWholeLocalImageInput(targetInput);
+  }, { signal });
+  targetInput.addEventListener('select', () => {
+    if (!hasLocalImageReference(targetInput)) return;
+    if (targetInput.selectionStart === 0 && targetInput.selectionEnd === targetInput.value.length) {
+      return;
+    }
+    selectWholeLocalImageInput(targetInput);
+  }, { signal });
+  targetInput.addEventListener('beforeinput', event => {
+    if (!hasLocalImageReference(targetInput)) return;
+
+    if (event.inputType.startsWith('delete')) {
+      event.preventDefault();
+      clearLocalImageInput(targetInput);
+      return;
+    }
+
+    if (!event.inputType.startsWith('insert')) return;
+
+    event.preventDefault();
+    const replacement = event.data
+      ?? event.dataTransfer?.getData('text/plain')
+      ?? '';
+    replaceLocalImageInput(targetInput, replacement);
+  }, { signal });
   targetInput.addEventListener('input', () => {
     if (targetInput.dataset[UPLOAD_EVENT_DATASET_KEY] === 'true') {
       delete targetInput.dataset[UPLOAD_EVENT_DATASET_KEY];

@@ -6,10 +6,13 @@ import { flashSuccess } from '../../flash.js';
 import {
   getImageInputValue,
   initLocalImageUpload,
+  setLocalImageSyncNoticeVisibility,
   setImageInputValue
 } from '../../localImageUpload.js';
 import { resolveImageSource } from '../../../core/localImages.js';
+import { getStorageMode } from '../../../core/store.js';
 import {
+  getDraftStorageMode,
   getDraftTheme,
   setDraftThemeValue,
   replaceDraftTheme
@@ -44,6 +47,7 @@ export function initThemeSection({
   const bgImageInput = document.getElementById('settings-theme-bg-image');
   const bgImageUploadInput = document.getElementById('settings-theme-bg-upload-input');
   const bgImageUploadButton = document.getElementById('settings-theme-bg-upload');
+  const bgImageUploadNotice = bgImageUploadButton?.parentElement?.querySelector('.local-image-notice');
   const resetBgBtn = document.getElementById('settings-theme-reset-bg');
 
   /**
@@ -166,6 +170,11 @@ export function initThemeSection({
    */
   function syncUI() {
     const draft = getDraftTheme();
+
+    setLocalImageSyncNoticeVisibility(
+      bgImageUploadNotice,
+      getDraftStorageMode() ?? getStorageMode()
+    );
 
     bgDefault.checked = draft.backgroundDefault || false;
     bgColorInput.value = draft.backgroundColor;

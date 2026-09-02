@@ -80,6 +80,9 @@ export function initSettingsModal() {
     onRequestSaveStateUpdate: updateSaveButtonState
   });
 
+  settingsModal.querySelector('[data-tab="settings-modal-tab-theme"]')
+    ?.addEventListener('click', () => themeSection.syncUI());
+
   const bookmarkSection = initBookmarkSection({
     onRequestSaveStateUpdate: updateSaveButtonState
   });

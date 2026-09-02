@@ -3,8 +3,10 @@ import { createLockableInputController } from '../modals/helper/stateLocked.js';
 import {
   getImageInputValue,
   initLocalImageUpload,
+  setLocalImageSyncNoticeVisibility,
   setImageInputValue
 } from '../localImageUpload.js';
+import { getStorageMode } from '../../core/store.js';
 
 /**
  * Creates a bookmark editor that keeps form inputs,
@@ -131,6 +133,10 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     targetInput: backgroundImage,
     signal: abortController.signal
   });
+  setLocalImageSyncNoticeVisibility(
+    bgUploadBtn?.parentElement?.querySelector('.local-image-notice'),
+    getStorageMode()
+  );
 
   /**
    * Creates the lockable controller for the URL input.

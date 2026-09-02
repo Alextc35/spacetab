@@ -131,6 +131,56 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
   await expect(imageReference).toHaveValue('theme.png');
 });
 
+test('hides local image sync notices in This Device Only mode', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+
+  await expect(page.locator('#settings-modal .local-image-notice')).toBeHidden();
+
+  await page.locator('#settings-modal-cancel').click();
+  await expect(page.locator('#settings-modal')).toBeHidden();
+  await enableEditMode(page);
+
+  const bookmark = page.locator('.bookmark[data-bookmark-id]').first();
+  await bookmark.getByRole('button', { name: 'Edit bookmark' }).click();
+  await expect(page.locator('#edit-bookmark-modal .local-image-notice')).toBeHidden();
+});
+
+test('treats a local image reference as one editable value', async ({ page }) => {
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+
+  await page.locator('#settings-theme-bg-upload-input').setInputFiles({
+    name: 'theme.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL1SQAAAABJRU5ErkJggg==',
+      'base64'
+    )
+  });
+
+  const imageReference = page.locator('#settings-theme-bg-image');
+  await expect(imageReference).toHaveValue('theme.png');
+  await imageReference.click({ position: { x: 4, y: 8 } });
+  await expect.poll(() => imageReference.evaluate(input => [
+    input.selectionStart,
+    input.selectionEnd
+  ])).toEqual([0, 'theme.png'.length]);
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(() => imageReference.evaluate(input => [
+    input.selectionStart,
+    input.selectionEnd
+  ])).toEqual([0, 'theme.png'.length]);
+  await page.keyboard.press('Backspace');
+
+  await expect(imageReference).toHaveValue('');
+  await expect.poll(() => imageReference.evaluate(input => (
+    input.dataset.localImageReference ?? null
+  ))).toBeNull();
+});
+
 test('reveals the bottom workspace dock on hover and keyboard focus', async ({ page }) => {
   const toolbar = page.getByRole('navigation', { name: 'Workspace controls' });
   const viewportHeight = page.viewportSize().height;
