@@ -12,9 +12,9 @@
       "disabled": "Selection mode disabled"
     },
     "bookmark": {
-      "added": "Bookmark added successfully",
+      "added": "Bookmark added",
       "notFound": "Bookmark not found",
-      "updated": "Bookmark updated successfully",
+      "updated": "Bookmark updated",
       "deleted": "Bookmark deleted"
     },
     "folder": {
@@ -35,11 +35,11 @@
       "redone": "Change redone"
     },
     "bookmarks": {
-      "deletedAll": "All bookmarks deleted successfully",
+      "deletedAll": "All bookmarks deleted",
       "deleteAllError": "Failed to delete all bookmarks",
-      "exported": "Bookmarks exported successfully",
+      "exported": "Bookmarks exported",
       "exportError": "Failed to export bookmarks",
-      "imported": "Bookmarks imported successfully",
+      "imported": "Bookmarks imported",
       "importError": "Failed to import bookmarks",
       "presetApplied": "Style applied to the selection",
       "duplicatedSelected": "Selected bookmarks duplicated",
@@ -47,7 +47,7 @@
       "moved": "Bookmarks moved to the selected workspace"
     },
     "settings": {
-      "saved": "Settings saved successfully",
+      "saved": "Settings saved",
       "copied": "Value copied to clipboard",
       "resetBg": "Theme reset"
     },
@@ -69,9 +69,9 @@
       "deleteError": "Could not delete synced data"
     },
     "backup": {
-      "exported": "Backup exported successfully",
+      "exported": "Backup exported",
       "exportError": "Could not export the backup",
-      "imported": "Backup restored successfully",
+      "imported": "Backup restored",
       "importError": "Could not restore the backup"
     }
   },

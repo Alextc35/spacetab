@@ -12,9 +12,9 @@
       "disabled": "Modo de selección desactivado"
     },
     "bookmark": {
-      "added": "Marcador agregado correctamente",
+      "added": "Marcador agregado",
       "notFound": "Marcador no encontrado",
-      "updated": "Marcador actualizado correctamente",
+      "updated": "Marcador actualizado",
       "deleted": "Marcador eliminado"
     },
     "folder": {
@@ -35,11 +35,11 @@
       "redone": "Cambio rehecho"
     },
     "bookmarks": {
-      "deletedAll": "Todos los marcadores se eliminaron correctamente",
+      "deletedAll": "Todos los marcadores eliminados",
       "deleteAllError": "Error al eliminar los marcadores",
-      "exported": "Marcadores exportados correctamente",
+      "exported": "Marcadores exportados",
       "exportError": "Error al exportar los marcadores",
-      "imported": "Marcadores importados correctamente",
+      "imported": "Marcadores importados",
       "importError": "Error al importar los marcadores",
       "presetApplied": "Estilo aplicado a la selección",
       "duplicatedSelected": "Marcadores seleccionados duplicados",
@@ -47,7 +47,7 @@
       "moved": "Marcadores movidos al espacio seleccionado"
     },
     "settings": {
-      "saved": "Configuración guardada correctamente",
+      "saved": "Configuración guardada",
       "copied": "Valor copiado al portapapeles",
       "resetBg": "Tema restablecido"
     },
@@ -69,9 +69,9 @@
       "deleteError": "No se pudieron eliminar los datos sincronizados"
     },
     "backup": {
-      "exported": "Copia de seguridad exportada correctamente",
+      "exported": "Copia de seguridad exportada",
       "exportError": "No se pudo exportar la copia de seguridad",
-      "imported": "Copia de seguridad restaurada correctamente",
+      "imported": "Copia de seguridad restaurada",
       "importError": "No se pudo restaurar la copia de seguridad"
     }
   },

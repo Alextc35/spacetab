@@ -12,9 +12,9 @@
       "disabled": "Modo selección desactivado"
     },
     "bookmark": {
-      "added": "Favorito añadido correctamente",
+      "added": "Favorito añadido",
       "notFound": "Favorito no encontrado",
-      "updated": "Favorito actualizado correctamente",
+      "updated": "Favorito actualizado",
       "deleted": "Favorito eliminado"
     },
     "folder": {
@@ -35,11 +35,11 @@
       "redone": "Cambio rehecho"
     },
     "bookmarks": {
-      "deletedAll": "Todos los favoritos eliminados correctamente",
+      "deletedAll": "Todos los favoritos eliminados",
       "deleteAllError": "Error al eliminar los favoritos",
-      "exported": "Favoritos exportados correctamente",
+      "exported": "Favoritos exportados",
       "exportError": "Error al exportar los favoritos",
-      "imported": "Favoritos importados correctamente",
+      "imported": "Favoritos importados",
       "importError": "Error al importar los favoritos",
       "presetApplied": "Estilo aplicado a la selección",
       "duplicatedSelected": "Favoritos seleccionados clonados",
@@ -47,7 +47,7 @@
       "moved": "Favoritos movidos al espacio elegido"
     },
     "settings": {
-      "saved": "Configuración guardada correctamente",
+      "saved": "Configuración guardada",
       "copied": "Valor copiado al portapapeles",
       "resetBg": "Tema restablecido"
     },
@@ -69,9 +69,9 @@
       "deleteError": "No se pudieron borrar los datos sincronizados"
     },
     "backup": {
-      "exported": "Copia de seguridad exportada correctamente",
+      "exported": "Copia de seguridad exportada",
       "exportError": "No se pudo exportar la copia de seguridad",
-      "imported": "Copia de seguridad restaurada correctamente",
+      "imported": "Copia de seguridad restaurada",
       "importError": "No se pudo restaurar la copia de seguridad"
     }
   },

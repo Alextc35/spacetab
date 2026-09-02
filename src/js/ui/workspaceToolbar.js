@@ -21,6 +21,7 @@ let isSwitchingWorkspace = false;
 export function initWorkspaceToolbar() {
   const container = document.getElementById('bookmark-container');
   const select = document.getElementById('workspace-select');
+  const selectButton = select.querySelector('button');
   const addButton = document.getElementById('workspace-add');
   const deleteButton = document.getElementById('workspace-delete');
   const undoButton = document.getElementById('history-undo');
@@ -28,6 +29,8 @@ export function initWorkspaceToolbar() {
 
   document.getElementById('search-bookmarks').addEventListener('click', openSearchModal);
 
+  // Keep Space and type-ahead in the picker from triggering page shortcuts.
+  select.addEventListener('keydown', event => event.stopPropagation());
   select.addEventListener('change', async () => {
     const targetId = select.value || null;
     const { bookmarkGroups, activeBookmarkGroupId } = getState().data.settings;
@@ -72,9 +75,10 @@ export function initWorkspaceToolbar() {
   subscribe(state => {
     const { bookmarkGroups, activeBookmarkGroupId } = state.data.settings;
     const selected = activeBookmarkGroupId ?? '';
-    select.replaceChildren(new Option(t('workspace.main'), ''));
+    select.replaceChildren(...(selectButton ? [selectButton] : []), new Option(t('workspace.main'), ''));
     for (const group of bookmarkGroups) select.add(new Option(group.name, group.id));
     select.value = selected;
+    select.title = select.selectedOptions[0]?.textContent ?? '';
     deleteButton.disabled = !selected;
     undoButton.disabled = !state.ui.history.canUndo;
     redoButton.disabled = !state.ui.history.canRedo;

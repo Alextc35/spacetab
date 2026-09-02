@@ -12,7 +12,9 @@
     <button id="search-bookmarks" type="button" data-i18n-aria-label="workspace.search" aria-label="Search">⌕</button>
     <label class="is-hidden" for="workspace-select" data-i18n="workspace.current">Workspace</label>
     <select id="workspace-select" aria-describedby="workspace-shortcut-hint"
-      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"></select>
+      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown">
+      <button type="button"><selectedcontent></selectedcontent></button>
+    </select>
     <span id="workspace-shortcut-hint" class="is-hidden" data-i18n="workspace.shortcutHint">
       Switch workspace with Alt plus up or down arrow
     </span>

@@ -12,9 +12,9 @@
       "disabled": "Modo de seleção desativado"
     },
     "bookmark": {
-      "added": "Favorito adicionado com sucesso",
+      "added": "Favorito adicionado",
       "notFound": "Favorito não encontrado",
-      "updated": "Favorito atualizado com sucesso",
+      "updated": "Favorito atualizado",
       "deleted": "Favorito excluído"
     },
     "folder": {
@@ -35,11 +35,11 @@
       "redone": "Alteração refeita"
     },
     "bookmarks": {
-      "deletedAll": "Todos os favoritos foram excluídos com sucesso",
+      "deletedAll": "Todos os favoritos excluídos",
       "deleteAllError": "Erro ao excluir os favoritos",
-      "exported": "Favoritos exportados com sucesso",
+      "exported": "Favoritos exportados",
       "exportError": "Erro ao exportar os favoritos",
-      "imported": "Favoritos importados com sucesso",
+      "imported": "Favoritos importados",
       "importError": "Erro ao importar os favoritos",
       "presetApplied": "Estilo aplicado à seleção",
       "duplicatedSelected": "Favoritos selecionados duplicados",
@@ -47,7 +47,7 @@
       "moved": "Favoritos movidos para o espaço escolhido"
     },
     "settings": {
-      "saved": "Configurações salvas com sucesso",
+      "saved": "Configurações salvas",
       "copied": "Valor copiado para a área de transferência",
       "resetBg": "Tema restaurado"
     },
@@ -69,9 +69,9 @@
       "deleteError": "Não foi possível excluir os dados sincronizados"
     },
     "backup": {
-      "exported": "Backup exportado com sucesso",
+      "exported": "Backup exportado",
       "exportError": "Não foi possível exportar o backup",
-      "imported": "Backup restaurado com sucesso",
+      "imported": "Backup restaurado",
       "importError": "Não foi possível restaurar o backup"
     }
   },
