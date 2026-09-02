@@ -320,6 +320,7 @@
       "title": "Tema",
       "subtitle": "Fondo de la página",
       "backgroundDefault": "Predeterminado",
+      "backgroundSolid": "Color sólido",
       "backgroundColor": "Color:",
       "backgroundImage": "URL de la imagen:",
       "urlHidden": "URL oculta",

@@ -18,6 +18,19 @@ async function enableEditMode(page) {
   await page.getByRole('button', { name: '✎' }).click();
 }
 
+async function expectThemeActionsInsideInputs(page) {
+  for (const button of await page.locator('#settings-bg-theme .input-action:visible').all()) {
+    await expect(button).toHaveCSS('position', 'absolute');
+    const bounds = await button.evaluate(element => {
+      const action = element.getBoundingClientRect();
+      const field = element.parentElement.querySelector('input').getBoundingClientRect();
+      return { top: action.top - field.top, bottom: field.bottom - action.bottom,
+        left: action.left - field.left, right: field.right - action.right };
+    });
+    for (const distance of Object.values(bounds)) expect(distance).toBeGreaterThanOrEqual(-1);
+  }
+}
+
 async function enableFolderEditMode(page) {
   const toggle = page.locator('#folder-modal-edit-toggle');
   if (await toggle.getAttribute('aria-pressed') === 'false') {
@@ -165,6 +178,159 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🖼️ Theme' }).click();
   await expect(page.locator('#settings-theme-bg-preview')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+});
+
+test('switches to the default wallpaper without losing the custom URL or local image', async ({ page }, testInfo) => {
+  const root = page.locator('html');
+  const modal = page.locator('#settings-modal');
+  const imageUrl = page.locator('#settings-theme-bg-image');
+  const localImage = page.locator('#settings-theme-bg-local');
+  const useDefault = page.locator('#settings-theme-bg-default');
+  const preview = page.locator('#settings-theme-bg-preview');
+  const save = page.locator('#settings-modal-save');
+  const fallbackUrl = 'https://images.test/fallback.gif';
+  await page.route(fallbackUrl, route => route.fulfill({
+    contentType: 'image/gif',
+    body: Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64')
+  }));
+  const openTheme = async () => {
+    await revealSideDock(page);
+    await page.getByRole('button', { name: '⚙️' }).click();
+    await page.getByRole('button', { name: '🖼️ Theme' }).click();
+  };
+  await expect(root).toHaveClass(/is-default-bg/);
+  const defaultWallpaper = await page.locator('body').evaluate(element => (
+    getComputedStyle(element).backgroundImage
+  ));
+
+  await openTheme();
+  await useDefault.uncheck();
+  await imageUrl.fill(fallbackUrl);
+  await page.locator('#settings-theme-toggle-bg-image').click();
+  await page.locator('#settings-theme-bg-upload-input').setInputFiles({
+    name: 'saved-wallpaper.png', mimeType: 'image/png',
+    buffer: Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL1SQAAAABJRU5ErkJggg==',
+      'base64'
+    )
+  });
+  await expect(localImage).toHaveValue('saved-wallpaper.png');
+  await save.click();
+  await expect(page.locator('body')).toHaveCSS('background-image', /data:image\/webp/);
+
+  await openTheme();
+  await expect(useDefault).toBeEnabled();
+  await useDefault.check();
+  await expect(imageUrl).toHaveValue(fallbackUrl);
+  await expect(localImage).toHaveValue('saved-wallpaper.png');
+  await expect(imageUrl).toBeDisabled();
+  await expect(localImage).toBeDisabled();
+  await expect(preview).toHaveCSS('background-image', defaultWallpaper);
+  await expectThemeActionsInsideInputs(page);
+  await modal.locator('.modal-card').screenshot({ path: testInfo.outputPath('default-theme.png') });
+  await save.click();
+  await expect(root).toHaveClass(/is-default-bg/);
+  await expect(page.locator('body')).toHaveCSS('background-image', defaultWallpaper);
+
+  await page.reload();
+  await expect(page.locator('body')).toHaveCSS('background-image', defaultWallpaper);
+  await openTheme();
+  await expect(useDefault).toBeChecked();
+  await expect(imageUrl).toHaveValue(fallbackUrl);
+  await expect(localImage).toHaveValue('saved-wallpaper.png');
+  await expect(save).toBeHidden();
+  await useDefault.uncheck();
+  await expect(imageUrl).toHaveJSProperty('readOnly', true);
+  await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
+  await save.click();
+  await expect(modal).toBeHidden();
+  await expect(root).not.toHaveClass(/is-default-bg/);
+  await expect(page.locator('body')).toHaveCSS('background-image', /data:image\/webp/);
+
+  // The same switch must work when only the synchronized URL is available.
+  await page.evaluate(() => {
+    const local = JSON.parse(sessionStorage.getItem('spacetab-test-local'));
+    for (const key of Object.keys(local)) {
+      if (key.startsWith('spacetabLocalImage:')) delete local[key];
+    }
+    sessionStorage.setItem('spacetab-test-local', JSON.stringify(local));
+  });
+  await page.reload();
+  await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+  await openTheme();
+  await useDefault.check();
+  await save.click();
+  await expect(page.locator('body')).toHaveCSS('background-image', defaultWallpaper);
+  await openTheme();
+  await useDefault.uncheck();
+  await expect(imageUrl).toHaveValue(fallbackUrl);
+  await save.click();
+  await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+});
+
+test('shows a solid color picker and preserves images while switching background modes', async ({ page }, testInfo) => {
+  const modal = page.locator('#settings-modal');
+  const imageUrl = page.locator('#settings-theme-bg-image');
+  const localImage = page.locator('#settings-theme-bg-local');
+  const useDefault = page.locator('#settings-theme-bg-default');
+  const useSolid = page.locator('#settings-theme-bg-solid');
+  const color = page.locator('#settings-theme-bg-color');
+  const preview = page.locator('#settings-theme-bg-preview');
+  const save = page.locator('#settings-modal-save');
+  const fallbackUrl = 'https://images.test/solid-fallback.gif';
+  await page.route(fallbackUrl, route => route.abort());
+  const openTheme = async () => {
+    await revealSideDock(page);
+    await page.getByRole('button', { name: '⚙️' }).click();
+    await page.getByRole('button', { name: '🖼️ Theme' }).click();
+  };
+
+  await openTheme();
+  await expect(color).toBeHidden();
+  await useDefault.uncheck();
+  await imageUrl.fill(fallbackUrl);
+  await page.locator('#settings-theme-bg-upload-input').setInputFiles({
+    name: 'preserved.png', mimeType: 'image/png',
+    buffer: Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScL1SQAAAABJRU5ErkJggg==',
+      'base64'
+    )
+  });
+  await expect(localImage).toHaveValue('preserved.png');
+  await useDefault.check();
+  await useSolid.check();
+  await expect(useDefault).not.toBeChecked();
+  await expect(color).toBeVisible();
+  await expect(color).toBeEnabled();
+  await color.fill('#2468ac');
+  await expect(preview).toHaveCSS('background-color', 'rgb(36, 104, 172)');
+  await expect(preview).toHaveCSS('background-image', 'none');
+  await expect(imageUrl).toBeDisabled();
+  await expect(imageUrl).toHaveValue(fallbackUrl);
+  await expect(localImage).toHaveValue('preserved.png');
+  await expectThemeActionsInsideInputs(page);
+  await modal.locator('.modal-card').screenshot({ path: testInfo.outputPath('solid-color-theme.png') });
+  await save.click();
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(36, 104, 172)');
+  await expect(page.locator('body')).toHaveCSS('background-image', 'none');
+
+  await page.reload();
+  await expect(page.locator('body')).toHaveCSS('background-image', 'none');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(36, 104, 172)');
+  await openTheme();
+  await expect(useSolid).toBeChecked();
+  await expect(color).toHaveValue('#2468ac');
+  await expect(localImage).toHaveValue('preserved.png');
+  await expect(save).toBeHidden();
+  await useDefault.check();
+  await expect(useSolid).not.toBeChecked();
+  await expect(color).toBeHidden();
+  await expect(preview).toHaveClass(/is-default-bg/);
+  await useDefault.uncheck();
+  await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
+  await expect(imageUrl).toHaveValue(fallbackUrl);
+  await save.click();
+  await expect(page.locator('body')).toHaveCSS('background-image', /data:image\/webp/);
 });
 
 test('hides local image sync notices in This Device Only mode', async ({ page }) => {

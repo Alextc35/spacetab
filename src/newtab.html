@@ -354,16 +354,24 @@
             <h2 data-i18n="settingsModal.theme.title">Tema</h2>
             <h3 data-i18n="settingsModal.theme.subtitle">Fondo de la página</h3>
             <div id="settings-bg-theme" class="modal-field">
-              <div class="checkbox-wrapper">
-                <input id="settings-theme-bg-default" type="checkbox">
-                <label for="settings-theme-bg-default"
-                  data-i18n="settingsModal.theme.backgroundDefault">Por defecto
-                </label>
+              <div class="theme-background-options">
+                <div class="checkbox-wrapper">
+                  <input id="settings-theme-bg-default" type="checkbox">
+                  <label for="settings-theme-bg-default"
+                    data-i18n="settingsModal.theme.backgroundDefault">Por defecto</label>
+                </div>
+                <div class="checkbox-wrapper">
+                  <input id="settings-theme-bg-solid" type="checkbox"
+                    aria-controls="settings-theme-bg-color-field">
+                  <label for="settings-theme-bg-solid"
+                    data-i18n="settingsModal.theme.backgroundSolid">Color sólido</label>
+                </div>
               </div>
-              <label for="settings-theme-bg-color"
-                data-i18n="settingsModal.theme.backgroundColor">Color:
-              </label>
-              <input id="settings-theme-bg-color" type="color">
+              <div id="settings-theme-bg-color-field" class="theme-background-color is-hidden">
+                <label for="settings-theme-bg-color"
+                  data-i18n="settingsModal.theme.backgroundColor">Color:</label>
+                <input id="settings-theme-bg-color" type="color">
+              </div>
               <label for="settings-theme-bg-image"
                 data-i18n="settingsModal.theme.backgroundImage">Imagen URL:
               </label>

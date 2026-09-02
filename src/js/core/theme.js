@@ -24,18 +24,20 @@ export function applyGlobalTheme(settings = {}) {
     theme.backgroundColor
   );
 
-  root.classList.remove('is-default-bg');
+  root.classList.toggle('is-default-bg', Boolean(theme.backgroundDefault));
 
-  const backgroundImage = resolveBackgroundImage(theme);
+  if (theme.backgroundDefault) {
+    root.style.removeProperty('--image-bg-body');
+    return;
+  }
+
+  const backgroundImage = theme.backgroundSolid ? null : resolveBackgroundImage(theme);
   if (backgroundImage) {
     root.style.setProperty(
       '--image-bg-body',
       `url("${backgroundImage}")`
     );
-  } else if (!theme.backgroundDefault) {
-    root.style.setProperty('--image-bg-body', 'none');
-    root.classList.remove('is-default-bg');
   } else {
-    root.classList.add('is-default-bg');
+    root.style.setProperty('--image-bg-body', 'none');
   }
 }

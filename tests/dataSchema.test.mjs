@@ -40,6 +40,34 @@ test('separates legacy local images from URLs across themes, bookmarks, folders 
   assert.deepEqual(parseBackupPayload(createBackupEnvelope(migrated)), migrated);
 });
 
+test('adds solid color mode without changing saved backgrounds and normalizes conflicting modes', () => {
+  const savedBackground = {
+    backgroundColor: '#2468ac',
+    backgroundImageUrl: 'https://images.test/background.gif',
+    backgroundImageLocal: 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9',
+    backgroundImageUrlLocked: true
+  };
+  for (const backgroundDefault of [true, false]) {
+    const migrated = migratePersistedData({
+      schemaVersion: 5,
+      bookmarks: [],
+      settings: { theme: { ...savedBackground, backgroundDefault } }
+    });
+    assert.deepEqual(migrated.settings.theme, {
+      ...savedBackground, backgroundDefault, backgroundSolid: false
+    });
+  }
+
+  for (const backgroundDefault of [true, false]) {
+    const data = migratePersistedData({
+      bookmarks: [],
+      settings: { theme: { ...savedBackground, backgroundDefault, backgroundSolid: true } }
+    });
+    assert.equal(data.settings.theme.backgroundSolid, !backgroundDefault);
+    assert.deepEqual(parseBackupPayload(createBackupEnvelope(data)), data);
+  }
+});
+
 test('migrates legacy data and removes identity from the default preset', () => {
   const migrated = migratePersistedData({
     bookmarks: [{ id: 'one', name: 'One', url: 'one.test' }],

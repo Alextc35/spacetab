@@ -2,7 +2,7 @@ import '../types/types.js'; // typedefs
 import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
 
-export const DATA_SCHEMA_VERSION = 5;
+export const DATA_SCHEMA_VERSION = 6;
 
 /** Default appearance applied to new and legacy folders. */
 export const DEFAULT_FOLDER_STYLE = Object.freeze({
@@ -121,6 +121,7 @@ export const DEFAULT_SETTINGS = {
 
   theme: {
     backgroundDefault: true,
+    backgroundSolid: false,
     backgroundColor: '#ffffff',
     backgroundImageUrl: null,
     backgroundImageLocal: null,

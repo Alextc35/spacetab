@@ -85,13 +85,7 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
     settings: {
       ...structuredClone(DEFAULT_SETTINGS),
       ...rawSettings,
-      theme: {
-        ...structuredClone(DEFAULT_SETTINGS.theme),
-        ...(rawSettings.theme && typeof rawSettings.theme === 'object'
-          ? rawSettings.theme
-          : {}),
-        ...normalizeBackgroundImage(rawSettings.theme)
-      },
+      theme: normalizeTheme(rawSettings.theme),
       bookmarkDefault: normalizeBookmarkPreset(rawSettings.bookmarkDefault),
       bookmarkDragMode: normalizeBookmarkDragMode(rawSettings.bookmarkDragMode),
       bookmarkResizeMode: normalizeBookmarkResizeMode(rawSettings.bookmarkResizeMode),
@@ -100,6 +94,18 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
       activeBookmarkGroupId
     }
   };
+}
+
+function normalizeTheme(value) {
+  const source = value && typeof value === 'object' ? value : {};
+  const theme = {
+    ...structuredClone(DEFAULT_SETTINGS.theme),
+    ...source,
+    ...normalizeBackgroundImage(source)
+  };
+  theme.backgroundDefault = theme.backgroundDefault === true;
+  theme.backgroundSolid = !theme.backgroundDefault && theme.backgroundSolid === true;
+  return theme;
 }
 
 function normalizeBookmarkFolder(folder, { index, now, bookmarkGroupIds }) {

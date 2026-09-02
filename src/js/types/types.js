@@ -70,6 +70,7 @@
  * @property {'smooth'|'none'} bookmarkResizeMode
  * @property {Object} theme
  * @property {boolean} theme.backgroundDefault
+ * @property {boolean} theme.backgroundSolid
  * @property {string} theme.backgroundColor
  * @property {string|null} theme.backgroundImageUrl
  * @property {string|null} theme.backgroundImageLocal

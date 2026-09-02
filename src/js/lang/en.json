@@ -320,6 +320,7 @@
       "title": "Theme",
       "subtitle": "Page background",
       "backgroundDefault": "Default",
+      "backgroundSolid": "Solid color",
       "backgroundColor": "Color:",
       "backgroundImage": "Image URL:",
       "urlHidden": "URL hidden",
