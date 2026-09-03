@@ -3,6 +3,7 @@ import { t } from '../../core/i18n.js';
 import { flashSuccess } from '../flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { showAlert, showPrompt } from '../modals/alert.js';
+import { ensurePanelFits } from '../viewportMode.js';
 
 let initialized = false;
 
@@ -11,8 +12,10 @@ export function initFolderController() {
   initialized = true;
 
   document.getElementById('add-folder')?.addEventListener('click', async () => {
+    if (!ensurePanelFits()) return;
     const name = await showPrompt(t('folder.createPrompt'), {
-      placeholder: t('folder.namePlaceholder')
+      placeholder: t('folder.namePlaceholder'),
+      requiresWideViewport: true
     });
     if (!name) return;
 

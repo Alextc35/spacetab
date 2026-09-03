@@ -1,7 +1,9 @@
 import { t } from '../core/i18n.js';
-import { toggleEditing } from '../core/store.js';
+import { getState, toggleEditing } from '../core/store.js';
 
-import { renderBookmarks } from './bookmark/renderer.js';
+import { resizeBookmarkView } from './bookmark/renderer.js';
+import { cancelGridGesture } from './bookmark/dragResize.js';
+import { ensurePanelFits, isListView } from './viewportMode.js';
 
 import { hasOpenModal } from './modalManager.js';
 import { flash } from './flash.js';
@@ -16,7 +18,7 @@ let gridOverlayRef = null;
 let toggleButtonRef = null;
 
 /** @type {number|null} */
-let resizeTimeout = null;
+let resizeFrame = null;
 
 /**
  * Initializes global UI controller behavior.
@@ -65,6 +67,7 @@ export function updateEditUI(isEditing) {
  * @returns {Promise<void>}
  */
 async function toggleEditMode() {
+  if (!getState().ui.isEditing && !ensurePanelFits()) return;
   const isEditing = await toggleEditing();
 
   if (isEditing) containerRef?.focus({ preventScroll: true });
@@ -95,16 +98,21 @@ function handleEditModeShortcut(event) {
 }
 
 /**
- * Debounced window resize handler.
- *
- * Re-renders bookmarks after a short delay to avoid
- * excessive layout recalculations during resize.
+ * Updates the view once per frame and cancels unfinished grid gestures.
+ * List mode is read-only, including when entered from an editing session.
  */
 function handleResize() {
   if (!containerRef) return;
+  cancelGridGesture();
 
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(() => {
-    renderBookmarks(containerRef);
-  }, 100);
+  if (resizeFrame !== null) cancelAnimationFrame(resizeFrame);
+  resizeFrame = requestAnimationFrame(() => {
+    resizeFrame = null;
+    if (isListView() && getState().ui.isEditing) {
+      void toggleEditing();
+      return;
+    }
+    resizeBookmarkView(containerRef);
+    containerRef.querySelector('.is-keyboard-active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  });
 }

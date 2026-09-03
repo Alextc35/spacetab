@@ -17,6 +17,7 @@ import {
 } from '../localImageUpload.js';
 import { showAlert } from './alert.js';
 import { createLockableInputController } from './helper/stateLocked.js';
+import { ensurePanelFits } from '../viewportMode.js';
 
 let initialized = false;
 let activeFolderId = null;
@@ -87,6 +88,7 @@ export function initFolderEditorModal() {
   registerModal({
     id: 'folder-editor',
     element: modal,
+    requiresWideViewport: true,
     closeOnEsc: true,
     closeOnOverlay: true,
     acceptOnEnter: true
@@ -94,6 +96,7 @@ export function initFolderEditorModal() {
 }
 
 export function openFolderEditor(folderId) {
+  if (!ensurePanelFits()) return;
   const folder = getState().data.folders.find(item => item.id === folderId);
   if (!folder) return;
 
@@ -254,5 +257,5 @@ function activateGeneralTab() {
 function closeFolderEditor() {
   activeFolderId = null;
   initialValue = null;
-  closeModal();
+  closeModal('folder-editor');
 }

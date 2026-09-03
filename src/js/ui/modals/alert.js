@@ -1,5 +1,6 @@
 import { t } from '../../core/i18n.js';
-import { registerModal, openModal, closeModal } from '../modalManager.js';
+import { registerModal, openModal, closeModal, isModalSuspended } from '../modalManager.js';
+import { flashInfo } from '../flash.js';
 
 /**
  * Alert modal root element.
@@ -93,10 +94,15 @@ export function initAlertModal() {
  * @param {string} text - Alert message to display.
  * @param {Object} [options={}]
  * @param {'confirm'|'info'} [options.type='confirm']
+ * @param {boolean} [options.requiresWideViewport=false]
  * @returns {Promise<boolean>}
  */
 export function showAlert(text, options = {}) {
-  const { type = 'confirm' } = options;
+  const { type = 'confirm', requiresWideViewport = false } = options;
+  if (isModalSuspended('alert')) {
+    flashInfo('flash.viewport.suspended');
+    return Promise.resolve(false);
+  }
 
   return new Promise((resolveResult) => {
     /**
@@ -132,7 +138,8 @@ export function showAlert(text, options = {}) {
      */
     openModal('alert', {
       onAccept: activeAccept,
-      onCancel: activeCancel
+      onCancel: activeCancel,
+      requiresWideViewport
     });
   });
 }
@@ -141,10 +148,15 @@ export function showAlert(text, options = {}) {
  * Displays a small accessible text prompt using the managed alert dialog.
  *
  * @param {string} text
- * @param {{value?: string, placeholder?: string}} [options]
+ * @param {{value?: string, placeholder?: string, requiresWideViewport?: boolean}} [options]
  * @returns {Promise<string|null>}
  */
-export function showPrompt(text, { value = '', placeholder = '' } = {}) {
+export function showPrompt(text, { value = '', placeholder = '', requiresWideViewport = false } = {}) {
+  // The shared dialog may still hold a draft or a pending confirmation.
+  if (isModalSuspended('alert')) {
+    flashInfo('flash.viewport.suspended');
+    return Promise.resolve(null);
+  }
   return new Promise(resolve => {
     titleEl.textContent = text;
     inputEl.value = value;
@@ -173,6 +185,7 @@ export function showPrompt(text, { value = '', placeholder = '' } = {}) {
     openModal('alert', {
       onAccept: activeAccept,
       onCancel: activeCancel,
+      requiresWideViewport,
       initialFocus: inputEl
     });
   });

@@ -17,12 +17,14 @@ import { createItemActionButton } from '../bookmark/actions.js';
 import { createBookmarkElement } from '../bookmark/renderer.js';
 import { flashInfo, flashSuccess } from '../flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
-import { closeModal, openModal, registerModal } from '../modalManager.js';
+import { closeModal, openModal, registerModal, isModalActive, isModalSuspended } from '../modalManager.js';
 import { openEditBookmark } from './bookmarkModal.js';
 import { openFolderEditor } from './folderEditorModal.js';
 import { applyFolderAppearance, createFolderVisual } from '../folder/visual.js';
 import { showAlert } from './alert.js';
 import { calculateSmartDragLayout } from '../bookmark/smartDragLayout.js';
+import { ensurePanelFits, isListView } from '../viewportMode.js';
+import { createListItem } from '../bookmark/listView.js';
 
 const FOLDER_MOVE_DURATION = 220;
 let initialized = false;
@@ -62,7 +64,7 @@ export function initFolderModal() {
     if (activeFolderId) openFolderEditor(activeFolderId);
   });
   document.addEventListener('keydown', event => {
-    if (!activeFolderId) return;
+    if (!activeFolderId || !isModalActive('folder')) return;
 
     const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(
       document.activeElement?.tagName
@@ -75,7 +77,9 @@ export function initFolderModal() {
     toggleFolderEditMode();
   });
   title.addEventListener('dblclick', startInlineFolderRename);
-  title.addEventListener('blur', () => finishInlineFolderRename());
+  title.addEventListener('blur', () => {
+    if (!isModalSuspended('folder')) finishInlineFolderRename();
+  });
   title.addEventListener('keydown', event => {
     if (!title.isContentEditable) return;
 
@@ -122,9 +126,15 @@ export function initFolderModal() {
       finishInlineFolderRename();
     }
   }, true);
+  window.addEventListener('resize', () => {
+    if (!activeFolderId) return;
+    cancelFolderDrag();
+    renderFolderContents();
+  });
   registerModal({
     id: 'folder',
     element: modal,
+    requiresWideViewport: () => folderIsEditing || title.isContentEditable,
     closeOnEsc: true,
     closeOnOverlay: true
   });
@@ -135,6 +145,10 @@ export function initFolderModal() {
 }
 
 export function openFolderModal(folderId) {
+  if (isModalSuspended('folder')) {
+    flashInfo('flash.viewport.suspended');
+    return;
+  }
   const folder = getState().data.folders.find(item => item.id === folderId);
   if (!folder) return;
 
@@ -149,10 +163,11 @@ function closeFolderModal() {
   folderIsEditing = false;
   modal.classList.remove('is-folder-editing');
   activeFolderId = null;
-  closeModal();
+  closeModal('folder');
 }
 
 function toggleFolderEditMode() {
+  if (!folderIsEditing && !ensurePanelFits()) return;
   setFolderEditMode(!folderIsEditing, { announce: true });
 }
 
@@ -180,6 +195,7 @@ function syncFolderEditUI() {
 }
 
 function renderFolderContents() {
+  if (isModalSuspended('folder')) return;
   const { bookmarks, folders } = getState().data;
   const folder = folders.find(item => item.id === activeFolderId);
   if (!folder) {
@@ -201,6 +217,17 @@ function renderFolderContents() {
   list.replaceChildren();
   list.classList.remove('is-folder-grid-settling');
   empty.classList.toggle('is-hidden', contents.length > 0);
+  list.classList.toggle('is-list-view', isListView());
+
+  if (isListView()) {
+    const ordered = [...contents].sort((a, b) => {
+      const first = layout.get(a.id);
+      const second = layout.get(b.id);
+      return first.gy - second.gy || first.gx - second.gx;
+    });
+    for (const bookmark of ordered) list.append(createListItem(bookmark));
+    return;
+  }
 
   for (const bookmark of contents) {
     const position = layout.get(bookmark.id);
@@ -211,6 +238,7 @@ function renderFolderContents() {
 function startInlineFolderRename(event) {
   event.preventDefault();
   event.stopPropagation();
+  if (!ensurePanelFits()) return;
   const folder = getState().data.folders.find(item => item.id === activeFolderId);
   if (!folder || title.isContentEditable) return;
 

@@ -1,6 +1,7 @@
 import { getState } from '../../core/store.js';
 import { flashInfo } from '../flash.js';
 import { hasOpenModal } from '../modalManager.js';
+import { isListView } from '../viewportMode.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { openFolderEditor } from '../modals/folderEditorModal.js';
 import {
@@ -154,6 +155,13 @@ function getVisibleGridItems() {
 }
 
 function findDirectionalItem(current, direction) {
+  if (isListView()) {
+    const items = getVisibleGridItems();
+    const index = items.findIndex(item => item.id === current.id);
+    if (direction === 'ArrowDown') return items[index + 1] ?? null;
+    if (direction === 'ArrowUp') return items[index - 1] ?? null;
+    return null;
+  }
   const candidates = getVisibleGridItems()
     .filter(item => item.id !== current.id)
     .map(item => ({
@@ -236,6 +244,7 @@ function setActiveItem(itemId) {
       const id = element.dataset.bookmarkId ?? element.dataset.folderId;
       element.classList.toggle('is-keyboard-active', id === itemId);
     });
+  getGridItemElement(itemId)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 
 function clearGridKeyboardNavigation() {

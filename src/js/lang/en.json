@@ -3,6 +3,10 @@
     "title": "New tab"
   },
   "flash": {
+    "viewport": {
+      "tooNarrow": "Widen the window to use this feature.",
+      "suspended": "Panel hidden. Widen the window to continue."
+    },
     "editMode": {
       "enabled": "Edit mode enabled",
       "disabled": "Edit mode disabled"
@@ -75,6 +79,7 @@
       "importError": "Could not restore the backup"
     }
   },
+  "view": { "list": "List view" },
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "Delete all bookmarks?",

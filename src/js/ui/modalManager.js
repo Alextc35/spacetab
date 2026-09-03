@@ -3,7 +3,7 @@ import { debug } from '../core/debug.js';
 /**
  * Stack of currently open modals.
  *
- * The last element is always the active modal.
+ * The last visible element is the active modal; suspended drafts stay in place.
  *
  * @type {Array<Object>}
  */
@@ -17,25 +17,72 @@ const stack = [];
  * @type {Map<string, Object>}
  */
 const registry = new Map();
+let compactViewport = false;
 
 /**
- * Returns the currently active modal (top of stack).
+ * Returns the currently active visible modal.
  *
  * @returns {Object|null}
  */
 function getActive() {
-  return stack[stack.length - 1] || null;
+  return stack.findLast(modal => !modal.suspended) || null;
 }
 
 /**
- * Returns whether any modal is currently open.
+ * Returns whether any modal is currently visible.
  *
  * Used by global keyboard handlers to avoid conflicts.
  *
  * @returns {boolean}
  */
 export function hasOpenModal() {
-  return stack.length > 0;
+  return Boolean(getActive());
+}
+
+export function isModalSuspended(id) {
+  return stack.some(modal => modal.id === id && modal.suspended);
+}
+
+export function isModalActive(id) {
+  return getActive()?.id === id;
+}
+
+/**
+ * Hide unavailable dialogs and their children without closing their drafts.
+ * Returns whether any dialog was newly suspended, for a single viewport notice.
+ */
+export function syncModalViewport(compact = compactViewport) {
+  compactViewport = compact;
+  const previousActive = getActive();
+  const focused = document.activeElement;
+  let newlySuspended = false;
+  let changed = false;
+
+  for (const modal of stack) {
+    const requiresWideViewport = typeof modal.requiresWideViewport === 'function'
+      ? modal.requiresWideViewport()
+      : modal.requiresWideViewport;
+    const suspended = compact && (requiresWideViewport || Boolean(modal.parent?.suspended));
+    if (suspended === modal.suspended) continue;
+
+    changed = true;
+    if (suspended) {
+      newlySuspended = true;
+      if (modal.element.contains(focused)) modal.resumeFocus = focused;
+    }
+    // Set state before hiding: blur handlers must not commit suspended drafts.
+    modal.suspended = suspended;
+    modal.element.hidden = suspended;
+    modal.element.classList.toggle('is-open', !suspended);
+  }
+
+  if (!changed) return false;
+  syncPageAccessibility();
+  const active = getActive();
+  if (active !== previousActive) {
+    focusModal(active, active?.resumeFocus || active?.initialFocus);
+  }
+  return newlySuspended;
 }
 
 document.addEventListener('keydown', (e) => {
@@ -107,6 +154,7 @@ document.addEventListener('keydown', (e) => {
  * @param {boolean} [config.closeOnOverlay=true]
  * @param {boolean} [config.acceptOnEnter=false]
  * @param {HTMLElement|null} [config.initialFocus=null]
+ * @param {boolean|Function} [config.requiresWideViewport=false]
  */
 export function registerModal({
   id,
@@ -117,7 +165,8 @@ export function registerModal({
   initialFocus = null,
   shortcut = null,
   toggleWithShortcut = false,
-  onShortcut = null
+  onShortcut = null,
+  requiresWideViewport = false
 }) {
   if (!id || !element) {
     throw new Error('Modal must have id and element');
@@ -162,7 +211,8 @@ export function registerModal({
     initialFocus,
     shortcut,
     toggleWithShortcut,
-    onShortcut
+    onShortcut,
+    requiresWideViewport
   });
 }
 
@@ -176,11 +226,13 @@ export function registerModal({
  * @param {Function} [options.onAccept]
  * @param {Function} [options.onCancel]
  * @param {HTMLElement|null} [options.initialFocus]
+ * @param {boolean} [options.requiresWideViewport]
  */
 export function openModal(id, {
   onAccept,
   onCancel,
-  initialFocus
+  initialFocus,
+  requiresWideViewport
 } = {}) {
   const config = registry.get(id);
   if (!config) {
@@ -188,13 +240,16 @@ export function openModal(id, {
     return;
   }
 
-  if (getActive()?.id === id) return;
+  if (stack.some(modal => modal.id === id)) return;
 
   const previouslyFocused = document.activeElement;
 
   const activeModal = {
     ...config,
     previouslyFocused,
+    parent: getActive(),
+    suspended: false,
+    requiresWideViewport: requiresWideViewport ?? config.requiresWideViewport,
     initialFocus: initialFocus || config.initialFocus
   };
 
@@ -207,6 +262,7 @@ export function openModal(id, {
   config.element.hidden = false;
   config.element.classList.add('is-open');
   syncModalStacking();
+  syncModalViewport();
   syncPageAccessibility();
 
   const focusEl =
@@ -214,17 +270,24 @@ export function openModal(id, {
     || config.element.querySelector('[autofocus]')
     || config.element;
 
-  requestAnimationFrame(() => focusEl.focus());
+  focusModal(activeModal, focusEl);
 }
 
 /**
- * Closes the currently active modal.
+ * Closes the visible active modal, or a specific modal after an async action.
  *
- * Pops it from the stack and restores focus.
+ * Removes it from the stack and restores focus when the visible dialog closes.
  */
-export function closeModal() {
-  const modal = stack.pop();
+export function closeModal(id) {
+  const modal = typeof id === 'string'
+    ? stack.find(item => item.id === id)
+    : getActive();
   if (!modal) return;
+  const wasActive = modal === getActive();
+  stack.splice(stack.indexOf(modal), 1);
+  for (const child of stack) {
+    if (child.parent === modal) child.parent = modal.parent;
+  }
   debug.info('Cerrar ventana', { modal: modal.id, depth: stack.length });
 
   modal.element.classList.remove('is-open');
@@ -238,7 +301,17 @@ export function closeModal() {
     || (modal.previouslyFocused?.isConnected ? modal.previouslyFocused : null)
     || nextModal?.element;
 
-  requestAnimationFrame(() => focusTarget?.focus?.());
+  if (wasActive) focusModal(nextModal, focusTarget);
+}
+
+function focusModal(modal, preferred) {
+  requestAnimationFrame(() => {
+    if (getActive() !== modal || modal?.suspended) return;
+    const target = preferred?.isConnected && !preferred.closest('[hidden], [inert]')
+      ? preferred
+      : modal?.element || document.getElementById('bookmark-container');
+    target?.focus({ preventScroll: true });
+  });
 }
 
 function syncModalStacking() {

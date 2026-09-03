@@ -53,7 +53,7 @@ export function initBulkBookmarkActions() {
     if (!ids.length) return;
     const confirmed = await showAlert(
       getDeleteConfirmation(ids, currentState.data.bookmarks),
-      { type: 'confirm' }
+      { type: 'confirm', requiresWideViewport: true }
     );
     if (!confirmed) return;
     deleteBookmarksByIds(ids);

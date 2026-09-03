@@ -24,10 +24,15 @@ import { calculateSmartDragLayout } from './smartDragLayout.js';
 
 let dragging = false;
 let resizing = false;
+let cancelGesture = null;
 const SMART_MOVE_DURATION = 180;
 const SELECTION_CLICK_MAX_DURATION = 300;
 const DRAG_HOLD_DELAY = 180;
 const smartDragOwners = new WeakMap();
+
+export function cancelGridGesture() {
+  cancelGesture?.();
+}
 
 /**
  * Enables drag and resize behavior for a bookmark or folder element.
@@ -56,8 +61,9 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
   let pressStartedAt = 0;
   let dragHoldTimer = null;
 
-  const rowWidth = container.clientWidth / GRID_COLS;
-  const rowHeight = container.clientHeight / GRID_ROWS;
+  let rowWidth = 0, rowHeight = 0;
+  const viewport = container.closest('#bookmark-viewport');
+  let startScrollX = 0, startScrollY = 0;
 
   div.addEventListener('auxclick', e => {
     if (kind !== 'bookmark' || e.button !== 1) return;
@@ -88,10 +94,15 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     startY = e.clientY;
     startLeft = div.offsetLeft;
     startTop = div.offsetTop;
+    rowWidth = container.clientWidth / GRID_COLS;
+    rowHeight = container.clientHeight / GRID_ROWS;
+    startScrollX = viewport?.scrollLeft ?? 0;
+    startScrollY = viewport?.scrollTop ?? 0;
     pressStartedAt = e.timeStamp;
 
     moved = false;
     dragSession = createSmartDragSession(container, item, kind);
+    cancelGesture = () => finishDrag(false);
 
     div.setPointerCapture(e.pointerId);
     dragHoldTimer = setTimeout(startDragFeedback, DRAG_HOLD_DELAY);
@@ -100,8 +111,10 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
   div.addEventListener('pointermove', (e) => {
     if (!itemDragging || resizing || !dragSession) return;
 
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
+    const scrollX = (viewport?.scrollLeft ?? 0) - startScrollX;
+    const scrollY = (viewport?.scrollTop ?? 0) - startScrollY;
+    const dx = e.clientX - startX + scrollX;
+    const dy = e.clientY - startY + scrollY;
     if (!moved) {
       if (Math.hypot(dx, dy) <= 4) return;
       startDragFeedback();
@@ -117,7 +130,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     newGY = Math.max(0, Math.min(newGY, GRID_ROWS - item.h));
 
     const nextFolderTarget = kind === 'bookmark'
-      ? findFolderTarget(e.clientX, e.clientY, dragSession.folderTargets)
+      ? findFolderTarget(e.clientX + scrollX, e.clientY + scrollY, dragSession.folderTargets)
       : null;
     if (nextFolderTarget) {
       setFolderTarget(nextFolderTarget);
@@ -164,6 +177,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     dragHoldTimer = null;
     itemDragging = false;
     dragging = false;
+    cancelGesture = null;
     div.classList.remove('is-dragging', 'is-invalid');
     div.style.zIndex = '';
     if (kind === 'folder' && moved) suppressFolderOpen(div);
@@ -476,6 +490,9 @@ function handleResize(container, e, div, item, direction, handle, indicator) {
 
   const startMouseX = e.clientX;
   const startMouseY = e.clientY;
+  const viewport = container.closest('#bookmark-viewport');
+  const startScrollX = viewport?.scrollLeft ?? 0;
+  const startScrollY = viewport?.scrollTop ?? 0;
   const pointerId = e.pointerId;
   const start = pickGridRectangle(item);
   const rowWidth = container.clientWidth / GRID_COLS;
@@ -506,8 +523,8 @@ function handleResize(container, e, div, item, direction, handle, indicator) {
   const onMove = (ev) => {
     if (!active || ev.pointerId !== pointerId) return;
 
-    const deltaX = ev.clientX - startMouseX;
-    const deltaY = ev.clientY - startMouseY;
+    const deltaX = ev.clientX - startMouseX + (viewport?.scrollLeft ?? 0) - startScrollX;
+    const deltaY = ev.clientY - startMouseY + (viewport?.scrollTop ?? 0) - startScrollY;
     if (Math.hypot(deltaX, deltaY) > 4) moved = true;
 
     latestGeometry = calculateResizeGeometry({
@@ -553,6 +570,7 @@ function handleResize(container, e, div, item, direction, handle, indicator) {
     if (!active) return;
     active = false;
     resizing = false;
+    cancelGesture = null;
     if (animationFrame != null) cancelAnimationFrame(animationFrame);
 
     handle.removeEventListener('pointermove', onMove);
@@ -610,6 +628,8 @@ function handleResize(container, e, div, item, direction, handle, indicator) {
       }]]));
     }
   };
+
+  cancelGesture = () => finish(false);
 
   const onUp = ev => {
     if (ev.pointerId === pointerId) finish(true);

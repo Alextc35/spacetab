@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title data-i18n="html.title"></title>
   <link rel="stylesheet" href="./css/main.css">
 </head>
 <body>
-  <div id="bookmark-container"></div>
+  <div id="bookmark-viewport" class="custom-scrollbar">
+    <div id="bookmark-container"></div>
+    <div id="grid-overlay"></div>
+  </div>
 
   <nav id="workspace-toolbar" aria-label="Workspace controls" data-i18n-aria-label="workspace.ariaLabel">
     <button id="search-bookmarks" type="button" data-i18n-aria-label="workspace.search" aria-label="Search">⌕</button>
@@ -47,8 +51,6 @@
       data-i18n-aria-label="folder.create">📁</button>
     <button id="settings" type="button">⚙️</button>
   </div>
-
-  <div id="grid-overlay"></div>
 
   <div id="flash-container" class="flash-container"></div>
 

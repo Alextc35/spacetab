@@ -3,6 +3,10 @@
     "title": "Nova guia"
   },
   "flash": {
+    "viewport": {
+      "tooNarrow": "Amplie a janela para usar esta função.",
+      "suspended": "Painel oculto. Amplie a janela para continuar."
+    },
     "editMode": {
       "enabled": "Modo de edição ativado",
       "disabled": "Modo de edição desativado"
@@ -75,6 +79,7 @@
       "importError": "Não foi possível restaurar o backup"
     }
   },
+  "view": { "list": "Visualização em lista" },
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "Excluir todos os favoritos?",

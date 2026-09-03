@@ -11,6 +11,7 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
   const element = document.createElement('div');
   element.className = 'bookmark bookmark-folder';
   element.dataset.folderId = folder.id;
+  element.classList.toggle('is-single-cell', folder.w === 1 && folder.h === 1);
   element.classList.toggle('is-editing', isEditing);
   element.classList.toggle('is-keyboard-active', isGridKeyboardActive(folder.id));
   applyFolderAppearance(element, folder);
@@ -19,6 +20,7 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
   const button = document.createElement('button');
   button.className = 'folder-open';
   button.type = 'button';
+  button.title = folder.name;
   button.setAttribute('aria-label', t('folder.open', {
     name: folder.name,
     count: bookmarks.length

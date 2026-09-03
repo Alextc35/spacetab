@@ -2,7 +2,7 @@
   --folder-color: #38bdf8;
   --folder-text-color: #f8fafc;
   --folder-context-text: light-dark(var(--folder-light-text, var(--ui-text)), var(--folder-text-color));
-  --folder-preview-icon-size: clamp(16px, min(14cqw, 14cqh), 52px);
+  --folder-preview-icon-size: clamp(10px, min(14cqw, 14cqh), 48px);
   container-type: size;
   overflow: visible;
   border: 1px solid color-mix(in srgb, var(--folder-color) 42%, transparent);
@@ -20,11 +20,23 @@
 }
 
 .folder-open {
+  /* Width changes scale the artwork; text sizes depend only on available height. */
+  --folder-title-size: clamp(10px, 10cqh, 14px);
+  --folder-count-size: clamp(8px, 8cqh, 11px);
+  --folder-caption-height: calc((var(--folder-title-size) + var(--folder-count-size)) * 1.2 + 2px);
+  --folder-headroom: clamp(14px, calc(40cqh - 10px), 28px);
+  --folder-content-gap: clamp(2px, 2cqh, 6px);
+  --folder-art-height: max(0px,
+    calc(100cqh - var(--folder-headroom) - var(--folder-caption-height) - var(--folder-content-gap)));
+  --folder-art-width: min(94cqw,
+    calc(var(--folder-art-height) * 1.36),
+    280px);
   display: flex;
   width: 100%;
   height: 100%;
   min-width: 0;
-  padding: 8px;
+  padding: var(--folder-headroom) 0 0;
+  gap: var(--folder-content-gap);
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -33,6 +45,30 @@
   color: inherit;
   cursor: pointer;
   font: inherit;
+}
+
+.bookmark-folder.is-single-cell .folder-open {
+  justify-content: flex-start;
+}
+
+.bookmark-folder.is-single-cell .folder-visual {
+  height: min(var(--folder-art-height), max(28px, calc(var(--folder-art-width) / 1.36)));
+}
+
+.bookmark-folder .item-actions {
+  top: clamp(2px, calc(14cqh - 6px), 8px);
+  left: 0;
+  right: 0;
+  width: max-content;
+  margin-inline: auto;
+  gap: clamp(2px, 2cqw, 6px);
+}
+
+.bookmark-folder .item-action-button {
+  width: clamp(16px, min(26cqw, 22cqh), 24px);
+  height: clamp(16px, min(26cqw, 22cqh), 24px);
+  border-radius: 25%;
+  font-size: 11px;
 }
 
 .bookmark-folder.is-editing .folder-open {
@@ -55,11 +91,11 @@
 .folder-visual {
   position: relative;
   display: block;
-  width: min(82cqw, calc((100cqh - 48px) * 1.36), 280px);
+  width: var(--folder-art-width, min(82cqw, calc((100cqh - 48px) * 1.36), 280px));
   height: auto;
-  margin: 2px auto 8px;
+  margin: 0 auto;
   aspect-ratio: 1.36 / 1;
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   filter:
     drop-shadow(0 12px 13px rgba(2, 8, 23, .38))
     drop-shadow(0 0 1px color-mix(in srgb, var(--folder-color) 48%, transparent));
@@ -76,7 +112,7 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, .2);
   border-bottom: 0;
-  border-radius: 12px 12px 0 0;
+  border-radius: clamp(3px, 4cqw, 12px) clamp(3px, 4cqw, 12px) 0 0;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, .18), transparent 55%),
     color-mix(in srgb, var(--folder-color) 90%, white);
@@ -87,11 +123,11 @@
   position: absolute;
   inset: 18% 0 0;
   display: grid;
-  padding: 10px 12px;
+  padding: clamp(1px, 2cqw, 8px);
   place-items: center;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, .28);
-  border-radius: 15px;
+  border-radius: clamp(4px, 5cqw, 15px);
   background-color: var(--folder-color);
   background-image:
     radial-gradient(circle at 18% 0%, rgba(255, 255, 255, .24), transparent 42%),
@@ -163,7 +199,8 @@
   width: 100%;
   height: 100%;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px;
+  grid-auto-rows: minmax(0, 1fr);
+  gap: clamp(2px, 2cqw, 4px);
   place-items: center;
 }
 
@@ -179,27 +216,30 @@
 .folder-previews .bookmark-favicon {
   width: var(--folder-preview-icon-size, 27px);
   height: var(--folder-preview-icon-size, 27px);
-  padding: 3px;
+  max-width: 100%;
+  max-height: 100%;
+  padding: clamp(1px, 1cqw, 3px);
   border: 1px solid rgba(255, 255, 255, .62);
-  border-radius: 9px;
+  border-radius: 22%;
   background: rgba(255, 255, 255, .94);
   box-shadow: 0 4px 10px rgba(2, 8, 23, .22);
   object-fit: contain;
 }
 
 .folder-visual.has-folder-bg-image .folder-previews:not(:empty) {
+  --folder-preview-icon-size: clamp(10px, calc(8px + 8cqw), 24px);
   display: flex;
   width: auto;
-  max-width: calc(100% - 14px);
+  max-width: 100%;
   height: auto;
-  padding: 5px 6px;
+  padding: 2px;
   align-items: center;
   align-self: end;
   justify-content: center;
   justify-self: center;
-  gap: 5px;
+  gap: 2px;
   border: 1px solid rgba(255, 255, 255, .2);
-  border-radius: 11px;
+  border-radius: 5px;
   background: rgba(2, 6, 23, .48);
   box-shadow: 0 6px 18px rgba(2, 6, 23, .3);
   backdrop-filter: blur(7px) saturate(1.18);
@@ -218,9 +258,9 @@
   height: auto;
   max-height: var(--folder-preview-icon-size, 23px);
   flex: 0 1 var(--folder-preview-icon-size, 23px);
-  padding: 2px;
+  padding: 1px;
   aspect-ratio: 1 / 1;
-  border-radius: 7px;
+  border-radius: 22%;
   box-sizing: border-box;
 }
 
@@ -235,73 +275,14 @@
   line-height: 1;
 }
 
-@container (max-width: 120px) or (max-height: 125px) {
-  .folder-open {
-    padding: 5px;
-  }
-
-  .folder-visual {
-    margin-bottom: 4px;
-  }
-
-  .folder-tab {
-    border-radius: 7px 7px 0 0;
-  }
-
-  .folder-body {
-    padding: 3px 5px;
-    border-radius: 9px;
-  }
-
-  .folder-previews {
-    gap: 2px;
-  }
-
-  .folder-previews .bookmark-favicon {
-    width: 16px;
-    height: 16px;
-    padding: 1px;
-    border-radius: 5px;
-  }
-
-  .folder-visual.has-folder-bg-image .folder-previews:not(:empty) {
-    max-width: calc(100% - 6px);
-    padding: 3px;
-    gap: 3px;
-    border-radius: 8px;
-  }
-
-  .folder-visual.has-folder-bg-image .folder-previews .bookmark-favicon,
-  .folder-preview-more {
-    width: 17px;
-    height: 17px;
-    flex-basis: 17px;
-    padding: 1px;
-    border-radius: 5px;
-  }
-
-  .bookmark-folder .folder-caption {
-    grid-template-rows: minmax(0, auto) .8em;
-    gap: 1px;
-  }
-
-  .bookmark-folder .folder-title {
-    font-size: .76rem;
-  }
-
-  .bookmark-folder .folder-count {
-    font-size: .61rem;
-  }
-}
-
 .folder-caption {
   display: grid;
   width: 100%;
   min-width: 0;
   flex: 0 0 auto;
-  grid-template-rows: minmax(0, auto) 1em;
-  gap: 3px;
-  padding: 0 3px 1px;
+  grid-template-rows: auto auto;
+  gap: 2px;
+  padding: 0;
   overflow: hidden;
 }
 
@@ -311,7 +292,7 @@
   min-width: 0;
   overflow: hidden;
   color: var(--folder-context-text, var(--folder-text-color));
-  font-size: .96rem;
+  font-size: var(--folder-title-size, 14px);
   font-weight: 700;
   line-height: 1.2;
   text-align: center;
@@ -325,8 +306,8 @@
   min-width: 0;
   overflow: hidden;
   color: light-dark(var(--ui-muted), color-mix(in srgb, var(--folder-text-color) 72%, transparent));
-  font-size: .72rem;
-  line-height: 1;
+  font-size: var(--folder-count-size, 11px);
+  line-height: 1.2;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -334,15 +315,18 @@
 
 .folder-drop-feedback {
   position: absolute;
-  inset: 8px;
+  inset: clamp(3px, 4cqw, 8px);
   display: grid;
-  padding: 12px;
+  min-width: 0;
+  padding: clamp(3px, 4cqw, 12px);
+  overflow: hidden;
+  overflow-wrap: anywhere;
   place-items: center;
   border: 2px dashed rgba(255, 255, 255, .86);
   border-radius: calc(var(--radius-md) - 4px);
   background: rgba(2, 132, 199, .9);
   color: #fff;
-  font-size: .78rem;
+  font-size: clamp(10px, 8cqw, 12px);
   font-weight: 700;
   line-height: 1.3;
   opacity: 0;
@@ -888,10 +872,6 @@
     height: 19px;
     border-radius: 7px;
     font-size: .62rem;
-  }
-
-  .folder-visual {
-    width: min(80%, 220px);
   }
 }
 

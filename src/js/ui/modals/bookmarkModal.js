@@ -9,6 +9,7 @@ import { t } from '../../core/i18n.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { findFirstFreeSlot } from '../../core/grid.js';
 import { getOccupiedGridItems } from '../../core/bookmark.js';
+import { ensurePanelFits } from '../viewportMode.js';
 
 const modal = document.getElementById('edit-bookmark-modal');
 const modalTitle = modal.querySelector('h2');
@@ -60,6 +61,7 @@ export function initBookmarkModal() {
   registerModal({
     id: 'bookmark-modal',
     element: modal,
+    requiresWideViewport: true,
     closeOnEsc: true,
     closeOnOverlay: true,
     acceptOnEnter: false,
@@ -74,6 +76,7 @@ export function initBookmarkModal() {
  * Opens the modal in add mode with a fresh bookmark draft.
  */
 export function openAddBookmark() {
+  if (!ensurePanelFits()) return;
   const { data: { settings } } = getState();
   const draft = createBookmarkDraft({
     preset: settings.bookmarkDefault,
@@ -89,6 +92,7 @@ export function openAddBookmark() {
  * @param {string} bookmarkId
  */
 export function openEditBookmark(bookmarkId) {
+  if (!ensurePanelFits()) return;
   const state = getState();
   const bookmark = state.data.bookmarks.find(b => b.id === bookmarkId);
   if (!bookmark) return;
@@ -106,6 +110,7 @@ export function openEditBookmark(bookmarkId) {
  * @param {(preset: BookmarkPreset) => void} options.onApply
  */
 export function openBookmarkPresetEditor(preset, { onApply } = {}) {
+  if (!ensurePanelFits()) return;
   if (typeof onApply !== 'function') {
     throw new TypeError('Preset editor requires an onApply callback');
   }
@@ -326,5 +331,5 @@ function closeBookmarkModal() {
   mode = null;
   editingId = null;
   applyPreset = null;
-  closeModal();
+  closeModal('bookmark-modal');
 }

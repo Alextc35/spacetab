@@ -3,6 +3,10 @@
     "title": "Nueva pestaña"
   },
   "flash": {
+    "viewport": {
+      "tooNarrow": "Amplía la ventana para usar esta función.",
+      "suspended": "Panel oculto. Amplía la ventana para continuar."
+    },
     "editMode": {
       "enabled": "Modo de edición activado",
       "disabled": "Modo de edición desactivado"
@@ -75,6 +79,7 @@
       "importError": "No se pudo restaurar la copia de seguridad"
     }
   },
+  "view": { "list": "Vista de lista" },
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "¿Eliminar todos los marcadores?",

@@ -1,0 +1,96 @@
+/* Keep card content and edit controls within their actual cell dimensions. */
+#bookmark-container:not(.is-list-view) > .bookmark {
+  container: bookmark-card / size;
+}
+
+#bookmark-container:not(.is-list-view) > .bookmark .bookmark-link > .bookmark-favicon {
+  --bookmark-icon-size: min(100cqw, max(24px, 60cqw), 60cqh, max(0px, var(--bookmark-icon-room)));
+  width: var(--bookmark-icon-size);
+  height: var(--bookmark-icon-size);
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+}
+
+#bookmark-container:not(.is-list-view) > .bookmark .resizer {
+  &.top, &.bottom {
+    width: min(22px, calc(100% - 24px));
+  }
+
+  &.left, &.right {
+    height: min(22px, calc(100% - 24px));
+  }
+}
+
+/* Center the content in both modes and keep a free corner for the edit button. */
+#bookmark-container:not(.is-list-view) > .bookmark:not(.bookmark-folder) {
+  --bookmark-action-size: clamp(14px, calc(25cqh - 1px), 20px);
+
+  & .bookmark-title {
+    font-size: 12px;
+    line-height: 1.2;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  & .bookmark-info {
+    left: clamp(3px, 6cqw, 8px);
+    right: clamp(3px, 6cqw, 8px);
+    gap: clamp(2px, 3cqw, 6px);
+
+    & .bookmark-title {
+      margin-top: 0;
+    }
+
+    & .bookmark-favicon {
+      max-width: clamp(8px, 12cqw, 16px);
+      max-height: clamp(8px, 12cqw, 16px);
+      flex-shrink: 0;
+    }
+  }
+
+  & .item-actions {
+    top: 6px;
+    left: 10px;
+    right: auto;
+    width: max-content;
+    margin-inline: 0;
+    gap: 2px;
+  }
+
+  & .item-action-button {
+    width: var(--bookmark-action-size);
+    height: var(--bookmark-action-size);
+    border-radius: 25%;
+  }
+
+  & > .bookmark-link {
+    --bookmark-caption-space: 0px;
+    /* Allow the icon beside OR below the corner button, with a 1px gap.
+       Container units exclude the card's 5px padding on each side. */
+    --bookmark-icon-room: max(
+      100cqw + 10px - 2 * (11px + var(--bookmark-action-size)),
+      100cqh + 10px - 2 * (7px + var(--bookmark-action-size)) - var(--bookmark-caption-space)
+    );
+    padding: 0;
+
+    &:has(> .bookmark-title) {
+      --bookmark-caption-space: 17.4px; /* 12px × 1.2 line height + 3px gap. */
+    }
+
+    & > .bookmark-title:first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+@media (600px <= width <= 1000px) {
+  #bookmark-container > .bookmark-folder.is-single-cell {
+    & .folder-previews {
+      grid-template-columns: 1fr;
+    }
+
+    & .folder-previews > :nth-child(n + 2) {
+      display: none;
+    }
+  }
+}

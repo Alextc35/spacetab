@@ -1,4 +1,5 @@
 import { GRID_COLS, GRID_ROWS } from '../core/config.js';
+import { isListView } from './viewportMode.js';
 
 /**
  * Updates CSS variables representing grid cell size.
@@ -14,10 +15,19 @@ import { GRID_COLS, GRID_ROWS } from '../core/config.js';
 export function updateGridSize(container) {
   if (!container) return;
 
-  const rect = container.getBoundingClientRect();
+  const viewport = container.closest('#bookmark-viewport');
+  const compact = isListView();
+  container.classList.toggle('is-list-view', compact);
+  document.documentElement.classList.toggle('is-list-view', compact);
+  const width = viewport.clientWidth;
+  container.style.width = `${width}px`;
+  viewport.style.setProperty('--grid-width', `${width}px`);
+  const height = viewport.clientHeight;
+  container.style.height = compact ? 'auto' : `${height}px`;
+  viewport.style.setProperty('--grid-height', compact ? '0px' : `${height}px`);
 
-  const cellW = rect.width / GRID_COLS;
-  const cellH = rect.height / GRID_ROWS;
+  const cellW = width / GRID_COLS;
+  const cellH = height / GRID_ROWS;
 
   document.documentElement.style.setProperty('--cell-w', cellW + 'px');
   document.documentElement.style.setProperty('--cell-h', cellH + 'px');

@@ -2,6 +2,7 @@
 import { registerModal, openModal, closeModal } from '../../modalManager.js';
 import { flashSuccess, flashError } from '../../flash.js';
 import { initTabs } from '../../tabs.js';
+import { ensurePanelFits } from '../../viewportMode.js';
 
 import { changeLanguage, t } from '../../../core/i18n.js';
 import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
@@ -108,7 +109,7 @@ export function initSettingsModal() {
     },
     onBackupImported: () => {
       resetState();
-      closeModal();
+      closeModal('settings');
     }
   });
 
@@ -126,6 +127,7 @@ export function initSettingsModal() {
   registerModal({
     id: 'settings',
     element: settingsModal,
+    requiresWideViewport: true,
     closeOnEsc: true,
     closeOnOverlay: false,
     acceptOnEnter: false,
@@ -147,7 +149,7 @@ export function initSettingsModal() {
    */
   async function handleCancel() {
     if (!hasChanges()) {
-      closeModal();
+      closeModal('settings');
       return true;
     }
 
@@ -161,7 +163,7 @@ export function initSettingsModal() {
     generalSection.restoreInitialTheme();
     await languageSection.restoreInitialLanguage();
     resetState();
-    closeModal();
+    closeModal('settings');
     return true;
   }
 
@@ -179,6 +181,7 @@ export function initSettingsModal() {
    * - modal cancel behavior is attached
    */
   settingsBtn.addEventListener('click', () => {
+    if (!ensurePanelFits()) return;
     const { data: { settings } } = getState();
 
     initDraft(settings, getStorageMode());
@@ -246,7 +249,7 @@ export function initSettingsModal() {
       }
 
       resetState();
-      closeModal();
+      closeModal('settings');
     } catch (err) {
       console.error('[SETTINGS] Storage mode change failed:', err);
       if (err?.code === 'SYNC_REQUIRES_NEWER_VERSION') {

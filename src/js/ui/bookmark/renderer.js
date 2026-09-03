@@ -9,6 +9,10 @@ import { applyGridItemPosition } from '../gridItemLayout.js';
 import { createFolderElement, enableFolderEditing } from '../folder/renderer.js';
 import { resolveBackgroundImage } from '../../core/localImages.js';
 import { lightSurfaceTextColor } from '../surfaceContrast.js';
+import { isListView } from '../viewportMode.js';
+import { createListItem } from './listView.js';
+import { openFolderModal } from '../modals/folderModal.js';
+import { t } from '../../core/i18n.js';
 
 /**
  * Renders all bookmarks into the given container element.
@@ -45,6 +49,32 @@ export function renderBookmarks(container) {
   }
 
   updateGridSize(container);
+  if (isListView()) {
+    const header = document.createElement('header');
+    header.className = 'bookmark-list-header';
+    const heading = document.createElement('h1');
+    heading.textContent = settings.bookmarkGroups.find(group => group.id === settings.activeBookmarkGroupId)?.name
+      || t('workspace.main');
+    const caption = document.createElement('small');
+    caption.textContent = t('view.list');
+    header.append(heading, caption);
+    const list = document.createElement('ul');
+    list.className = 'bookmark-list-items';
+    const rows = [
+      ...visibleBookmarks.map(item => ({ item, folder: false })),
+      ...visibleFolders.map(item => ({ item, folder: true }))
+    ].sort((a, b) => a.item.gy - b.item.gy || a.item.gx - b.item.gx || a.item.id.localeCompare(b.item.id));
+    for (const { item, folder } of rows) {
+      list.append(createListItem(item, {
+        folder,
+        count: bookmarksByFolderId.get(item.id)?.length ?? 0,
+        active: isGridKeyboardActive(item.id),
+        onOpen: () => openFolderModal(item.id)
+      }));
+    }
+    container.replaceChildren(header, list);
+    return;
+  }
   const items = document.createDocumentFragment();
 
   visibleBookmarks.forEach((bookmark) => {
@@ -84,6 +114,34 @@ export function renderBookmarks(container) {
   container.replaceChildren(items);
 }
 
+/** Resizes the current view without recreating images, controls or listeners. */
+export function resizeBookmarkView(container) {
+  if (!container) return;
+  if (container.classList.contains('is-list-view') !== isListView()) {
+    renderBookmarks(container);
+    return;
+  }
+
+  updateGridSize(container);
+  if (isListView()) return;
+
+  const { data: { bookmarks, folders } } = getState();
+  const bookmarksById = new Map(bookmarks.map(item => [item.id, item]));
+  const foldersById = new Map(folders.map(item => [item.id, item]));
+  for (const element of container.children) {
+    const item = element.dataset.folderId
+      ? foldersById.get(element.dataset.folderId)
+      : bookmarksById.get(element.dataset.bookmarkId);
+    if (!item) continue;
+    // A cancelled or blocked gesture can leave pixel overrides on the card.
+    element.classList.remove('is-smart-moving', 'is-smart-displaced');
+    for (const property of ['left', 'top', 'width', 'height']) {
+      element.style.removeProperty(property);
+    }
+    applyGridItemPosition(container, element, item);
+  }
+}
+
 /**
  * Adds edit-only controls to the already-rendered grid.
  *
@@ -96,7 +154,7 @@ export function renderBookmarks(container) {
  * @returns {void}
  */
 export function enableGridEditing(container) {
-  if (!container) return;
+  if (!container || isListView()) return;
 
   const { data: { bookmarks, folders } } = getState();
   const bookmarksById = new Map(bookmarks.map(bookmark => [bookmark.id, bookmark]));
@@ -277,6 +335,7 @@ function applyTextStyle(div, bookmark) {
 function createBookmarkContent(div, bookmark, isEditing, faviconUrl = null) {
   const linkEl = document.createElement('a');
   linkEl.href = bookmark.url || '#';
+  linkEl.title = bookmark.name || bookmark.url || '';
   linkEl.className = 'bookmark-link';
   linkEl.classList.toggle('is-editing', isEditing);
 

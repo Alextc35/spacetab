@@ -1,3 +1,32 @@
+#bookmark-viewport {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  scroll-padding: 12px 12px 72px;
+  z-index: var(--z-bookmark);
+}
+
+.is-list-view #bookmark-viewport {
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+#bookmark-viewport::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+#bookmark-viewport::-webkit-scrollbar-track {
+  background: var(--ui-sidebar);
+}
+
+#bookmark-viewport::-webkit-scrollbar-thumb {
+  background: var(--ui-accent);
+  border: 3px solid var(--ui-sidebar);
+  border-radius: 12px;
+}
+
 #bookmark-container {
   position: relative;
   width: 100%;

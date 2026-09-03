@@ -26,7 +26,7 @@ export function addFolderActions(container, folder) {
     const confirmed = await showAlert(t('folder.confirmDelete', {
       name: folder.name,
       count
-    }), { type: 'confirm' });
+    }), { type: 'confirm', requiresWideViewport: true });
     if (!confirmed) return;
 
     if (deleteBookmarkFolder(folder.id).deleted) {
