@@ -257,7 +257,7 @@ export function openModal(id, {
   if (onCancel) activeModal.onCancel = onCancel;
 
   stack.push(activeModal);
-  debug.info('Abrir ventana', { modal: id, depth: stack.length });
+  debug.info('Open modal', { modal: id, depth: stack.length });
 
   config.element.hidden = false;
   config.element.classList.add('is-open');
@@ -288,7 +288,7 @@ export function closeModal(id) {
   for (const child of stack) {
     if (child.parent === modal) child.parent = modal.parent;
   }
-  debug.info('Cerrar ventana', { modal: modal.id, depth: stack.length });
+  debug.info('Close modal', { modal: modal.id, depth: stack.length });
 
   modal.element.classList.remove('is-open');
   modal.element.hidden = true;

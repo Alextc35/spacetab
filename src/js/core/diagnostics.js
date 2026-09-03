@@ -10,7 +10,7 @@ let startup = null;
 let startupReady = Promise.resolve();
 
 function formatBytes(bytes) {
-  if (!Number.isFinite(bytes)) return 'No disponible';
+  if (!Number.isFinite(bytes)) return 'Unavailable';
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(2)} KiB`;
   return `${(bytes / 1024 ** 2).toFixed(2)} MiB`;
@@ -21,13 +21,13 @@ async function readStorageUsage() {
   const results = await Promise.allSettled(modes.map(mode => getStorageUsage(mode)));
   return results.map((result, index) => {
     const mode = modes[index];
-    if (result.status === 'rejected') return { mode, error: result.reason?.message || 'No disponible' };
+    if (result.status === 'rejected') return { mode, error: result.reason?.message || 'Unavailable' };
     const { usedBytes, quotaBytes, availableBytes } = result.value;
     return {
       mode, active: mode === getStorageMode(), usedBytes, quotaBytes,
       used: formatBytes(usedBytes), available: formatBytes(availableBytes),
       quota: formatBytes(quotaBytes),
-      percent: quotaBytes > 0 ? `${(usedBytes / quotaBytes * 100).toFixed(2)}%` : 'No disponible'
+      percent: quotaBytes > 0 ? `${(usedBytes / quotaBytes * 100).toFixed(2)}%` : 'Unavailable'
     };
   });
 }
@@ -66,31 +66,31 @@ export async function reportDebugState() {
   const usage = await readStorageUsage();
   if (revision !== debug.revision) return;
   const outputOptions = { force: true };
-  debug.table(`Información general · v${VERSION}`, {
-    'Debug': summary.debugEnabled ? 'Activado' : 'Desactivado',
-    'Versión': summary.version,
-    'Formato de datos': summary.schemaVersion,
-    'Almacenamiento': summary.storageMode === 'sync' ? 'Sync' : 'Local',
-    'Sync compatible': summary.syncSupported ? 'Sí' : 'No',
-    'Navegador': summary.syncBrowser,
-    'Bloqueo de Sync': summary.syncBlock ?? 'Ninguno',
-    'Último guardado': summary.lastSave ? formatDebugTime(summary.lastSave) : 'Sin cambios guardados',
-    'Favoritos': summary.bookmarks,
-    'Carpetas': summary.folders,
+  debug.table(`General information · v${VERSION}`, {
+    'Debug': summary.debugEnabled ? 'Enabled' : 'Disabled',
+    'Version': summary.version,
+    'Data schema': summary.schemaVersion,
+    'Storage': summary.storageMode === 'sync' ? 'Sync' : 'Local',
+    'Sync supported': summary.syncSupported ? 'Yes' : 'No',
+    'Browser': summary.syncBrowser,
+    'Sync restriction': summary.syncBlock ?? 'None',
+    'Last save': summary.lastSave ? formatDebugTime(summary.lastSave) : 'No saved changes',
+    'Bookmarks': summary.bookmarks,
+    'Folders': summary.folders,
     'Workspaces': summary.workspaces,
-    'Imágenes locales': `${summary.loadedLocalImages} cargadas / ${summary.localImages} seleccionadas`,
-    'Idioma': summary.language,
-    'Apariencia': summary.interfaceTheme,
-    'Apariencia del navegador': summary.deviceColorScheme,
-    'Plataforma': summary.platform,
-    'Ventana': summary.viewport
+    'Local images': `${summary.loadedLocalImages} loaded / ${summary.localImages} selected`,
+    'Language': summary.language,
+    'Appearance': summary.interfaceTheme,
+    'Browser appearance': summary.deviceColorScheme,
+    'Platform': summary.platform,
+    'Viewport': summary.viewport
   }, outputOptions);
-  debug.table('Almacenamiento · las imágenes se guardan en local', storageRows(usage), outputOptions);
-  if (startup) debug.table('Carga inicial de esta pestaña', startup, outputOptions);
-  debug.table('Cómo leer los tiempos', {
-    Operaciones: 'Preparación + cola + guardado.',
-    Render: 'Se mide por separado.',
-    Sync: 'Escritura en el navegador; la propagación entre dispositivos se realiza después.'
+  debug.table('Storage · images are stored locally', storageRows(usage), outputOptions);
+  if (startup) debug.table('Initial load for this tab', startup, outputOptions);
+  debug.table('Understanding timings', {
+    Operations: 'Preparation + queue + save.',
+    Render: 'Measured separately.',
+    Sync: 'Browser write time; propagation between devices happens afterward.'
   }, outputOptions);
   return { summary, storage: usage, startup: startup ? structuredClone(startup) : null };
 }
@@ -104,30 +104,30 @@ export function initDebugTools() {
       debug.setEnabled(!debug.enabled);
       cancelStorageReport();
       if (debug.enabled) printDebugHelp();
-      else debug.info('Debug desactivado', undefined, { force: true, tone: 'muted' });
+      else debug.info('Debug disabled', undefined, { force: true, tone: 'muted' });
       return debug.enabled;
     },
     report: () => reportDebugState(),
     history() {
       const records = debug.history();
       if (records.length) {
-        debug.table(`Historial · ${records.length} de 100 operaciones`, records.map(({ id, label, status, durationMs, startedAt }) => (
-          { '#': id, Hora: formatDebugTime(startedAt), 'Operación': label,
-            'Duración': `${durationMs} ms`, Estado: status === 'ok' ? 'OK' : status === 'error' ? 'Error' : 'Sin cambios' }
+        debug.table(`History · ${records.length} of 100 operations`, records.map(({ id, label, status, durationMs, startedAt }) => (
+          { '#': id, Time: formatDebugTime(startedAt), Operation: label,
+            Duration: `${durationMs} ms`, Status: status === 'ok' ? 'OK' : status === 'error' ? 'Error' : 'No changes' }
         )), { force: true });
-      } else debug.info('Historial vacío', undefined, { force: true, tone: 'muted' });
+      } else debug.info('History is empty', undefined, { force: true, tone: 'muted' });
       return records;
     },
     clear() {
       cancelStorageReport();
       const result = { cleared: debug.clear(), enabled: debug.enabled };
-      debug.info(`Consola e historial limpios · ${result.cleared} operaciones eliminadas`, undefined, { force: true, tone: 'success' });
+      debug.info(`Console and history cleared · ${result.cleared} operations removed`, undefined, { force: true, tone: 'success' });
       return result;
     }
   });
   if (debug.enabled) printDebugHelp();
-  else debug.guide('Debug disponible', [
-    { command: 'SpaceTabDebug.toggle()', description: 'Activa el modo Debug y consulta los comandos.' }
+  else debug.guide('Debug available', [
+    { command: 'SpaceTabDebug.toggle()', description: 'Enable Debug mode and view the commands.' }
   ], { force: true, tone: 'muted' });
 
   subscribe((state, previous) => {
@@ -138,27 +138,27 @@ export function initDebugTools() {
     storageTimer = setTimeout(async () => {
       storageTimer = undefined;
       const usage = await readStorageUsage();
-      if (debug.enabled && revision === debug.revision) debug.table('Almacenamiento actualizado', storageRows(usage));
+      if (debug.enabled && revision === debug.revision) debug.table('Storage updated', storageRows(usage));
     }, 400);
   });
 }
 
 function printDebugHelp() {
-  debug.guide('Debug activado · Comandos', [
-    { command: 'SpaceTabDebug.toggle()', description: 'Activar o desactivar el registro en tiempo real.' },
-    { command: 'await SpaceTabDebug.report()', description: 'Información general, almacenamiento y carga inicial.' },
-    { command: 'SpaceTabDebug.history()', description: 'Últimas 100 operaciones y sus tiempos.' },
-    { command: 'SpaceTabDebug.clear()', description: 'Limpiar la consola y el historial.' },
-    { command: 'SpaceTabDebug.enabled', description: 'Consultar si Debug está activado.' }
+  debug.guide('Debug enabled · Commands', [
+    { command: 'SpaceTabDebug.toggle()', description: 'Enable or disable live operation logging.' },
+    { command: 'await SpaceTabDebug.report()', description: 'Show general information, storage usage and initial load timings.' },
+    { command: 'SpaceTabDebug.history()', description: 'Show the last 100 operations and their timings.' },
+    { command: 'SpaceTabDebug.clear()', description: 'Clear the console and history.' },
+    { command: 'SpaceTabDebug.enabled', description: 'Check whether Debug is enabled.' }
   ], { tone: 'success' });
 }
 
 function storageRows(usage) {
-  return usage.map(area => area.error ? { 'Almacén': area.mode, Error: area.error } : {
-    'Almacén': `${area.mode === 'sync' ? 'Sync' : 'Local'}${area.active ? ' · activo' : ''}`,
-    'En uso': `${area.used} / ${area.quota}`,
-    Libre: area.available,
-    'Ocupación': area.percent
+  return usage.map(area => area.error ? { Storage: area.mode, Error: area.error } : {
+    Storage: `${area.mode === 'sync' ? 'Sync' : 'Local'}${area.active ? ' · active' : ''}`,
+    Used: `${area.used} / ${area.quota}`,
+    Available: area.available,
+    Usage: area.percent
   });
 }
 
@@ -176,7 +176,7 @@ export function finishDebugStartup(trace, startedAt) {
 async function captureStartup(trace, startedAt) {
   const visible = document.visibilityState === 'visible';
   if (visible) await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-  trace.mark(visible ? 'Espera al siguiente frame visible' : 'Pestaña en segundo plano');
+  trace.mark(visible ? 'Wait for the next visible frame' : 'Background tab');
   const navigation = performance.getEntriesByType('navigation')[0];
   const firstPaint = performance.getEntriesByName('first-contentful-paint')[0];
   const readyAt = performance.now();
@@ -187,10 +187,10 @@ async function captureStartup(trace, startedAt) {
     pendingImages
   });
   startup = {
-    'Inicio JS → interfaz lista (ms)': Number((readyAt - startedAt).toFixed(2)),
-    'Navegación → interfaz lista (ms)': Number(readyAt.toFixed(2)),
-    'Primer contenido pintado (ms)': firstPaint?.startTime ?? 'No disponible',
-    'Tipo de navegación': navigation?.type ?? 'No disponible',
-    'Imágenes pendientes (sin esperar imágenes remotas)': pendingImages
+    'JS start → UI ready (ms)': Number((readyAt - startedAt).toFixed(2)),
+    'Navigation → UI ready (ms)': Number(readyAt.toFixed(2)),
+    'First contentful paint (ms)': firstPaint?.startTime ?? 'Unavailable',
+    'Navigation type': navigation?.type ?? 'Unavailable',
+    'Pending images (without waiting for remote images)': pendingImages
   };
 }

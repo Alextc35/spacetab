@@ -63,7 +63,7 @@ export function getState() {
 export async function setState(partial, { recordHistory = true, debugTrace } = {}) {
   const prevState = state;
   const trace = debugTrace ?? debug.start(debug.enabled
-    ? (isHydrating ? 'Hidratar datos' : describeStateChange(partial, prevState.data))
+    ? (isHydrating ? 'Hydrate data' : describeStateChange(partial, prevState.data))
     : '');
   let persistenceError = null;
   let persisted = false;
@@ -118,18 +118,18 @@ export async function setState(partial, { recordHistory = true, debugTrace } = {
       error: null,
       updatedAt: state.ui.persistence?.updatedAt ?? null
     };
-    trace.mark('Preparación de datos');
+    trace.mark('Data preparation');
 
     try {
       persistenceQueue = persistenceQueue
         .catch(() => undefined)
         .then(async () => {
-          trace.mark('Espera en cola');
+          trace.mark('Queue wait');
           persistenceMode = storage.getMode();
           try {
             await storage.set(dataToPersist);
           } finally {
-            trace.mark('Escritura en storage');
+            trace.mark('Storage write');
           }
         });
 
@@ -151,12 +151,12 @@ export async function setState(partial, { recordHistory = true, debugTrace } = {
       };
     }
   } else {
-    trace.mark('Preparación de datos');
+    trace.mark('Data preparation');
   }
 
   try {
     notify(state, prevState);
-    trace.mark('Notificar interfaz');
+    trace.mark('Notify UI');
     trace.end({ ...details, storageMode: persistenceMode, persisted,
       status: persistenceError ? 'error' : 'ok', ...(persistenceError ? { error: persistenceError } : {}) });
   } catch (error) {
@@ -179,7 +179,7 @@ export async function undoBookmarks() {
     bookmarks: state.data.bookmarks,
     folders: state.data.folders
   }));
-  await setState({ data: previous }, { recordHistory: false, debugTrace: debug.start('Deshacer') });
+  await setState({ data: previous }, { recordHistory: false, debugTrace: debug.start('Undo') });
   return true;
 }
 
@@ -192,7 +192,7 @@ export async function redoBookmarks() {
     bookmarks: state.data.bookmarks,
     folders: state.data.folders
   }));
-  await setState({ data: next }, { recordHistory: false, debugTrace: debug.start('Rehacer') });
+  await setState({ data: next }, { recordHistory: false, debugTrace: debug.start('Redo') });
   return true;
 }
 
@@ -267,12 +267,12 @@ export async function changeStorageMode(mode, nextData = state.data) {
     throw new TypeError(`Unsupported storage mode: ${mode}`);
   }
 
-  const trace = debug.start('Cambiar almacenamiento', { from: storage.getMode(), to: mode });
+  const trace = debug.start('Switch storage', { from: storage.getMode(), to: mode });
   try {
     await persistenceQueue.catch(() => undefined);
-    trace.mark('Espera en cola');
+    trace.mark('Queue wait');
     const result = await storage.changeMode(mode, nextData);
-    trace.mark('Cambio de almacenamiento');
+    trace.mark('Storage switch');
     replacePersistedData(result.data);
     trace.end({ source: result.source, activeMode: storage.getMode() });
     return result.source;
@@ -403,7 +403,7 @@ function subscribeToStorageChanges() {
       try {
         const persisted = await storage.get(null);
         const dataChanged = replacePersistedData(persisted);
-        if (dataChanged) debug.info('Datos actualizados desde storage', refreshChange);
+        if (dataChanged) debug.info('Data refreshed from storage', refreshChange);
 
         if (
           dataChanged

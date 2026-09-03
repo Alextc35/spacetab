@@ -7,7 +7,7 @@ const CLOCK_STYLE = 'color:#8492a6;font-weight:normal;';
 const TITLE_STYLE = 'color:inherit;font-weight:600;';
 const COMMAND_STYLE = 'color:#3b82f6;font-weight:600;';
 const DESCRIPTION_STYLE = 'color:inherit;font-weight:normal;';
-const STATUS_LABELS = { ok: 'OK', error: 'Error', skipped: 'Sin cambios' };
+const STATUS_LABELS = { ok: 'OK', error: 'Error', skipped: 'No changes' };
 
 /** Browser-local wall time for logs; elapsed durations still use performance.now(). */
 export function formatDebugTime(timestamp = new Date()) {
@@ -71,7 +71,7 @@ export function createDebugger({
         const tone = status === 'error' ? 'error' : status === 'ok' ? 'success' : 'muted';
         output.groupCollapsed(...heading(`${label} · ${record.durationMs} ms · ${STATUS_LABELS[status] || status} · #${id}`, tone));
         if (phases.length) output.table(phases.map(({ phase, durationMs }) => (
-          { Fase: phase, 'Duración': `${durationMs} ms` }
+          { Phase: phase, Duration: `${durationMs} ms` }
         )));
         if (Object.keys(record.details).length) output.table(record.details);
         output.groupEnd();
@@ -129,21 +129,21 @@ export const debug = createDebugger({ enabled: DEBUG });
 /** Describes unlabelled changes without retaining bookmark contents or images. */
 export function describeStateChange(partial, previous) {
   const data = partial.data;
-  if (!data) return 'Cambiar estado de la interfaz';
+  if (!data) return 'Update UI state';
   const groups = data.settings?.bookmarkGroups;
   if (groups && groups.length !== previous.settings.bookmarkGroups.length) {
     return groups.length > previous.settings.bookmarkGroups.length
-      ? 'Crear workspace' : 'Eliminar workspace';
+      ? 'Create workspace' : 'Delete workspace';
   }
   if (data.folders && data.folders.length !== previous.folders.length) {
-    return data.folders.length > previous.folders.length ? 'Crear carpeta' : 'Eliminar carpeta';
+    return data.folders.length > previous.folders.length ? 'Create folder' : 'Delete folder';
   }
   if (data.bookmarks && data.bookmarks.length !== previous.bookmarks.length) {
-    return data.bookmarks.length > previous.bookmarks.length ? 'Añadir favoritos' : 'Eliminar favoritos';
+    return data.bookmarks.length > previous.bookmarks.length ? 'Add bookmarks' : 'Delete bookmarks';
   }
   if (data.settings) {
     return data.settings.activeBookmarkGroupId !== previous.settings.activeBookmarkGroupId
-      ? 'Cambiar workspace' : 'Guardar ajustes';
+      ? 'Switch workspace' : 'Save settings';
   }
-  return data.folders ? 'Actualizar carpetas / grid' : 'Actualizar favoritos / grid';
+  return data.folders ? 'Update folders / grid' : 'Update bookmarks / grid';
 }

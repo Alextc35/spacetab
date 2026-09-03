@@ -38,10 +38,10 @@ const toggleButton = document.getElementById('edit-toggle-mode');
 /* ======================= Bootstrap ======================= */
 
 const startupStartedAt = performance.now();
-const startupTrace = debug.start('Carga inicial');
+const startupTrace = debug.start('Initial load');
 initApp().catch(error => {
   startupTrace.end({ status: 'error', error: error.message });
-  console.error('[SpaceTab] No se pudo inicializar la página:', error);
+  console.error('[SpaceTab] Could not initialize the page:', error);
 });
 
 /**
@@ -55,14 +55,14 @@ initApp().catch(error => {
  */
 async function initApp() {
   await initState();
-  startupTrace.mark('Cargar y migrar datos');
+  startupTrace.mark('Load and migrate data');
   applyInterfaceTheme(getState().data.settings.interfaceTheme);
   await preloadLocalImages(getState().data);
 
-  startupTrace.mark('Cargar imágenes locales');
+  startupTrace.mark('Load local images');
 
   await initI18n();
-  startupTrace.mark('Cargar idioma');
+  startupTrace.mark('Load language');
   subscribe(handleStateChange);
   subscribeToRemoteSyncUpdates(() => {
     flashInfo('flash.sync.updatedFromOtherDevice', 4000);
@@ -80,10 +80,10 @@ async function initApp() {
     flashInfo('flash.sync.versionBlocked', 8000);
   }
 
-  startupTrace.mark('Inicializar interfaz');
+  startupTrace.mark('Initialize UI');
   initDebugTools();
   void finishDebugStartup(startupTrace, startupStartedAt).catch(error => {
-    debug.info('No se pudo completar el informe inicial', { error: error.message });
+    debug.info('Could not complete the startup report', { error: error.message });
   });
 }
 
@@ -138,7 +138,7 @@ function handleStateChange(state, prev) {
   if (!prev) {
     applyGlobalTheme(state.data.settings);
     updateEditUI(state.ui.isEditing);
-    const trace = debug.start('Render inicial del grid');
+    const trace = debug.start('Initial grid render');
     renderBookmarks(container);
     trace.end();
     return;
@@ -166,12 +166,12 @@ function handleStateChange(state, prev) {
   }
 
   if (settingsChanged || bookmarksChanged || foldersChanged) {
-    const trace = debug.start('Renderizar grid', { bookmarks: state.data.bookmarks.length, folders: state.data.folders.length });
+    const trace = debug.start('Render grid', { bookmarks: state.data.bookmarks.length, folders: state.data.folders.length });
     void preloadLocalImages(state.data).then(() => {
-      trace.mark('Resolver imágenes locales');
+      trace.mark('Resolve local images');
       if (settingsChanged) applyGlobalTheme(state.data.settings);
       renderBookmarks(container);
-      trace.mark('Construir DOM del grid');
+      trace.mark('Build grid DOM');
       trace.end();
     }).catch(error => {
       trace.end({ status: 'error', error: error.message });

@@ -20,11 +20,11 @@ import { getGridItemsInGroup } from './bookmarkFolders.js';
  * @returns {Bookmark} The created bookmark.
  */
 export function addBookmark(data) {
-  const trace = debug.start('Crear favorito');
+  const trace = debug.start('Create bookmark');
   const { data: { bookmarks, settings } } = getState();
   const validation = validateBookmarkDraft(data);
   if (!validation.isValid) {
-    trace.end({ status: 'skipped', reason: 'Datos inválidos' });
+    trace.end({ status: 'skipped', reason: 'Invalid data' });
     return null;
   }
 
@@ -49,7 +49,7 @@ export function addBookmark(data) {
  * @returns {Bookmark|null} The updated bookmark, or null if not found.
  */
 export function updateBookmarkById(bookmarkId, updatedData) {
-  const trace = debug.start('Editar favorito', { bookmarkId });
+  const trace = debug.start('Edit bookmark', { bookmarkId });
   const { data } = getState();
   const { bookmarks } = data;
 
@@ -73,7 +73,7 @@ export function updateBookmarkById(bookmarkId, updatedData) {
   });
 
   if (!updatedBookmark) {
-    trace.end({ status: 'skipped', reason: 'No encontrado o datos inválidos' });
+    trace.end({ status: 'skipped', reason: 'Not found or invalid data' });
     return null;
   }
 
@@ -88,7 +88,7 @@ export function updateBookmarkById(bookmarkId, updatedData) {
  * @return {boolean} True if the all bookmarks were removed, false otherwise.
  */
 export function clearBookmarks() {
-  const trace = debug.start('Eliminar todos los favoritos');
+  const trace = debug.start('Delete all bookmarks');
   setState({ data: { bookmarks: [] } }, { debugTrace: trace });
   return true;
 }
@@ -101,10 +101,10 @@ export function clearBookmarks() {
  * @returns {Bookmark[]}
  */
 export function updateBookmarksByIds(bookmarkIds, updater) {
-  const trace = debug.start('Actualizar varios favoritos');
+  const trace = debug.start('Update multiple bookmarks');
   const ids = new Set(bookmarkIds);
   if (!ids.size) {
-    trace.end({ status: 'skipped', reason: 'Selección vacía' });
+    trace.end({ status: 'skipped', reason: 'Empty selection' });
     return [];
   }
 
@@ -129,23 +129,23 @@ export function updateBookmarksByIds(bookmarkIds, updater) {
   });
 
   if (changed.length) setState({ data: { bookmarks: updated } }, { debugTrace: trace });
-  else trace.end({ status: 'skipped', reason: 'Sin cambios' });
+  else trace.end({ status: 'skipped', reason: 'No changes' });
   return changed;
 }
 
 /** @param {Iterable<string>} bookmarkIds */
 export function deleteBookmarksByIds(bookmarkIds) {
-  const trace = debug.start('Eliminar favoritos');
+  const trace = debug.start('Delete bookmarks');
   const ids = new Set(bookmarkIds);
   if (!ids.size) {
-    trace.end({ status: 'skipped', reason: 'Selección vacía' });
+    trace.end({ status: 'skipped', reason: 'Empty selection' });
     return 0;
   }
   const { data: { bookmarks } } = getState();
   const updated = bookmarks.filter(bookmark => !ids.has(bookmark.id));
   const deletedCount = bookmarks.length - updated.length;
   if (deletedCount) setState({ data: { bookmarks: updated } }, { debugTrace: trace });
-  else trace.end({ status: 'skipped', reason: 'No encontrados' });
+  else trace.end({ status: 'skipped', reason: 'Not found' });
   return deletedCount;
 }
 
@@ -178,10 +178,10 @@ export function duplicateBookmarksByIds(bookmarkIds, {
   rows,
   nameSuffix = 'copy'
 } = {}) {
-  const trace = debug.start('Duplicar favoritos');
+  const trace = debug.start('Duplicate bookmarks');
   const ids = new Set(bookmarkIds);
   if (!ids.size) {
-    trace.end({ status: 'skipped', reason: 'Selección vacía' });
+    trace.end({ status: 'skipped', reason: 'Empty selection' });
     return { duplicates: [], skipped: 0 };
   }
 
@@ -218,7 +218,7 @@ export function duplicateBookmarksByIds(bookmarkIds, {
 
   if (duplicates.length) {
     setState({ data: { bookmarks: [...bookmarks, ...duplicates] } }, { debugTrace: trace });
-  } else trace.end({ status: 'skipped', reason: 'Sin duplicados', skipped });
+  } else trace.end({ status: 'skipped', reason: 'No duplicates', skipped });
 
   return { duplicates, skipped };
 }

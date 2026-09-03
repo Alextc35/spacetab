@@ -20,7 +20,7 @@ export function exportBookmarks() {
     const { data: { bookmarks, folders } } = getState();
     downloadJson(createBookmarksEnvelope(bookmarks, folders), 'spacetab-bookmarks.json');
 
-    debug.info('Favoritos exportados', { bookmarks: bookmarks.length, folders: folders.length });
+    debug.info('Bookmarks exported', { bookmarks: bookmarks.length, folders: folders.length });
 
     flashSuccess('flash.bookmarks.exported');
   } catch (err) {
@@ -47,7 +47,7 @@ export async function importBookmarks(file) {
     const { bookmarks, folders } = parseBookmarksPayload(payload, currentData);
     await setState({ data: { bookmarks, folders } });
 
-    debug.info('Favoritos importados', { bookmarks: bookmarks.length, folders: folders.length });
+    debug.info('Bookmarks imported', { bookmarks: bookmarks.length, folders: folders.length });
     flashSuccess('flash.bookmarks.imported');
   } catch (err) {
     console.error(err);
