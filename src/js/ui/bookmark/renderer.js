@@ -4,15 +4,18 @@ import { createFavicon } from './favicon.js';
 import { addDragAndResize } from './dragResize.js';
 import { addBookmarkActions } from './actions.js';
 import { isBookmarkSelected } from './selection.js';
-import { isGridKeyboardActive } from './gridKeyboardNavigation.js';
+import { clearGridKeyboardNavigation, isGridKeyboardActive } from './gridKeyboardNavigation.js';
 import { applyGridItemPosition } from '../gridItemLayout.js';
 import { createFolderElement, enableFolderEditing } from '../folder/renderer.js';
 import { resolveBackgroundImage } from '../../core/localImages.js';
 import { lightSurfaceTextColor } from '../surfaceContrast.js';
 import { isListView } from '../viewportMode.js';
 import { createListItem } from './listView.js';
+import { createListSearch } from './listSearch.js';
 import { openFolderModal } from '../modals/folderModal.js';
 import { t } from '../../core/i18n.js';
+
+const listSearchStates = new WeakMap();
 
 /**
  * Renders all bookmarks into the given container element.
@@ -33,6 +36,16 @@ export function renderBookmarks(container) {
   const state = getState();
   const { data: { bookmarks, folders, settings } } = state;
   const { ui: { isEditing } } = state;
+  let searchState = listSearchStates.get(container);
+  const oldSearch = container.querySelector('#bookmark-list-search');
+  const restoreSearchFocus = oldSearch && document.activeElement === oldSearch;
+  const selection = restoreSearchFocus ? [oldSearch.selectionStart, oldSearch.selectionEnd] : null;
+  searchState?.destroy?.();
+  if (searchState) searchState.destroy = null;
+  if (!searchState || searchState.groupId !== settings.activeBookmarkGroupId) {
+    searchState = { groupId: settings.activeBookmarkGroupId, query: '' };
+    listSearchStates.set(container, searchState);
+  }
   const visibleBookmarks = bookmarks.filter(
     bookmark => !bookmark.folderId
       && (bookmark.groupId ?? null) === settings.activeBookmarkGroupId
@@ -72,7 +85,22 @@ export function renderBookmarks(container) {
         onOpen: () => openFolderModal(item.id)
       }));
     }
-    container.replaceChildren(header, list);
+    const search = createListSearch({
+      list,
+      query: searchState.query,
+      onFocus: clearGridKeyboardNavigation,
+      onChange: query => {
+        searchState.query = query;
+        clearGridKeyboardNavigation();
+      }
+    });
+    searchState.destroy = search.destroy;
+    container.replaceChildren(header, search.element, list, search.empty);
+    if (container.querySelector('.is-keyboard-active[hidden]')) clearGridKeyboardNavigation();
+    if (restoreSearchFocus) {
+      search.input.focus({ preventScroll: true });
+      search.input.setSelectionRange(...selection);
+    }
     return;
   }
   const items = document.createDocumentFragment();

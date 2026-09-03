@@ -1,6 +1,7 @@
 import { t } from '../../core/i18n.js';
 import { resolveBackgroundImage } from '../../core/localImages.js';
 import { createFavicon } from './favicon.js';
+import { createFolderVisual } from '../folder/visual.js';
 
 /** A read-only launcher row. Display preferences never overwrite saved styles. */
 export function createListItem(item, { folder = false, count = 0, active = false, onOpen } = {}) {
@@ -22,14 +23,22 @@ export function createListItem(item, { folder = false, count = 0, active = false
   icon.className = 'bookmark-list-icon';
   if (folder) {
     icon.classList.add('is-folder-icon');
-    icon.textContent = '📁';
+    icon.append(createFolderVisual(item, [], { compact: true }));
   } else {
+    icon.style.backgroundColor = item.noBackground ? 'transparent' : item.backgroundColor;
     const cover = !item.backgroundFavicon && resolveBackgroundImage(item);
-    const image = cover ? document.createElement('img') : createFavicon(item);
-    if (cover) image.src = cover;
-    image.alt = '';
-    image.draggable = false;
-    icon.append(image);
+    const showIcon = item.backgroundFavicon || (item.showFavicon ?? true);
+    const image = cover ? document.createElement('img') : showIcon ? createFavicon(item) : null;
+    if (image) {
+      if (cover) {
+        image.src = cover;
+        image.className = 'bookmark-list-cover';
+      }
+      if (cover ? item.invertColorBg : item.invertColorIcon) image.style.filter = 'invert(1)';
+      image.alt = '';
+      image.draggable = false;
+      icon.append(image);
+    }
   }
 
   const copy = document.createElement('span');

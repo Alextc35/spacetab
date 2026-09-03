@@ -79,7 +79,12 @@
       "importError": "Não foi possível restaurar o backup"
     }
   },
-  "view": { "list": "Visualização em lista" },
+  "view": {
+    "list": "Visualização em lista",
+    "search": "Buscar favoritos e pastas",
+    "clearSearch": "Limpar busca",
+    "noResults": "Nenhum resultado."
+  },
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "Excluir todos os favoritos?",

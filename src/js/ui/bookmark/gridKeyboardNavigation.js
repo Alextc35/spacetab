@@ -140,6 +140,10 @@ function canStartGridNavigation() {
 function getVisibleGridItems() {
   const { data: { bookmarks, folders, settings } } = getState();
   const activeGroupId = settings.activeBookmarkGroupId ?? null;
+  const visibleIds = isListView() ? new Set(
+    [...containerRef.querySelectorAll('.bookmark-list-item:not([hidden])')]
+      .map(element => element.dataset.bookmarkId ?? element.dataset.folderId)
+  ) : null;
   return [
     ...bookmarks
       .filter(bookmark => !bookmark.folderId && (bookmark.groupId ?? null) === activeGroupId)
@@ -147,7 +151,7 @@ function getVisibleGridItems() {
     ...folders
       .filter(folder => (folder.groupId ?? null) === activeGroupId)
       .map(folder => ({ ...folder, kind: 'folder' }))
-  ].sort((a, b) => (
+  ].filter(item => !visibleIds || visibleIds.has(item.id)).sort((a, b) => (
     a.gy - b.gy
     || a.gx - b.gx
     || a.id.localeCompare(b.id)
@@ -247,7 +251,7 @@ function setActiveItem(itemId) {
   getGridItemElement(itemId)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 
-function clearGridKeyboardNavigation() {
+export function clearGridKeyboardNavigation() {
   activeItemId = null;
   containerRef?.querySelectorAll('.is-keyboard-active').forEach(element => {
     element.classList.remove('is-keyboard-active');

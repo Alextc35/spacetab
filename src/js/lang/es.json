@@ -79,7 +79,12 @@
       "importError": "No se pudo restaurar la copia de seguridad"
     }
   },
-  "view": { "list": "Vista de lista" },
+  "view": {
+    "list": "Vista de lista",
+    "search": "Buscar favoritos y carpetas",
+    "clearSearch": "Limpiar búsqueda",
+    "noResults": "Sin resultados."
+  },
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "¿Eliminar todos los favoritos?",

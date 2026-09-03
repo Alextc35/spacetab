@@ -24,6 +24,97 @@
   font-size: 11px;
 }
 
+.bookmark-list-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 46px;
+  margin-bottom: 16px;
+  padding: 4px 8px 4px 16px;
+  border: 1px solid var(--ui-glass-border);
+  border-radius: 14px;
+  background: var(--ui-input);
+  color: var(--ui-muted);
+}
+
+.bookmark-list-search:focus-within {
+  border-color: var(--ui-accent);
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
+}
+
+.bookmark-list-search-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.bookmark-list-search-icon {
+  position: relative;
+  flex: 0 0 15px;
+  width: 15px;
+  height: 15px;
+  margin-right: 3px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.bookmark-list-search-icon::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 2px;
+  right: -5px;
+  bottom: -3px;
+  border-radius: 1px;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+.bookmark-list-search input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 8px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ui-text);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.bookmark-list-search input::placeholder { color: var(--ui-muted); }
+.bookmark-list-search input::-webkit-search-cancel-button { appearance: none; }
+
+.bookmark-list-search-clear {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  color: var(--ui-muted);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.bookmark-list-search-clear:hover { background: var(--ui-hover); }
+.bookmark-list-search-clear:focus-visible { outline: 2px solid var(--ui-accent); }
+
+.bookmark-list-item.bookmark[hidden],
+.bookmark-list-search-clear[hidden],
+.bookmark-list-empty[hidden] { display: none; }
+
+.bookmark-list-empty {
+  margin: 0;
+  padding: 28px 12px;
+  color: var(--ui-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
 .bookmark-list-items {
   display: flex;
   flex-direction: column;
@@ -89,9 +180,28 @@
   object-fit: contain;
 }
 
+.bookmark-list-icon .bookmark-list-cover {
+  object-fit: cover;
+}
+
 .bookmark-list-icon.is-folder-icon {
+  padding: 7px;
   background: var(--ui-selected);
-  font-size: 30px;
+}
+
+.bookmark-list-icon .folder-visual {
+  width: 100%;
+  margin: 0;
+  filter: drop-shadow(0 3px 4px rgba(2, 8, 23, .25));
+}
+
+.bookmark-list-icon .folder-tab {
+  border-radius: 4px 4px 0 0;
+}
+
+.bookmark-list-icon .folder-body {
+  padding: 0;
+  border-radius: 5px;
 }
 
 .bookmark-list-copy {
@@ -125,6 +235,7 @@
 }
 
 @media (width < 600px) {
+  #floating-menu,
   #edit-toggle-mode,
   #folder-modal-edit-toggle,
   #grid-overlay {
@@ -133,9 +244,6 @@
 
   #workspace-toolbar {
     gap: 3px;
-    bottom: 0;
-    transform: translateX(-50%);
-    opacity: 1;
     max-width: calc(100vw - 16px);
   }
 

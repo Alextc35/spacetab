@@ -45,6 +45,98 @@ async function sideAction(page, id) {
   await page.locator(`#${id}`).click();
 }
 
+test('list search filters names, handles accents and spaces, and keeps keyboard navigation within results', async ({ page }) => {
+  await start(page, 430);
+  await page.evaluate(async () => {
+    const { getState, setState } = await import('/src/js/core/store.js');
+    const { data } = getState();
+    await setState({ data: { ...data, bookmarks: data.bookmarks.map(item => (
+      item.id === 'compact-2' ? { ...item, name: 'Café favorito' } : item
+    )) } });
+  });
+  const original = await data(page);
+  const search = page.getByRole('searchbox', { name: 'Search bookmarks and folders' });
+  const results = page.locator('#bookmark-container .bookmark-list-item:visible');
+  const empty = page.locator('.bookmark-list-empty');
+  await search.pressSequentially('cAFE favorito');
+  await expect(search).toHaveValue('cAFE favorito');
+  await expect(results).toHaveCount(1);
+  await expect(results.first()).toHaveAttribute('data-bookmark-id', 'compact-2');
+  await expect(page.locator('.modal:not(.hidden):visible')).toHaveCount(0);
+  await search.press('Escape');
+  await expect(search).toBeFocused();
+  await expect(results).toHaveCount(21);
+  await search.fill('gAmEs');
+  await expect(results).toHaveCount(1);
+  await results.getByRole('button').click();
+  await expect(page.locator('#folder-modal')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(search).toHaveValue('gAmEs');
+  await search.fill('does not exist');
+  await expect(results).toHaveCount(0);
+  await expect(empty).toHaveText('No results.');
+  await expect(empty).toBeVisible();
+  await page.getByRole('button', { name: 'Clear search', exact: true }).click();
+  await expect(search).toBeFocused();
+  await expect(results).toHaveCount(21);
+  await expect(empty).toBeHidden();
+  await search.fill(' Bookmark 1 ');
+  await expect(results).toHaveCount(10);
+  await search.evaluate(input => input.blur());
+  await page.keyboard.press('Tab');
+  const active = page.locator('#bookmark-container .is-keyboard-active');
+  await expect(active).toHaveAttribute('data-bookmark-id', 'compact-9');
+  await page.keyboard.press('ArrowDown');
+  await expect(active).toHaveAttribute('data-bookmark-id', 'compact-10');
+  await search.click();
+  await expect(active).toHaveCount(0);
+  await search.press('Tab');
+  await expect(page.getByRole('button', { name: 'Clear search', exact: true })).toBeFocused();
+  await page.keyboard.press('Space');
+  await expect(search).toHaveValue('');
+  expect(await data(page)).toEqual(original);
+});
+
+test('list search survives resizing and updates, follows the theme and language, and resets for another workspace', async ({ page }) => {
+  await start(page, 430);
+  const search = page.locator('#bookmark-list-search');
+  const results = page.locator('#bookmark-container .bookmark-list-item:visible');
+  await search.fill('Bookmark 20');
+  await search.press('ArrowLeft');
+  await page.evaluate(async () => {
+    const { getState, setState } = await import('/src/js/core/store.js');
+    const { data } = getState();
+    await setState({ data: { ...data, settings: { ...data.settings, interfaceTheme: 'light', language: 'es' } } });
+  });
+  await expect(search).toBeFocused();
+  expect(await search.evaluate(input => input.selectionStart)).toBe(10);
+  await expect(search).toHaveAttribute('placeholder', 'Buscar favoritos y carpetas');
+  await expect(search).toHaveAccessibleName('Buscar favoritos y carpetas');
+  await expect(page.locator('html')).toHaveAttribute('data-interface-theme', 'light');
+  for (const width of [599, 320]) {
+    await page.setViewportSize({ width, height: 720 });
+    await expect(results).toHaveCount(1);
+    await expect(search).toHaveValue('Bookmark 20');
+    await expect.poll(() => page.locator('#bookmark-viewport').evaluate(element => element.scrollWidth - element.clientWidth)).toBe(0);
+  }
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await expect(search).toHaveCount(0);
+  await expect(page.locator('#bookmark-container .bookmark')).toHaveCount(21);
+  await page.setViewportSize({ width: 430, height: 720 });
+  await expect(search).toHaveValue('Bookmark 20');
+  await expect(results).toHaveCount(1);
+  await page.evaluate(async () => {
+    const { getState, setState } = await import('/src/js/core/store.js');
+    const { data } = getState();
+    await setState({ data: { ...data, settings: { ...data.settings,
+      bookmarkGroups: [...data.settings.bookmarkGroups, { id: 'other-workspace', name: 'Other workspace' }],
+      activeBookmarkGroupId: 'other-workspace'
+    } } });
+  });
+  await expect(search).toHaveValue('');
+  await expect(results).toHaveCount(0);
+});
+
 test('keeps saved grid cells and styles immutable through grid, list and grid transitions', async ({ page }) => {
   await start(page);
   const original = await data(page);
@@ -62,7 +154,7 @@ test('keeps saved grid cells and styles immutable through grid, list and grid tr
     await expect(list.locator('.bookmark-list-item')).toHaveCount(21);
     await expect(list.locator('.bookmark-list-item').first()).toHaveAttribute('data-folder-id', 'compact-folder');
     await expect(list.locator('[data-bookmark-id="compact-0"] .bookmark-list-name')).toHaveText(original.bookmarks[0].name);
-    await expect(list.locator('[data-bookmark-id="compact-0"] .bookmark-list-icon img')).toBeVisible();
+    await expect(list.locator('[data-bookmark-id="compact-0"] .bookmark-list-icon img')).toHaveCount(0);
     await expect.poll(() => page.locator('#bookmark-viewport').evaluate(element => element.scrollWidth - element.clientWidth)).toBe(0);
     await expect(page.locator('#edit-toggle-mode')).toBeHidden();
   }
@@ -344,6 +436,44 @@ test('list navigation follows rows, scrolls and opens the selected bookmark', as
   await expect(page.getByRole('heading', { name: 'Opened bookmark' })).toBeVisible();
 });
 
+test('open folder icons shrink continuously through 720px until switching to a list', async ({ page }) => {
+  await start(page, 900);
+  const original = await data(page);
+  await page.locator('[data-folder-id="compact-folder"] .folder-open').click();
+  const grid = page.locator('#folder-modal-items');
+  await expect(grid).toBeVisible();
+  await page.locator('#folder-modal').evaluate(element => Promise.all(
+    element.getAnimations({ subtree: true }).map(animation => animation.finished)
+  ));
+  for (const editing of [false, true]) {
+    if (editing) await page.locator('#folder-modal-edit-toggle').click();
+    let previous = null;
+    for (const width of [900, 800, 722, 721, 720, 719, 700, 650, 601, 600]) {
+      await page.setViewportSize({ width, height: 720 });
+      await expect(grid).not.toHaveClass(/is-list-view/);
+      const size = await grid.evaluate(element => {
+        const { width, height } = element.querySelector('.bookmark-link > .bookmark-favicon').getBoundingClientRect();
+        return { width, height };
+      });
+      if (previous) {
+        for (const axis of ['width', 'height']) {
+          const decrease = previous.size[axis] - size[axis];
+          expect(decrease, `${axis} at ${width}px (editing: ${editing})`).toBeGreaterThanOrEqual(-0.1);
+          expect(decrease, `${axis} at ${width}px (editing: ${editing})`).toBeLessThan((previous.width - width) * .2 + .1);
+        }
+      }
+      previous = { width, size };
+    }
+    expect(previous.size.width).toBeGreaterThan(40);
+    expect(previous.size.width).toBeLessThan(58);
+  }
+  await page.locator('#folder-modal-edit-toggle').click();
+  await page.setViewportSize({ width: 599, height: 720 });
+  await expect(grid).toHaveClass(/is-list-view/);
+  await expect(grid.locator('.bookmark-list-item')).toHaveCount(3);
+  expect(await data(page)).toEqual(original);
+});
+
 test('folders also use readable lists and cannot enter editing in compact view', async ({ page }) => {
   await start(page, 430);
   const original = await data(page);
@@ -361,10 +491,12 @@ test('folders also use readable lists and cannot enter editing in compact view',
   expect(await data(page)).toEqual(original);
 });
 
-test('compact view blocks panels but allows them again at exactly 600px', async ({ page }) => {
+test('compact view hides unavailable tools and blocks shortcuts until exactly 600px', async ({ page }) => {
   await start(page, 599);
-  for (const id of ['settings', 'add-bookmark', 'add-folder']) {
-    await sideAction(page, id);
+  await page.mouse.move(5, 360);
+  await expect(page.locator('#floating-menu')).toBeHidden();
+  for (const key of ['.', 'Enter']) {
+    await page.keyboard.press(key);
     await expect(page.locator('.flash-error').last()).toHaveText('Widen the window to use this feature.');
     await expect(page.locator('.modal.is-open')).toHaveCount(0);
     await page.locator('#flash-container').evaluate(element => element.replaceChildren());
@@ -374,6 +506,7 @@ test('compact view blocks panels but allows them again at exactly 600px', async 
   await page.evaluate(async () => (await import('/src/js/ui/modals/bookmarkModal.js')).openEditBookmark('compact-1'));
   await expect(page.locator('#edit-bookmark-modal')).toBeHidden();
   await page.setViewportSize({ width: 600, height: 720 });
+  await expect(page.locator('#floating-menu')).toBeVisible();
   for (const [id, modal] of [['settings', '#settings-modal'], ['add-bookmark', '#edit-bookmark-modal'], ['add-folder', '#alert-modal']]) {
     await sideAction(page, id);
     await expect(page.locator(modal)).toBeVisible();
@@ -426,6 +559,7 @@ test('suspends settings drafts and restores their tab, scroll and appearance', a
   expect(await data(page)).toEqual(original);
 
   // A usable dialog can open while settings are suspended and retains its own focus.
+  await page.mouse.move(215, 715);
   await page.locator('#search-bookmarks').click();
   await page.locator('#search-modal-input').fill('Bookmark 2');
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -509,6 +643,7 @@ test('preserves a folder creation prompt without another prompt overwriting it',
   await page.setViewportSize({ width: 430, height: 720 });
   await expect(page.locator('#alert-modal')).toBeHidden();
   await page.keyboard.press('Enter');
+  await page.mouse.move(215, 715);
   await page.locator('#workspace-add').click();
   await expect(page.locator('#alert-modal')).toBeHidden();
   expect(await data(page)).toEqual(original);

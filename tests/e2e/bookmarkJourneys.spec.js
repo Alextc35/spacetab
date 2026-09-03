@@ -48,6 +48,7 @@ async function setBookmarkDragMode(page, mode) {
     await expect(page.locator('#settings-modal')).toBeHidden();
     return;
   }
+  await page.locator('#bookmark-drag-settings-title').click();
   await input.check();
   await page.locator('#settings-modal-save').click();
   await expect(page.locator('#settings-modal')).toBeHidden();

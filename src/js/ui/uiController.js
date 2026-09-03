@@ -84,12 +84,13 @@ async function toggleEditMode() {
 /**
  * Handles the Space key shortcut to toggle edit mode.
  *
- * Does nothing while a modal is open.
+ * Leaves typing and focused controls to their native keyboard behavior.
  *
  * @param {KeyboardEvent} event
  */
 function handleEditModeShortcut(event) {
-  if (hasOpenModal()) return;
+  if (event.defaultPrevented || hasOpenModal()
+    || event.target.closest?.('input, textarea, select, button, a, [contenteditable="true"]')) return;
 
   if (event.code === 'Space') {
     event.preventDefault();
