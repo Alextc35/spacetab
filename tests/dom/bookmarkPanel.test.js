@@ -123,9 +123,48 @@ describe('BookmarkEditorPanel', () => {
     }).getAttribute('src'));
 
     expect(faviconRequest.searchParams.get('url')).toBe('https://iberlogistics.com');
-    expect(subdomainRequest.searchParams.get('url')).toBe('https://app.example.com');
+    expect(subdomainRequest.searchParams.get('url')).toBe('https://example.com');
     expect(bookmark.url).toBe('https://www.iberlogistics.com/services');
   });
+
+  test.each([
+    ['https://app.web3forms.com/dashboard?tab=forms#settings', 'https://web3forms.com'],
+    ['http://app.example.co.uk:8080/dashboard', 'http://example.co.uk:8080']
+  ])('omits app. from the first favicon request for %s', (url, faviconOrigin) => {
+    const bookmark = { name: 'Web3Forms', url };
+    const favicon = createFavicon(bookmark);
+
+    expect(new URL(favicon.src).searchParams.get('url')).toBe(faviconOrigin);
+    expect(bookmark.url).toBe(url);
+
+    favicon.dispatchEvent(new Event('error'));
+
+    expect(favicon.src).toMatch(/^data:image\/svg\+xml,/);
+    expect(favicon.onerror).toBeNull();
+    const initialsSrc = favicon.src;
+    favicon.dispatchEvent(new Event('error'));
+    expect(favicon.src).toBe(initialsSrc);
+  });
+
+  test.each(['example.com', 'myapp.example.com', 'portal.app.example.com'])(
+    'uses initials after a failed favicon without stripping %s', hostname => {
+      const favicon = createFavicon({ name: 'Example', url: `https://${hostname}/dashboard` });
+
+      favicon.dispatchEvent(new Event('error'));
+
+      expect(favicon.src).toMatch(/^data:image\/svg\+xml,/);
+      expect(favicon.onerror).toBeNull();
+    }
+  );
+
+  test.each(['app.example.internal', 'app.example.local'])(
+    'uses initials without requesting a remote favicon for %s', hostname => {
+      const favicon = createFavicon({ name: 'Example', url: `https://${hostname}` });
+
+      expect(favicon.src).toMatch(/^data:image\/svg\+xml,/);
+      expect(favicon.onerror).toBeNull();
+    }
+  );
 });
 
 function createChromeMock() {

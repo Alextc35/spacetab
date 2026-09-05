@@ -3,8 +3,8 @@ import '../../types/types.js'; // typedefs
 /**
  * Creates a favicon image element for a bookmark.
  *
- * Attempts to fetch the site favicon. If it fails or the URL is internal,
- * generates a fallback image with the bookmark initials.
+ * Attempts to fetch the site favicon without a leading www. or app.
+ * If it fails or the URL is internal, uses the bookmark initials.
  *
  * @param {Bookmark} bookmark - Bookmark object
  * @param {Object} [options]
@@ -26,12 +26,12 @@ export function createFavicon(bookmark, { placeholderUrl = null } = {}) {
     isInternal = urlObj.hostname.endsWith('.internal') || urlObj.hostname.endsWith('.local');
     if (!isInternal) {
       const faviconOrigin = getFaviconOrigin(urlObj);
-      img.src =
-        `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(faviconOrigin)}&size=64`;
       img.onerror = () => {
         img.onerror = null;
         img.src = generateInitialsFallback(bookmark.name);
       };
+      img.src =
+        `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(faviconOrigin)}&size=64`;
     }
   } catch {
     img.src = generateInitialsFallback(bookmark.name);
@@ -43,15 +43,15 @@ export function createFavicon(bookmark, { placeholderUrl = null } = {}) {
 }
 
 /**
- * Uses the apex host for favicon discovery while preserving the bookmark URL.
- * Google can return a generic icon for a leading www host even when the apex
- * host has the correct favicon registered.
+ * Omits a leading www. or app. only for favicon discovery.
+ * Google can return a valid generic image even with HTTP 404, so an image error
+ * handler cannot reliably detect that these hosts need the parent site's icon.
  *
  * @param {URL} url
  * @returns {string}
  */
 function getFaviconOrigin(url) {
-  if (!url.hostname.startsWith('www.')) return url.origin;
+  if (!/^(www|app)\./.test(url.hostname)) return url.origin;
 
   const faviconUrl = new URL(url.origin);
   faviconUrl.hostname = faviconUrl.hostname.slice(4);
