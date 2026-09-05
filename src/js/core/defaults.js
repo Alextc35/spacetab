@@ -2,16 +2,21 @@ import '../types/types.js'; // typedefs
 import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
 
-export const DATA_SCHEMA_VERSION = 8;
+export const DATA_SCHEMA_VERSION = 9;
 
 /** Default appearance applied to new and legacy folders. */
 export const DEFAULT_FOLDER_STYLE = Object.freeze({
   noBackground: false,
   backgroundColor: '#38bdf8',
+  outerBackgroundColor: null,
   backgroundImageUrl: null,
   backgroundImageLocal: null,
   backgroundImageUrlLocked: false,
-  textColor: '#f8fafc'
+  textColor: '#f8fafc',
+  showFolder: true,
+  showPreviews: true,
+  showName: true,
+  showCount: true
 });
 
 /**

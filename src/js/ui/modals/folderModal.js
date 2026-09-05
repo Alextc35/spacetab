@@ -206,8 +206,10 @@ function renderFolderContents() {
   const contents = bookmarks.filter(bookmark => bookmark.folderId === folder.id);
   const layout = createFolderBookmarkLayout(contents);
   syncFolderEditUI();
-  customizeButton.replaceChildren(createFolderVisual(folder, [], { compact: true }));
-  applyFolderAppearance(customizeButton, folder);
+  // The customization action remains visible even when the launcher glyph is hidden.
+  const customizeAppearance = { ...folder, showFolder: true };
+  customizeButton.replaceChildren(createFolderVisual(customizeAppearance, [], { compact: true }));
+  applyFolderAppearance(customizeButton, customizeAppearance);
   if (!title.isContentEditable) title.textContent = folder.name;
   title.setAttribute('title', t('folder.actions.rename'));
   summary.textContent = t('folder.summary', {

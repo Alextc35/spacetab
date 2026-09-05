@@ -162,9 +162,28 @@
               class="modal-field edit-bookmark-modal-tab-content is-hidden custom-scrollbar"
               role="tabpanel">
               <div class="checkbox-wrapper">
+                <input id="folder-editor-show-folder" type="checkbox" checked>
+                <label for="folder-editor-show-folder"
+                  data-i18n="folder.editor.showFolder">Show folder icon</label>
+              </div>
+              <div class="checkbox-wrapper">
+                <input id="folder-editor-show-previews" type="checkbox" checked>
+                <label for="folder-editor-show-previews"
+                  data-i18n="folder.editor.showPreviews">Show bookmark previews</label>
+              </div>
+              <div class="edit-bookmark-modal-color-options">
+                <label for="folder-editor-outer-color"
+                  data-i18n="folder.editor.outerBackgroundColor">Outer background color:</label>
+                <div class="folder-outer-color-control">
+                  <input id="folder-editor-outer-color" type="color">
+                  <button id="folder-editor-outer-color-reset" class="btn btn-secondary"
+                    type="button" data-i18n="folder.editor.resetOuterBackground">Use default background</button>
+                </div>
+              </div>
+              <div class="checkbox-wrapper">
                 <input id="folder-editor-no-background" type="checkbox">
                 <label for="folder-editor-no-background"
-                  data-i18n="folder.editor.noBackground">No background</label>
+                  data-i18n="folder.editor.noBackground">Transparent folder fill</label>
               </div>
               <div class="edit-bookmark-modal-color-options">
                 <label for="folder-editor-color"
@@ -211,6 +230,16 @@
             <div id="folder-editor-panel-text"
               class="modal-field edit-bookmark-modal-tab-content is-hidden custom-scrollbar"
               role="tabpanel">
+              <div class="checkbox-wrapper">
+                <input id="folder-editor-show-name" type="checkbox" checked>
+                <label for="folder-editor-show-name"
+                  data-i18n="folder.editor.showName">Show folder name</label>
+              </div>
+              <div class="checkbox-wrapper">
+                <input id="folder-editor-show-count" type="checkbox" checked>
+                <label for="folder-editor-show-count"
+                  data-i18n="folder.editor.showCount">Show saved count</label>
+              </div>
               <div class="edit-bookmark-modal-color-options">
                 <label for="folder-editor-text-color"
                   data-i18n="folder.editor.textColor">Text color:</label>

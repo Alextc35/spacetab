@@ -24,6 +24,12 @@ migrated before entering the store. Schema 3 adds `folders` and the nullable
 `bookmark.folderId` reference; schema 0–2 data migrates with an empty folder
 collection.
 
+Schema 9 adds folder appearance controls: `outerBackgroundColor` is a nullable
+hex color, where null retains the automatic tile gradient. `showFolder`,
+`showPreviews`, `showName` and `showCount` default to true so existing folders
+keep their appearance. `normalizeFolderStyle()` disables previews whenever
+the folder graphic is hidden, including when importing or restoring data.
+
 `src/js/core/bookmark.js`, `src/js/core/bookmarkFolders.js` and
 `src/js/core/bookmarkGroups.js` implement application commands. Batch operations
 make one store transition, so undo treats them as a single user action.

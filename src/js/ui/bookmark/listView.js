@@ -1,7 +1,7 @@
 import { t } from '../../core/i18n.js';
 import { resolveBackgroundImage } from '../../core/localImages.js';
 import { createFavicon } from './favicon.js';
-import { createFolderVisual } from '../folder/visual.js';
+import { applyFolderAppearance, createFolderVisual } from '../folder/visual.js';
 
 /** A read-only launcher row. Display preferences never overwrite saved styles. */
 export function createListItem(item, { folder = false, count = 0, active = false, onOpen } = {}) {
@@ -9,11 +9,14 @@ export function createListItem(item, { folder = false, count = 0, active = false
   row.className = `bookmark bookmark-list-item${folder ? ' bookmark-folder' : ''}`;
   row.dataset[folder ? 'folderId' : 'bookmarkId'] = item.id;
   row.classList.toggle('is-keyboard-active', active);
+  if (folder) applyFolderAppearance(row, item);
 
   const link = document.createElement(folder ? 'button' : 'a');
   link.className = `bookmark-list-link ${folder ? 'folder-open' : 'bookmark-link'}`;
   if (folder) {
     link.type = 'button';
+    link.title = item.name;
+    link.setAttribute('aria-label', t('folder.open', { name: item.name, count }));
     link.addEventListener('click', onOpen);
   } else {
     link.href = item.url || '#';

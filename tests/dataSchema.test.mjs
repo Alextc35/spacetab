@@ -8,8 +8,50 @@ import {
   parseBackupPayload,
   parseBookmarksPayload
 } from '../src/js/core/dataSchema.js';
-import { DATA_SCHEMA_VERSION, DEFAULT_SETTINGS } from '../src/js/core/defaults.js';
+import { DATA_SCHEMA_VERSION, DEFAULT_FOLDER_STYLE, DEFAULT_SETTINGS } from '../src/js/core/defaults.js';
 import { BOOKMARK_DRAG_MODES } from '../src/js/core/bookmarkDragModes.js';
+
+test('migrates schema 8 folders without changing their saved appearance', () => {
+  const savedStyle = {
+    noBackground: true,
+    backgroundColor: '#ff3366',
+    backgroundImageUrl: 'https://images.test/folder.png',
+    backgroundImageUrlLocked: true,
+    textColor: '#ffeeaa'
+  };
+  const migrated = migratePersistedData({
+    schemaVersion: 8,
+    bookmarks: [],
+    folders: [{ id: 'legacy', name: 'Legacy', ...savedStyle }]
+  });
+  const folder = migrated.folders[0];
+  assert.equal(migrated.schemaVersion, DATA_SCHEMA_VERSION);
+  for (const [key, value] of Object.entries({ ...DEFAULT_FOLDER_STYLE, ...savedStyle })) {
+    assert.equal(folder[key], value);
+  }
+  assert.deepEqual(migratePersistedData(migrated), migrated);
+});
+
+test('preserves folder controls across backup and bookmarks-only exports', () => {
+  const data = migratePersistedData({
+    bookmarks: [{ id: 'saved', name: 'Saved', folderId: 'custom' }],
+    folders: [{
+      id: 'custom', name: 'Custom', outerBackgroundColor: '#ABCDEF',
+      showFolder: false, showPreviews: true, showName: false, showCount: false
+    }]
+  });
+  const folder = data.folders[0];
+  assert.equal(folder.outerBackgroundColor, '#abcdef');
+  assert.equal(folder.showFolder, false);
+  assert.equal(folder.showPreviews, false);
+  assert.equal(folder.showName, false);
+  assert.equal(folder.showCount, false);
+  assert.deepEqual(parseBackupPayload(createBackupEnvelope(data)), data);
+  assert.deepEqual(
+    parseBookmarksPayload(createBookmarksEnvelope(data.bookmarks, data.folders), data),
+    { bookmarks: data.bookmarks, folders: data.folders }
+  );
+});
 
 test('separates legacy local images from URLs across themes, bookmarks, folders and presets', () => {
   const reference = 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';

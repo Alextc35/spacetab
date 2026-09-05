@@ -36,10 +36,15 @@
  * @property {string|null} groupId
  * @property {boolean} noBackground
  * @property {string} backgroundColor
+ * @property {string|null} outerBackgroundColor Null keeps the automatic tile gradient.
  * @property {string|null} backgroundImageUrl
  * @property {string|null} backgroundImageLocal
  * @property {boolean} backgroundImageUrlLocked
  * @property {string} textColor
+ * @property {boolean} showFolder
+ * @property {boolean} showPreviews Always false when showFolder is false.
+ * @property {boolean} showName
+ * @property {boolean} showCount
  * @property {number} createdAt
  * @property {number} updatedAt
  */

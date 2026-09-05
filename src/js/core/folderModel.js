@@ -5,10 +5,15 @@ import { normalizeBackgroundImage } from './localImages.js';
 export const FOLDER_STYLE_KEYS = Object.freeze([
   'noBackground',
   'backgroundColor',
+  'outerBackgroundColor',
   'backgroundImageUrl',
   'backgroundImageLocal',
   'backgroundImageUrlLocked',
-  'textColor'
+  'textColor',
+  'showFolder',
+  'showPreviews',
+  'showName',
+  'showCount'
 ]);
 
 const IMAGE_PROTOCOLS = new Set(['http:', 'https:', 'data:']);
@@ -17,17 +22,25 @@ const IMAGE_PROTOCOLS = new Set(['http:', 'https:', 'data:']);
 export function normalizeFolderStyle(value = {}) {
   const source = value && typeof value === 'object' ? value : {};
   const image = normalizeBackgroundImage(source);
+  const showFolder = source.showFolder !== false;
   return {
     noBackground: source.noBackground === true,
     backgroundColor: isHexColor(source.backgroundColor)
       ? source.backgroundColor.toLowerCase()
       : DEFAULT_FOLDER_STYLE.backgroundColor,
+    outerBackgroundColor: isHexColor(source.outerBackgroundColor)
+      ? source.outerBackgroundColor.toLowerCase()
+      : DEFAULT_FOLDER_STYLE.outerBackgroundColor,
     ...image,
     backgroundImageUrlLocked: Boolean(image.backgroundImageUrl)
       && image.backgroundImageUrlLocked,
     textColor: isHexColor(source.textColor)
       ? source.textColor.toLowerCase()
-      : DEFAULT_FOLDER_STYLE.textColor
+      : DEFAULT_FOLDER_STYLE.textColor,
+    showFolder,
+    showPreviews: showFolder && source.showPreviews !== false,
+    showName: source.showName !== false,
+    showCount: source.showCount !== false
   };
 }
 

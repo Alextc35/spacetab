@@ -26,6 +26,13 @@ let modal;
 let nameInput;
 let noBackgroundInput;
 let colorInput;
+let outerColorInput;
+let outerColorResetButton;
+let outerBackgroundColor = null;
+let showFolderInput;
+let showPreviewsInput;
+let showNameInput;
+let showCountInput;
 let imageInput;
 let localImageInput;
 let imageUploadInput;
@@ -46,6 +53,12 @@ export function initFolderEditorModal() {
   nameInput = document.getElementById('folder-editor-name');
   noBackgroundInput = document.getElementById('folder-editor-no-background');
   colorInput = document.getElementById('folder-editor-color');
+  outerColorInput = document.getElementById('folder-editor-outer-color');
+  outerColorResetButton = document.getElementById('folder-editor-outer-color-reset');
+  showFolderInput = document.getElementById('folder-editor-show-folder');
+  showPreviewsInput = document.getElementById('folder-editor-show-previews');
+  showNameInput = document.getElementById('folder-editor-show-name');
+  showCountInput = document.getElementById('folder-editor-show-count');
   imageInput = document.getElementById('folder-editor-image');
   localImageInput = document.getElementById('folder-editor-image-local');
   imageUploadInput = document.getElementById('folder-editor-image-upload-input');
@@ -66,7 +79,20 @@ export function initFolderEditorModal() {
   for (const input of [nameInput, colorInput, textColorInput]) {
     input.addEventListener('input', handleInput);
   }
-  noBackgroundInput.addEventListener('change', handleInput);
+  for (const input of [
+    noBackgroundInput, showFolderInput, showPreviewsInput, showNameInput, showCountInput
+  ]) {
+    input.addEventListener('change', handleInput);
+  }
+  outerColorInput.addEventListener('input', () => {
+    outerBackgroundColor = outerColorInput.value;
+    handleInput();
+  });
+  outerColorResetButton.addEventListener('click', () => {
+    outerBackgroundColor = null;
+    outerColorInput.value = '#0f172a';
+    handleInput();
+  });
   imageController = createLockableInputController({
     input: imageInput,
     toggleBtn: document.getElementById('folder-editor-image-toggle'),
@@ -106,6 +132,12 @@ export function openFolderEditor(folderId) {
   nameInput.value = initialValue.name;
   noBackgroundInput.checked = initialValue.noBackground;
   colorInput.value = initialValue.backgroundColor;
+  outerBackgroundColor = initialValue.outerBackgroundColor;
+  outerColorInput.value = outerBackgroundColor || '#0f172a';
+  showFolderInput.checked = initialValue.showFolder;
+  showPreviewsInput.checked = initialValue.showPreviews;
+  showNameInput.checked = initialValue.showName;
+  showCountInput.checked = initialValue.showCount;
   setImageInputValue(imageInput, initialValue.backgroundImageUrl);
   setImageInputValue(localImageInput, initialValue.backgroundImageLocal);
   textColorInput.value = initialValue.textColor;
@@ -136,6 +168,11 @@ function currentValue() {
     name: nameInput.value,
     noBackground: noBackgroundInput.checked,
     backgroundColor: colorInput.value,
+    outerBackgroundColor,
+    showFolder: showFolderInput.checked,
+    showPreviews: showFolderInput.checked && showPreviewsInput.checked,
+    showName: showNameInput.checked,
+    showCount: showCountInput.checked,
     backgroundImageUrl: getImageInputValue(imageInput) || null,
     backgroundImageLocal: getImageInputValue(localImageInput) || null,
     backgroundImageUrlLocked: imageController?.isLocked() ?? false,
@@ -154,6 +191,11 @@ function isDirty() {
   return current.name !== initialValue.name
     || current.noBackground !== initialValue.noBackground
     || current.backgroundColor !== initialValue.backgroundColor
+    || current.outerBackgroundColor !== initialValue.outerBackgroundColor
+    || current.showFolder !== initialValue.showFolder
+    || current.showPreviews !== initialValue.showPreviews
+    || current.showName !== initialValue.showName
+    || current.showCount !== initialValue.showCount
     || current.backgroundImageUrl !== initialValue.backgroundImageUrl
     || current.backgroundImageLocal !== initialValue.backgroundImageLocal
     || current.backgroundImageUrlLocked !== initialValue.backgroundImageUrlLocked
@@ -162,6 +204,9 @@ function isDirty() {
 
 function syncStyleControls() {
   colorInput.disabled = noBackgroundInput.checked;
+  if (!showFolderInput.checked) showPreviewsInput.checked = false;
+  showPreviewsInput.disabled = !showFolderInput.checked;
+  outerColorResetButton.disabled = outerBackgroundColor === null;
 }
 
 function syncSaveButton() {
@@ -172,19 +217,23 @@ function syncSaveButton() {
 
 function renderPreview() {
   const folder = currentValue();
-  const count = getState().data.bookmarks.filter(
+  const bookmarks = getState().data.bookmarks.filter(
     bookmark => bookmark.folderId === activeFolderId
-  ).length;
+  );
+  const count = bookmarks.length;
+  const name = folder.name.trim() || t('folder.editor.previewName');
   const card = document.createElement('div');
   card.className = 'folder-editor-preview-card';
+  card.setAttribute('role', 'img');
+  card.setAttribute('aria-label', `${name}, ${t('folder.count', { count })}`);
   applyFolderAppearance(card, folder);
-  card.append(createFolderVisual(folder));
+  card.append(createFolderVisual(folder, bookmarks));
 
   const caption = document.createElement('span');
   caption.className = 'folder-caption';
   const title = document.createElement('span');
   title.className = 'folder-title';
-  title.textContent = folder.name.trim() || t('folder.editor.previewName');
+  title.textContent = name;
   const saved = document.createElement('span');
   saved.className = 'folder-count';
   saved.textContent = t('folder.count', { count });

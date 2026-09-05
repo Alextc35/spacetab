@@ -161,6 +161,44 @@ test('updates bookmark and folder rectangles atomically', async () => {
   );
 });
 
+test('saves folder visibility and outer color while keeping its identity', async () => {
+  await setState({ data: { bookmarks: [], folders: [] } });
+  const created = createBookmarkFolder('Reading', { columns: 1, rows: 1 });
+  const updated = updateBookmarkFolder(created.id, {
+    ...created,
+    outerBackgroundColor: '#AA2244',
+    showFolder: false,
+    showPreviews: true,
+    showName: false,
+    showCount: false
+  });
+  assert.equal(updated.id, created.id);
+  assert.equal(updated.name, 'Reading');
+  assert.equal(updated.outerBackgroundColor, '#aa2244');
+  assert.equal(updated.showFolder, false);
+  assert.equal(updated.showPreviews, false);
+  assert.equal(updated.showName, false);
+  assert.equal(updated.showCount, false);
+  assert.deepEqual(getState().data.folders[0], updated);
+
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(storedData.folders[0], updated);
+
+  const restored = updateBookmarkFolder(created.id, {
+    ...updated,
+    outerBackgroundColor: null,
+    showFolder: true,
+    showPreviews: true,
+    showName: true,
+    showCount: true
+  });
+  assert.equal(restored.outerBackgroundColor, null);
+  assert.equal(restored.showFolder, true);
+  assert.equal(restored.showPreviews, true);
+  assert.equal(restored.showName, true);
+  assert.equal(restored.showCount, true);
+});
+
 test('keeps a bookmark inside when the grid has no room to remove it', async () => {
   await setState({
     data: {

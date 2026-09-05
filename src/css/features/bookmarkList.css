@@ -149,6 +149,23 @@
   box-shadow: inset 3px 0 var(--ui-accent);
 }
 
+.bookmark-list-item.bookmark-folder.has-folder-outer-color {
+  background: var(--folder-outer-color);
+  color: var(--folder-text-color);
+}
+
+.bookmark-list-item.has-folder-outer-color .bookmark-list-detail,
+.bookmark-list-item.has-folder-outer-color .bookmark-list-arrow {
+  color: color-mix(in srgb, var(--folder-text-color) 72%, transparent);
+}
+
+.bookmark-list-item.is-folder-hidden .bookmark-list-icon,
+.bookmark-list-item.is-folder-name-hidden .bookmark-list-name,
+.bookmark-list-item.is-folder-count-hidden .bookmark-list-detail,
+.bookmark-list-item.is-folder-name-hidden.is-folder-count-hidden .bookmark-list-copy {
+  display: none;
+}
+
 .bookmark-list-item .bookmark-list-link {
   display: flex;
   flex-direction: row;
@@ -230,6 +247,7 @@
 
 .bookmark-list-arrow {
   flex: 0 0 auto;
+  margin-left: auto;
   color: var(--ui-muted);
   font-size: 24px;
 }

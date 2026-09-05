@@ -23,7 +23,10 @@
   /* Width changes scale the artwork; text sizes depend only on available height. */
   --folder-title-size: clamp(10px, 10cqh, 14px);
   --folder-count-size: clamp(8px, 8cqh, 11px);
-  --folder-caption-height: calc((var(--folder-title-size) + var(--folder-count-size)) * 1.2 + 2px);
+  --folder-title-height: calc(var(--folder-title-size) * 1.2);
+  --folder-count-height: calc(var(--folder-count-size) * 1.2);
+  --folder-caption-gap: 2px;
+  --folder-caption-height: calc(var(--folder-title-height) + var(--folder-count-height) + var(--folder-caption-gap));
   --folder-headroom: clamp(14px, calc(40cqh - 10px), 28px);
   --folder-content-gap: clamp(2px, 2cqh, 6px);
   --folder-art-height: max(0px,
@@ -53,6 +56,44 @@
 
 .bookmark-folder.is-single-cell .folder-visual {
   height: min(var(--folder-art-height), max(28px, calc(var(--folder-art-width) / 1.36)));
+}
+
+.bookmark-folder.has-folder-outer-color,
+.folder-editor-preview-card.has-folder-outer-color {
+  --folder-context-text: var(--folder-text-color);
+  background: var(--folder-outer-color);
+}
+
+.has-folder-outer-color .folder-count {
+  color: color-mix(in srgb, var(--folder-text-color) 72%, transparent);
+}
+
+.folder-visual.is-folder-hidden,
+.is-folder-hidden .folder-visual,
+.is-folder-preview-hidden .folder-previews,
+.is-folder-name-hidden .folder-title,
+.is-folder-count-hidden .folder-count,
+.is-folder-name-hidden.is-folder-count-hidden .folder-caption {
+  display: none;
+}
+
+.bookmark-folder.is-folder-name-hidden .folder-open {
+  --folder-title-height: 0px;
+  --folder-caption-gap: 0px;
+}
+
+.bookmark-folder.is-folder-count-hidden .folder-open {
+  --folder-count-height: 0px;
+  --folder-caption-gap: 0px;
+}
+
+.bookmark-folder.is-folder-name-hidden.is-folder-count-hidden .folder-open {
+  --folder-content-gap: 0px;
+}
+
+.bookmark-folder:not(.bookmark-list-item).is-folder-hidden .folder-open {
+  padding-top: 0;
+  justify-content: center;
 }
 
 .bookmark-folder .item-actions {
@@ -170,6 +211,9 @@
 
 .folder-visual.is-folder-transparent .folder-tab,
 .is-folder-transparent .folder-tab {
+  /* The rear tab ends at the front face instead of showing through it. */
+  height: 18%;
+  box-sizing: border-box;
   border-color: light-dark(#bfc0ca, rgba(255, 255, 255, .16));
   background: light-dark(rgba(100, 100, 120, .035), rgba(255, 255, 255, .035));
   box-shadow: inset 0 1px rgba(255, 255, 255, .1);
@@ -280,7 +324,7 @@
   width: 100%;
   min-width: 0;
   flex: 0 0 auto;
-  grid-template-rows: auto auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px;
   padding: 0;
   overflow: hidden;
@@ -760,6 +804,13 @@
   min-height: 0;
   flex: 1;
   flex-direction: column;
+}
+
+.folder-outer-color-control {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .modal-folder-editor > .modal-actions {
