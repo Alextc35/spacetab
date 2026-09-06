@@ -21,6 +21,7 @@ test('reports startup, actual quotas and persisted create/edit/delete timings', 
     .toBeGreaterThanOrEqual(initial.startup['JS start → UI ready (ms)']);
 
   await page.mouse.move(5, page.viewportSize().height / 2);
+  await page.locator('#add-toggle').click();
   await page.locator('#add-bookmark').click();
   await page.locator('#bookmark-modal-form-name').fill('Debug example');
   await page.locator('#bookmark-modal-form-url').fill('https://debug.internal');

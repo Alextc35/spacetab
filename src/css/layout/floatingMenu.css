@@ -32,7 +32,8 @@
   }
 
   &:hover,
-  &:focus-within {
+  &:focus-within,
+  &:has(#add-toggle[aria-expanded="true"]) {
     box-shadow: 12px 0 34px var(--ui-control-shadow);
     opacity: 1;
     transform: translate(0, -50%);
@@ -72,14 +73,59 @@
   background: rgba(37, 99, 235, .82);
 }
 
-#floating-menu #add-bookmark:hover {
+#floating-menu #add-toggle:hover,
+#floating-menu #add-toggle[aria-expanded="true"] {
   color: #fff;
   background: rgba(22, 163, 74, .82);
 }
 
-#floating-menu #add-folder:hover {
-  color: #fff;
-  background: rgba(14, 116, 144, .88);
+.floating-add {
+  position: relative;
+}
+
+#add-options {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 18px);
+  display: grid;
+  gap: 4px;
+  width: 164px;
+  padding: 6px;
+  border: 1px solid var(--ui-glass-border);
+  border-radius: 14px;
+  background: var(--ui-menu);
+  box-shadow: 0 12px 36px var(--ui-control-shadow);
+  transform: translateY(-50%);
+}
+
+#add-options[hidden] {
+  display: none;
+}
+
+#floating-menu #add-options button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ui-menu-text);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  transform: none;
+}
+
+#floating-menu #add-options button:hover,
+#floating-menu #add-options button:focus-visible {
+  background: var(--ui-glass-hover);
+}
+
+#add-options button span {
+  font-size: 16px;
 }
 
 #floating-menu #settings:hover {

@@ -42,6 +42,9 @@ async function data(page) {
 
 async function sideAction(page, id) {
   await page.mouse.move(5, page.viewportSize().height / 2);
+  if (id === 'add-bookmark' || id === 'add-folder') {
+    await page.locator('#add-toggle').click();
+  }
   await page.locator(`#${id}`).click();
 }
 

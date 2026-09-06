@@ -15,6 +15,7 @@ import { enableGridEditing, renderBookmarks } from './ui/bookmark/renderer.js';
 import { clearBookmarkSelection } from './ui/bookmark/selection.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
 import { initWorkspaceToolbar } from './ui/workspaceToolbar.js';
+import { initFloatingMenu } from './ui/floatingMenu.js';
 import { initBulkBookmarkActions } from './ui/bookmark/bulkActions.js';
 import { initBookmarkKeyboardMovement } from './ui/bookmark/keyboardMovement.js';
 import { initGridKeyboardNavigation } from './ui/bookmark/gridKeyboardNavigation.js';
@@ -69,6 +70,7 @@ async function initApp() {
   });
 
   initUI();
+  initFloatingMenu();
   initModals();
   initWorkspaceToolbar();
   initBulkBookmarkActions();
