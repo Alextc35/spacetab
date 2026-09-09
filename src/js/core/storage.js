@@ -1,5 +1,8 @@
 import '../types/types.js'; // typedefs
 import { migratePersistedData } from './dataSchema.js';
+import { mergeChanges } from './mergeChanges.js';
+import { findFirstFreeSlot, isAreaFree } from './grid.js';
+import { GRID_COLS, GRID_ROWS } from './config.js';
 import { DATA_SCHEMA_VERSION } from './defaults.js';
 import {
   DEVICE_IMAGE_SELECTIONS_KEY,
@@ -37,6 +40,7 @@ let syncCompatibility = null;
 
 /** @type {Set<() => void>} */
 const changeListeners = new Set();
+let lastCommit = null;
 
 /**
  * Converts callback-based chrome.storage calls into promises.
@@ -403,6 +407,11 @@ function writeData(mode, data) {
  */
 async function initialize() {
   if (initialized) return activeMode;
+  return withDeviceLock(initializeLocked);
+}
+
+async function initializeLocked() {
+  if (initialized) return activeMode;
 
   const result = await callStorage(
     chrome.storage.local,
@@ -440,9 +449,23 @@ async function initialize() {
       await callStorage(chrome.storage.local, 'remove', SYNC_COMPATIBILITY_KEY);
     }
   }
+  // Persist the initial IDs once: otherwise each new tab invents a different
+  // identity for the same starter bookmarks before the first user save.
+  if (activeMode === STORAGE_MODES.LOCAL && await readLocalData() === null) {
+    await writeLocalData(normalizePersistedData(null));
+  }
   initialized = true;
 
   return activeMode;
+}
+
+function withDeviceLock(operation) {
+  if (globalThis.navigator?.locks) {
+    return navigator.locks.request('spacetab-persistence', operation);
+  }
+  // Non-browser unit harnesses have no shared origin or other pages.
+  if (typeof window !== 'undefined') throw new Error('Web Locks are required to save safely.');
+  return operation();
 }
 
 /**
@@ -532,6 +555,31 @@ export const storage = {
   getSyncMetadata,
   getUsage: getStorageUsage,
   clearSyncData,
+
+  /** Serializes read/merge/write across pages of this extension on this device. */
+  async commit(base, next) {
+    await initialize();
+    const commit = async () => {
+      const latest = await storage.get(null);
+      // Reuse the canonical form of our previous write (including timestamps
+      // supplied by migration) when the caller still has its original draft.
+      const normalizedBase = lastCommit?.mode === activeMode
+        && JSON.stringify(lastCommit.input) === JSON.stringify(base)
+        ? lastCommit.data
+        : normalizePersistedData(base);
+      const normalizedNext = normalizePersistedData(next);
+      const data = mergeChanges(normalizedBase, normalizedNext, latest);
+      const rebased = JSON.stringify(latest) !== JSON.stringify(normalizedBase);
+      if (rebased) placeConcurrentAdditions(normalizedBase, latest, data);
+      await writeData(activeMode, data);
+      lastCommit = { input: structuredClone(next), data: structuredClone(data), mode: activeMode };
+      return {
+        data,
+        rebased
+      };
+    };
+    return withDeviceLock(commit);
+  },
 
   /** @returns {'local'|'sync'} */
   getMode() {
@@ -686,6 +734,26 @@ export const storage = {
     return () => changeListeners.delete(listener);
   }
 };
+
+/** Two tabs can reserve the same free cell before either one saves. */
+function placeConcurrentAdditions(base, latest, data) {
+  const previousIds = new Set([...base.bookmarks, ...base.folders, ...latest.bookmarks, ...latest.folders].map(item => item.id));
+  const items = [...data.folders, ...data.bookmarks.filter(bookmark => !bookmark.folderId)];
+  const occupied = items.filter(item => previousIds.has(item.id));
+  for (const item of items.filter(item => !previousIds.has(item.id))) {
+    const group = occupied.filter(other => (other.groupId ?? null) === (item.groupId ?? null));
+    if (!isAreaFree(group, item.gx, item.gy, item.w, item.h)) {
+      const position = findFirstFreeSlot(group, {
+        columns: GRID_COLS, rows: GRID_ROWS, w: item.w, h: item.h
+      });
+      // If the workspace filled concurrently, keep the record at its requested
+      // position rather than dropping user data. It remains available in search
+      // and List view even when another card occupies that grid cell.
+      if (position) Object.assign(item, position);
+    }
+    occupied.push(item);
+  }
+}
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === STORAGE_MODES.LOCAL && changes[DEVICE_IMAGE_SELECTIONS_KEY]) {

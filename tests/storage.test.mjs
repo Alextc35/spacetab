@@ -56,7 +56,7 @@ function createStorageArea(areaName) {
 }
 
 globalThis.chrome = {
-  runtime: { lastError: null },
+  runtime: { lastError: null, getManifest: () => ({ version: '0.13.0' }) },
   storage: {
     local: createStorageArea('local'),
     sync: createStorageArea('sync'),

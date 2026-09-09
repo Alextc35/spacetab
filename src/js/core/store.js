@@ -2,6 +2,7 @@ import '../types/types.js'; // typedefs
 import { debug, describeStateChange } from './debug.js';
 import { DEFAULT_STATE } from './defaults.js';
 import { storage, STORAGE_MODES } from './storage.js';
+import { mergeChanges } from './mergeChanges.js';
 
 /**
  * Global application state.
@@ -127,7 +128,12 @@ export async function setState(partial, { recordHistory = true, debugTrace } = {
           trace.mark('Queue wait');
           persistenceMode = storage.getMode();
           try {
-            await storage.set(dataToPersist);
+            const result = await storage.commit(prevState.data, dataToPersist);
+            if (result.rebased) {
+              // Keep operations queued locally since this snapshot was taken.
+              state.data = mergeChanges(dataToPersist, state.data, result.data);
+              clearBookmarkHistory();
+            }
           } finally {
             trace.mark('Storage write');
           }
@@ -401,7 +407,14 @@ function subscribeToStorageChanges() {
       pendingStorageChange = null;
 
       try {
+        // Never replace optimistic edits with an older storage event while a
+        // local commit is queued. Read again only after that queue has drained.
+        const queue = persistenceQueue;
+        await queue.catch(() => undefined);
         const persisted = await storage.get(null);
+        // Another edit may have started while the asynchronous read ran. Its
+        // storage event will refresh again after it finishes.
+        if (queue !== persistenceQueue) return;
         const dataChanged = replacePersistedData(persisted);
         if (dataChanged) debug.info('Data refreshed from storage', refreshChange);
 

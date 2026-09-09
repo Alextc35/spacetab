@@ -9,6 +9,7 @@
     "test:dom": "vitest run",
     "test:e2e": "playwright test",
     "test:extension": "node tests/extension-smoke.mjs",
+    "package:store": "python3 scripts/package-extension.py",
     "lint": "eslint .",
     "check": "npm run lint && npm test"
   },

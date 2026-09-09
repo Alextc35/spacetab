@@ -72,6 +72,7 @@ test('two devices choose and remove their own images while sharing the fallback 
     await openTheme(other);
     await other.locator('#settings-theme-bg-image').fill(updatedFallback);
     await other.locator('#settings-modal-save').click();
+    await expect(other.locator('#settings-modal')).toBeHidden();
     await receiveSync(page, await syncSnapshot(other));
     await expect.poll(() => page.evaluate(async () => {
       const { getState } = await import('/src/js/core/store.js');

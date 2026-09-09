@@ -300,11 +300,23 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-The optional unpacked-extension smoke test needs a Chromium-family executable:
+The unpacked-extension smoke test uses Playwright Chromium and a fresh temporary
+profile. It checks new-tab replacement and bookmark persistence after reload:
+
+```sh
+npm run test:extension
+```
+
+You can override the browser executable or test an extracted release ZIP:
 
 ```sh
 SPACETAB_BROWSER_PATH="/path/to/browser" npm run test:extension
+SPACETAB_EXTENSION_PATH="/path/to/extracted-release" npm run test:extension
 ```
+
+Create the Store ZIP with `npm run package:store` (Python 3 required). It includes
+runtime code, locales, icons and license, and excludes development dependencies,
+tests and demo media.
 
 Pull requests run lint, Node/Vitest tests and Playwright journeys through GitHub
 Actions. Read [CONTRIBUTING.md](CONTRIBUTING.md) before structural changes.
@@ -317,7 +329,7 @@ American Spanish (`es_419`) and Brazilian Portuguese (`pt_BR`) in
 
 ## Roadmap
 
-* Revision and conflict recovery for simultaneous synchronized edits
+* Revision and conflict recovery for simultaneous edits across devices
 * Additional theme controls and shareable preset packs
 * More import sources
 * Chrome Web Store packaging and release
@@ -326,9 +338,15 @@ American Spanish (`es_419`) and Brazilian Portuguese (`pt_BR`) in
 
 * No tracking or analytics
 * No SpaceTab-operated backend
-* Local mode stays inside the browser profile
+* Local mode saves workspace data inside the browser profile
 * Sync mode delegates storage and transport to the browser
 * The developer cannot access synchronized data
+* Displayed favicons request site origins from Google's favicon service
+* Remote images load from their hosts, including the initial example image
+* Uploaded image files and filenames stay local; JSON backups do not embed them
+
+Changes from tabs on the same device are combined before saving. This does not
+provide a distributed lock or guaranteed conflict recovery across devices.
 
 ## License
 

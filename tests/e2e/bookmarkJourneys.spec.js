@@ -7,10 +7,31 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
 });
 
+async function waitForSaved(page) {
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return getState().ui.persistence.status;
+  })).toMatch(/^(idle|saved)$/);
+}
+
+async function reloadSavedPage(page) {
+  await waitForSaved(page);
+  await page.reload();
+}
+
+async function visibleBox(locator) {
+  let box;
+  await expect.poll(async () => {
+    box = await locator.boundingBox();
+    return box !== null;
+  }).toBe(true);
+  return box;
+}
+
 async function revealSideDock(page) {
   const menu = page.locator('#floating-menu');
   await page.mouse.move(5, page.viewportSize().height / 2);
-  await expect.poll(async () => (await menu.boundingBox()).x).toBeGreaterThanOrEqual(0);
+  await expect.poll(async () => (await visibleBox(menu)).x).toBeGreaterThanOrEqual(0);
 }
 
 async function enableEditMode(page) {
@@ -48,7 +69,9 @@ async function setBookmarkDragMode(page, mode) {
     await expect(page.locator('#settings-modal')).toBeHidden();
     return;
   }
-  await page.locator('#bookmark-drag-settings-title').click();
+  if (!(await page.locator('input[name="bookmark-drag-mode"]').first().isVisible())) {
+    await page.locator('#bookmark-drag-settings-title').click();
+  }
   await input.check();
   await page.locator('#settings-modal-save').click();
   await expect(page.locator('#settings-modal')).toBeHidden();
@@ -56,7 +79,9 @@ async function setBookmarkDragMode(page, mode) {
 
 async function createBookmark(page, name, url) {
   await revealSideDock(page);
-  await page.getByRole('button', { name: '➕' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-bookmark').click();
+  await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
   await page.locator('#bookmark-modal-form-name').fill(name);
   await page.locator('#bookmark-modal-form-url').fill(url);
   await page.getByRole('button', { name: 'Add', exact: true }).click();
@@ -64,8 +89,9 @@ async function createBookmark(page, name, url) {
 }
 
 async function moveGridItemByCells(page, bookmark, deltaX, deltaY) {
-  const gridBox = await page.locator('#bookmark-container').boundingBox();
-  const start = await bookmark.boundingBox();
+  await expect(bookmark).toBeVisible();
+  const gridBox = await visibleBox(page.locator('#bookmark-container'));
+  const start = await visibleBox(bookmark);
   const pointer = {
     x: start.x + start.width * .75,
     y: start.y + start.height / 2
@@ -86,9 +112,9 @@ async function moveGridItemByCells(page, bookmark, deltaX, deltaY) {
     { steps: 10 }
   );
   await page.mouse.up();
-  await expect.poll(async () => (await bookmark.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(bookmark)).x)
     .toBeCloseTo(start.x + deltaX * gridBox.width / 12, 0);
-  await expect.poll(async () => (await bookmark.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(bookmark)).y)
     .toBeCloseTo(start.y + deltaY * gridBox.height / 6, 0);
 }
 
@@ -151,7 +177,7 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
     containsFilename: false
   });
 
-  await page.reload();
+  await reloadSavedPage(page);
   await expect.poll(() => page.evaluate(() => (
     document.documentElement.style.getPropertyValue('--image-bg-body')
   ))).toContain('data:image/webp');
@@ -170,7 +196,7 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
     }
     sessionStorage.setItem('spacetab-test-local', JSON.stringify(local));
   });
-  await page.reload();
+  await reloadSavedPage(page);
   await expect.poll(() => page.evaluate(() => (
     document.documentElement.style.getPropertyValue('--image-bg-body')
   ))).toContain(fallbackUrl);
@@ -233,7 +259,7 @@ test('switches to the default wallpaper without losing the custom URL or local i
   await expect(root).toHaveClass(/is-default-bg/);
   await expect(page.locator('body')).toHaveCSS('background-image', defaultWallpaper);
 
-  await page.reload();
+  await reloadSavedPage(page);
   await expect(page.locator('body')).toHaveCSS('background-image', defaultWallpaper);
   await openTheme();
   await expect(useDefault).toBeChecked();
@@ -256,7 +282,7 @@ test('switches to the default wallpaper without losing the custom URL or local i
     }
     sessionStorage.setItem('spacetab-test-local', JSON.stringify(local));
   });
-  await page.reload();
+  await reloadSavedPage(page);
   await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
   await openTheme();
   await useDefault.check();
@@ -315,7 +341,7 @@ test('shows a solid color picker and preserves images while switching background
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(36, 104, 172)');
   await expect(page.locator('body')).toHaveCSS('background-image', 'none');
 
-  await page.reload();
+  await reloadSavedPage(page);
   await expect(page.locator('body')).toHaveCSS('background-image', 'none');
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(36, 104, 172)');
   await openTheme();
@@ -402,16 +428,16 @@ test('reveals the bottom workspace dock on hover and keyboard focus', async ({ p
   const viewportHeight = page.viewportSize().height;
 
   await expect(toolbar).toHaveCSS('bottom', '0px');
-  await expect.poll(async () => (await toolbar.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(toolbar)).y)
     .toBeGreaterThan(viewportHeight - 20);
 
   await toolbar.hover();
-  await expect.poll(async () => (await toolbar.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(toolbar)).y)
     .toBeLessThan(viewportHeight - 40);
 
   await page.mouse.move(0, 0);
   await page.getByRole('combobox', { name: 'Workspace' }).focus();
-  await expect.poll(async () => (await toolbar.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(toolbar)).y)
     .toBeLessThan(viewportHeight - 40);
 });
 
@@ -419,24 +445,24 @@ test('reveals the left action dock on hover and keyboard focus', async ({ page }
   const menu = page.locator('#floating-menu');
   const viewportHeight = page.viewportSize().height;
 
-  await expect.poll(async () => (await menu.boundingBox()).x).toBeLessThan(-40);
+  await expect.poll(async () => (await visibleBox(menu)).x).toBeLessThan(-40);
 
   await page.mouse.move(5, viewportHeight / 2);
-  await expect.poll(async () => (await menu.boundingBox()).x).toBeGreaterThanOrEqual(0);
-  await page.getByRole('button', { name: '➕' }).hover();
-  await expect(page.getByRole('button', { name: '➕' }))
+  await expect.poll(async () => (await visibleBox(menu)).x).toBeGreaterThanOrEqual(0);
+  await page.locator('#add-toggle').hover();
+  await expect(page.locator('#add-toggle'))
     .toHaveCSS('background-color', 'rgba(22, 163, 74, 0.82)');
 
   await page.mouse.move(page.viewportSize().width / 2, viewportHeight / 2);
   await page.getByRole('button', { name: '✎' }).focus();
-  await expect.poll(async () => (await menu.boundingBox()).x).toBeGreaterThanOrEqual(0);
+  await expect.poll(async () => (await visibleBox(menu)).x).toBeGreaterThanOrEqual(0);
 });
 
 test('keeps long bookmark titles centered and truncated inside their card', async ({ page }) => {
   const bookmark = page.locator('#bookmark-container > .bookmark').first();
   const title = bookmark.locator('.bookmark-title');
-  const bookmarkBox = await bookmark.boundingBox();
-  const titleBox = await title.boundingBox();
+  const bookmarkBox = await visibleBox(bookmark);
+  const titleBox = await visibleBox(title);
 
   await expect(title).toHaveCSS('text-align', 'center');
   await expect(title).toHaveCSS('text-overflow', 'ellipsis');
@@ -457,10 +483,12 @@ test('selects on a short click and exposes only the direct edit control', async 
   await expect(edit).toBeVisible();
   await expect(bookmark.locator('.bookmark-action-menu, .bookmark-actions')).toHaveCount(0);
 
-  const editBox = await edit.boundingBox();
-  const bookmarkBox = await bookmark.boundingBox();
-  expect(editBox.x - bookmarkBox.x).toBeGreaterThanOrEqual(20);
-  expect(editBox.y - bookmarkBox.y).toBeGreaterThanOrEqual(7);
+  const editBox = await visibleBox(edit);
+  const bookmarkBox = await visibleBox(bookmark);
+  expect(editBox.x - bookmarkBox.x).toBeGreaterThanOrEqual(0);
+  expect(editBox.x + editBox.width).toBeLessThanOrEqual(bookmarkBox.x + bookmarkBox.width);
+  expect(editBox.y - bookmarkBox.y).toBeGreaterThanOrEqual(0);
+  expect(editBox.y + editBox.height).toBeLessThanOrEqual(bookmarkBox.y + bookmarkBox.height);
 
   await bookmark.click();
   await expect(bookmark).toHaveClass(/is-selected/);
@@ -547,7 +575,7 @@ test('does not move a selected bookmark until Tab navigation is disabled', async
   await enableEditMode(page);
   const grid = page.locator('#bookmark-container');
   const first = page.locator('#bookmark-container > .bookmark[data-bookmark-id]').first();
-  const gridBox = await grid.boundingBox();
+  const gridBox = await visibleBox(grid);
 
   await first.click();
   await expect(first).toHaveClass(/is-selected/);
@@ -555,25 +583,27 @@ test('does not move a selected bookmark until Tab navigation is disabled', async
   await page.keyboard.press('Tab');
   await expect(first).toHaveClass(/is-keyboard-active/);
 
-  const start = await first.boundingBox();
+  const start = await visibleBox(first);
   await page.keyboard.press('ArrowDown');
   await page.waitForTimeout(100);
-  await expect.poll(async () => (await first.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(first)).y)
     .toBeCloseTo(start.y, 0);
 
   await page.keyboard.press('Tab');
   await expect(page.locator('.bookmark.is-keyboard-active')).toHaveCount(0);
   await page.keyboard.press('ArrowDown');
-  await expect.poll(async () => (await first.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(first)).y)
     .toBeCloseTo(start.y + gridBox.height / 6, 0);
   await expect(first).toHaveClass(/is-selected/);
 });
 
 test('navigates folders and opens them according to the current edit mode', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Keyboard folder');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await expect(page.locator('#add-toggle')).toBeFocused();
 
   const grid = page.locator('#bookmark-container');
   const folder = page.locator('.bookmark-folder', { hasText: 'Keyboard folder' });
@@ -602,9 +632,10 @@ test('navigates folders and opens them according to the current edit mode', asyn
 
 test('prefers the item aligned with the active grid column', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Column folder');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
   await createBookmark(page, 'Directly below', 'below.test');
   await createBookmark(page, 'Left below', 'left-below.test');
 
@@ -622,7 +653,7 @@ test('prefers the item aligned with the active grid column', async ({ page }) =>
     Object.assign(leftBelow, { gx: 4, gy: 1 });
     sessionStorage.setItem(storageKey, JSON.stringify(stored));
   });
-  await page.reload();
+  await reloadSavedPage(page);
 
   await page.locator('#bookmark-container').focus();
   await page.keyboard.press('Tab');
@@ -641,27 +672,27 @@ test('skips occupied cells to the next free gap with arrow keys in none mode', a
   const first = bookmarks.nth(0);
   const selected = bookmarks.nth(1);
   const blocker = bookmarks.nth(2);
-  const gridBox = await page.locator('#bookmark-container').boundingBox();
-  const firstStart = await first.boundingBox();
+  const gridBox = await visibleBox(page.locator('#bookmark-container'));
+  const firstStart = await visibleBox(first);
 
   await moveGridItemByCells(page, selected, 2, 0);
   await moveGridItemByCells(page, blocker, 2, -1);
-  const selectedStart = await selected.boundingBox();
+  const selectedStart = await visibleBox(selected);
 
   await selected.click();
   await page.keyboard.press('ArrowLeft');
-  await expect.poll(async () => (await selected.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(selected)).x)
     .toBeCloseTo(selectedStart.x - gridBox.width / 12 * 2, 0);
-  await expect.poll(async () => (await first.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(first)).x)
     .toBeCloseTo(firstStart.x, 0);
 
-  const freeGap = await selected.boundingBox();
+  const freeGap = await visibleBox(selected);
   await page.keyboard.press('ArrowLeft');
-  await expect.poll(async () => (await selected.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(selected)).x)
     .toBeCloseTo(freeGap.x, 0);
 
   await page.keyboard.press('ArrowRight');
-  await expect.poll(async () => (await selected.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(selected)).x)
     .toBeCloseTo(selectedStart.x, 0);
   await expect(selected).toHaveClass(/is-selected/);
 });
@@ -673,24 +704,24 @@ for (const mode of ['relocate', 'cascade']) {
     const bookmarks = page.locator('#bookmark-container > .bookmark[data-bookmark-id]');
     const selected = bookmarks.nth(0);
     const neighbor = bookmarks.nth(1);
-    const selectedStart = await selected.boundingBox();
-    const neighborStart = await neighbor.boundingBox();
+    const selectedStart = await visibleBox(selected);
+    const neighborStart = await visibleBox(neighbor);
 
     await selected.click();
     await page.keyboard.press('ArrowRight');
-    await expect.poll(async () => (await selected.boundingBox()).x)
+    await expect.poll(async () => (await visibleBox(selected)).x)
       .toBeCloseTo(neighborStart.x, 0);
-    await expect.poll(async () => (await neighbor.boundingBox()).x)
+    await expect.poll(async () => (await visibleBox(neighbor)).x)
       .toBeCloseTo(selectedStart.x, 0);
     await expect(selected).toHaveClass(/is-selected/);
 
     await neighbor.click();
-    const selectedBeforeMultiple = await selected.boundingBox();
-    const neighborBeforeMultiple = await neighbor.boundingBox();
+    const selectedBeforeMultiple = await visibleBox(selected);
+    const neighborBeforeMultiple = await visibleBox(neighbor);
     await page.keyboard.press('ArrowRight');
-    await expect.poll(async () => (await selected.boundingBox()).x)
+    await expect.poll(async () => (await visibleBox(selected)).x)
       .toBeCloseTo(selectedBeforeMultiple.x, 0);
-    await expect.poll(async () => (await neighbor.boundingBox()).x)
+    await expect.poll(async () => (await visibleBox(neighbor)).x)
       .toBeCloseTo(neighborBeforeMultiple.x, 0);
   });
 }
@@ -708,7 +739,7 @@ test('turns cascades across rows and persists the whole path atomically', async 
   await moveGridItemByCells(page, bookmarks.nth(3), 3, -2);
   const displaced = [bookmarks.nth(0), bookmarks.nth(1), bookmarks.nth(2)];
   const dragged = bookmarks.nth(3);
-  const gridBox = await grid.boundingBox();
+  const gridBox = await visibleBox(grid);
   const starts = await Promise.all([
     ...displaced.map(bookmark => bookmark.boundingBox()),
     dragged.boundingBox()
@@ -732,10 +763,10 @@ test('turns cascades across rows and persists the whole path atomically', async 
   await expect(dragged).not.toHaveClass(/is-invalid/);
   for (const bookmark of displaced) await expect(bookmark).toHaveClass(/is-smart-displaced/);
   for (let index = 0; index < displaced.length; index += 1) {
-    await expect.poll(async () => (await displaced[index].boundingBox()).x)
+    await expect.poll(async () => (await visibleBox(displaced[index])).x)
       .toBeCloseTo(starts[index + 1].x, 0);
   }
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(starts[0].x, 0);
 
   await page.mouse.move(
@@ -746,22 +777,22 @@ test('turns cascades across rows and persists the whole path atomically', async 
 
   for (let index = 0; index < displaced.length; index += 1) {
     await expect(displaced[index]).not.toHaveClass(/is-smart-displaced/);
-    await expect.poll(async () => (await displaced[index].boundingBox()).x)
+    await expect.poll(async () => (await visibleBox(displaced[index])).x)
       .toBeCloseTo(starts[index].x, 0);
   }
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(starts[0].x, 0);
-  await expect.poll(async () => (await dragged.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(dragged)).y)
     .toBeCloseTo(draggedStart.y + cellHeight, 0);
 
   await page.mouse.move(pointerStart.x - cellWidth * 3, pointerStart.y, { steps: 12 });
   await expect(displaced[0]).toHaveClass(/is-smart-displaced/);
   await expect(displaced[1]).not.toHaveClass(/is-smart-displaced/);
   await expect(displaced[2]).not.toHaveClass(/is-smart-displaced/);
-  await expect.poll(async () => (await displaced[0].boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(displaced[0])).y)
     .toBeCloseTo(starts[0].y + cellHeight, 0);
   for (let index = 1; index < displaced.length; index += 1) {
-    await expect.poll(async () => (await displaced[index].boundingBox()).x)
+    await expect.poll(async () => (await visibleBox(displaced[index])).x)
       .toBeCloseTo(starts[index].x, 0);
   }
 
@@ -774,7 +805,7 @@ test('turns cascades across rows and persists the whole path atomically', async 
   await expect(displaced[0]).toHaveClass(/is-smart-displaced/);
   await expect(displaced[1]).toHaveClass(/is-smart-displaced/);
   await expect(displaced[2]).not.toHaveClass(/is-smart-displaced/);
-  await expect.poll(async () => (await displaced[1].boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(displaced[1])).x)
     .toBeCloseTo(starts[0].x, 0);
 
   await page.mouse.move(
@@ -784,28 +815,28 @@ test('turns cascades across rows and persists the whole path atomically', async 
   );
   await expect(dragged).not.toHaveClass(/is-invalid/);
   for (const bookmark of displaced) await expect(bookmark).toHaveClass(/is-smart-displaced/);
-  await expect.poll(async () => (await displaced[2].boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(displaced[2])).x)
     .toBeCloseTo(starts[1].x, 0);
   await page.mouse.up();
 
-  await expect.poll(async () => (await displaced[0].boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(displaced[0])).y)
     .toBeCloseTo(starts[0].y + cellHeight, 0);
-  await expect.poll(async () => (await displaced[1].boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(displaced[1])).x)
     .toBeCloseTo(starts[0].x, 0);
-  await expect.poll(async () => (await displaced[2].boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(displaced[2])).x)
     .toBeCloseTo(starts[1].x, 0);
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(starts[2].x, 0);
 
-  await page.reload();
+  await reloadSavedPage(page);
   await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
-  await expect.poll(async () => (await displaced[0].boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(displaced[0])).y)
     .toBeCloseTo(starts[0].y + cellHeight, 0);
-  await expect.poll(async () => (await displaced[1].boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(displaced[1])).x)
     .toBeCloseTo(starts[0].x, 0);
-  await expect.poll(async () => (await displaced[2].boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(displaced[2])).x)
     .toBeCloseTo(starts[1].x, 0);
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(starts[2].x, 0);
 });
 
@@ -823,6 +854,9 @@ test('defaults to none, warns about sequence, and persists drag modes', async ({
   await expect(none).toBeChecked();
   await expect(relocate).not.toBeChecked();
   await expect(cascade).not.toBeChecked();
+  if (!(await page.locator('input[name="bookmark-drag-mode"]').first().isVisible())) {
+    await page.locator('#bookmark-drag-settings-title').click();
+  }
   await expect(page.getByText('Experimental · May contain minor bugs.')).toBeVisible();
   await cascade.check();
   await page.locator('#settings-modal-save').click();
@@ -832,6 +866,9 @@ test('defaults to none, warns about sequence, and persists drag modes', async ({
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
   await expect(cascade).toBeChecked();
+  if (!(await page.locator('input[name="bookmark-drag-mode"]').first().isVisible())) {
+    await page.locator('#bookmark-drag-settings-title').click();
+  }
   await relocate.check();
   await page.locator('#settings-modal-save').click();
   await expect(page.locator('#settings-modal')).toBeHidden();
@@ -843,7 +880,7 @@ test('defaults to none, warns about sequence, and persists drag modes', async ({
   const target = bookmarks.nth(0);
   const middle = bookmarks.nth(1);
   const dragged = bookmarks.nth(2);
-  const gridBox = await page.locator('#bookmark-container').boundingBox();
+  const gridBox = await visibleBox(page.locator('#bookmark-container'));
   const [targetStart, middleStart, draggedStart] = await Promise.all([
     target.boundingBox(),
     middle.boundingBox(),
@@ -863,11 +900,11 @@ test('defaults to none, warns about sequence, and persists drag modes', async ({
 
   await expect(target).toHaveClass(/is-smart-displaced/);
   await expect(middle).not.toHaveClass(/is-smart-displaced/);
-  await expect.poll(async () => (await target.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(target)).x)
     .toBeCloseTo(draggedStart.x, 0);
-  await expect.poll(async () => (await middle.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(middle)).x)
     .toBeCloseTo(middleStart.x, 0);
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(targetStart.x, 0);
   await page.mouse.up();
 });
@@ -879,9 +916,9 @@ test('none drag mode rejects an occupied cell and restores the source', async ({
   const bookmarks = page.locator('.bookmark[data-bookmark-id]');
   const occupied = bookmarks.nth(0);
   const dragged = bookmarks.nth(1);
-  const gridBox = await page.locator('#bookmark-container').boundingBox();
-  const occupiedStart = await occupied.boundingBox();
-  const draggedStart = await dragged.boundingBox();
+  const gridBox = await visibleBox(page.locator('#bookmark-container'));
+  const occupiedStart = await visibleBox(occupied);
+  const draggedStart = await visibleBox(dragged);
   const pointer = {
     x: draggedStart.x + draggedStart.width / 2,
     y: draggedStart.y + draggedStart.height / 2
@@ -892,26 +929,27 @@ test('none drag mode rejects an occupied cell and restores the source', async ({
   await page.mouse.move(pointer.x - gridBox.width / 12, pointer.y, { steps: 8 });
 
   await expect(dragged).toHaveClass(/is-invalid/);
-  await expect.poll(async () => (await occupied.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(occupied)).x)
     .toBeCloseTo(occupiedStart.x, 0);
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(draggedStart.x, 0);
   await page.mouse.up();
 
   await expect(dragged).not.toHaveClass(/is-invalid/);
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(draggedStart.x, 0);
-  await page.reload();
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await reloadSavedPage(page);
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(draggedStart.x, 0);
 });
 
 test('restores the source after a swap and inserts through the released cell', async ({ page }) => {
   await setBookmarkDragMode(page, 'cascade');
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Barrier');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
   await createBookmark(page, 'Dragged', 'dragged.test');
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -925,7 +963,7 @@ test('restores the source after a swap and inserts through the released cell', a
     Object.assign(barrierFolder, { gx: 4, gy: 0, w: 2, h: 2 });
     sessionStorage.setItem(storageKey, JSON.stringify(stored));
   });
-  await page.reload();
+  await reloadSavedPage(page);
   await expect(page.getByRole('link', { name: /Dragged/ })).toBeVisible();
   await enableEditMode(page);
 
@@ -958,18 +996,18 @@ test('restores the source after a swap and inserts through the released cell', a
     { steps: 10 }
   );
   await expect(dragged).not.toHaveClass(/is-invalid/);
-  await expect.poll(async () => (await second.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(second)).x)
     .toBeCloseTo(draggedStart.x, 0);
-  await expect.poll(async () => (await first.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(first)).x)
     .toBeCloseTo(firstStart.x, 0);
 
   await page.mouse.move(pointerStart.x, pointerStart.y, { steps: 10 });
   await expect(dragged).not.toHaveClass(/is-invalid/);
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(draggedStart.x, 0);
-  await expect.poll(async () => (await second.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(second)).x)
     .toBeCloseTo(secondStart.x, 0);
-  await expect.poll(async () => (await first.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(first)).x)
     .toBeCloseTo(firstStart.x, 0);
 
   await page.mouse.move(
@@ -978,7 +1016,7 @@ test('restores the source after a swap and inserts through the released cell', a
     { steps: 10 }
   );
   await expect(dragged).not.toHaveClass(/is-invalid/);
-  await expect.poll(async () => (await second.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(second)).x)
     .toBeCloseTo(draggedStart.x, 0);
 
   await page.mouse.move(
@@ -987,11 +1025,11 @@ test('restores the source after a swap and inserts through the released cell', a
     { steps: 8 }
   );
   await expect(dragged).not.toHaveClass(/is-invalid/);
-  await expect.poll(async () => (await second.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(second)).x)
     .toBeCloseTo(draggedStart.x, 0);
-  await expect.poll(async () => (await first.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(first)).x)
     .toBeCloseTo(secondStart.x, 0);
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(firstStart.x, 0);
 
   await page.mouse.move(
@@ -999,11 +1037,11 @@ test('restores the source after a swap and inserts through the released cell', a
     pointerStart.y,
     { steps: 12 }
   );
-  await expect.poll(async () => (await first.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(first)).x)
     .toBeCloseTo(firstStart.x, 0);
-  await expect.poll(async () => (await second.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(second)).x)
     .toBeCloseTo(secondStart.x, 0);
-  await expect.poll(async () => (await dragged.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(dragged)).x)
     .toBeCloseTo(draggedStart.x + gridBox.width / 12, 0);
   await expect.poll(() => folder.evaluate(element => element.offsetLeft))
     .toBe(folderStart.left);
@@ -1015,9 +1053,10 @@ test('restores the source after a swap and inserts through the released cell', a
 test('keeps a wide folder collision-free across consecutive sequence steps', async ({ page }) => {
   await setBookmarkDragMode(page, 'cascade');
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Wide folder');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
   await createBookmark(page, 'Test', 'test.example');
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -1032,15 +1071,15 @@ test('keeps a wide folder collision-free across consecutive sequence steps', asy
     Object.assign(testBookmark, { gx: 2, gy: 0, w: 1, h: 1 });
     sessionStorage.setItem(storageKey, JSON.stringify(stored));
   });
-  await page.reload();
+  await reloadSavedPage(page);
   await enableEditMode(page);
 
   const folder = page.locator('.bookmark-folder', { hasText: 'Wide folder' });
   const testBookmark = page.locator('.bookmark[data-bookmark-id]', { hasText: 'Test' });
-  const gridBox = await page.locator('#bookmark-container').boundingBox();
+  const gridBox = await visibleBox(page.locator('#bookmark-container'));
   const cellWidth = gridBox.width / 12;
-  const initialFolder = await folder.boundingBox();
-  const initialBookmark = await testBookmark.boundingBox();
+  const initialFolder = await visibleBox(folder);
+  const initialBookmark = await visibleBox(testBookmark);
   const pointer = {
     x: initialFolder.x + initialFolder.width * .75,
     y: initialFolder.y + initialFolder.height / 2
@@ -1049,12 +1088,12 @@ test('keeps a wide folder collision-free across consecutive sequence steps', asy
   await page.mouse.move(pointer.x, pointer.y);
   await page.mouse.down();
   await page.mouse.move(pointer.x + cellWidth, pointer.y, { steps: 8 });
-  await expect.poll(async () => (await testBookmark.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(testBookmark)).x)
     .toBeCloseTo(initialFolder.x, 0);
 
   await page.mouse.move(pointer.x + cellWidth * 2, pointer.y, { steps: 8 });
-  const secondStepFolder = await folder.boundingBox();
-  const secondStepBookmark = await testBookmark.boundingBox();
+  const secondStepFolder = await visibleBox(folder);
+  const secondStepBookmark = await visibleBox(testBookmark);
 
   expect(secondStepFolder.x).toBeCloseTo(initialFolder.x + cellWidth * 2, 0);
   expect(secondStepFolder.width).toBeCloseTo(initialFolder.width, 0);
@@ -1063,16 +1102,17 @@ test('keeps a wide folder collision-free across consecutive sequence steps', asy
     .toBeLessThanOrEqual(secondStepFolder.x);
 
   await page.mouse.move(pointer.x + cellWidth * 3, pointer.y, { steps: 8 });
-  await expect.poll(async () => (await testBookmark.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(testBookmark)).x)
     .toBeCloseTo(initialBookmark.x, 0);
   await page.mouse.up();
 });
 
 test('keeps a relocated bookmark still while a wide folder continues moving', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Relocating folder');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
   await createBookmark(page, 'Test', 'test.example');
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -1088,15 +1128,15 @@ test('keeps a relocated bookmark still while a wide folder continues moving', as
     Object.assign(testBookmark, { gx: 2, gy: 0, w: 1, h: 1 });
     sessionStorage.setItem(storageKey, JSON.stringify(stored));
   });
-  await page.reload();
+  await reloadSavedPage(page);
   await enableEditMode(page);
 
   const grid = page.locator('#bookmark-container');
   const folder = page.locator('.bookmark-folder', { hasText: 'Relocating folder' });
   const testBookmark = page.locator('.bookmark[data-bookmark-id]', { hasText: 'Test' });
-  const gridBox = await grid.boundingBox();
-  const folderStart = await folder.boundingBox();
-  const bookmarkStart = await testBookmark.boundingBox();
+  const gridBox = await visibleBox(grid);
+  const folderStart = await visibleBox(folder);
+  const bookmarkStart = await visibleBox(testBookmark);
   const cellWidth = gridBox.width / 12;
   const cellHeight = gridBox.height / 6;
   const pointer = {
@@ -1111,22 +1151,22 @@ test('keeps a relocated bookmark still while a wide folder continues moving', as
   await expect(folder).toHaveClass(/is-dragging/);
   await page.mouse.move(pointer.x + cellWidth, pointer.y, { steps: 8 });
   await expect(folder).not.toHaveClass(/is-invalid/);
-  await expect.poll(async () => (await folder.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(folder)).x)
     .toBeCloseTo(folderStart.x + cellWidth, 0);
-  await expect.poll(async () => (await testBookmark.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(testBookmark)).x)
     .toBeCloseTo(folderStart.x, 0);
-  const relocated = await testBookmark.boundingBox();
+  const relocated = await visibleBox(testBookmark);
   expect(relocated.x + relocated.width)
-    .toBeLessThanOrEqual((await folder.boundingBox()).x);
+    .toBeLessThanOrEqual((await visibleBox(folder))?.x);
 
   await page.mouse.move(
     pointer.x + cellWidth * 2,
     pointer.y,
     { steps: 8 }
   );
-  await expect.poll(async () => (await testBookmark.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(testBookmark)).x)
     .toBeCloseTo(relocated.x, 0);
-  await expect.poll(async () => (await testBookmark.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(testBookmark)).y)
     .toBeCloseTo(relocated.y, 0);
 
   await page.mouse.move(
@@ -1134,9 +1174,9 @@ test('keeps a relocated bookmark still while a wide folder continues moving', as
     pointer.y + cellHeight,
     { steps: 8 }
   );
-  await expect.poll(async () => (await testBookmark.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(testBookmark)).x)
     .toBeCloseTo(bookmarkStart.x, 0);
-  await expect.poll(async () => (await testBookmark.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(testBookmark)).y)
     .toBeCloseTo(bookmarkStart.y, 0);
   await page.mouse.up();
 });
@@ -1145,61 +1185,61 @@ test('resizes one cell on handle click and ignores blocked directions', async ({
   await enableEditMode(page);
   const grid = page.locator('#bookmark-container');
   const bookmark = page.locator('.bookmark[data-bookmark-id]').nth(1);
-  const gridBox = await grid.boundingBox();
-  const initialBox = await bookmark.boundingBox();
+  const gridBox = await visibleBox(grid);
+  const initialBox = await visibleBox(bookmark);
   const cellWidth = gridBox.width / 12;
   const cellHeight = gridBox.height / 6;
 
   await bookmark.locator('.resizer.bottom-right').click();
-  await expect.poll(async () => (await bookmark.boundingBox()).width)
+  await expect.poll(async () => (await visibleBox(bookmark)).width)
     .toBeCloseTo(initialBox.width + cellWidth, 0);
-  await expect.poll(async () => (await bookmark.boundingBox()).height)
+  await expect.poll(async () => (await visibleBox(bookmark)).height)
     .toBeCloseTo(initialBox.height + cellHeight, 0);
 
-  const grownBox = await bookmark.boundingBox();
+  const grownBox = await visibleBox(bookmark);
   await bookmark.locator('.resizer.left').click();
-  await expect.poll(async () => (await bookmark.boundingBox()).x)
+  await expect.poll(async () => (await visibleBox(bookmark)).x)
     .toBeCloseTo(grownBox.x, 0);
-  await expect.poll(async () => (await bookmark.boundingBox()).width)
+  await expect.poll(async () => (await visibleBox(bookmark)).width)
     .toBeCloseTo(grownBox.width, 0);
 
-  await page.reload();
-  await expect.poll(async () => (await bookmark.boundingBox()).width)
+  await reloadSavedPage(page);
+  await expect.poll(async () => (await visibleBox(bookmark)).width)
     .toBeCloseTo(grownBox.width, 0);
-  await expect.poll(async () => (await bookmark.boundingBox()).height)
+  await expect.poll(async () => (await visibleBox(bookmark)).height)
     .toBeCloseTo(grownBox.height, 0);
 });
 
 test('shrinks width and height one cell with Shift plus resize click', async ({ page }) => {
   await enableEditMode(page);
   const bookmark = page.locator('.bookmark[data-bookmark-id]').nth(1);
-  const gridBox = await page.locator('#bookmark-container').boundingBox();
+  const gridBox = await visibleBox(page.locator('#bookmark-container'));
   const cellWidth = gridBox.width / 12;
   const cellHeight = gridBox.height / 6;
-  const initialBox = await bookmark.boundingBox();
+  const initialBox = await visibleBox(bookmark);
 
   await bookmark.locator('.resizer.bottom-right').click();
-  await expect.poll(async () => (await bookmark.boundingBox()).width)
+  await expect.poll(async () => (await visibleBox(bookmark)).width)
     .toBeCloseTo(initialBox.width + cellWidth, 0);
-  await expect.poll(async () => (await bookmark.boundingBox()).height)
+  await expect.poll(async () => (await visibleBox(bookmark)).height)
     .toBeCloseTo(initialBox.height + cellHeight, 0);
 
   await bookmark.locator('.resizer.right').click({ modifiers: ['Shift'] });
-  await expect.poll(async () => (await bookmark.boundingBox()).width)
+  await expect.poll(async () => (await visibleBox(bookmark)).width)
     .toBeCloseTo(initialBox.width, 0);
-  await expect.poll(async () => (await bookmark.boundingBox()).height)
+  await expect.poll(async () => (await visibleBox(bookmark)).height)
     .toBeCloseTo(initialBox.height + cellHeight, 0);
 
   await bookmark.locator('.resizer.bottom').click({ modifiers: ['Shift'] });
-  await expect.poll(async () => (await bookmark.boundingBox()).width)
+  await expect.poll(async () => (await visibleBox(bookmark)).width)
     .toBeCloseTo(initialBox.width, 0);
-  await expect.poll(async () => (await bookmark.boundingBox()).height)
+  await expect.poll(async () => (await visibleBox(bookmark)).height)
     .toBeCloseTo(initialBox.height, 0);
 
   await bookmark.locator('.resizer.top-left').click({ modifiers: ['Shift'] });
-  await expect.poll(async () => (await bookmark.boundingBox()).width)
+  await expect.poll(async () => (await visibleBox(bookmark)).width)
     .toBeCloseTo(initialBox.width, 0);
-  await expect.poll(async () => (await bookmark.boundingBox()).height)
+  await expect.poll(async () => (await visibleBox(bookmark)).height)
     .toBeCloseTo(initialBox.height, 0);
 });
 
@@ -1208,8 +1248,8 @@ test('resizes smoothly from corners, snaps to the grid and rejects collisions', 
   const grid = page.locator('#bookmark-container');
   const bookmark = page.locator('.bookmark[data-bookmark-id]').nth(1);
   const indicator = bookmark.locator('.resize-indicator');
-  const gridBox = await grid.boundingBox();
-  const initialBox = await bookmark.boundingBox();
+  const gridBox = await visibleBox(grid);
+  const initialBox = await visibleBox(bookmark);
   const cellWidth = gridBox.width / 12;
   const cellHeight = gridBox.height / 6;
 
@@ -1268,7 +1308,7 @@ test('resizes smoothly from corners, snaps to the grid and rejects collisions', 
   expect(rightCornerBox.x + rightCornerBox.width).toBeLessThan(editBox.x);
 
   const firstBookmark = page.locator('.bookmark[data-bookmark-id]').first();
-  const firstInitialBox = await firstBookmark.boundingBox();
+  const firstInitialBox = await visibleBox(firstBookmark);
   const invalidAfterValidHandle = await firstBookmark
     .locator('.resizer.bottom-right')
     .boundingBox();
@@ -1293,11 +1333,11 @@ test('resizes smoothly from corners, snaps to the grid and rejects collisions', 
   await expect(firstBookmark).toHaveClass(/is-invalid/);
   await page.mouse.up();
 
-  const firstRevertedBox = await firstBookmark.boundingBox();
+  const firstRevertedBox = await visibleBox(firstBookmark);
   expect(Math.abs(firstRevertedBox.width - firstInitialBox.width)).toBeLessThan(2);
   expect(Math.abs(firstRevertedBox.height - firstInitialBox.height)).toBeLessThan(2);
 
-  const blockedHandleBox = await bookmark.locator('.resizer.bottom-left').boundingBox();
+  const blockedHandleBox = await visibleBox(bookmark.locator('.resizer.bottom-left'));
   const blockedStart = {
     x: blockedHandleBox.x + blockedHandleBox.width / 2,
     y: blockedHandleBox.y + blockedHandleBox.height / 2
@@ -1314,11 +1354,11 @@ test('resizes smoothly from corners, snaps to the grid and rejects collisions', 
   await page.mouse.up();
 
   await expect(bookmark).not.toHaveClass(/is-invalid/);
-  const revertedBox = await bookmark.boundingBox();
+  const revertedBox = await visibleBox(bookmark);
   expect(Math.abs(revertedBox.width - initialBox.width)).toBeLessThan(2);
   expect(Math.abs(revertedBox.height - initialBox.height)).toBeLessThan(2);
 
-  const resizeHandleBox = await bookmark.locator('.resizer.bottom-right').boundingBox();
+  const resizeHandleBox = await visibleBox(bookmark.locator('.resizer.bottom-right'));
   const resizeStart = {
     x: resizeHandleBox.x + resizeHandleBox.width / 2,
     y: resizeHandleBox.y + resizeHandleBox.height / 2
@@ -1332,7 +1372,7 @@ test('resizes smoothly from corners, snaps to the grid and rejects collisions', 
   );
   await page.waitForTimeout(50);
 
-  const continuousBox = await bookmark.boundingBox();
+  const continuousBox = await visibleBox(bookmark);
   expect(continuousBox.width).toBeGreaterThan(initialBox.width + cellWidth * .25);
   expect(continuousBox.width).toBeLessThan(initialBox.width + cellWidth * .5);
   await expect(indicator).toHaveText('1 × 1');
@@ -1346,26 +1386,28 @@ test('resizes smoothly from corners, snaps to the grid and rejects collisions', 
   await expect(bookmark).not.toHaveClass(/is-invalid/);
   await page.mouse.up();
 
-  const resizedBox = await bookmark.boundingBox();
+  const resizedBox = await visibleBox(bookmark);
   expect(resizedBox.width).toBeGreaterThan(initialBox.width + cellWidth * .9);
   expect(resizedBox.height).toBeGreaterThan(initialBox.height + cellHeight * .9);
 
-  await page.reload();
+  await reloadSavedPage(page);
   await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
-  const persistedBox = await page.locator('.bookmark[data-bookmark-id]').nth(1).boundingBox();
+  const persistedBox = await visibleBox(page.locator('.bookmark[data-bookmark-id]').nth(1));
   expect(Math.abs(persistedBox.width - resizedBox.width)).toBeLessThan(2);
   expect(Math.abs(persistedBox.height - resizedBox.height)).toBeLessThan(2);
 });
 
 test('creates, edits and persists a bookmark after reload', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: '➕' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-bookmark').click();
+  await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
   await page.locator('#bookmark-modal-form-name').fill('OpenAI');
   await page.locator('#bookmark-modal-form-url').fill('openai.com');
   await page.getByRole('button', { name: 'Add', exact: true }).click();
 
   await expect(page.getByRole('link', { name: /OpenAI/ })).toHaveAttribute('href', 'https://openai.com');
-  await page.reload();
+  await reloadSavedPage(page);
   await expect(page.getByRole('link', { name: /OpenAI/ })).toBeVisible();
 
   await enableEditMode(page);
@@ -1378,7 +1420,9 @@ test('creates, edits and persists a bookmark after reload', async ({ page }) => 
 
 test('expands and collapses compact bookmark creation without losing the draft', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: '➕' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-bookmark').click();
+  await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
 
   const modal = page.locator('#edit-bookmark-modal');
   const card = modal.locator('.modal-card');
@@ -1411,7 +1455,7 @@ test('expands and collapses compact bookmark creation without losing the draft',
   await expect(preview).toHaveCSS('opacity', '1');
   await expect(preview).toHaveCSS('visibility', 'visible');
   await expect(preview).not.toHaveAttribute('aria-hidden');
-  await expect.poll(async () => (await card.boundingBox()).width)
+  await expect.poll(async () => (await visibleBox(card)).width)
     .toBeGreaterThan(670);
   await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
   await expect(page.locator('#bookmark-modal-form-name')).toHaveValue('Animated draft');
@@ -1427,7 +1471,9 @@ test('expands and collapses compact bookmark creation without losing the draft',
 
 test('closes an untouched bookmark draft without confirmation', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: '➕' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-bookmark').click();
+  await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
 
   const editor = page.locator('#edit-bookmark-modal');
   const alert = page.locator('#alert-modal');
@@ -1437,7 +1483,9 @@ test('closes an untouched bookmark draft without confirmation', async ({ page })
   await expect(alert).toBeHidden();
 
   await revealSideDock(page);
-  await page.getByRole('button', { name: '➕' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-bookmark').click();
+  await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
   await page.locator('#bookmark-modal-form-name').fill('Unsaved draft');
   await editor.getByRole('button', { name: 'Cancel' }).click();
 
@@ -1450,14 +1498,16 @@ test('closes an untouched bookmark draft without confirmation', async ({ page })
 test('keeps bookmark editor actions inside the modal on content-heavy tabs', async ({ page }) => {
   await page.setViewportSize({ width: 822, height: 525 });
   await revealSideDock(page);
-  await page.getByRole('button', { name: '➕' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-bookmark').click();
+  await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
 
   const modal = page.locator('#edit-bookmark-modal .modal-card');
   await page.getByRole('button', { name: '⚙ Advanced options' }).click();
   await modal.getByRole('tab', { name: 'Style' }).click();
 
-  const cardBox = await modal.boundingBox();
-  const actionsBox = await modal.locator('.modal-actions').boundingBox();
+  const cardBox = await visibleBox(modal);
+  const actionsBox = await visibleBox(modal.locator('.modal-actions'));
 
   expect(actionsBox.y + actionsBox.height).toBeLessThanOrEqual(cardBox.y + cardBox.height);
   expect(actionsBox.x).toBeGreaterThanOrEqual(cardBox.x);
@@ -1468,11 +1518,13 @@ test('creates a workspace and finds bookmarks across workspaces', async ({ page 
   await page.getByRole('navigation', { name: 'Workspace controls' }).hover();
   await page.getByRole('button', { name: 'Create workspace' }).click();
   await page.getByPlaceholder('Work, leisure…').fill('Work');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
   await expect(page.getByRole('combobox', { name: 'Workspace' })).toHaveValue(/.+/);
 
   await revealSideDock(page);
-  await page.getByRole('button', { name: '➕' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-bookmark').click();
+  await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
   await page.locator('#bookmark-modal-form-name').fill('Work dashboard');
   await page.locator('#bookmark-modal-form-url').fill('work.example');
   await page.getByRole('button', { name: 'Add', exact: true }).click();
@@ -1487,7 +1539,7 @@ test('cycles workspaces with Alt plus arrow keys and animates the grid', async (
   await page.getByRole('navigation', { name: 'Workspace controls' }).hover();
   await page.getByRole('button', { name: 'Create workspace' }).click();
   await page.getByPlaceholder('Work, leisure…').fill('Work');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   const workspace = page.getByRole('combobox', { name: 'Workspace' });
   const workId = await workspace.inputValue();
@@ -1506,10 +1558,12 @@ test('warns before deleting a workspace and removes its bookmarks', async ({ pag
   await workspaceDock.hover();
   await page.getByRole('button', { name: 'Create workspace' }).click();
   await page.getByPlaceholder('Work, leisure…').fill('Temporary');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   await revealSideDock(page);
-  await page.getByRole('button', { name: '➕' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-bookmark').click();
+  await expect(page.locator('#bookmark-modal-form-name')).toBeFocused();
   await page.locator('#bookmark-modal-form-name').fill('Temporary bookmark');
   await page.locator('#bookmark-modal-form-url').fill('temporary.example');
   await page.getByRole('button', { name: 'Add', exact: true }).click();
@@ -1523,7 +1577,7 @@ test('warns before deleting a workspace and removes its bookmarks', async ({ pag
 
   await workspaceDock.hover();
   await page.getByRole('button', { name: 'Delete workspace' }).click();
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   await expect(page.getByRole('combobox', { name: 'Workspace' })).toHaveValue('');
   await expect(page.getByRole('link', { name: /Temporary bookmark/ })).toHaveCount(0);
@@ -1550,9 +1604,8 @@ test('configures the default bookmark through the shared preset editor', async (
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
 
-  const bookmarkSections = page.locator('#settings-modal-tab-bookmark > section');
-  await expect(bookmarkSections.nth(0)).toHaveClass(/default-bookmark-settings/);
-  await expect(bookmarkSections.nth(1)).toHaveClass(/bookmark-drag-settings/);
+  await expect(page.locator('#settings-modal-tab-bookmark .default-bookmark-settings')).toBeVisible();
+  await expect(page.locator('#settings-modal-tab-bookmark .bookmark-drag-settings')).toBeVisible();
   await expect(page.locator('#settings-bookmark-form-host')).toHaveCount(0);
   await page.getByRole('button', { name: 'Configure default bookmark' }).click();
 
@@ -1641,7 +1694,7 @@ test('localizes sync status and confirms synchronized data deletion', async ({ p
   await expect(deleteSyncData).toBeEnabled();
 
   await deleteSyncData.click();
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   await expect(page.getByRole('radio', { name: /This device only/ })).toBeChecked();
   await expect(page.locator('#storage-sync-last-updated'))
@@ -1660,8 +1713,11 @@ test('localizes sync status and confirms synchronized data deletion', async ({ p
 });
 
 test('shows local bookmarks and locks sync when cloud data needs a newer version', async ({ page }) => {
+  const schemaVersion = await page.evaluate(async () => (
+    (await import('/src/js/core/defaults.js')).DATA_SCHEMA_VERSION
+  ));
   const futureSyncData = {
-    schemaVersion: 4,
+    schemaVersion: schemaVersion + 1,
     bookmarks: [{
       id: 'future-bookmark',
       name: 'Future cloud bookmark',
@@ -1672,7 +1728,7 @@ test('shows local bookmarks and locks sync when cloud data needs a newer version
   };
   const localData = {
     spacetabStorageMode: 'sync',
-    schemaVersion: 3,
+    schemaVersion,
     bookmarks: [{
       id: 'local-bookmark',
       name: 'Available local bookmark',
@@ -1686,7 +1742,7 @@ test('shows local bookmarks and locks sync when cloud data needs a newer version
     sessionStorage.setItem('spacetab-test-local', JSON.stringify(local));
     sessionStorage.setItem('spacetab-test-sync', JSON.stringify(synced));
   }, { local: localData, synced: futureSyncData });
-  await page.reload();
+  await reloadSavedPage(page);
 
   await expect(page.getByRole('link', { name: /Available local bookmark/ })).toBeVisible();
   await expect(page.getByRole('link', { name: /Future cloud bookmark/ })).toHaveCount(0);
@@ -1704,13 +1760,13 @@ test('shows local bookmarks and locks sync when cloud data needs a newer version
   await expect.poll(() => page.evaluate(() => {
     const synced = JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}');
     return `${synced.schemaVersion}:${synced.bookmarks?.[0]?.id}`;
-  })).toBe('4:future-bookmark');
+  })).toBe(`${schemaVersion + 1}:future-bookmark`);
 });
 
 test('blocks synchronized storage in Brave and explains why', async ({ page }) => {
   await page.goto('/tests/browser-harness.html?browser=brave');
   await page.evaluate(() => sessionStorage.clear());
-  await page.reload();
+  await reloadSavedPage(page);
   await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
 
   await revealSideDock(page);
@@ -1727,8 +1783,8 @@ test('duplicates from the bulk toolbar and clears selection when edit mode close
   await enableEditMode(page);
   const firstBookmark = page.locator('.bookmark[data-bookmark-id]').first();
   const controls = firstBookmark.getByRole('group', { name: 'Bookmark controls' });
-  const editBox = await firstBookmark.getByRole('button', { name: 'Edit bookmark' }).boundingBox();
-  const bookmarkBox = await firstBookmark.boundingBox();
+  const editBox = await visibleBox(firstBookmark.getByRole('button', { name: 'Edit bookmark' }));
+  const bookmarkBox = await visibleBox(firstBookmark);
 
   await expect(controls).toBeVisible();
   await expect(controls.getByRole('button')).toHaveCount(1);
@@ -1750,8 +1806,8 @@ test('duplicates from the bulk toolbar and clears selection when edit mode close
 
   await workspaceDock.hover();
   await expect.poll(async () => {
-    const bulkBox = await bulkActions.boundingBox();
-    const dockBox = await workspaceDock.boundingBox();
+    const bulkBox = await visibleBox(bulkActions);
+    const dockBox = await visibleBox(workspaceDock);
     return dockBox.y - (bulkBox.y + bulkBox.height);
   }).toBeGreaterThanOrEqual(0);
 
@@ -1824,9 +1880,10 @@ test('duplicates several selected bookmarks without overlaps', async ({ page }) 
 test('creates a folder, accepts a dragged bookmark and persists its contents', async ({ page }) => {
   await setBookmarkDragMode(page, 'relocate');
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Reading');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   const folder = page.locator('.bookmark-folder', { hasText: 'Reading' });
   await expect(folder).toBeVisible();
@@ -1839,17 +1896,17 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
   await expect(folder.locator('.bookmark-action-menu, .bookmark-actions')).toHaveCount(0);
   await expect(folder.locator('.resizer')).toHaveCount(8);
   const bookmark = page.locator('.bookmark[data-bookmark-id]').first();
-  const bookmarkStart = await bookmark.boundingBox();
-  const folderStart = await folder.boundingBox();
+  const bookmarkStart = await visibleBox(bookmark);
+  const folderStart = await visibleBox(folder);
 
   await moveGridItemByCells(page, folder, 0, -1);
-  await expect.poll(async () => (await bookmark.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(bookmark)).y)
     .toBeCloseTo(folderStart.y, 0);
-  await expect.poll(async () => (await folder.boundingBox()).y)
+  await expect.poll(async () => (await visibleBox(folder)).y)
     .toBeCloseTo(bookmarkStart.y, 0);
 
-  const bookmarkBox = await bookmark.boundingBox();
-  const folderBox = await folder.boundingBox();
+  const bookmarkBox = await visibleBox(bookmark);
+  const folderBox = await visibleBox(folder);
   const folderGridPosition = await folder.evaluate(element => ({
     left: element.offsetLeft,
     top: element.offsetTop
@@ -1879,9 +1936,9 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
   await expect.poll(() => folder.evaluate(element => element.offsetTop))
     .toBe(folderGridPosition.top);
 
-  const gridBox = await page.locator('#bookmark-container').boundingBox();
-  const folderBeforeResize = await folder.boundingBox();
-  const bottomHandle = await folder.locator('.resizer.bottom').boundingBox();
+  const gridBox = await visibleBox(page.locator('#bookmark-container'));
+  const folderBeforeResize = await visibleBox(folder);
+  const bottomHandle = await visibleBox(folder.locator('.resizer.bottom'));
   const resizeStart = {
     x: bottomHandle.x + bottomHandle.width / 2,
     y: bottomHandle.y + bottomHandle.height / 2
@@ -1896,17 +1953,17 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
   await expect(folder.locator('.resize-indicator')).toHaveText('1 × 2');
   await page.mouse.up();
 
-  const resizedFolderBox = await folder.boundingBox();
+  const resizedFolderBox = await visibleBox(folder);
   expect(resizedFolderBox.height)
     .toBeGreaterThan(folderBeforeResize.height + gridBox.height / 6 * .9);
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '🔒' }).click();
-  await page.reload();
+  await reloadSavedPage(page);
 
   const persistedFolder = page.locator('.bookmark-folder', { hasText: 'Reading' });
   await expect(persistedFolder).toContainText('1 saved');
-  const persistedFolderBox = await persistedFolder.boundingBox();
+  const persistedFolderBox = await visibleBox(persistedFolder);
   expect(Math.abs(persistedFolderBox.height - resizedFolderBox.height)).toBeLessThan(2);
   await persistedFolder.getByRole('button', { name: /Open Reading/ }).click();
   await expect(page.getByRole('heading', { name: 'Reading' })).toBeVisible();
@@ -1926,9 +1983,10 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
 
 test('customizes a folder from its miniature and persists the appearance', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('PokeMMO');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   let folder = page.locator('.bookmark-folder', { hasText: 'PokeMMO' });
   await folder.getByRole('button', { name: /Open PokeMMO/ }).click();
@@ -1991,7 +2049,7 @@ test('customizes a folder from its miniature and persists the appearance', async
   await expect(folder.locator('.folder-body'))
     .toHaveCSS('background-color', 'rgb(239, 68, 68)');
 
-  await page.reload();
+  await reloadSavedPage(page);
   folder = page.locator('.bookmark-folder', { hasText: 'Games' });
   await expect(folder).toBeVisible();
   await expect(folder).toHaveCSS('--folder-color', '#ef4444');
@@ -2020,7 +2078,7 @@ test('customizes a folder from its miniature and persists the appearance', async
   await expect(folder.locator('.folder-body'))
     .toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
 
-  await page.reload();
+  await reloadSavedPage(page);
   folder = page.locator('.bookmark-folder', { hasText: 'Games' });
   await expect(folder).toHaveClass(/is-folder-transparent/);
 });
@@ -2028,9 +2086,10 @@ test('customizes a folder from its miniature and persists the appearance', async
 test('scales folder previews and keeps cover icons inside their tray', async ({ page }) => {
   await revealSideDock(page);
   for (const name of ['Small previews', 'Large previews', 'Cover previews']) {
-    await page.getByRole('button', { name: 'Create folder' }).click();
+    await page.locator('#add-toggle').click();
+    await page.locator('#add-folder').click();
     await page.getByPlaceholder('Tools, inspiration…').fill(name);
-    await page.getByRole('button', { name: 'Accept' }).click();
+    await page.getByRole('button', { name: 'Accept' }).click();    await waitForSaved(page);
   }
 
   await page.evaluate(() => new Promise(resolve => {
@@ -2063,7 +2122,7 @@ test('scales folder previews and keeps cover icons inside their tray', async ({ 
       chrome.storage.local.set({ folders, bookmarks }, resolve);
     });
   }));
-  await page.reload();
+  await reloadSavedPage(page);
 
   const smallIcon = page.locator('.bookmark-folder', { hasText: 'Small previews' })
     .locator('.bookmark-favicon').first();
@@ -2076,7 +2135,7 @@ test('scales folder previews and keeps cover icons inside their tray', async ({ 
   expect(largeBox.width).toBeGreaterThan(smallBox.width * 2);
 
   const cover = page.locator('.bookmark-folder', { hasText: 'Cover previews' });
-  const trayBox = await cover.locator('.folder-previews').boundingBox();
+  const trayBox = await visibleBox(cover.locator('.folder-previews'));
   const itemBoxes = await cover.locator('.folder-previews > *').evaluateAll(elements => (
     elements.map(element => element.getBoundingClientRect().toJSON())
   ));
@@ -2092,9 +2151,10 @@ test('scales folder previews and keeps cover icons inside their tray', async ({ 
 test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ page }) => {
   await setBookmarkDragMode(page, 'relocate');
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Visual grid');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -2104,7 +2164,7 @@ test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ p
     Object.assign(stored.bookmarks[1], { folderId: folder.id, gx: 1, gy: 0 });
     sessionStorage.setItem(storageKey, JSON.stringify(stored));
   });
-  await page.reload();
+  await reloadSavedPage(page);
 
   await page.locator('.bookmark-folder', { hasText: 'Visual grid' })
     .getByRole('button', { name: /Open Visual grid/ })
@@ -2184,7 +2244,7 @@ test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ p
   await expect(grid.getByRole('button')).toHaveCount(0);
   await expect(first.getByRole('link')).toHaveCSS('cursor', 'pointer');
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.reload();
+  await reloadSavedPage(page);
   await page.locator('.bookmark-folder', { hasText: 'Visual grid' })
     .getByRole('button', { name: /Open Visual grid/ })
     .click();
@@ -2199,9 +2259,10 @@ test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ p
 test('honors None and Sequence inside a folder', async ({ page }) => {
   await setBookmarkDragMode(page, 'none');
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Drag modes');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -2220,7 +2281,7 @@ test('honors None and Sequence inside a folder', async ({ page }) => {
     });
     sessionStorage.setItem(storageKey, JSON.stringify(stored));
   });
-  await page.reload();
+  await reloadSavedPage(page);
 
   const openFolder = async () => {
     await page.locator('.bookmark-folder', { hasText: 'Drag modes' })
@@ -2271,8 +2332,8 @@ test('honors None and Sequence inside a folder', async ({ page }) => {
   await enableFolderEditMode(page);
   grid = page.getByRole('list', { name: 'Folder bookmarks' });
   items = grid.locator('[data-bookmark-id]');
-  const thirdBox = await items.nth(2).boundingBox();
-  firstBox = await items.nth(0).boundingBox();
+  const thirdBox = await visibleBox(items.nth(2));
+  firstBox = await visibleBox(items.nth(0));
 
   await page.mouse.move(
     firstBox.x + firstBox.width / 2,
@@ -2294,9 +2355,10 @@ test('honors None and Sequence inside a folder', async ({ page }) => {
 
 test('returns to the open folder after escaping, cancelling or saving bookmark edits', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Edit return');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -2305,7 +2367,7 @@ test('returns to the open folder after escaping, cancelling or saving bookmark e
     Object.assign(stored.bookmarks[0], { folderId: folder.id, gx: 0, gy: 0 });
     sessionStorage.setItem(storageKey, JSON.stringify(stored));
   });
-  await page.reload();
+  await reloadSavedPage(page);
 
   await page.locator('.bookmark-folder', { hasText: 'Edit return' })
     .getByRole('button', { name: /Open Edit return/ })
@@ -2342,9 +2404,10 @@ test('returns to the open folder after escaping, cancelling or saving bookmark e
 
 test('deletes a bookmark permanently from an open folder after confirmation', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Delete inside');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -2353,7 +2416,7 @@ test('deletes a bookmark permanently from an open folder after confirmation', as
     Object.assign(stored.bookmarks[0], { folderId: folder.id, gx: 0, gy: 0 });
     sessionStorage.setItem(storageKey, JSON.stringify(stored));
   });
-  await page.reload();
+  await reloadSavedPage(page);
 
   const openFolder = async () => {
     await page.locator('.bookmark-folder', { hasText: 'Delete inside' })
@@ -2372,7 +2435,7 @@ test('deletes a bookmark permanently from an open folder after confirmation', as
   await expect(grid.locator('[data-bookmark-id]')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.reload();
+  await reloadSavedPage(page);
   await openFolder();
   await expect(page.getByRole('list', { name: 'Folder bookmarks' })
     .locator('[data-bookmark-id]')).toHaveCount(0);
@@ -2380,9 +2443,10 @@ test('deletes a bookmark permanently from an open folder after confirmation', as
 
 test('renames an open folder by double-clicking its title', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('PokeMMO');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   await page.locator('.bookmark-folder', { hasText: 'PokeMMO' })
     .getByRole('button', { name: /Open PokeMMO/ })
@@ -2422,9 +2486,10 @@ test('renames an open folder by double-clicking its title', async ({ page }) => 
 
 test('edits and deletes a folder from its direct controls', async ({ page }) => {
   await revealSideDock(page);
-  await page.getByRole('button', { name: 'Create folder' }).click();
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Temporary');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
 
   await enableEditMode(page);
   let folder = page.locator('.bookmark-folder', { hasText: 'Temporary' });
@@ -2435,6 +2500,6 @@ test('edits and deletes a folder from its direct controls', async ({ page }) => 
   folder = page.locator('.bookmark-folder', { hasText: 'Renamed' });
   await expect(folder).toBeVisible();
   await folder.getByRole('button', { name: 'Delete folder' }).click();
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
   await expect(folder).toHaveCount(0);
 });

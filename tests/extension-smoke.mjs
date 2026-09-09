@@ -1,15 +1,17 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { chromium } from '@playwright/test';
 
 const executablePath = process.env.SPACETAB_BROWSER_PATH;
-if (!executablePath) {
-  throw new Error('SPACETAB_BROWSER_PATH is required for the unpacked-extension smoke test.');
-}
-
-const extensionPath = new URL('..', import.meta.url).pathname.replace(/\/$/, '');
+const extensionPath = process.env.SPACETAB_EXTENSION_PATH
+  ? resolve(process.env.SPACETAB_EXTENSION_PATH)
+  : fileURLToPath(new URL('..', import.meta.url));
+const manifest = JSON.parse(readFileSync(resolve(extensionPath, 'manifest.json'), 'utf8'));
 const context = await chromium.launchPersistentContext('', {
-  executablePath,
-  headless: false,
+  ...(executablePath ? { executablePath } : { channel: 'chromium' }),
+  headless: true,
   args: [
     `--disable-extensions-except=${extensionPath}`,
     `--load-extension=${extensionPath}`,
@@ -18,14 +20,31 @@ const context = await chromium.launchPersistentContext('', {
 });
 
 try {
+  // Use a fresh profile and keep the smoke check independent of image providers.
+  await context.route(/^https?:/, route => route.abort());
   const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
   await page.goto('chrome://newtab/');
   await page.waitForLoadState('domcontentloaded');
 
   assert.match(page.url(), /^chrome-extension:\/\/.+\/newtab\.html$/);
+  assert.equal(new URL(page.url()).pathname, `/${manifest.chrome_url_overrides.newtab}`);
   await page.locator('#workspace-toolbar').waitFor({ state: 'visible' });
   await page.locator('#bookmark-container').waitFor({ state: 'visible' });
-  assert.equal((await page.locator('.bookmark').count()) >= 2, true);
+  await page.waitForFunction(() => document.querySelectorAll('#bookmark-container .bookmark').length >= 2);
+  await page.evaluate(async () => {
+    const { addBookmark } = await import('./js/core/bookmark.js');
+    addBookmark({ name: 'Release smoke', url: 'https://smoke.internal', gx: 5, gy: 0 });
+  });
+  await page.waitForFunction(async () => {
+    const { getState } = await import('./js/core/store.js');
+    return getState().ui.persistence.status === 'saved';
+  });
+  await page.reload();
+  await page.getByRole('link', { name: /Release smoke/ }).waitFor({ state: 'visible' });
+  assert.deepEqual(errors, []);
+  console.log(`Extension smoke passed: ${manifest.version}, new tab, save and reload.`);
 } finally {
   await context.close();
 }

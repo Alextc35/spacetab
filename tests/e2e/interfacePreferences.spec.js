@@ -88,6 +88,7 @@ test('system follows device colors, explicit modes persist, and cancel restores 
   await preference(page, 'dark').check();
   await expect(card(page)).toHaveCSS('background-color', dark);
   await page.locator('#settings-modal-save').click();
+    await expect(page.locator('#settings-modal')).toBeHidden();
   await page.reload();
   await openSettings(page);
   await expect(preference(page, 'dark')).toBeChecked();
@@ -102,6 +103,7 @@ test('system follows device colors, explicit modes persist, and cancel restores 
   await expect(card(page)).toHaveCSS('background-color', dark);
   await preference(page, 'system').check();
   await page.locator('#settings-modal-save').click();
+    await expect(page.locator('#settings-modal')).toBeHidden();
   await page.reload();
   await openSettings(page);
   await expect(preference(page, 'system')).toBeChecked();
@@ -144,6 +146,7 @@ test('language preview can be cancelled, saved, and reset to the device default'
     await page.locator('[data-tab="settings-modal-tab-lang"]').click();
     await page.locator('#language-select').selectOption('en');
     await page.locator('#settings-modal-save').click();
+    await expect(page.locator('#settings-modal')).toBeHidden();
     await page.reload();
     await openSettings(page);
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
@@ -154,6 +157,7 @@ test('language preview can be cancelled, saved, and reset to the device default'
     await expect(card(page)).toHaveCSS('background-color', light);
     await expect(page.locator('html')).toHaveAttribute('lang', 'es');
     await page.locator('#settings-modal-save').click();
+    await expect(page.locator('#settings-modal')).toBeHidden();
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('lang', 'es');
   } finally {
