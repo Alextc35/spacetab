@@ -239,6 +239,18 @@ export function getStorageUsage(mode) {
 }
 
 /**
+ * Waits until every storage write queued by the current page has settled.
+ * Save flows use this before closing so an immediate page reload cannot race
+ * the write that persists the user's latest edit.
+ *
+ * @returns {Promise<AppState['ui']['persistence']>}
+ */
+export async function waitForPersistence() {
+  await persistenceQueue.catch(() => undefined);
+  return structuredClone(state.ui.persistence);
+}
+
+/**
  * Permanently removes the remote SpaceTab payload. If synchronized storage is
  * active, the current state is copied locally before the remote data is
  * removed so the device never loses its working data.

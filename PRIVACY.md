@@ -1,0 +1,96 @@
+# SpaceTab Privacy Policy
+
+Last updated: September 9, 2026
+
+SpaceTab replaces the browser's new tab page with a customizable bookmark
+workspace. It does not require a SpaceTab account or use a SpaceTab-operated
+backend. This policy describes the extension, including its local storage,
+optional Google Chrome synchronization, and requests for external images.
+
+## Information used by SpaceTab
+
+SpaceTab stores the bookmarks you enter or import, including their names, URLs,
+layout, appearance and creation/update timestamps. It also stores folders,
+workspaces, presets and settings such as language and theme. Images selected
+from your device are processed in the browser; their optimized image data and
+original filenames are stored in the extension's local storage.
+
+SpaceTab uses this information to display, edit, search, save and restore your
+workspace. It requests the `storage` permission for this purpose. It does not
+read your general browsing history, browser bookmark library, passwords or
+other websites' page contents. Its search operates on your SpaceTab bookmarks.
+
+## Local storage and optional synchronization
+
+SpaceTab starts in Local mode, using `chrome.storage.local` inside your browser
+profile. This describes where workspace data is saved; external images can
+still cause network requests in Local mode, as explained below.
+
+If you enable Sync in supported Google Chrome, bookmark data and shared
+settings are stored using `chrome.storage.sync`. Chrome manages transfer and
+availability according to your browser profile and Google Account settings.
+SpaceTab also stores synchronization metadata, including a generated device
+identifier and update timestamps, to distinguish local and remote changes.
+The extension does not give its developer access to that synchronized data.
+
+Local image files, filenames and device-specific image selections are not sent
+to Sync. Configured remote image URLs are part of the shared workspace data.
+See [Google's privacy policy](https://policies.google.com/privacy) for Google's
+handling of its services.
+
+## Requests for favicons and other images
+
+When a view or editor displays a website icon, SpaceTab requests it from Google's
+favicon service at `https://t3.gstatic.com/faviconV2`. The request includes the
+bookmark site's origin (scheme, hostname and any port), with a leading `www.`
+or `app.` removed. It does not include the bookmark URL's path, query string or
+fragment. Hosts ending in `.internal` or `.local` use generated initials instead.
+These exclusions do not cover every possible private hostname or IP address.
+
+When a remote background image is displayed, the browser requests its configured
+URL from the image host. The initial example workspace includes an image from
+`cdn.osxdaily.com`, so this request may happen on first use. Requests can also
+occur while previews are displayed, without opening a bookmark's website.
+
+Image providers receive the requested URL and ordinary connection/request
+information, such as your IP address and browser headers. Browser privacy and
+cookie settings apply. SpaceTab does not operate these image services or control
+their logging or retention. Replacing remote images with local files or removing
+the remote URLs avoids those particular image requests. Favicons may still be
+requested by views that display website icons.
+
+Opening a bookmark navigates to its destination; that website's policies then
+apply. External images are displayed as images, not executed as extension code.
+
+## Exports, retention and deletion
+
+Import reads a file you select; export creates a JSON download on your device.
+SpaceTab does not upload these files to the developer. Exports contain bookmark
+and workspace data and may include local image references, but do not embed the
+locally stored image files. Keep those original files if you need them on another
+device. Exported JSON files are not encrypted by SpaceTab.
+
+Workspace data is retained in the browser until you change or remove it.
+Deleting a bookmark removes the record but does not necessarily erase unused
+image files from extension storage. Returning to Local mode retains the Sync
+copy. Settings provides an explicit action to delete SpaceTab's synchronized
+data; when needed, it first preserves the working data locally. To remove local
+data and stored image files, clear the extension's storage using browser tools
+or remove the extension. Delete exported files separately. Google controls the
+retention of data within its services.
+
+## Analytics, advertising and support
+
+SpaceTab includes no analytics or advertising SDK and sends no telemetry to a
+SpaceTab server. Optional debug output stays in the browser console. If you
+choose to share a backup, screenshot or debug output for support, that information
+is then available to its recipients.
+
+SpaceTab uses and transfers user data only to provide the workspace features
+described here, consistent with the Chrome Web Store User Data Policy and its
+Limited Use requirements. The developer does not sell workspace data, use it for
+advertising or credit decisions, or receive it through an extension backend.
+
+For questions about SpaceTab or this policy, use the
+[SpaceTab project support page](https://github.com/Alextc35/spacetab/issues).
+That page is public: do not post private bookmarks or backup files there.

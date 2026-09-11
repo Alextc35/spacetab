@@ -3,7 +3,7 @@ import { addBookmark, updateBookmarkById } from '../../core/bookmark.js';
 import { createBookmarkDraft } from '../../core/bookmarkModel.js';
 import { flashSuccess } from '../flash.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
-import { getState } from '../../core/store.js';
+import { getState, waitForPersistence } from '../../core/store.js';
 import { showAlert } from './alert.js';
 import { t } from '../../core/i18n.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
@@ -190,7 +190,7 @@ async function handleAccept() {
   if (mode === 'add') {
     await handleAddAccept();
   } else if (mode === 'edit') {
-    handleEditAccept();
+    await handleEditAccept();
   } else {
     handlePresetAccept();
   }
@@ -247,6 +247,7 @@ async function handleAddAccept() {
     }
 
     const created = addBookmark({ ...bookmark, ...position });
+    await waitForPersistence();
 
     if (created) {
       flashSuccess('flash.bookmark.added');
@@ -261,12 +262,13 @@ async function handleAddAccept() {
   }
 }
 
-function handleEditAccept() {
+async function handleEditAccept() {
   if (!editingId || !hasChanges()) return;
 
   const validation = form.validate();
   if (!validation.isValid) return;
   const bookmark = updateBookmarkById(editingId, validation.value);
+  await waitForPersistence();
 
   if (bookmark) {
     flashSuccess('flash.bookmark.updated');

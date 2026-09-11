@@ -16,9 +16,9 @@ if not re.fullmatch(r"\d+\.\d+\.\d+(?:\.\d+)?", version):
 if version != package["version"]:
     raise ValueError("Manifest and package versions must match")
 
-privacy_policy = root / ".local" / "PRIVACY.md"
+privacy_policy = root / "PRIVACY.md"
 if not privacy_policy.is_file():
-    raise FileNotFoundError("Missing local Store privacy policy: .local/PRIVACY.md")
+    raise FileNotFoundError("Missing Store privacy policy: PRIVACY.md")
 
 files = [root / "manifest.json", root / "LICENSE", privacy_policy]
 for directory in ("src", "_locales", "assets/icons"):
@@ -29,12 +29,7 @@ for path in files:
     if path.name.startswith(".") or path.suffix in {".pem", ".log", ".zip"}:
         raise ValueError(f"Unexpected runtime file: {path}")
 
-entries = {
-    path.relative_to(root).as_posix(): path
-    for path in files
-    if path != privacy_policy
-}
-entries["PRIVACY.md"] = privacy_policy
+entries = {path.relative_to(root).as_posix(): path for path in files}
 required = [manifest["chrome_url_overrides"]["newtab"], *manifest["icons"].values()]
 required.append(f'_locales/{manifest["default_locale"]}/messages.json')
 for entry in required:

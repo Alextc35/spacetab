@@ -31,3 +31,8 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - run: npm run package:store
+      - run: python3 -m zipfile -e dist/spacetab-*.zip dist/unpacked
+      - run: npm run test:extension
+        env:
+          SPACETAB_EXTENSION_PATH: dist/unpacked

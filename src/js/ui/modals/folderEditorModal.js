@@ -4,7 +4,7 @@ import {
 } from '../../core/bookmarkFolders.js';
 import { validateFolderDraft } from '../../core/folderModel.js';
 import { t } from '../../core/i18n.js';
-import { getState, getStorageMode } from '../../core/store.js';
+import { getState, getStorageMode, waitForPersistence } from '../../core/store.js';
 import { createFolderVisual, applyFolderAppearance } from '../folder/visual.js';
 import { flashSuccess } from '../flash.js';
 import { initTabs } from '../tabs.js';
@@ -242,7 +242,7 @@ function renderPreview() {
   preview.replaceChildren(card);
 }
 
-function handleSave() {
+async function handleSave() {
   if (!activeFolderId || !isDirty()) return;
   const result = validateFolderDraft(currentValue());
   if (!result.isValid) {
@@ -252,6 +252,7 @@ function handleSave() {
 
   const updated = updateBookmarkFolder(activeFolderId, result.value);
   if (!updated) return;
+  await waitForPersistence();
 
   flashSuccess('flash.folder.updated');
   closeFolderEditor();

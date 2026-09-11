@@ -72,6 +72,7 @@ for (const kind of ['bookmark', 'folder']) {
     await expect(imageUrl).toHaveValue(fallbackUrl);
     await expect(preview).toHaveCSS(cssProperty, `url("${fallbackUrl}")`);
     await save.click();
+    await expect(modal).toBeHidden();
     await page.reload();
     await expect(card).toHaveCSS(cssProperty, `url("${fallbackUrl}")`);
     await openEditor();
