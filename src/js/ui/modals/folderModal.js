@@ -30,6 +30,7 @@ const FOLDER_MOVE_DURATION = 220;
 let initialized = false;
 let activeFolderId = null;
 let modal;
+let modalCard;
 let title;
 let renameActions;
 let renameAccept;
@@ -48,6 +49,7 @@ export function initFolderModal() {
   initialized = true;
 
   modal = document.getElementById('folder-modal');
+  modalCard = modal.querySelector('.modal-folder');
   title = document.getElementById('folder-modal-title');
   renameActions = document.getElementById('folder-modal-rename-actions');
   renameAccept = document.getElementById('folder-modal-rename-accept');
@@ -204,7 +206,7 @@ function renderFolderContents() {
     capacity: FOLDER_GRID_CAPACITY
   });
   list.replaceChildren();
-  list.classList.remove('is-folder-grid-settling');
+  list.classList.remove('is-folder-grid-settling', 'is-folder-grid-exit-target');
   empty.classList.toggle('is-hidden', contents.length > 0);
   list.classList.toggle('is-list-view', isListView());
 
@@ -312,15 +314,7 @@ function createFolderBookmarkItem(bookmark, position) {
   }));
 
   const remove = createItemActionButton('↗', 'remove', 'is-dark', async () => {
-    const result = removeBookmarkFromFolder(bookmark.id, {
-      columns: getMaxVisibleCols(),
-      rows: getMaxVisibleRows()
-    });
-    if (result.reason === 'no-space') {
-      await showAlert(t('folder.removeNoSpace'), { type: 'info' });
-      return;
-    }
-    if (result.bookmark) flashSuccess('flash.folder.bookmarkRemoved');
+    await moveBookmarkToGrid(bookmark.id);
   });
   remove.classList.add('folder-item-remove');
   remove.setAttribute('aria-label', t('folder.actions.removeBookmark', {
@@ -401,6 +395,7 @@ function addFolderBookmarkDrag(item, bookmarkId) {
       elements: new Map(Array.from(
         list.querySelectorAll('[data-bookmark-id]')
       ).map(element => [element.dataset.bookmarkId, element])),
+      outsideModal: false,
       active: false
     };
     item.setPointerCapture(event.pointerId);
@@ -430,6 +425,14 @@ function addFolderBookmarkDrag(item, bookmarkId) {
 }
 
 function previewFolderDrag(session, clientX, clientY) {
+  if (isPointerOutsideFolderModal(clientX, clientY)) {
+    previewFolderExit(session);
+    return;
+  }
+
+  if (session.outsideModal) clearFolderExitFeedback(session);
+  if (isPointerOutsideFolderGrid(clientX, clientY)) return;
+
   const metrics = getFolderGridMetrics();
   const gx = Math.max(0, Math.min(
     FOLDER_GRID_COLUMNS - 1,
@@ -473,6 +476,7 @@ function previewFolderDrag(session, clientX, clientY) {
 function finishFolderDrag(event, commit) {
   const session = dragSession;
   if (!session || session.pointerId !== event.pointerId) return;
+  const shouldMoveToGrid = commit && session.outsideModal;
   dragSession = null;
   if (session.item.hasPointerCapture(event.pointerId)) {
     session.item.releasePointerCapture(event.pointerId);
@@ -481,7 +485,14 @@ function finishFolderDrag(event, commit) {
   if (!session.active) return;
 
   event.preventDefault();
+  clearFolderExitFeedback(session);
   session.item.classList.remove('is-folder-grid-dragging', 'is-folder-grid-invalid');
+
+  if (shouldMoveToGrid) {
+    resetFolderDragPreview(session);
+    void moveBookmarkToGrid(session.bookmarkId);
+    return;
+  }
 
   if (commit && session.dropIsValid && hasFolderLayoutChanges(session)) {
     list.classList.add('is-folder-grid-settling');
@@ -510,8 +521,55 @@ function cancelFolderDrag() {
   if (session.item.hasPointerCapture(session.pointerId)) {
     session.item.releasePointerCapture(session.pointerId);
   }
+  clearFolderExitFeedback(session);
   session.item.classList.remove('is-folder-grid-dragging', 'is-folder-grid-invalid');
   resetFolderDragPreview(session);
+}
+
+async function moveBookmarkToGrid(bookmarkId) {
+  const result = removeBookmarkFromFolder(bookmarkId, {
+    columns: getMaxVisibleCols(),
+    rows: getMaxVisibleRows()
+  });
+  if (result.reason === 'no-space') {
+    await showAlert(t('folder.removeNoSpace'), { type: 'info' });
+    return false;
+  }
+  if (!result.bookmark) return false;
+
+  flashSuccess('flash.folder.bookmarkRemoved');
+  return true;
+}
+
+function previewFolderExit(session) {
+  if (session.outsideModal) return;
+
+  session.outsideModal = true;
+  session.item.classList.add('is-folder-grid-exiting');
+  list.classList.add('is-folder-grid-exit-target');
+}
+
+function clearFolderExitFeedback(session) {
+  session.outsideModal = false;
+  session.item.classList.remove('is-folder-grid-exiting');
+  list.classList.remove('is-folder-grid-exit-target');
+}
+
+function isPointerOutsideFolderGrid(clientX, clientY) {
+  const bounds = list.getBoundingClientRect();
+  return isPointerOutsideBounds(bounds, clientX, clientY);
+}
+
+function isPointerOutsideFolderModal(clientX, clientY) {
+  const bounds = modalCard.getBoundingClientRect();
+  return isPointerOutsideBounds(bounds, clientX, clientY);
+}
+
+function isPointerOutsideBounds(bounds, clientX, clientY) {
+  return clientX < bounds.left
+    || clientX > bounds.right
+    || clientY < bounds.top
+    || clientY > bounds.bottom;
 }
 
 function applyFolderDragPreview(session, layout, metrics = getFolderGridMetrics()) {

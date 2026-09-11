@@ -2299,6 +2299,122 @@ test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ p
     .getByRole('button')).toHaveCount(0);
 });
 
+test('moves a bookmark back to the workspace when dragged outside its folder', async ({ page }) => {
+  await revealSideDock(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('Drag out');
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await waitForSaved(page);
+
+  const bookmarkId = await page.evaluate(() => {
+    const storageKey = 'spacetab-test-local';
+    const stored = JSON.parse(sessionStorage.getItem(storageKey));
+    const folder = stored.folders.find(item => item.name === 'Drag out');
+    const bookmark = stored.bookmarks[0];
+    Object.assign(bookmark, { folderId: folder.id, gx: 0, gy: 0 });
+    sessionStorage.setItem(storageKey, JSON.stringify(stored));
+    return bookmark.id;
+  });
+  await reloadSavedPage(page);
+
+  await page.locator('.bookmark-folder', { hasText: 'Drag out' })
+    .getByRole('button', { name: /Open Drag out/ })
+    .click();
+  await enableFolderEditMode(page);
+
+  const grid = page.getByRole('list', { name: 'Folder bookmarks' });
+  const item = grid.locator(`[data-bookmark-id="${bookmarkId}"]`);
+  const [itemBox, gridBox, modalBox] = await Promise.all([
+    visibleBox(item),
+    visibleBox(grid),
+    visibleBox(page.locator('#folder-modal .modal-folder'))
+  ]);
+  await page.mouse.move(
+    itemBox.x + itemBox.width / 2,
+    itemBox.y + itemBox.height / 2
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    gridBox.x + gridBox.width * 2.5 / 6,
+    gridBox.y + gridBox.height / 6,
+    { steps: 8 }
+  );
+
+  const shiftedX = await item.evaluate(element => (
+    element.style.getPropertyValue('--folder-shift-x')
+  ));
+  expect(Number.parseFloat(shiftedX)).toBeGreaterThan(0);
+
+  await page.mouse.move(
+    modalBox.x + modalBox.width / 2,
+    modalBox.y + 8,
+    { steps: 8 }
+  );
+  await expect(item).not.toHaveClass(/is-folder-grid-exiting/);
+  await expect.poll(() => item.evaluate(element => (
+    element.style.getPropertyValue('--folder-shift-x')
+  ))).toBe(shiftedX);
+
+  await page.mouse.move(
+    modalBox.x + modalBox.width / 2,
+    Math.max(5, modalBox.y - 24),
+    { steps: 12 }
+  );
+
+  await expect(item).toHaveClass(/is-folder-grid-exiting/);
+  await expect(item.locator('.folder-item-remove')).toHaveCSS(
+    'background-color',
+    'rgb(2, 132, 199)'
+  );
+  await expect.poll(() => item.evaluate(element => (
+    element.style.getPropertyValue('--folder-shift-x')
+  ))).toBe(shiftedX);
+
+  await page.mouse.move(
+    modalBox.x + modalBox.width / 2,
+    modalBox.y + 8,
+    { steps: 8 }
+  );
+  await expect(item).not.toHaveClass(/is-folder-grid-exiting/);
+  await expect.poll(() => item.evaluate(element => (
+    element.style.getPropertyValue('--folder-shift-x')
+  ))).toBe(shiftedX);
+  await page.mouse.up();
+
+  await expect(item).toHaveCSS('grid-column-start', '3');
+  await expect.poll(() => page.evaluate(id => {
+    const stored = JSON.parse(sessionStorage.getItem('spacetab-test-local'));
+    return stored.bookmarks.find(bookmark => bookmark.id === id)?.gx;
+  }, bookmarkId)).toBe(2);
+
+  const movedItemBox = await visibleBox(item);
+  await page.mouse.move(
+    movedItemBox.x + movedItemBox.width / 2,
+    movedItemBox.y + movedItemBox.height / 2
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    movedItemBox.x + movedItemBox.width / 2,
+    Math.max(5, modalBox.y - 24),
+    { steps: 12 }
+  );
+  await expect(item).toHaveClass(/is-folder-grid-exiting/);
+  await page.mouse.up();
+
+  await expect(grid.locator('[data-bookmark-id]')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(id => {
+    const stored = JSON.parse(sessionStorage.getItem('spacetab-test-local'));
+    return stored.bookmarks.find(bookmark => bookmark.id === id)?.folderId ?? null;
+  }, bookmarkId)).toBeNull();
+  await expect(page.getByText('Bookmark moved back to the grid')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Close' }).click();
+  await expect(page.locator(
+    `#bookmark-container > .bookmark[data-bookmark-id="${bookmarkId}"]`
+  )).toBeVisible();
+});
+
 test('honors None and Sequence inside a folder', async ({ page }) => {
   await setBookmarkDragMode(page, 'none');
   await revealSideDock(page);
