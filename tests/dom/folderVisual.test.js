@@ -7,11 +7,26 @@ beforeEach(() => {
 });
 
 describe('folder visual', () => {
-  test('keeps the default four-icon grid without a remainder badge', () => {
-    const visual = createFolderVisual({ backgroundImageUrl: null }, bookmarks(5));
+  test.each([
+    { name: 'without a cover', backgroundImageUrl: null },
+    { name: 'with a cover', backgroundImageUrl: 'https://images.test/cover.png' }
+  ])('shows all four bookmarks $name', ({ backgroundImageUrl }) => {
+    const visual = createFolderVisual({ backgroundImageUrl }, bookmarks(4));
 
     expect(visual.querySelectorAll('.bookmark-favicon')).toHaveLength(4);
     expect(visual.querySelector('.folder-preview-more')).toBeNull();
+  });
+
+  test.each([
+    { name: 'five without a cover', backgroundImageUrl: null, count: 5, remainder: '+2' },
+    { name: 'six without a cover', backgroundImageUrl: null, count: 6, remainder: '+3' },
+    { name: 'five with a cover', backgroundImageUrl: 'https://images.test/cover.png', count: 5, remainder: '+2' },
+    { name: 'six with a cover', backgroundImageUrl: 'https://images.test/cover.png', count: 6, remainder: '+3' }
+  ])('uses the fourth slot for the remainder with $name', ({ backgroundImageUrl, count, remainder }) => {
+    const visual = createFolderVisual({ backgroundImageUrl }, bookmarks(count));
+
+    expect(visual.querySelectorAll('.bookmark-favicon')).toHaveLength(3);
+    expect(visual.querySelector('.folder-preview-more').textContent).toBe(remainder);
   });
 
   test('uses a compact icon tray over cover images', () => {

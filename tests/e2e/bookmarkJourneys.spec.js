@@ -2083,7 +2083,7 @@ test('customizes a folder from its miniature and persists the appearance', async
   await expect(folder).toHaveClass(/is-folder-transparent/);
 });
 
-test('scales folder previews and keeps cover icons inside their tray', async ({ page }) => {
+test('scales folder previews and applies one centered tray style', async ({ page }) => {
   await revealSideDock(page);
   for (const name of ['Small previews', 'Large previews', 'Cover previews']) {
     await page.locator('#add-toggle').click();
@@ -2106,8 +2106,13 @@ test('scales folder previews and keeps cover icons inside their tray', async ({ 
         ...folder,
         ...layout[folder.name]
       }));
+      const previewCounts = {
+        'Small previews': 4,
+        'Large previews': 5,
+        'Cover previews': 5
+      };
       const bookmarks = folders.flatMap(folder => (
-        Array.from({ length: folder.name === 'Cover previews' ? 5 : 3 }, (_, index) => ({
+        Array.from({ length: previewCounts[folder.name] }, (_, index) => ({
           id: `${folder.id}-bookmark-${index}`,
           name: `${folder.name} ${index + 1}`,
           url: `https://${folder.id}-${index}.internal`,
@@ -2134,12 +2139,50 @@ test('scales folder previews and keeps cover icons inside their tray', async ({ 
   ]);
   expect(largeBox.width).toBeGreaterThan(smallBox.width * 2);
 
+  const small = page.locator('.bookmark-folder', { hasText: 'Small previews' });
+  await expect(small.locator('.bookmark-favicon')).toHaveCount(4);
+  await expect(small.locator('.folder-preview-more')).toHaveCount(0);
+
+  const plain = page.locator('.bookmark-folder', { hasText: 'Large previews' });
+  await expect(plain.locator('.bookmark-favicon')).toHaveCount(3);
+  const plainRemainder = plain.locator('.folder-preview-more');
+  await expect(plainRemainder).toHaveText('+2');
+  await expect(plainRemainder).toHaveCSS('place-items', 'center');
+  const remainderTypography = await plainRemainder.evaluate(element => ({
+    fontSize: parseFloat(getComputedStyle(element).fontSize),
+    width: element.getBoundingClientRect().width
+  }));
+  expect(remainderTypography.fontSize).toBeLessThan(remainderTypography.width * .6);
+  const plainItemBoxes = await plain.locator('.folder-previews > *').evaluateAll(elements => (
+    elements.map(element => element.getBoundingClientRect().toJSON())
+  ));
+  expect(plainItemBoxes).toHaveLength(4);
+  expect(Math.abs(plainItemBoxes[3].width - plainItemBoxes[0].width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(plainItemBoxes[3].height - plainItemBoxes[0].height)).toBeLessThanOrEqual(1);
+  expect(Math.max(...plainItemBoxes.map(item => item.top))
+    - Math.min(...plainItemBoxes.map(item => item.top))).toBeLessThanOrEqual(1);
+
   const cover = page.locator('.bookmark-folder', { hasText: 'Cover previews' });
+  await expect(cover.locator('.bookmark-favicon')).toHaveCount(3);
+  await expect(cover.locator('.folder-preview-more')).toHaveText('+2');
+  const trayStyle = locator => locator.locator('.folder-previews').evaluate(element => {
+    const style = getComputedStyle(element);
+    return {
+      backgroundColor: style.backgroundColor,
+      borderRadius: style.borderRadius,
+      display: style.display,
+      gap: style.gap,
+      padding: style.padding
+    };
+  });
+  expect(await trayStyle(plain)).toEqual(await trayStyle(cover));
   const trayBox = await visibleBox(cover.locator('.folder-previews'));
   const itemBoxes = await cover.locator('.folder-previews > *').evaluateAll(elements => (
     elements.map(element => element.getBoundingClientRect().toJSON())
   ));
   expect(itemBoxes).toHaveLength(4);
+  expect(Math.max(...itemBoxes.map(item => item.top))
+    - Math.min(...itemBoxes.map(item => item.top))).toBeLessThanOrEqual(1);
   for (const item of itemBoxes) {
     expect(item.left).toBeGreaterThanOrEqual(trayBox.x);
     expect(item.right).toBeLessThanOrEqual(trayBox.x + trayBox.width);

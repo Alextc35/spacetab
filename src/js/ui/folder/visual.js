@@ -18,15 +18,15 @@ export function createFolderVisual(folder, bookmarks = [], { compact = false } =
   previews.className = 'folder-previews';
 
   if (!compact && folder.showFolder !== false && folder.showPreviews !== false) {
-    const hasCover = Boolean(resolveBackgroundImage(folder));
-    const previewLimit = hasCover ? 3 : 4;
+    const hasOverflow = bookmarks.length > 4;
+    const previewLimit = hasOverflow ? 3 : 4;
     for (const bookmark of bookmarks.slice(0, previewLimit)) {
       const image = createFavicon(bookmark);
       image.alt = '';
       previews.append(image);
     }
 
-    if (hasCover && bookmarks.length > previewLimit) {
+    if (hasOverflow) {
       const remaining = document.createElement('span');
       remaining.className = 'folder-preview-more';
       remaining.textContent = `+${bookmarks.length - previewLimit}`;
