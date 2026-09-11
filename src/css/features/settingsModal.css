@@ -370,6 +370,106 @@
   margin: 0 0 16px;
 }
 
+.shortcut-settings-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.shortcut-setting-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 13px 14px;
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  background: var(--ui-card);
+}
+
+.shortcut-setting-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shortcut-setting-copy strong {
+  color: var(--ui-text);
+  font-size: 14px;
+}
+
+.shortcut-setting-copy small {
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.shortcut-capture {
+  display: flex;
+  min-width: 126px;
+  min-height: 42px;
+  padding: 7px 10px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--ui-border);
+  border-radius: 9px;
+  background: var(--ui-input);
+  color: var(--ui-text);
+  cursor: pointer;
+}
+
+.shortcut-capture:hover,
+.shortcut-capture:focus-visible,
+.shortcut-capture.is-recording {
+  border-color: var(--ui-accent);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-accent) 20%, transparent);
+}
+
+.shortcut-capture.is-recording {
+  background: var(--ui-selected);
+  color: var(--ui-info-text);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.shortcut-capture kbd {
+  min-width: 28px;
+  padding: 4px 7px;
+  border: 1px solid var(--ui-border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: var(--ui-card);
+  color: var(--ui-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 1px 2px var(--ui-control-shadow);
+}
+
+.shortcut-capture-status {
+  min-height: 20px;
+  margin: 0 0 10px;
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.shortcut-capture-status[data-status="error"] {
+  color: var(--ui-danger-text);
+}
+
+.shortcut-capture-status[data-status="success"] {
+  color: var(--ui-success-text);
+}
+
+#shortcut-reset-defaults {
+  justify-self: start;
+}
+
 .storage-mode-options,
 .drag-mode-options {
   display: grid;
@@ -588,6 +688,15 @@
 }
 
 @media (max-width: 620px) {
+  .shortcut-setting-row {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .shortcut-capture {
+    justify-self: start;
+  }
+
   .storage-sync-management {
     align-items: stretch;
     flex-direction: column;

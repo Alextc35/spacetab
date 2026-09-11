@@ -17,7 +17,7 @@ import { createItemActionButton } from '../bookmark/actions.js';
 import { createBookmarkElement } from '../bookmark/renderer.js';
 import { flashInfo, flashSuccess } from '../flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
-import { closeModal, openModal, registerModal, isModalActive, isModalSuspended } from '../modalManager.js';
+import { closeModal, openModal, registerModal, isModalSuspended } from '../modalManager.js';
 import { openEditBookmark } from './bookmarkModal.js';
 import { openFolderEditor } from './folderEditorModal.js';
 import { applyFolderAppearance, createFolderVisual } from '../folder/visual.js';
@@ -62,19 +62,6 @@ export function initFolderModal() {
   editToggle.addEventListener('click', () => toggleFolderEditMode());
   customizeButton.addEventListener('click', () => {
     if (activeFolderId) openFolderEditor(activeFolderId);
-  });
-  document.addEventListener('keydown', event => {
-    if (!activeFolderId || !isModalActive('folder')) return;
-
-    const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(
-      document.activeElement?.tagName
-    ) || document.activeElement?.isContentEditable;
-
-    if (event.code !== 'Space' || event.repeat || isTyping) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-    toggleFolderEditMode();
   });
   title.addEventListener('dblclick', startInlineFolderRename);
   title.addEventListener('blur', () => {

@@ -30,6 +30,10 @@ hex color, where null retains the automatic tile gradient. `showFolder`,
 keep their appearance. `normalizeFolderStyle()` disables previews whenever
 the folder graphic is hidden, including when importing or restoring data.
 
+Schema 10 adds the four configurable keyboard shortcuts under
+`settings.keyboardShortcuts`. Missing, invalid or conflicting legacy values
+fall back to the safe default combinations.
+
 `src/js/core/bookmark.js`, `src/js/core/bookmarkFolders.js` and
 `src/js/core/bookmarkGroups.js` implement application commands. Batch operations
 make one store transition, so undo treats them as a single user action.
@@ -133,6 +137,10 @@ Local mode uses `chrome.storage.local`. Sync mode serializes the complete
 versioned payload and divides it into quota-safe `chrome.storage.sync` chunks.
 The local storage-mode choice remains device-specific.
 
+Custom keyboard shortcuts live inside the versioned `settings` object. They
+therefore use the same migration, backup and Sync paths as visual preferences;
+only the persistence-mode choice remains device-specific.
+
 `browserCapabilities.js` currently permits Sync only in Google Chrome. Brave
 and unverified Chromium browsers stay in Local mode because exposing
 `chrome.storage.sync` does not guarantee that their profile service propagates
@@ -164,7 +172,8 @@ The renderer displays top-level bookmarks and folders in the active workspace.
 `src/js/ui/folder/renderer.js` owns the folder card and previews, while
 `src/js/ui/modals/folderModal.js` reuses the production bookmark renderer in a
 compact 3 × 6 workspace. The modal starts in a link-only view with no action or
-drag listeners. Its local edit mode, toggled by the header control or `Space`,
+drag listeners. Its local edit mode, toggled by the header control or the
+configured edit shortcut (`Ctrl + E` by default),
 re-renders controls and enables a pointer controller that previews empty-cell
 moves and occupied-cell displacement through the same
 `calculateSmartDragLayout()` modes as the main grid. Preview positions are

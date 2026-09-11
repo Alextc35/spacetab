@@ -43,8 +43,24 @@ try {
   });
   await page.reload();
   await page.getByRole('link', { name: /Release smoke/ }).waitFor({ state: 'visible' });
+
+  await page.keyboard.press('Control+KeyE');
+  await page.waitForFunction(async () => (await import('./js/core/store.js')).getState().ui.isEditing);
+  await page.keyboard.press('Control+KeyE');
+  await page.waitForFunction(async () => !(await import('./js/core/store.js')).getState().ui.isEditing);
+
+  await page.keyboard.press('Control+KeyB');
+  await page.locator('#edit-bookmark-modal').waitFor({ state: 'visible' });
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Control+KeyF');
+  await page.locator('#alert-modal-input').waitFor({ state: 'visible' });
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Control+KeyS');
+  await page.locator('#settings-modal').waitFor({ state: 'visible' });
+  await page.keyboard.press('Escape');
+
   assert.deepEqual(errors, []);
-  console.log(`Extension smoke passed: ${manifest.version}, new tab, save and reload.`);
+  console.log(`Extension smoke passed: ${manifest.version}, new tab, save, reload and shortcuts.`);
 } finally {
   await context.close();
 }

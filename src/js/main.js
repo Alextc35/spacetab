@@ -20,6 +20,10 @@ import { initBulkBookmarkActions } from './ui/bookmark/bulkActions.js';
 import { initBookmarkKeyboardMovement } from './ui/bookmark/keyboardMovement.js';
 import { initGridKeyboardNavigation } from './ui/bookmark/gridKeyboardNavigation.js';
 import { initFolderController } from './ui/folder/controller.js';
+import {
+  initKeyboardShortcuts,
+  syncKeyboardShortcutAccessibility
+} from './ui/keyboardShortcuts.js';
 import { flashInfo } from './ui/flash.js';
 import { initBookmarkModal,
   initAlertModal, initFolderEditorModal, initFolderModal,
@@ -77,6 +81,7 @@ async function initApp() {
   initGridKeyboardNavigation(container);
   initBookmarkKeyboardMovement();
   initFolderController();
+  initKeyboardShortcuts();
 
   if (getSyncCompatibility()) {
     flashInfo('flash.sync.versionBlocked', 8000);
@@ -165,6 +170,7 @@ function handleStateChange(state, prev) {
   if (settingsChanged) {
     applyInterfaceTheme(state.data.settings.interfaceTheme);
     void changeLanguage(state.data.settings);
+    syncKeyboardShortcutAccessibility(state.data.settings.keyboardShortcuts);
   }
 
   if (settingsChanged || bookmarksChanged || foldersChanged) {

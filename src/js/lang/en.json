@@ -279,6 +279,7 @@
       "sync": "☁️ Sync",
       "theme": "🖼️ Theme",
       "bookmark": "🔖 Bookmarks",
+      "shortcuts": "⌨️ Shortcuts",
       "language": "🌐 Languages",
       "information": "ℹ️ Information"
     },
@@ -401,6 +402,36 @@
         "apply": "Use",
         "delete": "Delete",
         "empty": "No saved presets"
+      }
+    },
+    "shortcuts": {
+      "title": "Keyboard shortcuts",
+      "description": "Select a shortcut button, then press a combination containing Ctrl, Alt, Shift, or Meta.",
+      "change": "Change the {{action}} shortcut. Current shortcut: {{shortcut}}.",
+      "press": "Press shortcut…",
+      "modifierRequired": "Include Ctrl, Alt, Shift, or Meta in the shortcut.",
+      "conflict": "{{shortcut}} is already used by {{action}}.",
+      "updated": "Shortcut changed to {{shortcut}}.",
+      "cancelled": "Shortcut change cancelled.",
+      "restored": "Default shortcuts restored.",
+      "reset": "Reset shortcuts",
+      "actions": {
+        "toggleEditing": {
+          "title": "Edit mode",
+          "description": "Enter or leave editing on the main grid or in an open folder."
+        },
+        "addBookmark": {
+          "title": "Create bookmark",
+          "description": "Open the form for adding a bookmark."
+        },
+        "addFolder": {
+          "title": "Create folder",
+          "description": "Open the dialog for creating a folder."
+        },
+        "openSettings": {
+          "title": "Open settings",
+          "description": "Open the SpaceTab settings panel."
+        }
       }
     },
     "languages": {

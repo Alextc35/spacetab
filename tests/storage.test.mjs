@@ -73,6 +73,12 @@ const { DATA_SCHEMA_VERSION } = await import('../src/js/core/defaults.js');
 
 const SETTINGS = {
   language: 'es',
+  keyboardShortcuts: {
+    toggleEditing: 'Ctrl+Shift+E',
+    addBookmark: 'Ctrl+Shift+B',
+    addFolder: 'Ctrl+Shift+F',
+    openSettings: 'Ctrl+Shift+S'
+  },
   theme: {
     backgroundDefault: false,
     backgroundColor: '#123456',
@@ -124,6 +130,7 @@ test('migrates local data to an empty synchronized area', async () => {
   assert.equal(stored.bookmarks[0].name, 'Local bookmark');
   assert.equal(stored.bookmarks[0].folderId, 'saved');
   assert.equal(stored.folders[0].name, 'Saved');
+  assert.deepEqual(stored.settings.keyboardShortcuts, SETTINGS.keyboardShortcuts);
   assert.deepEqual(stored.settings.bookmarkDefault, {
     backgroundImageUrl: null,
     backgroundImageLocal: null,

@@ -178,7 +178,7 @@ test('uses the full viewport and keeps edit controls inside the last column whil
       folders: data.folders.map(item => ({ ...item, gx: 11, gy: 0, w: 1, h: 1 }))
     } });
   });
-  await page.keyboard.press('Space');
+  await page.keyboard.press('Control+KeyE');
   const folder = page.locator('#bookmark-container [data-folder-id="compact-folder"]');
   await expect(folder.locator('.resizer')).toHaveCount(8);
   const original = await data(page);
@@ -220,7 +220,7 @@ test('uses the full viewport and keeps edit controls inside the last column whil
 
 test('dragging and resizing use the new cell size after shrinking to 600px', async ({ page }) => {
   await start(page);
-  await page.keyboard.press('Space');
+  await page.keyboard.press('Control+KeyE');
   const item = page.locator('[data-bookmark-id="compact-19"]');
   await expect(item.locator('.resizer')).toHaveCount(8);
   await page.setViewportSize({ width: 600, height: 720 });
@@ -280,11 +280,11 @@ test('toggling editing preserves grid, card and content geometry at every respon
     await page.setViewportSize({ width, height });
     await expect.poll(async () => (await geometry()).grid).toEqual({ x: 0, y: 0, width, height });
     const before = await geometry();
-    await page.keyboard.press('Space');
+    await page.keyboard.press('Control+KeyE');
     await expect(page.locator('#grid-overlay')).toBeVisible();
     await expect(page.locator('#bookmark-container .resizer').first()).toBeVisible();
     expect(await geometry()).toEqual(before);
-    await page.keyboard.press('Space');
+    await page.keyboard.press('Control+KeyE');
     await expect(page.locator('#grid-overlay')).toBeHidden();
     await expect(page.locator('#bookmark-container .resizer')).toHaveCount(0);
     expect(await geometry()).toEqual(before);
@@ -346,7 +346,7 @@ test('folder artwork scales continuously without typography or thumbnail shape j
     }
     previous = current;
   }
-  await page.keyboard.press('Space');
+  await page.keyboard.press('Control+KeyE');
   await expect(page.locator('#grid-overlay')).toBeVisible();
   expect(await measure()).toEqual(previous);
   expect(await data(page)).toEqual(original);
@@ -376,7 +376,7 @@ test('bookmarks do not jump around 1200px in either viewing or editing mode', as
   for (const editing of [false, true]) {
     if (editing) {
       const before = await measure();
-      await page.keyboard.press('Space');
+      await page.keyboard.press('Control+KeyE');
       await expect(page.locator('#grid-overlay')).toBeVisible();
       expect(await measure()).toEqual(before);
     }
@@ -402,7 +402,7 @@ test('bookmarks do not jump around 1200px in either viewing or editing mode', as
 
 test('resizing the viewport cancels an active resize without leaving stale card dimensions', async ({ page }) => {
   await start(page);
-  await page.keyboard.press('Space');
+  await page.keyboard.press('Control+KeyE');
   const item = page.locator('[data-bookmark-id="compact-19"]');
   const handle = item.locator('.resizer.right');
   await expect(handle).toBeVisible();
@@ -485,7 +485,7 @@ test('folders also use readable lists and cannot enter editing in compact view',
   await expect(page.locator('#folder-modal-items')).toHaveClass(/is-list-view/);
   await expect(page.locator('#folder-modal-items .bookmark-list-item')).toHaveCount(3);
   await expect(page.locator('#folder-modal-edit-toggle')).toBeHidden();
-  await page.keyboard.press('Space');
+  await page.keyboard.press('Control+KeyE');
   await expect(page.locator('.flash-error').last()).toHaveText('Widen the window to use this feature.');
   await expect(page.locator('#folder-modal')).not.toHaveClass(/is-folder-editing/);
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -498,13 +498,13 @@ test('compact view hides unavailable tools and blocks shortcuts until exactly 60
   await start(page, 599);
   await page.mouse.move(5, 360);
   await expect(page.locator('#floating-menu')).toBeHidden();
-  for (const key of ['.', 'Enter']) {
+  for (const key of ['Control+KeyS', 'Control+KeyB', 'Control+KeyF']) {
     await page.keyboard.press(key);
     await expect(page.locator('.flash-error').last()).toHaveText('Widen the window to use this feature.');
     await expect(page.locator('.modal.is-open')).toHaveCount(0);
     await page.locator('#flash-container').evaluate(element => element.replaceChildren());
   }
-  await page.keyboard.press('Space');
+  await page.keyboard.press('Control+KeyE');
   expect(await page.evaluate(async () => (await import('/src/js/core/store.js')).getState().ui.isEditing)).toBe(false);
   await page.evaluate(async () => (await import('/src/js/ui/modals/bookmarkModal.js')).openEditBookmark('compact-1'));
   await expect(page.locator('#edit-bookmark-modal')).toBeHidden();
@@ -521,7 +521,7 @@ test('compact view hides unavailable tools and blocks shortcuts until exactly 60
 test('entering list view cancels an unfinished grid drag and exits editing', async ({ page }) => {
   await start(page);
   const original = await data(page);
-  await page.keyboard.press('Space');
+  await page.keyboard.press('Control+KeyE');
   const bookmark = page.locator('[data-bookmark-id="compact-0"]');
   await expect(bookmark).toHaveClass(/is-editing/);
   const box = await bookmark.boundingBox();
@@ -668,7 +668,7 @@ test('suspends folder editing and inline renaming without saving or discarding t
   await page.setViewportSize({ width: 430, height: 720 });
   await expect(page.locator('#folder-modal')).toBeHidden();
   await page.keyboard.press('Escape');
-  await page.keyboard.press('Space');
+  await page.keyboard.press('Control+KeyE');
   await page.locator('[data-folder-id="compact-folder"] .folder-open').click();
   await expect(page.locator('#folder-modal')).toBeHidden();
   expect(await data(page)).toEqual(original);

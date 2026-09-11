@@ -1,8 +1,9 @@
 import '../types/types.js'; // typedefs
 import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
+import { DEFAULT_KEYBOARD_SHORTCUTS } from './keyboardShortcuts.js';
 
-export const DATA_SCHEMA_VERSION = 9;
+export const DATA_SCHEMA_VERSION = 10;
 
 /** Default appearance applied to new and legacy folders. */
 export const DEFAULT_FOLDER_STYLE = Object.freeze({
@@ -124,6 +125,7 @@ export const DEFAULT_SETTINGS = {
   interfaceTheme: 'system',
   bookmarkDragMode: BOOKMARK_DRAG_MODES.NONE,
   bookmarkResizeMode: BOOKMARK_RESIZE_MODES.SMOOTH,
+  keyboardShortcuts: structuredClone(DEFAULT_KEYBOARD_SHORTCUTS),
 
   theme: {
     backgroundDefault: true,

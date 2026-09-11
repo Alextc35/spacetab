@@ -279,6 +279,7 @@
       "sync": "☁️ Sincronización",
       "bookmark": "🔖 Favoritos",
       "theme": "🖼️ Tema",
+      "shortcuts": "⌨️ Teclas rápidas",
       "language": "🌐 Idiomas",
       "information": "ℹ️ Información"
     },
@@ -401,6 +402,36 @@
         "apply": "Usar",
         "delete": "Eliminar",
         "empty": "No hay estilos guardados"
+      }
+    },
+    "shortcuts": {
+      "title": "Teclas rápidas",
+      "description": "Selecciona un botón y pulsa una combinación que incluya Ctrl, Alt, Shift o Meta.",
+      "change": "Cambiar el atajo de {{action}}. Atajo actual: {{shortcut}}.",
+      "press": "Pulsa el atajo…",
+      "modifierRequired": "Incluye Ctrl, Alt, Shift o Meta en el atajo.",
+      "conflict": "{{shortcut}} ya está asignado a {{action}}.",
+      "updated": "Atajo cambiado a {{shortcut}}.",
+      "cancelled": "Cambio de atajo cancelado.",
+      "restored": "Se han restaurado las teclas rápidas predeterminadas.",
+      "reset": "Restablecer teclas rápidas",
+      "actions": {
+        "toggleEditing": {
+          "title": "Modo edición",
+          "description": "Activa o desactiva la edición de la cuadrícula o de una carpeta abierta."
+        },
+        "addBookmark": {
+          "title": "Crear favorito",
+          "description": "Abre el formulario para añadir un favorito."
+        },
+        "addFolder": {
+          "title": "Crear carpeta",
+          "description": "Abre el diálogo para crear una carpeta."
+        },
+        "openSettings": {
+          "title": "Abrir ajustes",
+          "description": "Abre el panel de configuración de SpaceTab."
+        }
       }
     },
     "languages": {

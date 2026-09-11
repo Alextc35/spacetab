@@ -20,6 +20,7 @@ import { initThemeSection } from './themeSection.js';
 import { initBookmarkSection } from './bookmarkSection.js';
 import { initLanguageSection } from './languageSection.js';
 import { initSyncSection } from './syncSection.js';
+import { initShortcutSection } from './shortcutSection.js';
 import {
   initDraft,
   resetState,
@@ -96,6 +97,10 @@ export function initSettingsModal() {
     onRequestSaveStateUpdate: updateSaveButtonState
   });
 
+  const shortcutSection = initShortcutSection({
+    onRequestSaveStateUpdate: updateSaveButtonState
+  });
+
   const generalSection = initGeneralSection({
     onRequestSaveStateUpdate: updateSaveButtonState,
     onResetSettings: async () => {
@@ -104,6 +109,7 @@ export function initSettingsModal() {
       themeSection.syncUI();
       bookmarkSection.syncUI();
       languageSection.syncUI();
+      shortcutSection.syncUI();
       await changeLanguage(DEFAULT_SETTINGS);
       updateSaveButtonState();
     },
@@ -117,13 +123,7 @@ export function initSettingsModal() {
      Modal registration
   ================================================== */
 
-  /**
-   * Registers the settings modal with the modal manager.
-   *
-   * Shortcut behavior:
-   * - "." toggles the settings modal
-   * - the shortcut delegates to the settings button click handler
-   */
+  /** Registers the settings modal with the modal manager. */
   registerModal({
     id: 'settings',
     element: settingsModal,
@@ -131,10 +131,7 @@ export function initSettingsModal() {
     closeOnEsc: true,
     closeOnOverlay: false,
     acceptOnEnter: false,
-    initialFocus: null,
-    shortcut: '.',
-    toggleWithShortcut: true,
-    onShortcut: () => settingsBtn.click()
+    initialFocus: null
   });
 
   /**
@@ -192,6 +189,7 @@ export function initSettingsModal() {
     bookmarkSection.syncUI();
     languageSection.syncUI();
     syncSection.syncUI();
+    shortcutSection.syncUI();
 
     updateSaveButtonState();
 

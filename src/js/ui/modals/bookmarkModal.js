@@ -65,10 +65,7 @@ export function initBookmarkModal() {
     closeOnEsc: true,
     closeOnOverlay: true,
     acceptOnEnter: false,
-    initialFocus: null,
-    shortcut: 'Enter',
-    toggleWithShortcut: true,
-    onShortcut: openAddBookmark
+    initialFocus: null
   });
 }
 

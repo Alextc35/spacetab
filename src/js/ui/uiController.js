@@ -5,7 +5,6 @@ import { resizeBookmarkView } from './bookmark/renderer.js';
 import { cancelGridGesture } from './bookmark/dragResize.js';
 import { ensurePanelFits, isListView } from './viewportMode.js';
 
-import { hasOpenModal } from './modalManager.js';
 import { flash } from './flash.js';
 
 /** @type {HTMLElement|null} */
@@ -24,7 +23,6 @@ let resizeFrame = null;
  * Initializes global UI controller behavior.
  * 
  * Responsibilities:
- * - Registers global keyboard shortcuts
  * - Handles resize re-render logic
  * - Binds Add and Edit toggle buttons
  *
@@ -43,7 +41,6 @@ export function initUIController({
   gridOverlayRef = gridOverlay;
   toggleButtonRef = toggleButton;
 
-  document.addEventListener('keydown', handleEditModeShortcut);
   window.addEventListener('resize', handleResize);
 
   toggleButtonRef?.addEventListener('click', toggleEditMode);
@@ -79,23 +76,6 @@ async function toggleEditMode() {
     'info',
     1000
   );
-}
-
-/**
- * Handles the Space key shortcut to toggle edit mode.
- *
- * Leaves typing and focused controls to their native keyboard behavior.
- *
- * @param {KeyboardEvent} event
- */
-function handleEditModeShortcut(event) {
-  if (event.defaultPrevented || hasOpenModal()
-    || event.target.closest?.('input, textarea, select, button, a, [contenteditable="true"]')) return;
-
-  if (event.code === 'Space') {
-    event.preventDefault();
-    toggleButtonRef?.click();
-  }
 }
 
 /**

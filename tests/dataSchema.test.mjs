@@ -10,6 +10,7 @@ import {
 } from '../src/js/core/dataSchema.js';
 import { DATA_SCHEMA_VERSION, DEFAULT_FOLDER_STYLE, DEFAULT_SETTINGS } from '../src/js/core/defaults.js';
 import { BOOKMARK_DRAG_MODES } from '../src/js/core/bookmarkDragModes.js';
+import { DEFAULT_KEYBOARD_SHORTCUTS } from '../src/js/core/keyboardShortcuts.js';
 
 test('migrates schema 8 folders without changing their saved appearance', () => {
   const savedStyle = {
@@ -140,6 +141,23 @@ test('normalizes unsupported bookmark drag modes to none', () => {
   });
 
   assert.equal(migrated.settings.bookmarkDragMode, BOOKMARK_DRAG_MODES.NONE);
+});
+
+test('adds safe keyboard shortcuts to legacy settings and preserves custom values', () => {
+  const legacy = migratePersistedData({ bookmarks: [], settings: { language: 'es' } });
+  assert.deepEqual(legacy.settings.keyboardShortcuts, DEFAULT_KEYBOARD_SHORTCUTS);
+
+  const custom = {
+    ...DEFAULT_KEYBOARD_SHORTCUTS,
+    toggleEditing: 'Ctrl+Shift+E'
+  };
+  const migrated = migratePersistedData({
+    schemaVersion: 9,
+    bookmarks: [],
+    settings: { keyboardShortcuts: custom }
+  });
+  assert.deepEqual(migrated.settings.keyboardShortcuts, custom);
+  assert.deepEqual(parseBackupPayload(createBackupEnvelope(migrated)), migrated);
 });
 
 test('preserves the none bookmark drag mode', () => {

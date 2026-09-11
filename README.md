@@ -246,15 +246,21 @@ made on the current device do not trigger that message locally.
 
 ## Keyboard and pointer shortcuts
 
-* `Space` toggles the main edit mode; inside an open folder it toggles that
+* `Ctrl + E` toggles the main edit mode; inside an open folder it toggles that
   folder's edit controls and reordering.
-* `Enter` opens the create-bookmark panel.
-* `.` opens Settings.
+* `Ctrl + B` opens the create-bookmark panel.
+* `Ctrl + F` opens the create-folder dialog.
+* `Ctrl + S` opens Settings.
 * `/` opens global search.
 * `Middle click` opens that bookmark's editor while editing the grid.
 * `Alt/⌥ + ↑/↓` cycles through workspaces.
 * `Ctrl/Cmd + Z` undoes the latest bookmark operation.
 * `Ctrl/Cmd + Shift + Z` redoes it.
+
+The first four shortcuts are configurable under **Settings → Keyboard
+shortcuts**. They are part of the versioned settings payload, so custom values
+are included in complete backups and follow the user between Chrome profiles or
+devices when Sync is enabled.
 
 Press `Tab` while the page is focused to enter keyboard grid navigation; press
 `Tab` again to leave it. The first visible top-level item receives focus and

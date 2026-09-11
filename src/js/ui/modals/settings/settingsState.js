@@ -2,6 +2,7 @@
 import { normalizeBookmarkDragMode } from '../../../core/bookmarkDragModes.js';
 import { normalizeBookmarkResizeMode } from '../../../core/bookmarkResizeModes.js';
 import { normalizeInterfaceTheme } from '../../../core/interfacePreferences.js';
+import { normalizeKeyboardShortcuts } from '../../../core/keyboardShortcuts.js';
 import { getState } from '../../../core/store.js';
 
 /**
@@ -28,6 +29,9 @@ let draftBookmarkDragMode = null;
 
 /** Resize feedback behavior selected for bookmarks and folders. */
 let draftBookmarkResizeMode = null;
+
+/** Customizable global keyboard shortcuts. */
+let draftKeyboardShortcuts = null;
 
 /**
  * Per-device persistence mode selected in the settings modal.
@@ -65,6 +69,7 @@ export function initDraft(settings, storageMode) {
   draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
   draftBookmarkDragMode = normalizeBookmarkDragMode(settings.bookmarkDragMode);
   draftBookmarkResizeMode = normalizeBookmarkResizeMode(settings.bookmarkResizeMode);
+  draftKeyboardShortcuts = normalizeKeyboardShortcuts(settings.keyboardShortcuts);
   draftStorageMode = storageMode;
 }
 
@@ -81,6 +86,7 @@ export function resetState() {
   draftBookmarkPresets = null;
   draftBookmarkDragMode = null;
   draftBookmarkResizeMode = null;
+  draftKeyboardShortcuts = null;
   draftStorageMode = null;
   initialSnapshot = null;
 }
@@ -145,6 +151,12 @@ export function getDraftBookmarkResizeMode() {
     ?? normalizeBookmarkResizeMode(settings.bookmarkResizeMode);
 }
 
+export function getDraftKeyboardShortcuts() {
+  const { data: { settings } } = getState();
+  return draftKeyboardShortcuts
+    ?? normalizeKeyboardShortcuts(settings.keyboardShortcuts);
+}
+
 /**
  * Returns the selected per-device persistence mode.
  *
@@ -202,6 +214,14 @@ export function setDraftBookmarkResizeMode(mode) {
   draftBookmarkResizeMode = normalizeBookmarkResizeMode(mode);
 }
 
+export function setDraftKeyboardShortcut(action, shortcut) {
+  if (!draftKeyboardShortcuts || !Object.hasOwn(draftKeyboardShortcuts, action)) return;
+  draftKeyboardShortcuts = {
+    ...draftKeyboardShortcuts,
+    [action]: shortcut
+  };
+}
+
 /**
  * Updates a single field inside the draft theme object.
  *
@@ -241,6 +261,10 @@ export function replaceDraftBookmarkPresets(presets) {
   draftBookmarkPresets = structuredClone(presets);
 }
 
+export function replaceDraftKeyboardShortcuts(shortcuts) {
+  draftKeyboardShortcuts = normalizeKeyboardShortcuts(shortcuts);
+}
+
 /** Replaces every editable settings draft while preserving the storage choice. */
 export function replaceDraftSettings(settings) {
   draftTheme = structuredClone(settings.theme);
@@ -250,6 +274,7 @@ export function replaceDraftSettings(settings) {
   draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
   draftBookmarkDragMode = normalizeBookmarkDragMode(settings.bookmarkDragMode);
   draftBookmarkResizeMode = normalizeBookmarkResizeMode(settings.bookmarkResizeMode);
+  draftKeyboardShortcuts = normalizeKeyboardShortcuts(settings.keyboardShortcuts);
 }
 
 /* ==================================================
@@ -278,6 +303,7 @@ export function hasChanges() {
     theme: draftTheme,
     bookmarkDragMode: draftBookmarkDragMode,
     bookmarkResizeMode: draftBookmarkResizeMode,
+    keyboardShortcuts: draftKeyboardShortcuts,
     bookmarkDefault: draftBookmarkDefault,
     bookmarkPresets: draftBookmarkPresets
   };
@@ -288,6 +314,7 @@ export function hasChanges() {
     theme: initialSnapshot.theme,
     bookmarkDragMode: normalizeBookmarkDragMode(initialSnapshot.bookmarkDragMode),
     bookmarkResizeMode: normalizeBookmarkResizeMode(initialSnapshot.bookmarkResizeMode),
+    keyboardShortcuts: normalizeKeyboardShortcuts(initialSnapshot.keyboardShortcuts),
     bookmarkDefault: initialSnapshot.bookmarkDefault,
     bookmarkPresets: initialSnapshot.bookmarkPresets ?? []
   };
@@ -314,6 +341,7 @@ export function buildNewSettings() {
     theme: structuredClone(draftTheme),
     bookmarkDragMode: draftBookmarkDragMode,
     bookmarkResizeMode: draftBookmarkResizeMode,
+    keyboardShortcuts: structuredClone(draftKeyboardShortcuts),
     bookmarkDefault: structuredClone(draftBookmarkDefault),
     bookmarkPresets: structuredClone(draftBookmarkPresets),
     bookmarkGroups: structuredClone(initialSnapshot?.bookmarkGroups ?? []),

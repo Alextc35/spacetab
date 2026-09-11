@@ -279,6 +279,7 @@
       "sync": "☁️ Sincronização",
       "bookmark": "🔖 Favoritos",
       "theme": "🖼️ Tema",
+      "shortcuts": "⌨️ Atalhos",
       "language": "🌐 Idiomas",
       "information": "ℹ️ Informações"
     },
@@ -401,6 +402,36 @@
         "apply": "Usar",
         "delete": "Excluir",
         "empty": "Não há estilos salvos"
+      }
+    },
+    "shortcuts": {
+      "title": "Atalhos de teclado",
+      "description": "Selecione um botão e pressione uma combinação que inclua Ctrl, Alt, Shift ou Meta.",
+      "change": "Alterar o atalho de {{action}}. Atalho atual: {{shortcut}}.",
+      "press": "Pressione o atalho…",
+      "modifierRequired": "Inclua Ctrl, Alt, Shift ou Meta no atalho.",
+      "conflict": "{{shortcut}} já é usado por {{action}}.",
+      "updated": "Atalho alterado para {{shortcut}}.",
+      "cancelled": "Alteração do atalho cancelada.",
+      "restored": "Os atalhos padrão foram restaurados.",
+      "reset": "Restaurar atalhos",
+      "actions": {
+        "toggleEditing": {
+          "title": "Modo de edição",
+          "description": "Ativa ou desativa a edição da grade ou de uma pasta aberta."
+        },
+        "addBookmark": {
+          "title": "Criar favorito",
+          "description": "Abre o formulário para adicionar um favorito."
+        },
+        "addFolder": {
+          "title": "Criar pasta",
+          "description": "Abre a caixa de diálogo para criar uma pasta."
+        },
+        "openSettings": {
+          "title": "Abrir configurações",
+          "description": "Abre o painel de configurações do SpaceTab."
+        }
       }
     },
     "languages": {
