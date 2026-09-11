@@ -2189,6 +2189,11 @@ test('scales folder previews and applies one centered tray style', async ({ page
     expect(item.top).toBeGreaterThanOrEqual(trayBox.y);
     expect(item.bottom).toBeLessThanOrEqual(trayBox.y + trayBox.height);
   }
+
+  await page.setViewportSize({ width: 900, height: 810 });
+  await expect(small.locator('.bookmark-favicon:visible')).toHaveCount(1);
+  await expect(small.locator('.folder-preview-compact-more')).toHaveText('+3');
+  await expect(small.locator('.folder-preview-compact-more')).toBeVisible();
 });
 
 test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ page }) => {

@@ -92,5 +92,9 @@
     & .folder-previews > :nth-child(n + 2) {
       display: none;
     }
+
+    &:not(.is-folder-preview-hidden) .folder-preview-compact-more {
+      display: grid;
+    }
   }
 }

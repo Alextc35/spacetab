@@ -29,6 +29,17 @@ describe('folder visual', () => {
     expect(visual.querySelector('.folder-preview-more').textContent).toBe(remainder);
   });
 
+  test.each([
+    { count: 1, remainder: null },
+    { count: 4, remainder: '+3' },
+    { count: 6, remainder: '+5' }
+  ])('reserves the compact remainder for $count bookmarks', ({ count, remainder }) => {
+    const visual = createFolderVisual({}, bookmarks(count));
+
+    expect(visual.querySelector('.folder-preview-compact-more')?.textContent ?? null)
+      .toBe(remainder);
+  });
+
   test('uses a compact icon tray over cover images', () => {
     const visual = createFolderVisual({
       noBackground: true,
@@ -50,6 +61,7 @@ describe('folder visual', () => {
 
       expect(visual.querySelectorAll('img')).toHaveLength(0);
       expect(visual.querySelector('.folder-preview-more')).toBeNull();
+      expect(visual.querySelector('.folder-preview-compact-more')).toBeNull();
       expect(visual.classList.contains('is-folder-preview-hidden')).toBe(true);
     }
   );

@@ -32,9 +32,16 @@ export function createFolderVisual(folder, bookmarks = [], { compact = false } =
       remaining.textContent = `+${bookmarks.length - previewLimit}`;
       previews.append(remaining);
     }
+
+    if (bookmarks.length > 1) {
+      const compactRemaining = document.createElement('span');
+      compactRemaining.className = 'folder-preview-compact-more';
+      compactRemaining.textContent = `+${bookmarks.length - 1}`;
+      body.append(compactRemaining);
+    }
   }
 
-  body.append(previews);
+  body.prepend(previews);
   visual.append(tab, body);
   return visual;
 }
