@@ -1,7 +1,8 @@
 import '../../types/types.js'; // typedefs
 import { clearBookmarks } from '../../core/bookmark.js';
 import { t } from '../../core/i18n.js';
-import { showAlert } from '../modals/alert.js';
+import { showConfirmWithCheckbox } from '../modals/alert.js';
+import { closeModal } from '../modalManager.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { isVisuallyDark } from './utils.js';
 import { flashSuccess, flashError } from '../flash.js';
@@ -59,16 +60,19 @@ export function createItemActionButton(text, type, themeClass, onClick) {
  * @returns {Promise<void>}
  */
 export async function deleteAllBookmarks() {
-  const ok = await showAlert(
+  const { confirmed, checkboxChecked: deleteFolders } = await showConfirmWithCheckbox(
     t('alert.bookmarks.confirmDeleteAll'),
-    { type: 'confirm' }
+    { checkboxLabel: t('alert.bookmarks.deleteFolders') }
   );
 
-  if (!ok) return;
+  if (!confirmed) return;
 
-  const deleted = clearBookmarks();
+  const deleted = clearBookmarks({ includeFolders: deleteFolders });
   if (deleted) {
-    flashSuccess('flash.bookmarks.deletedAll');
+    flashSuccess(deleteFolders
+      ? 'flash.bookmarks.deletedAllWithFolders'
+      : 'flash.bookmarks.deletedAll');
+    closeModal();
   } else {
     flashError('flash.bookmarks.deleteAllError');
   }

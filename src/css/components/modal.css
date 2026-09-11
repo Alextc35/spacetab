@@ -178,6 +178,22 @@ input[type="color"] {
   color: var(--ui-text);
 }
 
+.alert-modal-checkbox {
+  padding: 11px 12px;
+  margin-top: 14px;
+  border: 1px solid var(--ui-divider);
+  border-radius: 10px;
+  background: light-dark(rgba(244, 244, 245, .82), rgba(255, 255, 255, .035));
+}
+
+.alert-modal-checkbox label {
+  color: var(--ui-text);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.35;
+  opacity: .92;
+}
+
 .field-error {
   margin: -2px 0 4px;
   color: var(--ui-danger-text);

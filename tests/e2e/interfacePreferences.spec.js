@@ -153,13 +153,13 @@ test('language preview can be cancelled, saved, and reset to the device default'
     await expect(preference(page, 'dark')).toBeChecked();
     await page.locator('#reset-settings-btn-general').click();
     await page.locator('#alert-modal-accept').click();
-    await expect(preference(page, 'system')).toBeChecked();
+    await expect(page.locator('#settings-modal')).toBeHidden();
     await expect(card(page)).toHaveCSS('background-color', light);
     await expect(page.locator('html')).toHaveAttribute('lang', 'es');
-    await page.locator('#settings-modal-save').click();
-    await expect(page.locator('#settings-modal')).toBeHidden();
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+    await openSettings(page);
+    await expect(preference(page, 'system')).toBeChecked();
   } finally {
     await context.close();
   }

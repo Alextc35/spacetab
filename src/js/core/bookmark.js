@@ -85,11 +85,18 @@ export function updateBookmarkById(bookmarkId, updatedData) {
 /**
  * Removes all bookmarks from the state.
  * 
- * @return {boolean} True if the all bookmarks were removed, false otherwise.
+ * @param {Object} [options]
+ * @param {boolean} [options.includeFolders=false]
+ * @return {boolean} True if all requested data was removed, false otherwise.
  */
-export function clearBookmarks() {
-  const trace = debug.start('Delete all bookmarks');
-  setState({ data: { bookmarks: [] } }, { debugTrace: trace });
+export function clearBookmarks({ includeFolders = false } = {}) {
+  const trace = debug.start(includeFolders
+    ? 'Delete all bookmarks and folders'
+    : 'Delete all bookmarks');
+  const data = includeFolders
+    ? { bookmarks: [], folders: [] }
+    : { bookmarks: [] };
+  setState({ data }, { debugTrace: trace });
   return true;
 }
 

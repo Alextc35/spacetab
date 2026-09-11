@@ -40,6 +40,7 @@
     },
     "bookmarks": {
       "deletedAll": "All bookmarks deleted",
+      "deletedAllWithFolders": "All bookmarks and folders deleted",
       "deleteAllError": "Failed to delete all bookmarks",
       "exported": "Bookmarks exported",
       "exportError": "Failed to export bookmarks",
@@ -88,6 +89,7 @@
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "Delete all bookmarks?",
+      "deleteFolders": "Also delete all folders",
       "confirmDeleteSelected": "Delete {{count}} selected bookmarks?",
       "duplicateNoSpace": "{{count}} bookmarks could not be duplicated because there was not enough space.",
       "moveNoSpace": "{{count}} bookmarks could not be moved because there was not enough space.",

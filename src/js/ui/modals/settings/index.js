@@ -112,6 +112,7 @@ export function initSettingsModal() {
       shortcutSection.syncUI();
       await changeLanguage(DEFAULT_SETTINGS);
       updateSaveButtonState();
+      await saveSettings();
     },
     onBackupImported: () => {
       resetState();
@@ -219,7 +220,7 @@ export function initSettingsModal() {
    * - reset draft tracking
    * - close the modal
    */
-  settingsSave.addEventListener('click', async () => {
+  async function saveSettings() {
     const newSettings = buildNewSettings();
     const currentStorageMode = getStorageMode();
     const nextStorageMode = getDraftStorageMode();
@@ -263,5 +264,7 @@ export function initSettingsModal() {
       }
       updateSaveButtonState();
     }
-  });
+  }
+
+  settingsSave.addEventListener('click', saveSettings);
 }

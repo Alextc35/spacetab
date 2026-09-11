@@ -40,6 +40,7 @@
     },
     "bookmarks": {
       "deletedAll": "Todos los marcadores eliminados",
+      "deletedAllWithFolders": "Todos los marcadores y carpetas eliminados",
       "deleteAllError": "Error al eliminar los marcadores",
       "exported": "Marcadores exportados",
       "exportError": "Error al exportar los marcadores",
@@ -88,6 +89,7 @@
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "¿Eliminar todos los marcadores?",
+      "deleteFolders": "Eliminar también todas las carpetas",
       "confirmDeleteSelected": "¿Eliminar {{count}} marcadores seleccionados?",
       "duplicateNoSpace": "{{count}} marcadores no se pudieron duplicar porque no había espacio.",
       "moveNoSpace": "{{count}} marcadores no se pudieron mover porque no había espacio.",

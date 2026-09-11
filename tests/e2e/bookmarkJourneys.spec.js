@@ -1583,6 +1583,65 @@ test('warns before deleting a workspace and removes its bookmarks', async ({ pag
   await expect(page.getByRole('link', { name: /Temporary bookmark/ })).toHaveCount(0);
 });
 
+test('optionally deletes folders when deleting all bookmarks', async ({ page }) => {
+  await revealSideDock(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('Keep until selected');
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await waitForSaved(page);
+
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  const deleteAll = page.getByRole('button', { name: 'Delete all bookmarks' });
+
+  await deleteAll.click();
+  const checkbox = page.getByRole('checkbox', { name: 'Also delete all folders' });
+  await expect(page.getByRole('heading', { name: 'Delete all bookmarks?' })).toBeVisible();
+  await expect(checkbox).not.toBeChecked();
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await expect(page.locator('#settings-modal')).toBeVisible();
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return {
+      bookmarks: getState().data.bookmarks.length,
+      folders: getState().data.folders.length
+    };
+  })).toEqual({ bookmarks: 2, folders: 1 });
+
+  await deleteAll.click();
+  await expect(checkbox).not.toBeChecked();
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await waitForSaved(page);
+  await expect(page.locator('#settings-modal')).toBeHidden();
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return {
+      bookmarks: getState().data.bookmarks.length,
+      folders: getState().data.folders.length
+    };
+  })).toEqual({ bookmarks: 0, folders: 1 });
+
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '⚙️' }).click();
+  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await deleteAll.click();
+  await expect(checkbox).not.toBeChecked();
+  await checkbox.check();
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await waitForSaved(page);
+  await expect(page.locator('#settings-modal')).toBeHidden();
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return {
+      bookmarks: getState().data.bookmarks.length,
+      folders: getState().data.folders.length
+    };
+  })).toEqual({ bookmarks: 0, folders: 0 });
+  await expect(page.getByText('All bookmarks and folders deleted')).toBeVisible();
+});
+
 test('saves a named appearance preset', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
@@ -1605,6 +1664,7 @@ test('configures the default bookmark through the shared preset editor', async (
   await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
 
   await expect(page.locator('#settings-modal-tab-bookmark .default-bookmark-settings')).toBeVisible();
+  await expect(page.locator('.default-bookmark-settings + #settings-bookmark-reset')).toBeVisible();
   await expect(page.locator('#settings-modal-tab-bookmark .bookmark-drag-settings')).toBeVisible();
   await expect(page.locator('#settings-bookmark-form-host')).toHaveCount(0);
   await page.getByRole('button', { name: 'Configure default bookmark' }).click();

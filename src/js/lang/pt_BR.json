@@ -40,6 +40,7 @@
     },
     "bookmarks": {
       "deletedAll": "Todos os favoritos excluídos",
+      "deletedAllWithFolders": "Todos os favoritos e pastas excluídos",
       "deleteAllError": "Erro ao excluir os favoritos",
       "exported": "Favoritos exportados",
       "exportError": "Erro ao exportar os favoritos",
@@ -88,6 +89,7 @@
   "alert": {
     "bookmarks": {
       "confirmDeleteAll": "Excluir todos os favoritos?",
+      "deleteFolders": "Excluir também todas as pastas",
       "confirmDeleteSelected": "Excluir {{count}} favoritos selecionados?",
       "duplicateNoSpace": "{{count}} favoritos não puderam ser duplicados porque não havia espaço.",
       "moveNoSpace": "{{count}} favoritos não puderam ser movidos porque não havia espaço.",

@@ -22,6 +22,9 @@ let btnAccept;
  */
 let btnCancel;
 let inputEl;
+let checkboxWrapper;
+let checkboxEl;
+let checkboxLabelEl;
 
 /**
  * Active accept handler for the currently displayed alert.
@@ -50,6 +53,9 @@ export function initAlertModal() {
   btnCancel = modal.querySelector('#alert-modal-cancel');
   btnAccept = modal.querySelector('#alert-modal-accept');
   inputEl = modal.querySelector('#alert-modal-input');
+  checkboxWrapper = modal.querySelector('#alert-modal-checkbox-wrapper');
+  checkboxEl = modal.querySelector('#alert-modal-checkbox');
+  checkboxLabelEl = modal.querySelector('#alert-modal-checkbox-label');
 
   /**
    * Delegate accept button clicks to the currently active handler.
@@ -115,6 +121,7 @@ export function showAlert(text, options = {}) {
     btnCancel.style.display = type === 'info' ? 'none' : 'inline-block';
     inputEl.classList.add('is-hidden');
     inputEl.removeAttribute('aria-invalid');
+    resetCheckboxOption();
 
     /**
      * Resolve the alert as accepted and close the modal.
@@ -145,6 +152,54 @@ export function showAlert(text, options = {}) {
 }
 
 /**
+ * Displays a confirmation with one optional checkbox.
+ *
+ * @param {string} text
+ * @param {Object} options
+ * @param {string} options.checkboxLabel
+ * @param {boolean} [options.checked=false]
+ * @param {boolean} [options.requiresWideViewport=false]
+ * @returns {Promise<{confirmed: boolean, checkboxChecked: boolean}>}
+ */
+export function showConfirmWithCheckbox(text, {
+  checkboxLabel,
+  checked = false,
+  requiresWideViewport = false
+} = {}) {
+  if (isModalSuspended('alert')) {
+    flashInfo('flash.viewport.suspended');
+    return Promise.resolve({ confirmed: false, checkboxChecked: false });
+  }
+
+  return new Promise(resolve => {
+    titleEl.textContent = text;
+    inputEl.classList.add('is-hidden');
+    inputEl.removeAttribute('aria-invalid');
+    checkboxLabelEl.textContent = checkboxLabel;
+    checkboxEl.checked = checked;
+    checkboxWrapper.classList.remove('is-hidden');
+    btnAccept.textContent = t('buttons.accept');
+    btnCancel.textContent = t('buttons.cancel');
+    btnCancel.style.display = 'inline-block';
+
+    activeAccept = () => {
+      resolve({ confirmed: true, checkboxChecked: checkboxEl.checked });
+      closeModal();
+    };
+    activeCancel = () => {
+      resolve({ confirmed: false, checkboxChecked: false });
+      closeModal();
+    };
+
+    openModal('alert', {
+      onAccept: activeAccept,
+      onCancel: activeCancel,
+      requiresWideViewport
+    });
+  });
+}
+
+/**
  * Displays a small accessible text prompt using the managed alert dialog.
  *
  * @param {string} text
@@ -163,6 +218,7 @@ export function showPrompt(text, { value = '', placeholder = '', requiresWideVie
     inputEl.placeholder = placeholder;
     inputEl.classList.remove('is-hidden');
     inputEl.removeAttribute('aria-invalid');
+    resetCheckboxOption();
     btnAccept.textContent = t('buttons.accept');
     btnCancel.textContent = t('buttons.cancel');
     btnCancel.style.display = 'inline-block';
@@ -189,4 +245,10 @@ export function showPrompt(text, { value = '', placeholder = '', requiresWideVie
       initialFocus: inputEl
     });
   });
+}
+
+function resetCheckboxOption() {
+  checkboxWrapper.classList.add('is-hidden');
+  checkboxEl.checked = false;
+  checkboxLabelEl.textContent = '';
 }
