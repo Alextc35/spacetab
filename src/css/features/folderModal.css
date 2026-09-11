@@ -414,12 +414,14 @@
 }
 
 .folder-modal-glyph {
-  display: block;
   position: relative;
+  display: grid;
   width: 44px;
   height: 44px;
   flex: 0 0 44px;
-  padding: 7px;
+  padding: 1px;
+  place-items: center;
+  overflow: hidden;
   border: 1px solid transparent;
   border-radius: 13px;
   background: rgba(14, 165, 233, .16);
@@ -439,9 +441,23 @@
 
 .folder-modal-glyph .folder-visual {
   width: 100%;
-  height: 100%;
+  height: auto;
   margin: 0;
   filter: drop-shadow(0 4px 5px rgba(2, 8, 23, .3));
+}
+
+.folder-modal-glyph .folder-visual.has-folder-bg-image {
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.folder-modal-glyph .folder-visual.has-folder-bg-image .folder-tab {
+  display: none;
+}
+
+.folder-modal-glyph .folder-visual.has-folder-bg-image .folder-body {
+  inset: 0;
+  border-radius: 10px;
 }
 
 .folder-modal-glyph .folder-tab {

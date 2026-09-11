@@ -46,5 +46,18 @@
 }
 
 #search-bookmarks {
-  font-size: 24px;
+  display: grid;
+  padding: 0;
+  line-height: 0;
+  place-items: center;
+}
+
+#search-bookmarks svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
 }

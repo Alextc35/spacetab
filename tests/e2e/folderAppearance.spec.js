@@ -206,3 +206,46 @@ test('transparent rear tabs end at the folder face at small, normal and large si
   await page.locator('#folder-modal-customize').click();
   await assertTabBounds(previewCard(page).locator('.folder-visual'));
 });
+
+test('centers the search glyph and lets the opened-folder preview fill its control', async ({ page }) => {
+  await start(page, [{
+    id: folderId,
+    gx: 0,
+    gy: 0,
+    w: 2,
+    h: 2,
+    backgroundImageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32"%3E%3Crect width="32" height="32" fill="%230ea5e9"/%3E%3C/svg%3E'
+  }]);
+
+  await page.mouse.move(640, 799);
+  const searchGeometry = await page.locator('#search-bookmarks').evaluate(button => {
+    const control = button.getBoundingClientRect();
+    const glyph = button.querySelector('svg').getBoundingClientRect();
+    return { control: control.toJSON(), glyph: glyph.toJSON() };
+  });
+  expect(searchGeometry.glyph.width).toBeGreaterThanOrEqual(20);
+  expect(Math.abs(
+    searchGeometry.glyph.x + searchGeometry.glyph.width / 2
+      - searchGeometry.control.x - searchGeometry.control.width / 2
+  )).toBeLessThanOrEqual(1);
+  expect(Math.abs(
+    searchGeometry.glyph.y + searchGeometry.glyph.height / 2
+      - searchGeometry.control.y - searchGeometry.control.height / 2
+  )).toBeLessThanOrEqual(1);
+  await folderCard(page).locator('.folder-open').click();
+  const previewGeometry = await page.locator('#folder-modal-customize').evaluate(button => {
+    const control = button.getBoundingClientRect();
+    const preview = button.querySelector('.folder-body').getBoundingClientRect();
+    return { control: control.toJSON(), preview: preview.toJSON() };
+  });
+  expect(previewGeometry.preview.width / previewGeometry.control.width).toBeGreaterThan(.9);
+  expect(previewGeometry.preview.height / previewGeometry.control.height).toBeGreaterThan(.9);
+  expect(Math.abs(
+    previewGeometry.preview.x + previewGeometry.preview.width / 2
+      - previewGeometry.control.x - previewGeometry.control.width / 2
+  ), JSON.stringify(previewGeometry)).toBeLessThanOrEqual(1);
+  expect(Math.abs(
+    previewGeometry.preview.y + previewGeometry.preview.height / 2
+      - previewGeometry.control.y - previewGeometry.control.height / 2
+  )).toBeLessThanOrEqual(1);
+});
