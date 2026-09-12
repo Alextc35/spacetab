@@ -35,6 +35,11 @@ export async function saveDeviceImageSelections(data) {
   if (changed) await writeSelections(selections);
 }
 
+/** Removes every device-specific image choice during a complete data reset. */
+export function clearDeviceImageSelections() {
+  return callLocalStorage('remove', DEVICE_IMAGE_SELECTIONS_KEY);
+}
+
 /**
  * Overlays this device's choices on incoming data. Legacy inline references are
  * adopted only where the file is available locally and no choice has been made.

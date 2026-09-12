@@ -1742,6 +1742,50 @@ test('localizes sync status and confirms synchronized data deletion', async ({ p
   await page.getByRole('button', { name: '☁️ Sync' }).click();
 
   const deleteSyncData = page.getByRole('button', { name: 'Delete synced data' });
+  const syncOption = page.locator('label[for="storage-mode-sync"]');
+  const syncHelp = page.getByRole('button', { name: 'Synchronization information' });
+  const syncTooltip = page.locator('#storage-sync-notice');
+  await expect(page.locator('#storage-persistence-indicator'))
+    .toHaveAttribute('data-status', 'idle');
+  await expect(syncTooltip).toBeHidden();
+  await syncOption.hover();
+  await expect(syncTooltip).toBeHidden();
+  await syncHelp.hover();
+  await expect(syncTooltip).toBeVisible();
+  await expect(syncTooltip).toContainText('Google Chrome syncs SpaceTab');
+  await expect(syncHelp).toHaveAttribute('aria-expanded', 'true');
+  expect(await syncTooltip.evaluate(element => element.parentElement.id)).toBe('settings-modal');
+  const tooltipBox = await syncTooltip.boundingBox();
+  const viewport = page.viewportSize();
+  expect(tooltipBox.x).toBeGreaterThanOrEqual(0);
+  expect(tooltipBox.y).toBeGreaterThanOrEqual(0);
+  expect(tooltipBox.x + tooltipBox.width).toBeLessThanOrEqual(viewport.width);
+  expect(tooltipBox.y + tooltipBox.height).toBeLessThanOrEqual(viewport.height);
+  expect(await syncTooltip.evaluate(element => {
+    const style = getComputedStyle(element);
+    return { overflowX: style.overflowX, overflowY: style.overflowY };
+  })).toEqual({ overflowX: 'visible', overflowY: 'visible' });
+  expect(await syncTooltip.evaluate(element => {
+    const arrow = getComputedStyle(element, '::after');
+    return [arrow.borderTopColor, arrow.borderBottomColor]
+      .some(color => color !== 'rgba(0, 0, 0, 0)');
+  })).toBe(true);
+
+  await syncOption.hover();
+  await expect(syncTooltip).toBeHidden();
+  await syncHelp.hover();
+  await expect(syncTooltip).toBeVisible();
+  await syncHelp.click();
+  await deleteSyncData.hover();
+  await expect(syncTooltip).toBeVisible();
+  await syncHelp.click();
+  await expect(syncTooltip).toBeHidden();
+  await expect(syncHelp).toHaveAttribute('aria-expanded', 'false');
+  await syncOption.hover();
+  await syncHelp.hover();
+  await expect(syncTooltip).toBeVisible();
+  await syncOption.hover();
+  await expect(syncTooltip).toBeHidden();
   await expect(deleteSyncData).toBeEnabled();
   await expect(page.locator('#storage-sync-last-updated'))
     .toContainText('Last synchronized update:');

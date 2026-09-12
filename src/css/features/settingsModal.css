@@ -530,6 +530,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
 .storage-mode-copy strong,
@@ -542,6 +543,77 @@
   color: var(--ui-muted);
   font-size: 12px;
   line-height: 1.45;
+}
+
+.storage-mode-option-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.storage-mode-option-wrap > .storage-mode-option {
+  padding-right: 44px;
+}
+
+.storage-mode-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+}
+
+.storage-persistence-indicator {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--ui-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-accent) 18%, transparent);
+  transition: background .2s ease, box-shadow .2s ease;
+}
+
+.storage-persistence-indicator[data-status="saving"] {
+  background: var(--ui-warning-text);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-warning-text) 18%, transparent);
+}
+
+.storage-persistence-indicator[data-status="saved"] {
+  background: var(--ui-success-text);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-success-text) 18%, transparent);
+}
+
+.storage-persistence-indicator[data-status="error"] {
+  background: var(--ui-danger-text);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-danger-text) 18%, transparent);
+}
+
+.storage-sync-help {
+  position: absolute;
+  z-index: 11;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--ui-muted);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ui-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  transition: border-color .16s ease, background .16s ease, color .16s ease;
+}
+
+.storage-sync-help:hover,
+.storage-sync-help:focus-visible {
+  border-color: var(--ui-accent);
+  background: color-mix(in srgb, var(--ui-accent) 14%, transparent);
+  color: var(--ui-accent);
+  outline: none;
 }
 
 .storage-usage {
@@ -623,22 +695,59 @@
   font-weight: 600;
 }
 
-.storage-sync-notice {
-  margin-top: 16px;
+.storage-sync-tooltip {
+  --sync-tooltip-bg: var(--ui-info-bg);
+  --sync-tooltip-color: var(--ui-info-text);
+  --sync-tooltip-arrow-left: calc(100% - 16px);
+
+  position: fixed;
+  z-index: 20;
+  width: min(390px, calc(100vw - 24px));
+  overflow: visible;
   padding: 12px 14px;
-  border-left: 3px solid var(--ui-accent);
-  border-radius: 6px;
-  background: var(--ui-info-bg);
-  color: var(--ui-info-text);
+  border: 1px solid color-mix(in srgb, var(--sync-tooltip-color) 32%, transparent);
+  border-radius: 8px;
+  background: var(--sync-tooltip-bg);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 24%);
+  color: var(--sync-tooltip-color);
   font-size: 12px;
   line-height: 1.5;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+  visibility: hidden;
 }
 
-.storage-sync-notice p {
+.storage-sync-tooltip::after {
+  position: absolute;
+  top: 100%;
+  left: var(--sync-tooltip-arrow-left);
+  border: 6px solid transparent;
+  border-top-color: var(--sync-tooltip-bg);
+  content: "";
+  filter: drop-shadow(0 2px 1px rgb(0 0 0 / 12%));
+  transform: translateX(-50%);
+}
+
+.storage-sync-tooltip[data-placement="below"]::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--sync-tooltip-bg);
+}
+
+.storage-sync-tooltip.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.storage-sync-tooltip p {
   margin: 0;
 }
 
-.storage-sync-notice p + p {
+.storage-sync-tooltip p + p {
   margin-top: 8px;
 }
 
@@ -654,16 +763,10 @@
   color: var(--ui-danger-text);
 }
 
-.storage-sync-notice.is-unsupported {
-  border-left-color: var(--ui-warning-text);
-  background: var(--ui-warning-bg);
-  color: var(--ui-warning-text);
-}
-
-.storage-sync-notice.is-version-blocked {
-  border-left-color: var(--ui-warning-text);
-  background: var(--ui-warning-bg);
-  color: var(--ui-warning-text);
+.storage-sync-tooltip.is-unsupported,
+.storage-sync-tooltip.is-version-blocked {
+  --sync-tooltip-bg: var(--ui-warning-bg);
+  --sync-tooltip-color: var(--ui-warning-text);
 }
 
 #storage-sync-compatibility-notice {

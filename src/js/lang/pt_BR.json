@@ -54,7 +54,9 @@
     "settings": {
       "saved": "Configurações salvas",
       "copied": "Valor copiado para a área de transferência",
-      "resetBg": "Tema restaurado"
+      "resetBg": "Tema restaurado",
+      "deletedAllData": "Todos os dados do SpaceTab foram excluídos",
+      "deleteAllDataError": "Não foi possível excluir todos os dados do SpaceTab"
     },
     "localImage": {
       "invalid": "Escolha uma imagem PNG, JPEG, WebP, GIF ou AVIF.",
@@ -108,6 +110,7 @@
     "settings": {
       "cancel": "Descartar as alterações nas configurações?",
       "reset": "Restaurar todas as configurações? Os favoritos não serão excluídos.",
+      "deleteAllData": "Excluir todos os dados do SpaceTab? Favoritos, pastas, configurações e dados sincronizados serão excluídos permanentemente. Esta ação não pode ser desfeita.",
       "theme": {
         "reset": "Restaurar as configurações do tema?"
       },
@@ -291,6 +294,7 @@
       "export": "Exportar backup",
       "import": "Restaurar backup",
       "resetSettings": "Restaurar configurações",
+      "deleteAllData": "Excluir todos os dados",
       "appearance": {
         "title": "Aparência",
         "system": "Navegador",
@@ -309,7 +313,8 @@
       },
       "synced": {
         "title": "Sincronizado",
-        "description": "Disponível em perfis do Google Chrome conectados à mesma conta."
+        "description": "Disponível em perfis do Google Chrome conectados à mesma conta.",
+        "tooltip": "Informações sobre a sincronização"
       },
       "compatibility": {
         "newerVersion": "A sincronização está bloqueada neste dispositivo porque os dados na nuvem foram criados por uma versão mais recente do SpaceTab. Seus dados sincronizados estão seguros e não foram modificados. Atualize o SpaceTab para reconectar."

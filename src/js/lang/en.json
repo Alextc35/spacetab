@@ -54,7 +54,9 @@
     "settings": {
       "saved": "Settings saved",
       "copied": "Value copied to clipboard",
-      "resetBg": "Theme reset"
+      "resetBg": "Theme reset",
+      "deletedAllData": "All SpaceTab data deleted",
+      "deleteAllDataError": "Could not delete all SpaceTab data"
     },
     "localImage": {
       "invalid": "Choose a PNG, JPEG, WebP, GIF, or AVIF image.",
@@ -108,6 +110,7 @@
     "settings": {
       "cancel": "Discard settings changes?",
       "reset": "Reset all settings? Bookmarks will not be deleted.",
+      "deleteAllData": "Delete all SpaceTab data? Bookmarks, folders, settings, and synchronized data will be permanently deleted. This action cannot be undone.",
       "theme": {
         "reset": "Reset theme settings?"
       },
@@ -291,6 +294,7 @@
       "export": "Export backup",
       "import": "Restore backup",
       "resetSettings": "Reset settings",
+      "deleteAllData": "Delete all data",
       "appearance": {
         "title": "Appearance",
         "system": "Browser",
@@ -309,7 +313,8 @@
       },
       "synced": {
         "title": "Synced",
-        "description": "Available in Google Chrome profiles connected to the same account."
+        "description": "Available in Google Chrome profiles connected to the same account.",
+        "tooltip": "Synchronization information"
       },
       "compatibility": {
         "newerVersion": "Sync is locked on this device because the cloud data was created by a newer SpaceTab version. Your synchronized data is safe and has not been modified. Update SpaceTab to reconnect."

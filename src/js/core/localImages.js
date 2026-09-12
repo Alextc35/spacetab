@@ -151,6 +151,15 @@ export async function saveLocalImage(file) {
   return reference;
 }
 
+/** Removes every image file owned by SpaceTab from this browser profile. */
+export async function clearLocalImages() {
+  const values = await callStorage(chrome.storage.local, 'get', null);
+  const keys = Object.keys(values).filter(key => key.startsWith(LOCAL_IMAGE_STORAGE_PREFIX));
+  if (keys.length) await callStorage(chrome.storage.local, 'remove', keys);
+  cachedImages.clear();
+  cachedImageNames.clear();
+}
+
 function collectLocalImageReferences(value, references = new Set()) {
   if (isLocalImageReference(value)) {
     references.add(value);

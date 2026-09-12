@@ -8,6 +8,7 @@ import { changeLanguage, t } from '../../../core/i18n.js';
 import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
 import {
   changeStorageMode,
+  clearAllData,
   getState,
   getStorageMode
 } from '../../../core/store.js';
@@ -113,6 +114,18 @@ export function initSettingsModal() {
       await changeLanguage(DEFAULT_SETTINGS);
       updateSaveButtonState();
       await saveSettings();
+    },
+    onDeleteAllData: async () => {
+      try {
+        await clearAllData();
+        await changeLanguage(DEFAULT_SETTINGS);
+        resetState();
+        closeModal('settings');
+        flashSuccess('flash.settings.deletedAllData');
+      } catch (error) {
+        console.error('[SETTINGS] Could not delete all data:', error);
+        flashError('flash.settings.deleteAllDataError');
+      }
     },
     onBackupImported: () => {
       resetState();

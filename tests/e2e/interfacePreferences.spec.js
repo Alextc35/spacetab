@@ -164,3 +164,103 @@ test('language preview can be cancelled, saved, and reset to the device default'
     await context.close();
   }
 });
+
+test('deletes every SpaceTab data area from General and closes settings', async ({ page }) => {
+  await start(page);
+  await page.evaluate(async () => {
+    const { DEFAULT_BOOKMARK, DEFAULT_FOLDER_STYLE } = await import('/src/js/core/defaults.js');
+    const { changeStorageMode, getState, setState } = await import('/src/js/core/store.js');
+
+    const settings = structuredClone(getState().data.settings);
+    settings.interfaceTheme = 'dark';
+    settings.bookmarkPresets = [{
+      id: 'saved-style',
+      name: 'Saved style',
+      style: structuredClone(settings.bookmarkDefault)
+    }];
+    await setState({
+      data: {
+        bookmarks: [{
+          ...DEFAULT_BOOKMARK,
+          id: 'delete-me',
+          name: 'Delete me',
+          url: 'https://delete.example',
+          gx: 0,
+          gy: 0
+        }],
+        folders: [{
+          ...DEFAULT_FOLDER_STYLE,
+          id: 'delete-folder',
+          name: 'Delete folder',
+          gx: 1,
+          gy: 0,
+          w: 2,
+          h: 2,
+          groupId: null
+        }],
+        settings
+      }
+    });
+    await changeStorageMode('sync', getState().data);
+    await new Promise(resolve => chrome.storage.local.set({
+      'spacetabLocalImage:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9': {
+        dataUrl: 'data:image/webp;base64,b3duZWQ=',
+        name: 'owned.webp'
+      },
+      spacetabLocalImageSelections: {
+        theme: 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9'
+      }
+    }, resolve));
+  });
+
+  await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(1);
+  await expect(page.locator('.bookmark-folder')).toHaveCount(1);
+  await openSettings(page);
+  const erase = page.getByRole('button', { name: 'Delete all data' });
+  await expect(erase).toHaveClass(/btn-danger/);
+
+  await erase.click();
+  await expect(page.locator('#alert-modal')).toBeVisible();
+  await expect(page.locator('#alert-modal-title')).toContainText('Delete all SpaceTab data?');
+  await page.locator('#alert-modal-cancel').click();
+  await expect(page.locator('#settings-modal')).toBeVisible();
+  await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(1);
+
+  await erase.click();
+  await page.locator('#alert-modal-accept').click();
+  await expect(page.locator('#settings-modal')).toBeHidden();
+  await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(0);
+  await expect(page.locator('.bookmark-folder')).toHaveCount(0);
+
+  await expect.poll(() => page.evaluate(async () => {
+    const { DEFAULT_SETTINGS } = await import('/src/js/core/defaults.js');
+    const local = JSON.parse(sessionStorage.getItem('spacetab-test-local') || '{}');
+    const sync = JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}');
+    const syncKeys = Object.keys(sync).filter(key => (
+      key === 'spacetabSyncMeta'
+      || key.startsWith('spacetabSyncChunk:')
+      || ['schemaVersion', 'bookmarks', 'folders', 'settings'].includes(key)
+    ));
+    return {
+      mode: local.spacetabStorageMode,
+      bookmarks: local.bookmarks,
+      folders: local.folders,
+      settingsAreDefault: JSON.stringify(local.settings) === JSON.stringify(DEFAULT_SETTINGS),
+      syncKeys,
+      localImageKeys: Object.keys(local).filter(key => key.startsWith('spacetabLocalImage:')),
+      hasImageSelections: Object.hasOwn(local, 'spacetabLocalImageSelections')
+    };
+  })).toEqual({
+    mode: 'local',
+    bookmarks: [],
+    folders: [],
+    settingsAreDefault: true,
+    syncKeys: [],
+    localImageKeys: [],
+    hasImageSelections: false
+  });
+
+  await page.reload();
+  await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(0);
+  await expect(page.locator('.bookmark-folder')).toHaveCount(0);
+});

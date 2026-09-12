@@ -3,6 +3,8 @@ import { debug, describeStateChange } from './debug.js';
 import { DEFAULT_STATE } from './defaults.js';
 import { storage, STORAGE_MODES } from './storage.js';
 import { mergeChanges } from './mergeChanges.js';
+import { clearLocalImages } from './localImages.js';
+import { clearDeviceImageSelections } from './deviceImages.js';
 
 /**
  * Global application state.
@@ -267,6 +269,30 @@ export async function deleteSyncedData() {
 
   const deleted = await storage.clearSyncData();
   return { deleted, switchedToLocal };
+}
+
+/**
+ * Removes all user data from both persistence areas and restores defaults.
+ * Starter bookmarks are deliberately excluded so the cleared grid stays empty.
+ *
+ * @returns {Promise<void>}
+ */
+export async function clearAllData() {
+  const data = structuredClone(DEFAULT_STATE.data);
+  data.bookmarks = [];
+  data.folders = [];
+
+  await setState({ data }, { recordHistory: false });
+  if (state.ui.persistence.status === 'error') {
+    throw new Error(state.ui.persistence.error || 'Could not clear persisted data.');
+  }
+
+  await deleteSyncedData();
+  await Promise.all([
+    clearLocalImages(),
+    clearDeviceImageSelections()
+  ]);
+  clearBookmarkHistory();
 }
 
 /**

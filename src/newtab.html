@@ -363,6 +363,9 @@
               <button id="reset-settings-btn-general" class="btn btn-danger" type="button"
                 data-i18n="settingsModal.general.resetSettings">Restablecer ajustes
               </button>
+              <button id="delete-all-data-btn-general" class="btn btn-danger" type="button"
+                data-i18n="settingsModal.general.deleteAllData">Borrar todos los datos
+              </button>
             </div>
           </div>
           <div id="settings-modal-tab-sync"
@@ -381,23 +384,34 @@
                 </span>
               </label>
 
-              <label class="storage-mode-option" for="storage-mode-sync">
-                <input id="storage-mode-sync" name="storage-mode" type="radio" value="sync">
-                <span class="storage-mode-copy">
-                  <strong data-i18n="settingsModal.sync.synced.title">Sincronizado</strong>
-                  <small data-i18n="settingsModal.sync.synced.description">Disponible en perfiles de Google Chrome conectados a la misma cuenta.</small>
-                </span>
-              </label>
-            </div>
-
-            <div id="storage-sync-notice" class="storage-sync-notice">
-              <p id="storage-sync-compatibility-notice" class="is-hidden" role="status"
-                data-i18n="settingsModal.sync.compatibility.newerVersion">
-                Sync is paused because these data require a newer SpaceTab version.
-              </p>
-              <p id="storage-sync-browser-notice" data-i18n="settingsModal.sync.browserSupport.chrome">Google Chrome sincroniza SpaceTab mediante tu cuenta de Google.</p>
-              <p id="storage-sync-existing-notice" data-i18n="settingsModal.sync.existingNotice">Si ya existen datos sincronizados de SpaceTab, se cargarán al guardar.</p>
-              <p id="storage-persistence-status" class="storage-persistence-status" aria-live="polite"></p>
+              <div class="storage-mode-option-wrap">
+                <label class="storage-mode-option" for="storage-mode-sync">
+                  <input id="storage-mode-sync" name="storage-mode" type="radio" value="sync">
+                  <span class="storage-mode-copy">
+                    <span class="storage-mode-title">
+                      <strong data-i18n="settingsModal.sync.synced.title">Sincronizado</strong>
+                      <span id="storage-persistence-indicator" class="storage-persistence-indicator"
+                        data-status="idle" aria-hidden="true"></span>
+                    </span>
+                    <small data-i18n="settingsModal.sync.synced.description">Disponible en perfiles de Google Chrome conectados a la misma cuenta.</small>
+                  </span>
+                </label>
+                <button id="storage-sync-help" class="storage-sync-help" type="button"
+                  aria-label="Información sobre la sincronización"
+                  data-i18n-aria-label="settingsModal.sync.synced.tooltip"
+                  aria-describedby="storage-sync-notice"
+                  aria-expanded="false">?</button>
+                <div id="storage-sync-notice" class="storage-sync-tooltip" role="tooltip">
+                  <p id="storage-sync-compatibility-notice" class="is-hidden" role="status"
+                    data-i18n="settingsModal.sync.compatibility.newerVersion">
+                    Sync is paused because these data require a newer SpaceTab version.
+                  </p>
+                  <p id="storage-sync-browser-notice" data-i18n="settingsModal.sync.browserSupport.chrome">Google Chrome sincroniza SpaceTab mediante tu cuenta de Google.</p>
+                  <p id="storage-sync-existing-notice" data-i18n="settingsModal.sync.existingNotice">Si ya existen datos sincronizados de SpaceTab, se cargarán al guardar.</p>
+                  <p id="storage-persistence-status" class="storage-persistence-status"
+                    aria-live="polite"></p>
+                </div>
+              </div>
             </div>
 
             <section class="storage-usage" aria-labelledby="storage-usage-title">

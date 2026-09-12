@@ -4,8 +4,13 @@ import { t } from '../../../core/i18n.js';
 import { exportBackup, importBackup } from '../../backup.js';
 import { showAlert } from '../alert.js';
 
-/** Connects complete backup/restore and the all-settings draft reset. */
-export function initGeneralSection({ onResetSettings, onBackupImported, onRequestSaveStateUpdate }) {
+/** Connects complete backup/restore and destructive reset actions. */
+export function initGeneralSection({
+  onResetSettings,
+  onDeleteAllData,
+  onBackupImported,
+  onRequestSaveStateUpdate
+}) {
   const themeInputs = document.querySelectorAll('input[name="interface-theme"]');
   const systemNote = document.getElementById('interface-theme-system-note');
 
@@ -32,6 +37,7 @@ export function initGeneralSection({ onResetSettings, onBackupImported, onReques
   const importButton = document.getElementById('import-btn-general');
   const importInput = document.getElementById('import-input-general');
   const resetButton = document.getElementById('reset-settings-btn-general');
+  const deleteAllDataButton = document.getElementById('delete-all-data-btn-general');
 
   exportButton.addEventListener('click', exportBackup);
   importButton.addEventListener('click', () => importInput.click());
@@ -50,6 +56,21 @@ export function initGeneralSection({ onResetSettings, onBackupImported, onReques
   resetButton.addEventListener('click', async () => {
     const confirmed = await showAlert(t('alert.settings.reset'), { type: 'confirm' });
     if (confirmed) await onResetSettings?.();
+  });
+
+  deleteAllDataButton.addEventListener('click', async () => {
+    const confirmed = await showAlert(
+      t('alert.settings.deleteAllData'),
+      { type: 'confirm' }
+    );
+    if (!confirmed) return;
+
+    deleteAllDataButton.disabled = true;
+    try {
+      await onDeleteAllData?.();
+    } finally {
+      deleteAllDataButton.disabled = false;
+    }
   });
 
   return { syncUI, restoreInitialTheme };

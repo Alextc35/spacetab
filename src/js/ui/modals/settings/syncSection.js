@@ -74,11 +74,14 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
     document.querySelectorAll('input[name="storage-mode"]')
   );
   const browserSupport = getSyncBrowserSupport();
+  const settingsModal = document.getElementById('settings-modal');
+  const syncHelp = document.getElementById('storage-sync-help');
   const syncNotice = document.getElementById('storage-sync-notice');
   const compatibilityNotice = document.getElementById('storage-sync-compatibility-notice');
   const browserNotice = document.getElementById('storage-sync-browser-notice');
   const existingNotice = document.getElementById('storage-sync-existing-notice');
   const persistenceStatus = document.getElementById('storage-persistence-status');
+  const persistenceIndicator = document.getElementById('storage-persistence-indicator');
   const lastUpdated = document.getElementById('storage-sync-last-updated');
   const deleteSyncData = document.getElementById('storage-sync-delete');
   const usageItem = document.querySelector('[data-storage-usage-active]');
@@ -93,6 +96,105 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   let storageUsageError = false;
   let usageRequestId = 0;
   let isDeleting = false;
+  let isTooltipPinned = false;
+  let isHelpHovered = false;
+  let suppressTooltip = false;
+
+  // Keep the tooltip inside the dialog for accessibility, but outside every
+  // scrolling/clipping container so it can float over the complete modal.
+  if (settingsModal && syncNotice?.parentElement !== settingsModal) {
+    settingsModal.append(syncNotice);
+  }
+
+  function positionSyncTooltip() {
+    if (!syncHelp || !syncNotice?.classList.contains('is-open')) return;
+
+    const viewportMargin = 12;
+    const gap = 10;
+    const helpRect = syncHelp.getBoundingClientRect();
+    const tooltipRect = syncNotice.getBoundingClientRect();
+    const spaceAbove = helpRect.top - gap - viewportMargin;
+    const spaceBelow = window.innerHeight - helpRect.bottom - gap - viewportMargin;
+    const placement = spaceAbove >= tooltipRect.height || spaceAbove >= spaceBelow
+      ? 'above'
+      : 'below';
+    const requestedTop = placement === 'above'
+      ? helpRect.top - tooltipRect.height - gap
+      : helpRect.bottom + gap;
+    const maxLeft = Math.max(viewportMargin, window.innerWidth - tooltipRect.width - viewportMargin);
+    const maxTop = Math.max(viewportMargin, window.innerHeight - tooltipRect.height - viewportMargin);
+    const left = Math.min(
+      Math.max(viewportMargin, helpRect.right - tooltipRect.width),
+      maxLeft
+    );
+    const top = Math.min(Math.max(viewportMargin, requestedTop), maxTop);
+    const arrowLeft = Math.min(
+      Math.max(12, helpRect.left + (helpRect.width / 2) - left),
+      tooltipRect.width - 12
+    );
+
+    syncNotice.dataset.placement = placement;
+    syncNotice.style.left = `${left}px`;
+    syncNotice.style.top = `${top}px`;
+    syncNotice.style.setProperty('--sync-tooltip-arrow-left', `${arrowLeft}px`);
+  }
+
+  function setSyncTooltipOpen(open) {
+    if (!syncHelp || !syncNotice) return;
+    syncNotice.classList.toggle('is-open', open);
+    syncHelp.setAttribute('aria-expanded', String(open));
+    if (open) requestAnimationFrame(positionSyncTooltip);
+  }
+
+  function resetSyncTooltip() {
+    isTooltipPinned = false;
+    suppressTooltip = false;
+    setSyncTooltipOpen(false);
+  }
+
+  syncHelp?.addEventListener('mouseenter', () => {
+    isHelpHovered = true;
+    if (!suppressTooltip) setSyncTooltipOpen(true);
+  });
+
+  syncHelp?.addEventListener('mouseleave', () => {
+    isHelpHovered = false;
+    suppressTooltip = false;
+    if (!isTooltipPinned) setSyncTooltipOpen(false);
+  });
+
+  syncHelp?.addEventListener('focus', () => {
+    if (!suppressTooltip) setSyncTooltipOpen(true);
+  });
+
+  syncHelp?.addEventListener('blur', () => {
+    suppressTooltip = false;
+    if (!isTooltipPinned && !isHelpHovered) setSyncTooltipOpen(false);
+  });
+
+  syncHelp?.addEventListener('click', () => {
+    if (isTooltipPinned) {
+      isTooltipPinned = false;
+      suppressTooltip = true;
+      setSyncTooltipOpen(false);
+      return;
+    }
+
+    isTooltipPinned = true;
+    suppressTooltip = false;
+    setSyncTooltipOpen(true);
+  });
+
+  window.addEventListener('resize', positionSyncTooltip);
+  document.addEventListener('scroll', positionSyncTooltip, true);
+
+  if (settingsModal) {
+    new MutationObserver(() => {
+      if (settingsModal.hidden || !settingsModal.classList.contains('is-open')) {
+        resetSyncTooltip();
+      }
+    }).observe(settingsModal, { attributes: true, attributeFilter: ['class', 'hidden'] });
+  }
 
   function getUsageDisplayMode() {
     return getDraftStorageMode() ?? getStorageMode();
@@ -208,11 +310,16 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
 
   subscribe(state => {
     const persistence = state.ui.persistence;
-    if (!persistenceStatus || !persistence) return;
+    if (!persistence) return;
     const statusKey = `settingsModal.sync.status.${persistence.status}`;
-    persistenceStatus.dataset.status = persistence.status;
-    persistenceStatus.dataset.i18n = statusKey;
-    persistenceStatus.textContent = t(statusKey);
+    if (persistenceStatus) {
+      persistenceStatus.dataset.status = persistence.status;
+      persistenceStatus.dataset.i18n = statusKey;
+      persistenceStatus.textContent = t(statusKey);
+    }
+    if (persistenceIndicator) {
+      persistenceIndicator.dataset.status = persistence.status;
+    }
 
     if (persistence.status === 'saved' && getStorageMode() === 'sync') {
       void refreshSyncMetadata();
@@ -224,6 +331,9 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   subscribeLanguageChange(() => {
     renderSyncMetadata();
     renderStorageUsage();
+    if (syncNotice?.classList.contains('is-open')) {
+      requestAnimationFrame(positionSyncTooltip);
+    }
   });
 
   function syncUI() {
@@ -254,6 +364,9 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
       !browserSupport.canSync && !isVersionBlocked
     );
     syncNotice?.classList.toggle('is-version-blocked', isVersionBlocked);
+    if (syncNotice?.classList.contains('is-open')) {
+      requestAnimationFrame(positionSyncTooltip);
+    }
 
     for (const input of modeInputs) {
       const isUnsupportedSync = input.value === 'sync'
