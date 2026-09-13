@@ -117,7 +117,7 @@ export function initThemeSection({
       ? draft.backgroundColor
       : draft.backgroundImageColor;
 
-    const backgroundImage = draft.backgroundSolid ? null : resolveBackgroundImage(draft);
+    const backgroundImage = resolveBackgroundImage(draft);
     if (backgroundImage) {
       bgPreview.style.backgroundImage = `url(${backgroundImage})`;
     }
@@ -144,14 +144,15 @@ export function initThemeSection({
    * Rules:
    * - default and solid backgrounds preserve saved custom images
    * - the color picker stays available as the image's transparent base layer
-   * - image controls are hidden and disabled while default or solid-only mode is enabled
+   * - image controls are hidden and disabled while the default background is enabled
+   * - solid color mode changes the base layer without covering a configured image
    * - preview is refreshed after state updates
    */
   function updateStates() {
     const draft = getDraftTheme();
     const backgroundDefault = bgDefault.checked;
     const backgroundSolid = bgSolid.checked && !backgroundDefault;
-    const imagesDisabled = backgroundDefault || backgroundSolid;
+    const imagesDisabled = backgroundDefault;
     const hasLocalImage = hasImageValue(draft.backgroundImageLocal);
 
     bgSolidColorField.classList.toggle('is-hidden', !backgroundSolid);

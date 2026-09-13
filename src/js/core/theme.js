@@ -33,7 +33,7 @@ export function applyGlobalTheme(settings = {}) {
     return;
   }
 
-  const backgroundImage = theme.backgroundSolid ? null : resolveBackgroundImage(theme);
+  const backgroundImage = resolveBackgroundImage(theme);
   if (backgroundImage) {
     root.style.setProperty(
       '--image-bg-body',
