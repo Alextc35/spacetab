@@ -99,6 +99,14 @@ const LOCAL_DATA = {
   settings: SETTINGS
 };
 
+function assertBreakdownMatchesUsage(usage) {
+  const { systemBytes, bookmarkBytes, trashBytes } = usage.breakdown;
+  assert.equal(systemBytes + bookmarkBytes + trashBytes, usage.usedBytes);
+  assert.ok(systemBytes >= 0);
+  assert.ok(bookmarkBytes >= 0);
+  assert.ok(trashBytes >= 0);
+}
+
 test('reports used, total, and available bytes for both storage areas', async () => {
   const local = await storage.getUsage(STORAGE_MODES.LOCAL);
   const sync = await storage.getUsage(STORAGE_MODES.SYNC);
@@ -107,11 +115,13 @@ test('reports used, total, and available bytes for both storage areas', async ()
   assert.equal(local.quotaBytes, 10485760);
   assert.equal(local.availableBytes, local.quotaBytes - local.usedBytes);
   assert.ok(local.usedBytes >= 0);
+  assertBreakdownMatchesUsage(local);
 
   assert.equal(sync.mode, STORAGE_MODES.SYNC);
   assert.equal(sync.quotaBytes, 102400);
   assert.equal(sync.availableBytes, sync.quotaBytes - sync.usedBytes);
   assert.ok(sync.usedBytes >= 0);
+  assertBreakdownMatchesUsage(sync);
 
   await assert.rejects(storage.getUsage('session'), /Unsupported storage mode/);
 });
@@ -146,6 +156,12 @@ test('migrates local data to an empty synchronized area', async () => {
   });
   assert.ok(chrome.storage.sync.data.spacetabSyncMeta);
   assert.equal(chrome.storage.sync.data.bookmarks, undefined);
+
+  const usage = await storage.getUsage(STORAGE_MODES.SYNC);
+  assertBreakdownMatchesUsage(usage);
+  assert.ok(usage.breakdown.systemBytes > 0);
+  assert.ok(usage.breakdown.bookmarkBytes > 0);
+  assert.equal(usage.breakdown.trashBytes, 0);
 });
 
 test('keeps a local copy when synchronization is disabled', async () => {
@@ -223,6 +239,22 @@ test('chunks values safely below Chrome per-item quota', async () => {
   const storedBookmarks = (await storage.get(null)).bookmarks;
   assert.equal(storedBookmarks[0].id, 'chunked');
   assert.equal(storedBookmarks[0].name, chunkedData.bookmarks[0].name.trim());
+});
+
+test('reports recycle-bin data as a separate storage category', async () => {
+  await storage.set({
+    ...LOCAL_DATA,
+    trash: [{
+      id: 'trash-entry',
+      type: 'bookmark',
+      deletedAt: Date.now(),
+      bookmark: { ...LOCAL_DATA.bookmarks[0], id: 'deleted' }
+    }]
+  });
+
+  const usage = await storage.getUsage(STORAGE_MODES.SYNC);
+  assertBreakdownMatchesUsage(usage);
+  assert.ok(usage.breakdown.trashBytes > 0);
 });
 
 test('rejects synchronized payloads above Chrome quota', async () => {

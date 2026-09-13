@@ -23,6 +23,7 @@ const SYNC_META_KEY = 'spacetabSyncMeta';
 const SYNC_CHUNK_PREFIX = 'spacetabSyncChunk:';
 const SYNC_FORMAT_VERSION = 1;
 const SYNC_ITEM_SAFE_BYTES = 7600;
+const LOCAL_IMAGE_STORAGE_PREFIX = 'spacetabLocalImage:';
 const LEGACY_SYNC_KEYS = [
   'schemaVersion',
   'bookmarks',
@@ -135,6 +136,161 @@ function getStorageBytes(items) {
   return Object.entries(items).reduce((total, [key, value]) => (
     total + encoder.encode(key).length + encoder.encode(JSON.stringify(value)).length
   ), 0);
+}
+
+function emptyStorageBreakdown() {
+  return { systemBytes: 0, bookmarkBytes: 0, trashBytes: 0 };
+}
+
+function getEntryBytes(key, value) {
+  return getStorageBytes({ [key]: value });
+}
+
+function addBreakdownBytes(breakdown, category, bytes) {
+  breakdown[`${category}Bytes`] += bytes;
+}
+
+function hasBookmarkData(data) {
+  return (Array.isArray(data.bookmarks) && data.bookmarks.length > 0)
+    || (Array.isArray(data.folders) && data.folders.length > 0);
+}
+
+function hasTrashData(data) {
+  return Array.isArray(data.trash) && data.trash.length > 0;
+}
+
+/**
+ * Chrome may account for a few bytes differently from our UTF-8 fallback.
+ * Scale the visual categories to the browser total while keeping system data
+ * as the rounding bucket, so the segments always add up to `usedBytes`.
+ */
+function scaleStorageBreakdown(breakdown, usedBytes) {
+  const measuredBytes = Object.values(breakdown).reduce((sum, bytes) => sum + bytes, 0);
+  if (measuredBytes <= 0) {
+    return { ...emptyStorageBreakdown(), systemBytes: usedBytes };
+  }
+
+  const bookmarkBytes = Math.round(
+    usedBytes * (breakdown.bookmarkBytes / measuredBytes)
+  );
+  const trashBytes = Math.min(
+    usedBytes - bookmarkBytes,
+    Math.round(usedBytes * (breakdown.trashBytes / measuredBytes))
+  );
+
+  return {
+    systemBytes: Math.max(0, usedBytes - bookmarkBytes - trashBytes),
+    bookmarkBytes,
+    trashBytes
+  };
+}
+
+function getLocalImageCategories(values) {
+  const categories = new Map();
+  const selections = values[DEVICE_IMAGE_SELECTIONS_KEY];
+  if (!selections || typeof selections !== 'object' || Array.isArray(selections)) {
+    return categories;
+  }
+
+  const ranks = { system: 0, bookmark: 1, trash: 2 };
+  for (const [slot, reference] of Object.entries(selections)) {
+    if (typeof reference !== 'string' || !reference.startsWith('spacetab-local-image:')) {
+      continue;
+    }
+
+    const category = slot.startsWith('trash:')
+      ? 'trash'
+      : slot === 'theme' ? 'system' : 'bookmark';
+    const previous = categories.get(reference);
+    if (!previous || ranks[category] > ranks[previous]) {
+      categories.set(reference, category);
+    }
+  }
+
+  return categories;
+}
+
+function getDirectStorageBreakdown(values, { includeLocalImages = false } = {}) {
+  const breakdown = emptyStorageBreakdown();
+  const containsBookmarks = hasBookmarkData(values);
+  const containsTrash = hasTrashData(values);
+  const imageCategories = includeLocalImages
+    ? getLocalImageCategories(values)
+    : new Map();
+
+  for (const [key, value] of Object.entries(values)) {
+    let category = 'system';
+    if ((key === 'bookmarks' || key === 'folders') && containsBookmarks) {
+      category = 'bookmark';
+    } else if (key === 'trash' && containsTrash) {
+      category = 'trash';
+    } else if (includeLocalImages && key.startsWith(LOCAL_IMAGE_STORAGE_PREFIX)) {
+      const reference = `spacetab-local-image:${key.slice(LOCAL_IMAGE_STORAGE_PREFIX.length)}`;
+      category = imageCategories.get(reference) ?? 'system';
+    }
+
+    addBreakdownBytes(breakdown, category, getEntryBytes(key, value));
+  }
+
+  return breakdown;
+}
+
+function readChunkedSyncPayload(values) {
+  const meta = values[SYNC_META_KEY];
+  if (!Number.isInteger(meta?.chunkCount) || meta.chunkCount < 1) return null;
+
+  const chunks = Array.from(
+    { length: meta.chunkCount },
+    (_, index) => values[`${SYNC_CHUNK_PREFIX}${index}`]
+  );
+  if (chunks.some(chunk => typeof chunk !== 'string')) return null;
+
+  try {
+    return JSON.parse(chunks.join(''));
+  } catch {
+    return null;
+  }
+}
+
+function getEscapedPayloadWeight(data) {
+  return new TextEncoder().encode(JSON.stringify(JSON.stringify(data))).length;
+}
+
+function getChunkedSyncBreakdown(values) {
+  const payload = readChunkedSyncPayload(values);
+  if (!payload) return getDirectStorageBreakdown(values);
+
+  const breakdown = emptyStorageBreakdown();
+  const syncMetaBytes = getEntryBytes(SYNC_META_KEY, values[SYNC_META_KEY]);
+  const chunkEntries = Object.fromEntries(
+    Object.entries(values).filter(([key]) => key.startsWith(SYNC_CHUNK_PREFIX))
+  );
+  const chunkBytes = getStorageBytes(chunkEntries);
+  const ownedKeys = new Set([SYNC_META_KEY, ...Object.keys(chunkEntries)]);
+  const unrelatedBytes = getStorageBytes(Object.fromEntries(
+    Object.entries(values).filter(([key]) => !ownedKeys.has(key))
+  ));
+  const bookmarkPayload = hasBookmarkData(payload)
+    ? { bookmarks: payload.bookmarks ?? [], folders: payload.folders ?? [] }
+    : null;
+  const trashPayload = hasTrashData(payload) ? { trash: payload.trash } : null;
+  const systemPayload = Object.fromEntries(
+    Object.entries(payload).filter(([key]) => !['bookmarks', 'folders', 'trash'].includes(key))
+  );
+  const weights = {
+    systemBytes: getEscapedPayloadWeight(systemPayload),
+    bookmarkBytes: bookmarkPayload ? getEscapedPayloadWeight(bookmarkPayload) : 0,
+    trashBytes: trashPayload ? getEscapedPayloadWeight(trashPayload) : 0
+  };
+  const totalWeight = Object.values(weights).reduce((sum, bytes) => sum + bytes, 0);
+
+  if (totalWeight > 0) {
+    breakdown.bookmarkBytes = Math.round(chunkBytes * weights.bookmarkBytes / totalWeight);
+    breakdown.trashBytes = Math.round(chunkBytes * weights.trashBytes / totalWeight);
+  }
+  breakdown.systemBytes = syncMetaBytes + unrelatedBytes
+    + Math.max(0, chunkBytes - breakdown.bookmarkBytes - breakdown.trashBytes);
+  return breakdown;
 }
 
 /**
@@ -330,7 +486,12 @@ async function writeSyncData(data) {
  *   mode: 'local'|'sync',
  *   usedBytes: number,
  *   quotaBytes: number,
- *   availableBytes: number
+ *   availableBytes: number,
+ *   breakdown: {
+ *     systemBytes: number,
+ *     bookmarkBytes: number,
+ *     trashBytes: number
+ *   }
  * }>}
  */
 async function getStorageUsage(mode) {
@@ -343,15 +504,22 @@ async function getStorageUsage(mode) {
   const quotaBytes = Number.isFinite(area.QUOTA_BYTES)
     ? area.QUOTA_BYTES
     : fallbackQuota;
+  const values = await callStorage(area, 'get', null);
   const usedBytes = typeof area.getBytesInUse === 'function'
     ? await callStorage(area, 'getBytesInUse', null)
-    : getStorageBytes(await callStorage(area, 'get', null));
+    : getStorageBytes(values);
+  const measuredBreakdown = mode === STORAGE_MODES.SYNC && values[SYNC_META_KEY]
+    ? getChunkedSyncBreakdown(values)
+    : getDirectStorageBreakdown(values, {
+        includeLocalImages: mode === STORAGE_MODES.LOCAL
+      });
 
   return {
     mode,
     usedBytes,
     quotaBytes,
-    availableBytes: Math.max(0, quotaBytes - usedBytes)
+    availableBytes: Math.max(0, quotaBytes - usedBytes),
+    breakdown: scaleStorageBreakdown(measuredBreakdown, usedBytes)
   };
 }
 

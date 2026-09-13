@@ -89,6 +89,16 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   const usageSummary = document.getElementById('storage-usage-summary');
   const usageAvailable = document.getElementById('storage-usage-available');
   const usageProgress = document.getElementById('storage-usage-progress');
+  const usageSegments = {
+    system: document.querySelector('[data-storage-segment="system"]'),
+    bookmarks: document.querySelector('[data-storage-segment="bookmarks"]'),
+    trash: document.querySelector('[data-storage-segment="trash"]')
+  };
+  const usageCategoryValues = {
+    system: document.getElementById('storage-usage-system'),
+    bookmarks: document.getElementById('storage-usage-bookmarks'),
+    trash: document.getElementById('storage-usage-trash')
+  };
   let syncMetadata = null;
   let metadataError = false;
   let metadataRequestId = 0;
@@ -200,6 +210,39 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
     return getDraftStorageMode() ?? getStorageMode();
   }
 
+  function renderStorageBreakdown(breakdown, quotaBytes) {
+    const categories = {
+      system: breakdown?.systemBytes,
+      bookmarks: breakdown?.bookmarkBytes,
+      trash: breakdown?.trashBytes
+    };
+
+    for (const [category, bytes] of Object.entries(categories)) {
+      const hasValue = Number.isFinite(bytes);
+      const formattedBytes = hasValue ? formatBytes(bytes) : '—';
+      const percentage = hasValue && quotaBytes > 0
+        ? Math.min(100, (bytes / quotaBytes) * 100)
+        : 0;
+      const segment = usageSegments[category];
+
+      if (segment) {
+        segment.style.width = `${percentage}%`;
+        segment.title = hasValue
+          ? `${t(`settingsModal.sync.usage.${category}`)}: ${formattedBytes}`
+          : '';
+      }
+      if (usageCategoryValues[category]) {
+        usageCategoryValues[category].textContent = formattedBytes;
+      }
+    }
+  }
+
+  function setStorageProgress(percentage) {
+    const value = Number.isFinite(percentage) ? percentage : 0;
+    usageProgress?.setAttribute('aria-valuenow', String(value));
+    usageProgress?.setAttribute('value', String(value));
+  }
+
   function renderStorageUsage() {
     if (!usageItem) return;
 
@@ -215,14 +258,16 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
     if (storageUsageError) {
       usageSummary.textContent = t('settingsModal.sync.usage.error');
       usageAvailable.textContent = '';
-      usageProgress.value = 0;
+      setStorageProgress(0);
+      renderStorageBreakdown(null, 0);
       return;
     }
 
     if (!storageUsage || storageUsage.mode !== modeKey) {
       usageSummary.textContent = t('settingsModal.sync.usage.loading');
       usageAvailable.textContent = '';
-      usageProgress.value = 0;
+      setStorageProgress(0);
+      renderStorageBreakdown(null, 0);
       return;
     }
 
@@ -239,7 +284,8 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
       { used, total, percent }
     );
     usageAvailable.textContent = t('settingsModal.sync.usage.available', { free });
-    usageProgress.value = percentage;
+    setStorageProgress(percentage);
+    renderStorageBreakdown(storageUsage.breakdown, storageUsage.quotaBytes);
   }
 
   async function refreshStorageUsage() {

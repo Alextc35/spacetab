@@ -363,6 +363,9 @@
         "loading": "Calculando…",
         "summary": "{{used}} de {{total}} · {{percent}}%",
         "available": "{{free}} disponibles",
+        "system": "Opciones del sistema",
+        "bookmarks": "Bookmarks",
+        "trash": "Información en papelera",
         "error": "Uso no disponible"
       },
       "browserSupport": {

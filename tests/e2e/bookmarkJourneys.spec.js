@@ -1721,6 +1721,14 @@ test('shows storage availability only for the selected mode', async ({ page }) =
   await expect(summary).toContainText('of 10 MB');
   await expect(summary).toContainText('%');
   await expect(page.locator('#storage-usage-available')).toContainText('available');
+  const legend = page.locator('#storage-usage-legend');
+  await expect(legend).toContainText('System options');
+  await expect(legend).toContainText('Bookmarks');
+  await expect(legend).toContainText('Recycle bin data');
+  await expect(page.locator('#storage-usage-system')).not.toHaveText('—');
+  await expect(page.locator('#storage-usage-bookmarks')).not.toHaveText('—');
+  await expect(page.locator('[data-storage-segment="bookmarks"]'))
+    .not.toHaveAttribute('style', /width: 0%/);
 
   await page.getByRole('radio', { name: /Synced/ }).check();
   await expect(usage).toHaveAttribute('data-storage-usage', 'sync');

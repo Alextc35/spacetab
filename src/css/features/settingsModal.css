@@ -630,6 +630,10 @@
 }
 
 .storage-usage-item {
+  --storage-system-color: #4aa8ff;
+  --storage-bookmarks-color: #8b7cf6;
+  --storage-trash-color: #ff7a6b;
+
   min-width: 0;
 }
 
@@ -659,31 +663,80 @@
   white-space: nowrap;
 }
 
-.storage-usage-item progress {
-  display: block;
+.storage-usage-progress {
+  display: flex;
   width: 100%;
-  height: 7px;
-  margin-bottom: 6px;
+  height: 8px;
+  margin-bottom: 10px;
   overflow: hidden;
-  border: 0;
-  border-radius: 999px;
-  background: var(--ui-divider);
-  accent-color: var(--ui-accent);
-}
-
-.storage-usage-item progress::-webkit-progress-bar {
   border-radius: 999px;
   background: var(--ui-divider);
 }
 
-.storage-usage-item progress::-webkit-progress-value {
-  border-radius: 999px;
-  background: linear-gradient(90deg, #3c8fe5, #5eb8ff);
+.storage-usage-segment {
+  flex: 0 0 auto;
+  height: 100%;
+  transition: width 180ms ease;
 }
 
-.storage-usage-item progress::-moz-progress-bar {
-  border-radius: 999px;
-  background: linear-gradient(90deg, #3c8fe5, #5eb8ff);
+.storage-usage-segment-system {
+  background: var(--storage-system-color);
+}
+
+.storage-usage-segment-bookmarks {
+  background: var(--storage-bookmarks-color);
+}
+
+.storage-usage-segment-trash {
+  background: var(--storage-trash-color);
+}
+
+.storage-usage-legend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 9px;
+}
+
+.storage-usage-legend-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 6px;
+  min-width: 0;
+  color: var(--ui-muted);
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.storage-usage-legend-item > span {
+  overflow-wrap: anywhere;
+}
+
+.storage-usage-legend-item strong {
+  grid-column: 2;
+  color: var(--ui-text);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.storage-usage-dot {
+  grid-row: 1 / span 2;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.storage-usage-dot-system {
+  background: var(--storage-system-color);
+}
+
+.storage-usage-dot-bookmarks {
+  background: var(--storage-bookmarks-color);
+}
+
+.storage-usage-dot-trash {
+  background: var(--storage-trash-color);
 }
 
 .storage-usage-item small {
