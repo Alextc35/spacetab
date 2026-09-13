@@ -13,6 +13,7 @@ import {
   getStorageMode
 } from '../../../core/store.js';
 import { updateSettings } from '../../../core/settings.js';
+import { ensureRecycleBinPosition } from '../../../core/recycleBin.js';
 
 import { showAlert } from '../alert.js';
 
@@ -128,6 +129,7 @@ export function initSettingsModal() {
       }
     },
     onBackupImported: () => {
+      ensureRecycleBinPosition();
       resetState();
       closeModal('settings');
     }
@@ -259,6 +261,8 @@ export function initSettingsModal() {
         await updateSettings(newSettings);
         flashSuccess('flash.settings.saved');
       }
+
+      ensureRecycleBinPosition();
 
       resetState();
       closeModal('settings');

@@ -25,9 +25,13 @@ import {
   syncKeyboardShortcutAccessibility
 } from './ui/keyboardShortcuts.js';
 import { flashInfo } from './ui/flash.js';
+import {
+  ensureRecycleBinPosition,
+  purgeExpiredRecycleBinEntries
+} from './core/recycleBin.js';
 import { initBookmarkModal,
   initAlertModal, initFolderEditorModal, initFolderModal,
-  initSearchModal, initSettingsModal } from './ui/modals/index.js';
+  initRecycleBinModal, initSearchModal, initSettingsModal } from './ui/modals/index.js';
 
 /* ======================= DOM References ======================= */
 
@@ -60,6 +64,9 @@ initApp().catch(error => {
  */
 async function initApp() {
   await initState();
+  purgeExpiredRecycleBinEntries();
+  ensureRecycleBinPosition();
+  setInterval(purgeExpiredRecycleBinEntries, 60 * 60 * 1000);
   startupTrace.mark('Load and migrate data');
   applyInterfaceTheme(getState().data.settings.interfaceTheme);
   await preloadLocalImages(getState().data);
@@ -70,6 +77,7 @@ async function initApp() {
   startupTrace.mark('Load language');
   subscribe(handleStateChange);
   subscribeToRemoteSyncUpdates(() => {
+    ensureRecycleBinPosition();
     flashInfo('flash.sync.updatedFromOtherDevice', 4000);
   });
 
@@ -124,6 +132,7 @@ function initModals() {
   initSearchModal();
   initFolderModal();
   initFolderEditorModal();
+  initRecycleBinModal();
   initSettingsModal();
   initBookmarkModal();
 }
@@ -160,6 +169,10 @@ function handleStateChange(state, prev) {
   const foldersChanged =
     state.data.folders !== prev.data.folders;
 
+  const recycleBinChanged =
+    state.data.recycleBin !== prev.data.recycleBin
+    || state.data.trash !== prev.data.trash;
+
   const editingChanged =
     state.ui.isEditing !== prev.ui.isEditing;
 
@@ -173,7 +186,7 @@ function handleStateChange(state, prev) {
     syncKeyboardShortcutAccessibility(state.data.settings.keyboardShortcuts);
   }
 
-  if (settingsChanged || bookmarksChanged || foldersChanged) {
+  if (settingsChanged || bookmarksChanged || foldersChanged || recycleBinChanged) {
     const trace = debug.start('Render grid', { bookmarks: state.data.bookmarks.length, folders: state.data.folders.length });
     void preloadLocalImages(state.data).then(() => {
       trace.mark('Resolve local images');

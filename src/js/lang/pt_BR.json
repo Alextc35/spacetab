@@ -30,6 +30,11 @@
       "folderFull": "Esta pasta já contém 18 favoritos",
       "bookmarkRemoved": "Favorito devolvido à grade"
     },
+    "recycleBin": {
+      "moved": "Movido para a lixeira",
+      "restored": "Itens restaurados",
+      "deletedPermanently": "Itens excluídos permanentemente"
+    },
     "workspace": {
       "created": "Espaço de trabalho criado",
       "deleted": "Espaço de trabalho excluído"
@@ -106,6 +111,12 @@
     },
     "folder": {
       "cancel": "Descartar as alterações da pasta?"
+    },
+    "recycleBin": {
+      "folder": "Mover “{{name}}” e seus {{count}} favoritos para a lixeira?",
+      "empty": "Excluir permanentemente todo o conteúdo da lixeira? Esta ação não pode ser desfeita.",
+      "deleteSelected": "Excluir permanentemente os {{count}} itens selecionados? Esta ação não pode ser desfeita.",
+      "noSpace": "{{count}} itens não puderam ser restaurados porque não há espaço suficiente na grade. Eles permanecem na lixeira."
     },
     "settings": {
       "cancel": "Descartar as alterações nas configurações?",
@@ -200,7 +211,7 @@
     "dropHint": "Solte para adicionar",
     "noSpace": "Não há nenhuma célula livre para criar uma pasta.",
     "removeNoSpace": "Não há espaço suficiente na grade para retirar este favorito da pasta.",
-    "confirmDelete": "Excluir «{{name}}» e seus {{count}} favoritos permanentemente?",
+    "confirmDelete": "Mover «{{name}}» e seus {{count}} favoritos para a lixeira?",
     "actions": {
       "ariaLabel": "Controles da pasta",
       "customize": "Personalizar pasta",
@@ -236,6 +247,25 @@
         "text": "Texto"
       }
     }
+  },
+  "recycleBin": {
+    "title": "Lixeira",
+    "open": "Abrir lixeira",
+    "openCount": "Abrir lixeira, {{count}} itens",
+    "countOne": "1 item",
+    "count": "{{count}} itens",
+    "dropHint": "Solte para excluir",
+    "summary": "{{count}} itens · Excluídos automaticamente após {{days}} dias",
+    "empty": "A lixeira está vazia.",
+    "selected": "{{count}} selecionados",
+    "select": "Selecionar {{name}}",
+    "folderDetail": "Pasta · {{count}} favoritos",
+    "deletedAt": "Excluído em {{date}}",
+    "expiresIn": "Restam {{days}} dias",
+    "restoreAll": "Restaurar tudo",
+    "deleteAll": "Excluir tudo",
+    "restoreSelected": "Restaurar selecionados",
+    "deleteSelected": "Excluir selecionados"
   },
   "validation": {
     "preset": {
@@ -295,6 +325,11 @@
       "import": "Restaurar backup",
       "resetSettings": "Restaurar configurações",
       "deleteAllData": "Excluir todos os dados",
+      "recycleBin": {
+        "title": "Lixeira",
+        "show": "Mostrar a lixeira na grade Principal",
+        "hint": "Os itens excluídos são mantidos por 28 dias e incluídos no Sync."
+      },
       "appearance": {
         "title": "Aparência",
         "system": "Navegador",

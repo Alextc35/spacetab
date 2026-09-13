@@ -1,4 +1,10 @@
-const RECORD_COLLECTIONS = new Set(['bookmarks', 'folders', 'bookmarkGroups', 'bookmarkPresets']);
+const RECORD_COLLECTIONS = new Set([
+  'bookmarks',
+  'folders',
+  'trash',
+  'bookmarkGroups',
+  'bookmarkPresets'
+]);
 
 /** Applies only this page's changes to the latest persisted snapshot.
  * Independent additions and edits survive; deletion wins over a stale edit.

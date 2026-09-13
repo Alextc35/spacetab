@@ -3,7 +3,20 @@ import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
 import { DEFAULT_KEYBOARD_SHORTCUTS } from './keyboardShortcuts.js';
 
-export const DATA_SCHEMA_VERSION = 10;
+export const DATA_SCHEMA_VERSION = 11;
+
+export const RECYCLE_BIN_ID = 'spacetab-recycle-bin';
+
+/** The recycle bin is a first-class grid item, but only in Main. */
+export const DEFAULT_RECYCLE_BIN = Object.freeze({
+  id: RECYCLE_BIN_ID,
+  gx: 0,
+  gy: 0,
+  w: 1,
+  h: 1,
+  groupId: null,
+  updatedAt: 0
+});
 
 /** Default appearance applied to new and legacy folders. */
 export const DEFAULT_FOLDER_STYLE = Object.freeze({
@@ -96,6 +109,7 @@ export const DEFAULT_BOOKMARKS = [
     urlLocked: true,
     noBackground: false,
     backgroundColor: '#161b22',
+    gy: 1,
   },
   {
     id: crypto.randomUUID(),
@@ -108,7 +122,8 @@ export const DEFAULT_BOOKMARKS = [
     backgroundColor: '#eeff00',
     showText: false,
     showFavicon: false,
-    gx: 1
+    gx: 1,
+    gy: 1
   }
 ];
 
@@ -126,6 +141,7 @@ export const DEFAULT_SETTINGS = {
   bookmarkDragMode: BOOKMARK_DRAG_MODES.NONE,
   bookmarkResizeMode: BOOKMARK_RESIZE_MODES.SMOOTH,
   keyboardShortcuts: structuredClone(DEFAULT_KEYBOARD_SHORTCUTS),
+  showRecycleBin: true,
 
   theme: {
     backgroundDefault: true,
@@ -158,6 +174,8 @@ export const DEFAULT_STATE = {
     schemaVersion: DATA_SCHEMA_VERSION,
     bookmarks: structuredClone(DEFAULT_BOOKMARKS),
     folders: [],
+    recycleBin: structuredClone(DEFAULT_RECYCLE_BIN),
+    trash: [],
     settings: structuredClone(DEFAULT_SETTINGS)
   },
   ui: {

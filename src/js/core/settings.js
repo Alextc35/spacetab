@@ -1,6 +1,7 @@
 import '../types/types.js'; // typedefs
 import { storage } from './storage.js';
 import { getState, setState } from './store.js';
+import { ensureRecycleBinPosition } from './recycleBin.js';
 
 /**
  * Loads persisted settings from storage, merges them with the provided
@@ -38,6 +39,7 @@ export async function updateSettings(partial) {
   };
 
   await setState({ data: { settings: updated } });
+  if (partial.showRecycleBin === true) ensureRecycleBinPosition();
 
   return updated;
 }

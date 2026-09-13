@@ -21,6 +21,12 @@ import {
   RESIZE_DIRECTIONS
 } from './resizeGeometry.js';
 import { calculateSmartDragLayout } from './smartDragLayout.js';
+import {
+  moveBookmarksToRecycleBin,
+  moveFolderToRecycleBin
+} from '../../core/recycleBin.js';
+import { showAlert } from '../modals/alert.js';
+import { t } from '../../core/i18n.js';
 
 let dragging = false;
 let resizing = false;
@@ -47,7 +53,7 @@ export function cancelGridGesture() {
  * @param {HTMLElement} div - Grid item DOM element.
  * @param {Bookmark|BookmarkFolder} item - Grid item data object.
  * @param {Object} [options]
- * @param {'bookmark'|'folder'} [options.kind='bookmark']
+ * @param {'bookmark'|'folder'|'recycle-bin'} [options.kind='bookmark']
  * @returns {void}
  */
 export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {}) {
@@ -55,6 +61,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
   let startLeft = 0, startTop = 0;
 
   let folderTarget = null;
+  let recycleBinTarget = null;
   let dragSession = null;
   let itemDragging = false;
   let moved = false;
@@ -129,6 +136,17 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     newGX = Math.max(0, Math.min(newGX, GRID_COLS - item.w));
     newGY = Math.max(0, Math.min(newGY, GRID_ROWS - item.h));
 
+    const nextRecycleBinTarget = kind !== 'recycle-bin'
+      ? findRectangleTarget(e.clientX, e.clientY, dragSession.recycleBinTargets)
+      : null;
+    if (nextRecycleBinTarget) {
+      setFolderTarget(null);
+      setRecycleBinTarget(nextRecycleBinTarget);
+      div.classList.remove('is-invalid');
+      return;
+    }
+    setRecycleBinTarget(null);
+
     const nextFolderTarget = kind === 'bookmark'
       ? findFolderTarget(e.clientX + scrollX, e.clientY + scrollY, dragSession.folderTargets)
       : null;
@@ -189,6 +207,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
       && event.timeStamp - pressStartedAt <= SELECTION_CLICK_MAX_DURATION;
     if (isSelectionClick) {
       setFolderTarget(null);
+      setRecycleBinTarget(null);
       restoreSmartDragPreview(container, dragSession);
       dragSession = null;
       const selected = toggleBookmarkSelection(item.id);
@@ -198,8 +217,23 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
 
     if (!commit) {
       setFolderTarget(null);
+      setRecycleBinTarget(null);
       restoreSmartDragPreview(container, dragSession);
       dragSession = null;
+      return;
+    }
+
+    if (recycleBinTarget) {
+      setFolderTarget(null);
+      setRecycleBinTarget(null);
+      restoreSmartDragPreview(container, dragSession);
+      dragSession = null;
+      if (kind === 'bookmark') {
+        moveBookmarksToRecycleBin([item.id]);
+        flashSuccess('flash.recycleBin.moved');
+      } else {
+        void confirmFolderRecycle(item);
+      }
       return;
     }
 
@@ -246,6 +280,14 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     div.classList.toggle('is-over-folder', Boolean(folderTarget));
   }
 
+  function setRecycleBinTarget(nextTarget) {
+    if (recycleBinTarget === nextTarget) return;
+    recycleBinTarget?.classList.remove('is-drop-target');
+    recycleBinTarget = nextTarget;
+    recycleBinTarget?.classList.add('is-drop-target');
+    div.classList.toggle('is-over-recycle-bin', Boolean(recycleBinTarget));
+  }
+
   function startDragFeedback() {
     if (!itemDragging || moved) return;
     moved = true;
@@ -279,7 +321,11 @@ function createSmartDragSession(container, item, kind) {
     .filter(bookmark => !bookmark.folderId)
     .map(bookmark => bookmark.id));
   const movableIds = items
-    .filter(gridItem => kind === 'folder' || bookmarkIds.has(gridItem.id))
+    .filter(gridItem => {
+      if (kind === 'recycle-bin') return true;
+      if (gridItem.id === data.recycleBin?.id) return false;
+      return kind === 'folder' || bookmarkIds.has(gridItem.id);
+    })
     .map(gridItem => gridItem.id);
   const movable = new Set(movableIds);
   const originals = new Map(items
@@ -287,7 +333,7 @@ function createSmartDragSession(container, item, kind) {
     .map(item => [item.id, pickGridPosition(item)]));
   const elements = new Map(Array.from(
     container.querySelectorAll(
-      '.bookmark[data-bookmark-id], .bookmark-folder[data-folder-id]'
+      '.bookmark[data-bookmark-id], .bookmark-folder[data-folder-id], .recycle-bin[data-recycle-bin-id]'
     )
   ).map(element => [getGridItemId(element), element]));
   const inheritedTouchedIds = new Set(Array.from(elements)
@@ -305,6 +351,11 @@ function createSmartDragSession(container, item, kind) {
       .filter(element => element.matches('.bookmark-folder[data-folder-id]'))
       .map(element => ({ element, rect: element.getBoundingClientRect() }))
     : [];
+  const recycleBinTargets = kind !== 'recycle-bin'
+    ? Array.from(elements.values())
+      .filter(element => element.matches('.recycle-bin[data-recycle-bin-id]'))
+      .map(element => ({ element, rect: element.getBoundingClientRect() }))
+    : [];
 
   return {
     owner,
@@ -320,6 +371,7 @@ function createSmartDragSession(container, item, kind) {
     previewPositions: new Map(originals),
     gridMetrics,
     folderTargets,
+    recycleBinTargets,
     cascadeStep: null,
     dropIsValid: true,
     activeLayout: {
@@ -431,7 +483,9 @@ function applyPreviewPosition(container, session, id, element, position) {
 }
 
 function getGridItemId(element) {
-  return element.dataset.bookmarkId ?? element.dataset.folderId;
+  return element.dataset.bookmarkId
+    ?? element.dataset.folderId
+    ?? element.dataset.recycleBinId;
 }
 
 function suppressFolderOpen(element) {
@@ -677,13 +731,30 @@ function applyGridGeometry(container, element, geometry) {
 }
 
 function findFolderTarget(clientX, clientY, folderTargets) {
-  return folderTargets
+  return findRectangleTarget(clientX, clientY, folderTargets);
+}
+
+function findRectangleTarget(clientX, clientY, targets) {
+  return targets
     .find(({ rect }) => {
       return clientX >= rect.left
         && clientX <= rect.right
         && clientY >= rect.top
         && clientY <= rect.bottom;
     })?.element ?? null;
+}
+
+async function confirmFolderRecycle(folder) {
+  const bookmarkCount = getState().data.bookmarks.filter(
+    bookmark => bookmark.folderId === folder.id
+  ).length;
+  const confirmed = await showAlert(t('alert.recycleBin.folder', {
+    name: folder.name,
+    count: bookmarkCount
+  }), { type: 'confirm' });
+  if (!confirmed) return;
+  moveFolderToRecycleBin(folder.id);
+  flashSuccess('flash.recycleBin.moved');
 }
 
 /**

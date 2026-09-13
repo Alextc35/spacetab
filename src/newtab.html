@@ -299,6 +299,38 @@
     </div>
   </div>
 
+  <div id="recycle-bin-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-card modal-recycle-bin">
+      <header class="recycle-bin-modal-header">
+        <span class="recycle-bin-modal-icon" aria-hidden="true">♻</span>
+        <div>
+          <h2 data-i18n="recycleBin.title">Papelera de reciclaje</h2>
+          <p id="recycle-bin-summary"></p>
+        </div>
+      </header>
+      <div class="recycle-bin-toolbar">
+        <button id="recycle-bin-restore-all" class="btn btn-info" type="button"
+          data-i18n="recycleBin.restoreAll">Recuperar todo</button>
+        <button id="recycle-bin-delete-all" class="btn btn-danger" type="button"
+          data-i18n="recycleBin.deleteAll">Borrar todo</button>
+      </div>
+      <div id="recycle-bin-list" class="recycle-bin-list custom-scrollbar" role="list"></div>
+      <p id="recycle-bin-empty" class="recycle-bin-empty" data-i18n="recycleBin.empty">La papelera está vacía.</p>
+      <footer class="recycle-bin-modal-footer">
+        <span id="recycle-bin-selected-count"></span>
+        <div class="recycle-bin-selection-actions">
+          <button id="recycle-bin-restore-selected" class="btn btn-info" type="button"
+            data-i18n="recycleBin.restoreSelected">Recuperar seleccionados</button>
+          <button id="recycle-bin-delete-selected" class="btn btn-danger" type="button"
+            data-i18n="recycleBin.deleteSelected">Borrar seleccionados</button>
+          <button id="recycle-bin-close" class="btn btn-ghost" type="button"
+            data-i18n="buttons.close">Cerrar</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
   <div id="settings-modal" class="modal">
     <div class="modal-overlay"></div>
     <div class="modal-card modal-lg">
@@ -350,6 +382,14 @@
               </div>
               <p id="interface-theme-system-note" class="settings-section-description is-hidden"
                 data-i18n="settingsModal.general.appearance.systemHint">Usa la apariencia del navegador.</p>
+            </section>
+            <section class="settings-recycle-bin" aria-labelledby="settings-recycle-bin-title">
+              <h3 id="settings-recycle-bin-title" data-i18n="settingsModal.general.recycleBin.title">Papelera de reciclaje</h3>
+              <div class="checkbox-wrapper">
+                <input id="settings-show-recycle-bin" type="checkbox">
+                <label for="settings-show-recycle-bin" data-i18n="settingsModal.general.recycleBin.show">Mostrar la papelera en la grilla principal</label>
+              </div>
+              <p class="settings-section-description" data-i18n="settingsModal.general.recycleBin.hint">Los elementos eliminados se conservan durante 28 días.</p>
             </section>
             <h3 data-i18n="settingsModal.general.subtitle">Ajustes</h3>
             <div id="settings-modal-background-settings" class="modal-field">

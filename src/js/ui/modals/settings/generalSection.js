@@ -1,5 +1,11 @@
 import { applyInterfaceTheme } from '../../../core/interfacePreferences.js';
-import { getDraftInterfaceTheme, setDraftInterfaceTheme, getInitialSnapshot } from './settingsState.js';
+import {
+  getDraftInterfaceTheme,
+  getDraftShowRecycleBin,
+  setDraftInterfaceTheme,
+  setDraftShowRecycleBin,
+  getInitialSnapshot
+} from './settingsState.js';
 import { t } from '../../../core/i18n.js';
 import { exportBackup, importBackup } from '../../backup.js';
 import { showAlert } from '../alert.js';
@@ -13,13 +19,20 @@ export function initGeneralSection({
 }) {
   const themeInputs = document.querySelectorAll('input[name="interface-theme"]');
   const systemNote = document.getElementById('interface-theme-system-note');
+  const showRecycleBinInput = document.getElementById('settings-show-recycle-bin');
 
   function syncUI() {
     const preference = getDraftInterfaceTheme();
     for (const input of themeInputs) input.checked = input.value === preference;
     systemNote.classList.toggle('is-hidden', preference !== 'system');
     applyInterfaceTheme(preference);
+    showRecycleBinInput.checked = getDraftShowRecycleBin();
   }
+
+  showRecycleBinInput.addEventListener('change', () => {
+    setDraftShowRecycleBin(showRecycleBinInput.checked);
+    onRequestSaveStateUpdate();
+  });
 
   for (const input of themeInputs) {
     input.addEventListener('change', () => {

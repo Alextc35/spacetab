@@ -30,6 +30,11 @@
       "folderFull": "This folder already has 18 bookmarks",
       "bookmarkRemoved": "Bookmark moved back to the grid"
     },
+    "recycleBin": {
+      "moved": "Moved to the recycle bin",
+      "restored": "Items restored",
+      "deletedPermanently": "Items permanently deleted"
+    },
     "workspace": {
       "created": "Workspace created",
       "deleted": "Workspace deleted"
@@ -106,6 +111,12 @@
     },
     "folder": {
       "cancel": "Discard folder changes?"
+    },
+    "recycleBin": {
+      "folder": "Move “{{name}}” and its {{count}} bookmarks to the recycle bin?",
+      "empty": "Permanently delete everything in the recycle bin? This cannot be undone.",
+      "deleteSelected": "Permanently delete {{count}} selected items? This cannot be undone.",
+      "noSpace": "{{count}} items could not be restored because there is not enough grid space. They remain in the recycle bin."
     },
     "settings": {
       "cancel": "Discard settings changes?",
@@ -200,7 +211,7 @@
     "dropHint": "Drop to add",
     "noSpace": "There is no free grid cell for a new folder.",
     "removeNoSpace": "There is not enough grid space to remove this bookmark from the folder.",
-    "confirmDelete": "Delete “{{name}}” and its {{count}} bookmarks permanently?",
+    "confirmDelete": "Move “{{name}}” and its {{count}} bookmarks to the recycle bin?",
     "actions": {
       "ariaLabel": "Folder controls",
       "customize": "Customize folder",
@@ -236,6 +247,25 @@
         "text": "Text"
       }
     }
+  },
+  "recycleBin": {
+    "title": "Recycle Bin",
+    "open": "Open recycle bin",
+    "openCount": "Open recycle bin, {{count}} items",
+    "countOne": "1 item",
+    "count": "{{count}} items",
+    "dropHint": "Drop to delete",
+    "summary": "{{count}} items · Automatically deleted after {{days}} days",
+    "empty": "The recycle bin is empty.",
+    "selected": "{{count}} selected",
+    "select": "Select {{name}}",
+    "folderDetail": "Folder · {{count}} bookmarks",
+    "deletedAt": "Deleted {{date}}",
+    "expiresIn": "{{days}} days left",
+    "restoreAll": "Restore all",
+    "deleteAll": "Delete all",
+    "restoreSelected": "Restore selected",
+    "deleteSelected": "Delete selected"
   },
   "validation": {
     "preset": {
@@ -295,6 +325,11 @@
       "import": "Restore backup",
       "resetSettings": "Reset settings",
       "deleteAllData": "Delete all data",
+      "recycleBin": {
+        "title": "Recycle bin",
+        "show": "Show the recycle bin on the Main grid",
+        "hint": "Deleted items are retained for 28 days and included in Sync."
+      },
       "appearance": {
         "title": "Appearance",
         "system": "Browser",

@@ -1,11 +1,15 @@
 import { debug } from '../../core/debug.js';
-import { getState, setState } from '../../core/store.js';
+import { getState } from '../../core/store.js';
 import {
   createBookmarksEnvelope,
   parseBookmarksPayload
 } from '../../core/dataSchema.js';
 import { flashSuccess, flashError } from '../flash.js';
 import { downloadJson } from '../backup.js';
+import {
+  ensureRecycleBinPosition,
+  replaceGridDataThroughRecycleBin
+} from '../../core/recycleBin.js';
 
 /**
  * Exports all current bookmarks as a JSON file.
@@ -45,7 +49,8 @@ export async function importBookmarks(file) {
     const payload = JSON.parse(await file.text());
     const currentData = getState().data;
     const { bookmarks, folders } = parseBookmarksPayload(payload, currentData);
-    await setState({ data: { bookmarks, folders } });
+    await replaceGridDataThroughRecycleBin(bookmarks, folders);
+    ensureRecycleBinPosition();
 
     debug.info('Bookmarks imported', { bookmarks: bookmarks.length, folders: folders.length });
     flashSuccess('flash.bookmarks.imported');

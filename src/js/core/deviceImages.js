@@ -9,6 +9,12 @@ function imageSlots(data) {
     ['bookmarkDefault', data.settings?.bookmarkDefault],
     ...(data.bookmarks ?? []).map(item => [`bookmark:${item.id}`, item]),
     ...(data.folders ?? []).map(item => [`folder:${item.id}`, item]),
+    ...(data.trash ?? []).flatMap(entry => entry.type === 'folder'
+      ? [
+        [`trash:${entry.id}:folder`, entry.folder],
+        ...entry.bookmarks.map(item => [`trash:${entry.id}:bookmark:${item.id}`, item])
+      ]
+      : [[`trash:${entry.id}:bookmark:${entry.bookmark.id}`, entry.bookmark]]),
     ...(data.settings?.bookmarkPresets ?? []).map(item => [`preset:${item.id}`, item.style])
   ].filter(([, style]) => style && typeof style === 'object');
 }

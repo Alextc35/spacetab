@@ -32,9 +32,9 @@ let unsubscribeFromStorage = null;
 let persistenceQueue = Promise.resolve();
 
 const HISTORY_LIMIT = 50;
-/** @type {Array<Pick<DataState, 'bookmarks'|'folders'>>} */
+/** @type {Array<Pick<DataState, 'bookmarks'|'folders'|'recycleBin'|'trash'>>} */
 const undoStack = [];
-/** @type {Array<Pick<DataState, 'bookmarks'|'folders'>>} */
+/** @type {Array<Pick<DataState, 'bookmarks'|'folders'|'recycleBin'|'trash'>>} */
 const redoStack = [];
 
 /**
@@ -77,12 +77,20 @@ export async function setState(partial, { recordHistory = true, debugTrace } = {
   ) || (
     partial.data?.folders !== undefined
     && partial.data.folders !== state.data.folders
+  ) || (
+    partial.data?.recycleBin !== undefined
+    && partial.data.recycleBin !== state.data.recycleBin
+  ) || (
+    partial.data?.trash !== undefined
+    && partial.data.trash !== state.data.trash
   );
 
   if (!isHydrating && recordHistory && gridDataWillChange) {
     undoStack.push(structuredClone({
       bookmarks: state.data.bookmarks,
-      folders: state.data.folders
+      folders: state.data.folders,
+      recycleBin: state.data.recycleBin,
+      trash: state.data.trash
     }));
     if (undoStack.length > HISTORY_LIMIT) undoStack.shift();
     redoStack.length = 0;
@@ -112,6 +120,8 @@ export async function setState(partial, { recordHistory = true, debugTrace } = {
   const shouldPersist = !isHydrating && (
     state.data.bookmarks !== prevState.data.bookmarks ||
     state.data.folders !== prevState.data.folders ||
+    state.data.recycleBin !== prevState.data.recycleBin ||
+    state.data.trash !== prevState.data.trash ||
     state.data.settings !== prevState.data.settings
   );
   if (shouldPersist) {
@@ -185,7 +195,9 @@ export async function undoBookmarks() {
 
   redoStack.push(structuredClone({
     bookmarks: state.data.bookmarks,
-    folders: state.data.folders
+    folders: state.data.folders,
+    recycleBin: state.data.recycleBin,
+    trash: state.data.trash
   }));
   await setState({ data: previous }, { recordHistory: false, debugTrace: debug.start('Undo') });
   return true;
@@ -198,7 +210,9 @@ export async function redoBookmarks() {
 
   undoStack.push(structuredClone({
     bookmarks: state.data.bookmarks,
-    folders: state.data.folders
+    folders: state.data.folders,
+    recycleBin: state.data.recycleBin,
+    trash: state.data.trash
   }));
   await setState({ data: next }, { recordHistory: false, debugTrace: debug.start('Redo') });
   return true;

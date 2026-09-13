@@ -9,6 +9,7 @@ import {
 } from './folderGrid.js';
 import { getState, setState } from './store.js';
 import { normalizeFolderStyle, validateFolderDraft } from './folderModel.js';
+import { moveFolderToRecycleBin } from './recycleBin.js';
 
 export const BOOKMARK_FOLDER_NAME_MAX_LENGTH = 60;
 
@@ -28,7 +29,7 @@ function normalizeBookmarkFolderName(name) {
  */
 export function getGridItemsInGroup(data, groupId) {
   const normalizedGroupId = groupId ?? null;
-  return [
+  const items = [
     ...data.bookmarks.filter(bookmark => (
       !bookmark.folderId
       && (bookmark.groupId ?? null) === normalizedGroupId
@@ -37,6 +38,10 @@ export function getGridItemsInGroup(data, groupId) {
       (folder.groupId ?? null) === normalizedGroupId
     ))
   ];
+  if (normalizedGroupId === null && data.settings?.showRecycleBin && data.recycleBin) {
+    items.push(data.recycleBin);
+  }
+  return items;
 }
 
 /**
@@ -139,7 +144,8 @@ export function updateGridItemsByIds(updates) {
 
   const bookmarks = data.bookmarks.map(updateItem);
   const folders = data.folders.map(updateItem);
-  if (changed.length) setState({ data: { bookmarks, folders } });
+  const recycleBin = updateItem(data.recycleBin);
+  if (changed.length) setState({ data: { bookmarks, folders, recycleBin } });
   return changed;
 }
 
@@ -293,18 +299,5 @@ export function removeBookmarkFromFolder(bookmarkId, { columns, rows } = {}) {
  * @returns {{deleted: boolean, bookmarkCount: number}}
  */
 export function deleteBookmarkFolder(folderId) {
-  const { data: { bookmarks, folders } } = getState();
-  if (!folders.some(folder => folder.id === folderId)) {
-    return { deleted: false, bookmarkCount: 0 };
-  }
-
-  const remainingBookmarks = bookmarks.filter(bookmark => bookmark.folderId !== folderId);
-  const bookmarkCount = bookmarks.length - remainingBookmarks.length;
-  setState({
-    data: {
-      bookmarks: remainingBookmarks,
-      folders: folders.filter(folder => folder.id !== folderId)
-    }
-  });
-  return { deleted: true, bookmarkCount };
+  return moveFolderToRecycleBin(folderId);
 }

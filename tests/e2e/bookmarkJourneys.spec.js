@@ -882,9 +882,9 @@ test('defaults to none, warns about sequence, and persists drag modes', async ({
   const dragged = bookmarks.nth(2);
   const gridBox = await visibleBox(page.locator('#bookmark-container'));
   const [targetStart, middleStart, draggedStart] = await Promise.all([
-    target.boundingBox(),
-    middle.boundingBox(),
-    dragged.boundingBox()
+    visibleBox(target),
+    visibleBox(middle),
+    visibleBox(dragged)
   ]);
   const pointerStart = {
     x: draggedStart.x + draggedStart.width / 2,
@@ -1879,6 +1879,7 @@ test('blocks synchronized storage in Brave and explains why', async ({ page }) =
 
   await expect(page.getByRole('radio', { name: /This device only/ })).toBeChecked();
   await expect(page.getByRole('radio', { name: /Synced/ })).toBeDisabled();
+  await page.locator('#storage-sync-help').hover();
   await expect(page.getByText(/Unavailable in Brave/)).toBeVisible();
   await expect(page.locator('#storage-sync-existing-notice')).toBeHidden();
 });

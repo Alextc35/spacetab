@@ -86,6 +86,35 @@
  * @property {Array<{id: string, name: string, style: BookmarkPreset}>} bookmarkPresets
  * @property {Array<{id: string, name: string}>} bookmarkGroups
  * @property {string|null} activeBookmarkGroupId
+ * @property {boolean} showRecycleBin
+ */
+
+/**
+ * @typedef {Object} RecycleBin
+ * @property {string} id
+ * @property {number} gx
+ * @property {number} gy
+ * @property {number} w
+ * @property {number} h
+ * @property {null} groupId
+ * @property {number} updatedAt
+ */
+
+/**
+ * @typedef {Object} BookmarkTrashEntry
+ * @property {string} id
+ * @property {'bookmark'} type
+ * @property {number} deletedAt
+ * @property {Bookmark} bookmark
+ */
+
+/**
+ * @typedef {Object} FolderTrashEntry
+ * @property {string} id
+ * @property {'folder'} type
+ * @property {number} deletedAt
+ * @property {BookmarkFolder} folder
+ * @property {Bookmark[]} bookmarks
  */
 
 /**
@@ -93,6 +122,8 @@
  * @property {number} schemaVersion
  * @property {Bookmark[]} bookmarks
  * @property {BookmarkFolder[]} folders
+ * @property {RecycleBin} recycleBin
+ * @property {Array<BookmarkTrashEntry|FolderTrashEntry>} trash
  * @property {Settings} settings
  */
 
@@ -114,7 +145,7 @@
  */
 
 /**
- * @typedef {Pick<AppState['data'], 'schemaVersion' | 'bookmarks' | 'folders' | 'settings'>} PersistedData
+ * @typedef {Pick<AppState['data'], 'schemaVersion' | 'bookmarks' | 'folders' | 'recycleBin' | 'trash' | 'settings'>} PersistedData
  */
 
 /**

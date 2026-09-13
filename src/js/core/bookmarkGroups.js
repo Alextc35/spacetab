@@ -1,6 +1,7 @@
 import { clearBookmarkHistory, getState, setState } from './store.js';
 import { findFirstFreeSlot } from './grid.js';
 import { getGridItemsInGroup } from './bookmarkFolders.js';
+import { moveWorkspaceToRecycleBin } from './recycleBin.js';
 
 export function createBookmarkGroup(name) {
   const normalizedName = typeof name === 'string' ? name.trim() : '';
@@ -53,22 +54,16 @@ export function getAdjacentBookmarkGroupId(settings, offset) {
 }
 
 export function deleteBookmarkGroup(groupId) {
-  const { data: { settings, bookmarks, folders } } = getState();
+  const { data: { settings } } = getState();
   if (!settings.bookmarkGroups.some(group => group.id === groupId)) return false;
 
-  setState({
-    data: {
-      bookmarks: bookmarks.filter(bookmark => bookmark.groupId !== groupId),
-      folders: folders.filter(folder => folder.groupId !== groupId),
-      settings: {
-        ...settings,
-        bookmarkGroups: settings.bookmarkGroups.filter(group => group.id !== groupId),
-        activeBookmarkGroupId: settings.activeBookmarkGroupId === groupId
-          ? null
-          : settings.activeBookmarkGroupId
-      }
-    }
-  }, { recordHistory: false });
+  moveWorkspaceToRecycleBin(groupId, {
+    ...settings,
+    bookmarkGroups: settings.bookmarkGroups.filter(group => group.id !== groupId),
+    activeBookmarkGroupId: settings.activeBookmarkGroupId === groupId
+      ? null
+      : settings.activeBookmarkGroupId
+  });
   clearBookmarkHistory();
   return true;
 }

@@ -70,3 +70,27 @@ test('migrates only available legacy files and keeps every image slot local thro
   const afterRemoval = await restoreDeviceImageSelections(dataWithImage(owned));
   for (const style of styles(afterRemoval)) assert.equal(style.backgroundImageLocal, null);
 });
+
+test('keeps deleted-item image choices out of synchronized payloads', () => {
+  const style = { backgroundImageLocal: owned, backgroundImageUrl: 'https://images.test/fallback.gif' };
+  const data = migratePersistedData({
+    bookmarks: [],
+    folders: [],
+    trash: [
+      { id: 'trash-bookmark', type: 'bookmark', deletedAt: 1, bookmark: { id: 'deleted', name: 'Deleted', ...style } },
+      {
+        id: 'trash-folder',
+        type: 'folder',
+        deletedAt: 1,
+        folder: { id: 'deleted-folder', name: 'Deleted folder', ...style },
+        bookmarks: [{ id: 'inside', name: 'Inside', ...style }]
+      }
+    ]
+  });
+
+  const shared = withoutDeviceImages(data);
+  assert.equal(JSON.stringify(shared).includes('spacetab-local-image:'), false);
+  assert.equal(shared.trash[0].bookmark.backgroundImageUrl, style.backgroundImageUrl);
+  assert.equal(shared.trash[1].folder.backgroundImageUrl, style.backgroundImageUrl);
+  assert.equal(shared.trash[1].bookmarks[0].backgroundImageUrl, style.backgroundImageUrl);
+});

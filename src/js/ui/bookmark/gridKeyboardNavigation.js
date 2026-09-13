@@ -99,6 +99,13 @@ function handleGridKeyboardNavigation(event) {
     const item = getVisibleGridItems().find(entry => entry.id === activeItemId);
     if (!item) return;
 
+    if (item.kind === 'recycle-bin') {
+      event.preventDefault();
+      clearGridKeyboardNavigation();
+      if (!ui.isEditing) openGridItem(item);
+      return;
+    }
+
     if (!ui.isEditing) {
       event.preventDefault();
       clearGridKeyboardNavigation();
@@ -138,7 +145,7 @@ function canStartGridNavigation() {
 }
 
 function getVisibleGridItems() {
-  const { data: { bookmarks, folders, settings } } = getState();
+  const { data: { bookmarks, folders, recycleBin, settings } } = getState();
   const activeGroupId = settings.activeBookmarkGroupId ?? null;
   const visibleIds = isListView() ? new Set(
     [...containerRef.querySelectorAll('.bookmark-list-item:not([hidden])')]
@@ -150,7 +157,10 @@ function getVisibleGridItems() {
       .map(bookmark => ({ ...bookmark, kind: 'bookmark' })),
     ...folders
       .filter(folder => (folder.groupId ?? null) === activeGroupId)
-      .map(folder => ({ ...folder, kind: 'folder' }))
+      .map(folder => ({ ...folder, kind: 'folder' })),
+    ...(!isListView() && activeGroupId === null && settings.showRecycleBin
+      ? [{ ...recycleBin, kind: 'recycle-bin' }]
+      : [])
   ].filter(item => !visibleIds || visibleIds.has(item.id)).sort((a, b) => (
     a.gy - b.gy
     || a.gx - b.gx
@@ -224,6 +234,10 @@ function centerDistance(startA, endA, startB, endB) {
 }
 
 function openGridItem(item) {
+  if (item.kind === 'recycle-bin') {
+    getGridItemElement(item.id)?.querySelector('.recycle-bin-open')?.click();
+    return;
+  }
   if (item.kind === 'folder') {
     getGridItemElement(item.id)?.querySelector('.folder-open')?.click();
     return;
@@ -243,9 +257,13 @@ function setActiveItem(itemId) {
   activeItemId = itemId;
   containerRef?.focus({ preventScroll: true });
 
-  containerRef?.querySelectorAll('.bookmark[data-bookmark-id], .bookmark-folder[data-folder-id]')
+  containerRef?.querySelectorAll(
+    '.bookmark[data-bookmark-id], .bookmark-folder[data-folder-id], .recycle-bin[data-recycle-bin-id]'
+  )
     .forEach(element => {
-      const id = element.dataset.bookmarkId ?? element.dataset.folderId;
+      const id = element.dataset.bookmarkId
+        ?? element.dataset.folderId
+        ?? element.dataset.recycleBinId;
       element.classList.toggle('is-keyboard-active', id === itemId);
     });
   getGridItemElement(itemId)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -261,9 +279,11 @@ export function clearGridKeyboardNavigation() {
 
 function getGridItemElement(itemId) {
   return [...(containerRef?.querySelectorAll(
-    '.bookmark[data-bookmark-id], .bookmark-folder[data-folder-id]'
+    '.bookmark[data-bookmark-id], .bookmark-folder[data-folder-id], .recycle-bin[data-recycle-bin-id]'
   ) ?? [])].find(element => (
-    element.dataset.bookmarkId === itemId || element.dataset.folderId === itemId
+    element.dataset.bookmarkId === itemId
+    || element.dataset.folderId === itemId
+    || element.dataset.recycleBinId === itemId
   )) ?? null;
 }
 

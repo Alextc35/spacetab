@@ -9,7 +9,7 @@ test('an uncontested replacement retains the requested collection order', () => 
 });
 
 test('independent creations survive stale snapshots in every record collection', () => {
-  for (const key of ['bookmarks', 'folders', 'bookmarkGroups', 'bookmarkPresets']) {
+  for (const key of ['bookmarks', 'folders', 'trash', 'bookmarkGroups', 'bookmarkPresets']) {
     const first = { id: 'first', name: 'First' };
     const second = { id: 'second', name: 'Second' };
     assert.deepEqual(mergeChanges({ [key]: [] }, { [key]: [second] }, { [key]: [first] }), {

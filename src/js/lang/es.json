@@ -30,6 +30,11 @@
       "folderFull": "Esta carpeta ya contiene 18 favoritos",
       "bookmarkRemoved": "Favorito devuelto a la cuadrícula"
     },
+    "recycleBin": {
+      "moved": "Movido a la papelera",
+      "restored": "Elementos recuperados",
+      "deletedPermanently": "Elementos eliminados definitivamente"
+    },
     "workspace": {
       "created": "Espacio de trabajo creado",
       "deleted": "Espacio de trabajo eliminado"
@@ -106,6 +111,12 @@
     },
     "folder": {
       "cancel": "¿Descartar los cambios de la carpeta?"
+    },
+    "recycleBin": {
+      "folder": "¿Mover «{{name}}» y sus {{count}} favoritos a la papelera?",
+      "empty": "¿Borrar definitivamente todo el contenido de la papelera? Esta acción no se puede deshacer.",
+      "deleteSelected": "¿Borrar definitivamente los {{count}} elementos seleccionados? Esta acción no se puede deshacer.",
+      "noSpace": "No se pudieron recuperar {{count}} elementos porque no hay espacio suficiente en la grilla. Permanecen en la papelera."
     },
     "settings": {
       "cancel": "¿Descartar los cambios en la configuración?",
@@ -200,7 +211,7 @@
     "dropHint": "Suelta para añadir",
     "noSpace": "No queda ninguna celda libre para crear una carpeta.",
     "removeNoSpace": "No hay espacio suficiente en la cuadrícula para sacar este favorito de la carpeta.",
-    "confirmDelete": "¿Eliminar «{{name}}» y sus {{count}} favoritos de forma permanente?",
+    "confirmDelete": "¿Mover «{{name}}» y sus {{count}} favoritos a la papelera?",
     "actions": {
       "ariaLabel": "Controles de la carpeta",
       "customize": "Personalizar carpeta",
@@ -236,6 +247,25 @@
         "text": "Texto"
       }
     }
+  },
+  "recycleBin": {
+    "title": "Papelera de reciclaje",
+    "open": "Abrir papelera de reciclaje",
+    "openCount": "Abrir papelera, {{count}} elementos",
+    "countOne": "1 elemento",
+    "count": "{{count}} elementos",
+    "dropHint": "Suelta para eliminar",
+    "summary": "{{count}} elementos · Se borran automáticamente tras {{days}} días",
+    "empty": "La papelera está vacía.",
+    "selected": "{{count}} seleccionados",
+    "select": "Seleccionar {{name}}",
+    "folderDetail": "Carpeta · {{count}} favoritos",
+    "deletedAt": "Eliminado el {{date}}",
+    "expiresIn": "Quedan {{days}} días",
+    "restoreAll": "Recuperar todo",
+    "deleteAll": "Borrar todo",
+    "restoreSelected": "Recuperar seleccionados",
+    "deleteSelected": "Borrar seleccionados"
   },
   "validation": {
     "preset": {
@@ -295,6 +325,11 @@
       "import": "Restaurar copia de seguridad",
       "resetSettings": "Restablecer ajustes",
       "deleteAllData": "Borrar todos los datos",
+      "recycleBin": {
+        "title": "Papelera de reciclaje",
+        "show": "Mostrar la papelera en la grilla Principal",
+        "hint": "Los elementos eliminados se conservan 28 días y se incluyen en Sync."
+      },
       "appearance": {
         "title": "Apariencia",
         "system": "Navegador",

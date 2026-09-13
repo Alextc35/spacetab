@@ -1,6 +1,7 @@
 import '../types/types.js';
 import {
   DATA_SCHEMA_VERSION,
+  DEFAULT_RECYCLE_BIN,
   DEFAULT_SETTINGS,
   DEFAULT_STATE
 } from './defaults.js';
@@ -62,28 +63,35 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
       bookmarkGroupIds
     }));
   const folderById = new Map(folders.map(folder => [folder.id, folder]));
+  const bookmarks = rawBookmarks
+    .filter(bookmark => bookmark && typeof bookmark === 'object')
+    .map((bookmark, index) => {
+      const normalized = normalizeBookmark(bookmark, {
+        now,
+        touchUpdatedAt: false,
+        idFactory: () => `migrated-${now}-${index}`
+      });
+      normalized.groupId = bookmarkGroupIds.has(normalized.groupId)
+        ? normalized.groupId
+        : null;
+      const folder = folderById.get(normalized.folderId);
+      normalized.folderId = folder
+        && (folder.groupId ?? null) === (normalized.groupId ?? null)
+        ? folder.id
+        : null;
+      return normalized;
+    });
+  const recycleBin = normalizeRecycleBin(source.recycleBin);
 
   return {
     schemaVersion: DATA_SCHEMA_VERSION,
-    bookmarks: rawBookmarks
-      .filter(bookmark => bookmark && typeof bookmark === 'object')
-      .map((bookmark, index) => {
-        const normalized = normalizeBookmark(bookmark, {
-          now,
-          touchUpdatedAt: false,
-          idFactory: () => `migrated-${now}-${index}`
-        });
-        normalized.groupId = bookmarkGroupIds.has(normalized.groupId)
-          ? normalized.groupId
-          : null;
-        const folder = folderById.get(normalized.folderId);
-        normalized.folderId = folder
-          && (folder.groupId ?? null) === (normalized.groupId ?? null)
-          ? folder.id
-          : null;
-        return normalized;
-      }),
+    bookmarks,
     folders,
+    recycleBin,
+    trash: normalizeTrashEntries(source.trash, {
+      now,
+      bookmarkGroupIds
+    }),
     settings: {
       ...structuredClone(DEFAULT_SETTINGS),
       ...rawSettings,
@@ -94,11 +102,72 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
       bookmarkDragMode: normalizeBookmarkDragMode(rawSettings.bookmarkDragMode),
       bookmarkResizeMode: normalizeBookmarkResizeMode(rawSettings.bookmarkResizeMode),
       keyboardShortcuts: normalizeKeyboardShortcuts(rawSettings.keyboardShortcuts),
+      showRecycleBin: rawSettings.showRecycleBin !== false,
       bookmarkPresets: normalizeNamedPresets(rawSettings.bookmarkPresets),
       bookmarkGroups,
       activeBookmarkGroupId
     }
   };
+}
+
+function normalizeRecycleBin(value) {
+  const source = value && typeof value === 'object' ? value : {};
+  const w = Math.min(12, normalizeGridSize(source.w ?? DEFAULT_RECYCLE_BIN.w));
+  const h = Math.min(6, normalizeGridSize(source.h ?? DEFAULT_RECYCLE_BIN.h));
+  return {
+    ...structuredClone(DEFAULT_RECYCLE_BIN),
+    gx: Math.min(12 - w, normalizeGridValue(source.gx ?? DEFAULT_RECYCLE_BIN.gx)),
+    gy: Math.min(6 - h, normalizeGridValue(source.gy ?? DEFAULT_RECYCLE_BIN.gy)),
+    w,
+    h,
+    groupId: null,
+    updatedAt: normalizeTimestamp(source.updatedAt, 0)
+  };
+}
+
+function normalizeTrashEntries(value, { now, bookmarkGroupIds }) {
+  if (!Array.isArray(value)) return [];
+
+  return value.flatMap((entry, entryIndex) => {
+    if (!entry || typeof entry !== 'object') return [];
+    const deletedAt = normalizeTimestamp(entry.deletedAt, now);
+    const id = typeof entry.id === 'string' && entry.id.trim()
+      ? entry.id
+      : `trash-${now}-${entryIndex}`;
+
+    if (entry.type === 'bookmark' && entry.bookmark && typeof entry.bookmark === 'object') {
+      const bookmark = normalizeBookmark(entry.bookmark, {
+        now,
+        touchUpdatedAt: false,
+        idFactory: () => `trashed-bookmark-${now}-${entryIndex}`
+      });
+      bookmark.groupId = bookmarkGroupIds.has(bookmark.groupId) ? bookmark.groupId : null;
+      return [{ id, type: 'bookmark', deletedAt, bookmark }];
+    }
+
+    if (entry.type === 'folder' && entry.folder && typeof entry.folder === 'object') {
+      const folder = normalizeBookmarkFolder(entry.folder, {
+        index: entryIndex,
+        now,
+        bookmarkGroupIds
+      });
+      const bookmarks = (Array.isArray(entry.bookmarks) ? entry.bookmarks : [])
+        .filter(bookmark => bookmark && typeof bookmark === 'object')
+        .map((bookmark, bookmarkIndex) => {
+          const normalized = normalizeBookmark(bookmark, {
+            now,
+            touchUpdatedAt: false,
+            idFactory: () => `trashed-folder-bookmark-${now}-${entryIndex}-${bookmarkIndex}`
+          });
+          normalized.folderId = folder.id;
+          normalized.groupId = folder.groupId;
+          return normalized;
+        });
+      return [{ id, type: 'folder', deletedAt, folder, bookmarks }];
+    }
+
+    return [];
+  });
 }
 
 function normalizeTheme(value) {

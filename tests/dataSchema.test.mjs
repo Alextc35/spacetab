@@ -280,3 +280,29 @@ test('normalizes folder references and rejects cross-workspace membership', () =
   assert.equal(migrated.bookmarks[1].folderId, null);
   assert.equal(migrated.bookmarks[2].folderId, null);
 });
+
+test('round-trips recycle bin geometry and deleted folder contents', () => {
+  const deletedAt = 123456;
+  const migrated = migratePersistedData({
+    bookmarks: [],
+    folders: [],
+    recycleBin: { gx: 8, gy: 2, w: 3, h: 2 },
+    trash: [{
+      id: 'deleted-folder-entry',
+      type: 'folder',
+      deletedAt,
+      folder: { id: 'deleted-folder', name: 'Deleted', gx: 3, gy: 2 },
+      bookmarks: [{ id: 'deleted-bookmark', name: 'Inside', folderId: 'wrong' }]
+    }],
+    settings: { ...DEFAULT_SETTINGS, showRecycleBin: false }
+  });
+
+  assert.deepEqual(
+    { gx: migrated.recycleBin.gx, gy: migrated.recycleBin.gy, w: migrated.recycleBin.w, h: migrated.recycleBin.h },
+    { gx: 8, gy: 2, w: 3, h: 2 }
+  );
+  assert.equal(migrated.settings.showRecycleBin, false);
+  assert.equal(migrated.trash[0].deletedAt, deletedAt);
+  assert.equal(migrated.trash[0].bookmarks[0].folderId, 'deleted-folder');
+  assert.deepEqual(parseBackupPayload(createBackupEnvelope(migrated)), migrated);
+});

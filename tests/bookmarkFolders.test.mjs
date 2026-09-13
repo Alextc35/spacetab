@@ -57,7 +57,8 @@ test('folders reserve a cell and own bookmarks without reserving their old cells
         id: 'bookmark', name: 'Bookmark', groupId: null, folderId: null,
         gx: 0, gy: 0, w: 1, h: 1
       }],
-      folders: []
+      folders: [],
+      settings: { ...getState().data.settings, showRecycleBin: false }
     }
   });
 

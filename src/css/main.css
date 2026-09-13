@@ -18,6 +18,7 @@
 @import './features/folderModal.css';
 @import './features/responsiveGrid.css';
 @import './features/bookmarkList.css';
+@import './features/recycleBin.css';
 
 @import './states/disabled.css';
 @import './states/hidden.css';

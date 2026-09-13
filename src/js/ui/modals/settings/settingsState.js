@@ -15,6 +15,7 @@ let draftTheme = null;
  */
 let draftLanguage = null;
 let draftInterfaceTheme = null;
+let draftShowRecycleBin = null;
 
 /**
  * Draft bookmark default state used while the settings modal is open.
@@ -65,6 +66,7 @@ export function initDraft(settings, storageMode) {
   draftTheme = structuredClone(settings.theme);
   draftLanguage = settings.language;
   draftInterfaceTheme = normalizeInterfaceTheme(settings.interfaceTheme);
+  draftShowRecycleBin = settings.showRecycleBin !== false;
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
   draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
   draftBookmarkDragMode = normalizeBookmarkDragMode(settings.bookmarkDragMode);
@@ -82,6 +84,7 @@ export function resetState() {
   draftTheme = null;
   draftLanguage = null;
   draftInterfaceTheme = null;
+  draftShowRecycleBin = null;
   draftBookmarkDefault = null;
   draftBookmarkPresets = null;
   draftBookmarkDragMode = null;
@@ -115,6 +118,15 @@ export function getDraftInterfaceTheme() {
 
 export function setDraftInterfaceTheme(value) {
   draftInterfaceTheme = normalizeInterfaceTheme(value);
+}
+
+export function getDraftShowRecycleBin() {
+  const { data: { settings } } = getState();
+  return draftShowRecycleBin ?? (settings.showRecycleBin !== false);
+}
+
+export function setDraftShowRecycleBin(value) {
+  draftShowRecycleBin = value === true;
 }
 
 /** Returns the draft language preference, including the automatic option. */
@@ -270,6 +282,7 @@ export function replaceDraftSettings(settings) {
   draftTheme = structuredClone(settings.theme);
   draftLanguage = settings.language;
   draftInterfaceTheme = normalizeInterfaceTheme(settings.interfaceTheme);
+  draftShowRecycleBin = settings.showRecycleBin !== false;
   draftBookmarkDefault = structuredClone(settings.bookmarkDefault);
   draftBookmarkPresets = structuredClone(settings.bookmarkPresets ?? []);
   draftBookmarkDragMode = normalizeBookmarkDragMode(settings.bookmarkDragMode);
@@ -300,6 +313,7 @@ export function hasChanges() {
     storageMode: draftStorageMode,
     language: draftLanguage,
     interfaceTheme: draftInterfaceTheme,
+    showRecycleBin: draftShowRecycleBin,
     theme: draftTheme,
     bookmarkDragMode: draftBookmarkDragMode,
     bookmarkResizeMode: draftBookmarkResizeMode,
@@ -311,6 +325,7 @@ export function hasChanges() {
     storageMode: initialSnapshot.storageMode,
     language: initialSnapshot.language,
     interfaceTheme: normalizeInterfaceTheme(initialSnapshot.interfaceTheme),
+    showRecycleBin: initialSnapshot.showRecycleBin !== false,
     theme: initialSnapshot.theme,
     bookmarkDragMode: normalizeBookmarkDragMode(initialSnapshot.bookmarkDragMode),
     bookmarkResizeMode: normalizeBookmarkResizeMode(initialSnapshot.bookmarkResizeMode),
@@ -338,6 +353,7 @@ export function buildNewSettings() {
   return {
     language: draftLanguage,
     interfaceTheme: draftInterfaceTheme,
+    showRecycleBin: draftShowRecycleBin,
     theme: structuredClone(draftTheme),
     bookmarkDragMode: draftBookmarkDragMode,
     bookmarkResizeMode: draftBookmarkResizeMode,

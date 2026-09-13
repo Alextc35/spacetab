@@ -4,6 +4,7 @@ import {
 } from '../core/dataSchema.js';
 import { getState, setState } from '../core/store.js';
 import { flashError, flashSuccess } from './flash.js';
+import { ensureRecycleBinPosition } from '../core/recycleBin.js';
 
 export function exportBackup() {
   try {
@@ -29,6 +30,7 @@ export async function importBackup(file) {
     const payload = JSON.parse(await file.text());
     const data = parseBackupPayload(payload, getState().data);
     await setState({ data });
+    ensureRecycleBinPosition();
     flashSuccess('flash.backup.imported');
     return true;
   } catch (error) {

@@ -5,3 +5,4 @@ export { initSettingsModal } from './settings/index.js';
 export { initSearchModal, openSearchModal } from './searchModal.js';
 export { initFolderModal, openFolderModal } from './folderModal.js';
 export { initFolderEditorModal, openFolderEditor } from './folderEditorModal.js';
+export { initRecycleBinModal, openRecycleBinModal } from './recycleBinModal.js';

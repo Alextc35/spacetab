@@ -64,3 +64,24 @@ test('bookmark history supports undo and redo as persisted state changes', async
   assert.deepEqual(getState().data.bookmarks, replacement);
   assert.deepEqual(getState().data.folders, replacementFolders);
 });
+
+test('undoing a deletion removes its recycle-bin entry instead of duplicating it', async () => {
+  const saved = [{ id: 'undo-trash', name: 'Undo trash', gx: 0, gy: 0, w: 1, h: 1 }];
+  await setState({ data: { bookmarks: saved, folders: [], trash: [] } }, { recordHistory: false });
+  await setState({
+    data: {
+      bookmarks: [],
+      trash: [{
+        id: 'trash-entry',
+        type: 'bookmark',
+        deletedAt: Date.now(),
+        bookmark: saved[0]
+      }]
+    }
+  });
+
+  assert.equal(getState().data.trash.length, 1);
+  assert.equal(await undoBookmarks(), true);
+  assert.deepEqual(getState().data.bookmarks, saved);
+  assert.deepEqual(getState().data.trash, []);
+});

@@ -27,7 +27,14 @@ async function start(page, width = 1280) {
     const folders = [{ ...DEFAULT_FOLDER_STYLE, id: 'compact-folder', name: 'Games',
       gx: 2, gy: 0, w: 2, h: 2, groupId: null, createdAt: 1, updatedAt: 1 }];
     await setState({ data: { bookmarks, folders,
-      settings: { ...getState().data.settings, interfaceTheme: 'dark' } } });
+      settings: {
+        ...getState().data.settings,
+        interfaceTheme: 'dark',
+        // These tests exercise bookmark/folder responsiveness. Keep the
+        // bottom-right cell available instead of turning the drag into a
+        // deliberate recycle-bin drop.
+        showRecycleBin: false
+      } } });
   });
   await expect(page.locator('#bookmark-container [data-folder-id="compact-folder"]')).toBeVisible();
   // Let storage normalization finish before comparing immutable data.

@@ -9,6 +9,10 @@ import {
 } from './bookmarkModel.js';
 import { findFirstFreeSlot } from './grid.js';
 import { getGridItemsInGroup } from './bookmarkFolders.js';
+import {
+  moveAllToRecycleBin,
+  moveBookmarksToRecycleBin
+} from './recycleBin.js';
 
 /**
  * Adds a new bookmark to the application state.
@@ -90,14 +94,7 @@ export function updateBookmarkById(bookmarkId, updatedData) {
  * @return {boolean} True if all requested data was removed, false otherwise.
  */
 export function clearBookmarks({ includeFolders = false } = {}) {
-  const trace = debug.start(includeFolders
-    ? 'Delete all bookmarks and folders'
-    : 'Delete all bookmarks');
-  const data = includeFolders
-    ? { bookmarks: [], folders: [] }
-    : { bookmarks: [] };
-  setState({ data }, { debugTrace: trace });
-  return true;
+  return moveAllToRecycleBin({ includeFolders });
 }
 
 /**
@@ -142,18 +139,7 @@ export function updateBookmarksByIds(bookmarkIds, updater) {
 
 /** @param {Iterable<string>} bookmarkIds */
 export function deleteBookmarksByIds(bookmarkIds) {
-  const trace = debug.start('Delete bookmarks');
-  const ids = new Set(bookmarkIds);
-  if (!ids.size) {
-    trace.end({ status: 'skipped', reason: 'Empty selection' });
-    return 0;
-  }
-  const { data: { bookmarks } } = getState();
-  const updated = bookmarks.filter(bookmark => !ids.has(bookmark.id));
-  const deletedCount = bookmarks.length - updated.length;
-  if (deletedCount) setState({ data: { bookmarks: updated } }, { debugTrace: trace });
-  else trace.end({ status: 'skipped', reason: 'Not found' });
-  return deletedCount;
+  return moveBookmarksToRecycleBin(bookmarkIds);
 }
 
 /**
@@ -197,7 +183,8 @@ export function duplicateBookmarksByIds(bookmarkIds, {
   const sources = bookmarks.filter(bookmark => ids.has(bookmark.id));
   const occupied = [
     ...bookmarks.filter(bookmark => !bookmark.folderId),
-    ...data.folders
+    ...data.folders,
+    ...(data.settings.showRecycleBin ? [data.recycleBin] : [])
   ];
   const duplicates = [];
   let skipped = 0;

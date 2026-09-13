@@ -23,7 +23,14 @@ const SYNC_META_KEY = 'spacetabSyncMeta';
 const SYNC_CHUNK_PREFIX = 'spacetabSyncChunk:';
 const SYNC_FORMAT_VERSION = 1;
 const SYNC_ITEM_SAFE_BYTES = 7600;
-const LEGACY_SYNC_KEYS = ['schemaVersion', 'bookmarks', 'folders', 'settings'];
+const LEGACY_SYNC_KEYS = [
+  'schemaVersion',
+  'bookmarks',
+  'folders',
+  'recycleBin',
+  'trash',
+  'settings'
+];
 
 /** @type {'local'|'sync'} */
 let activeMode = STORAGE_MODES.LOCAL;
@@ -140,13 +147,15 @@ async function readLocalData() {
   const result = await callStorage(
     chrome.storage.local,
     'get',
-    ['schemaVersion', 'bookmarks', 'folders', 'settings']
+    LEGACY_SYNC_KEYS
   );
 
   if (
     result.schemaVersion === undefined &&
     result.bookmarks === undefined &&
     result.folders === undefined &&
+    result.recycleBin === undefined &&
+    result.trash === undefined &&
     result.settings === undefined
   ) {
     return null;
@@ -156,6 +165,8 @@ async function readLocalData() {
     schemaVersion: result.schemaVersion,
     bookmarks: result.bookmarks,
     folders: result.folders,
+    recycleBin: result.recycleBin,
+    trash: result.trash,
     settings: result.settings
   };
 }
@@ -170,7 +181,7 @@ async function readSyncData() {
   const header = await callStorage(
     chrome.storage.sync,
     'get',
-    [SYNC_META_KEY, 'schemaVersion', 'bookmarks', 'folders', 'settings']
+    [SYNC_META_KEY, ...LEGACY_SYNC_KEYS]
   );
 
   const meta = header[SYNC_META_KEY];
@@ -180,6 +191,8 @@ async function readSyncData() {
       header.schemaVersion === undefined &&
       header.bookmarks === undefined &&
       header.folders === undefined &&
+      header.recycleBin === undefined &&
+      header.trash === undefined &&
       header.settings === undefined
     ) {
       return null;
@@ -189,6 +202,8 @@ async function readSyncData() {
       schemaVersion: header.schemaVersion,
       bookmarks: header.bookmarks,
       folders: header.folders,
+      recycleBin: header.recycleBin,
+      trash: header.trash,
       settings: header.settings
     };
   }
@@ -297,7 +312,7 @@ async function writeSyncData(data) {
     )
     : [];
 
-  const legacyKeys = ['schemaVersion', 'bookmarks', 'folders', 'settings'].filter(
+  const legacyKeys = LEGACY_SYNC_KEYS.filter(
     key => previous[key] !== undefined
   );
   const keysToRemove = [...staleKeys, ...legacyKeys];
@@ -739,7 +754,10 @@ export const storage = {
 function placeConcurrentAdditions(base, latest, data) {
   const previousIds = new Set([...base.bookmarks, ...base.folders, ...latest.bookmarks, ...latest.folders].map(item => item.id));
   const items = [...data.folders, ...data.bookmarks.filter(bookmark => !bookmark.folderId)];
-  const occupied = items.filter(item => previousIds.has(item.id));
+  const occupied = [
+    ...(data.settings.showRecycleBin ? [data.recycleBin] : []),
+    ...items.filter(item => previousIds.has(item.id))
+  ];
   for (const item of items.filter(item => !previousIds.has(item.id))) {
     const group = occupied.filter(other => (other.groupId ?? null) === (item.groupId ?? null));
     if (!isAreaFree(group, item.gx, item.gy, item.w, item.h)) {
@@ -780,7 +798,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   const isApplicationChange = activeMode === STORAGE_MODES.LOCAL
     ? changedKeys.some(key => (
         key === 'schemaVersion' || key === 'bookmarks' || key === 'settings'
-        || key === 'folders'
+        || key === 'folders' || key === 'recycleBin' || key === 'trash'
       ))
     : changes[SYNC_META_KEY] !== undefined
       || hasLegacySyncWrite

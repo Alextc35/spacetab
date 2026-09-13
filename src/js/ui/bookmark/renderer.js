@@ -14,6 +14,7 @@ import { createListItem } from './listView.js';
 import { createListSearch } from './listSearch.js';
 import { openFolderModal } from '../modals/folderModal.js';
 import { t } from '../../core/i18n.js';
+import { createRecycleBinElement, enableRecycleBinEditing } from '../recycleBin.js';
 
 const listSearchStates = new WeakMap();
 
@@ -34,7 +35,7 @@ export function renderBookmarks(container) {
   if (!container) return;
 
   const state = getState();
-  const { data: { bookmarks, folders, settings } } = state;
+  const { data: { bookmarks, folders, recycleBin, trash, settings } } = state;
   const { ui: { isEditing } } = state;
   let searchState = listSearchStates.get(container);
   const oldSearch = container.querySelector('#bookmark-list-search');
@@ -139,6 +140,15 @@ export function renderBookmarks(container) {
     }));
   });
 
+  if (settings.showRecycleBin && settings.activeBookmarkGroupId === null) {
+    items.appendChild(createRecycleBinElement({
+      container,
+      recycleBin,
+      trash,
+      isEditing
+    }));
+  }
+
   container.replaceChildren(items);
 }
 
@@ -153,13 +163,15 @@ export function resizeBookmarkView(container) {
   updateGridSize(container);
   if (isListView()) return;
 
-  const { data: { bookmarks, folders } } = getState();
+  const { data: { bookmarks, folders, recycleBin } } = getState();
   const bookmarksById = new Map(bookmarks.map(item => [item.id, item]));
   const foldersById = new Map(folders.map(item => [item.id, item]));
   for (const element of container.children) {
     const item = element.dataset.folderId
       ? foldersById.get(element.dataset.folderId)
-      : bookmarksById.get(element.dataset.bookmarkId);
+      : element.dataset.recycleBinId
+        ? recycleBin
+        : bookmarksById.get(element.dataset.bookmarkId);
     if (!item) continue;
     // A cancelled or blocked gesture can leave pixel overrides on the card.
     element.classList.remove('is-smart-moving', 'is-smart-displaced');
@@ -184,7 +196,7 @@ export function resizeBookmarkView(container) {
 export function enableGridEditing(container) {
   if (!container || isListView()) return;
 
-  const { data: { bookmarks, folders } } = getState();
+  const { data: { bookmarks, folders, recycleBin } } = getState();
   const bookmarksById = new Map(bookmarks.map(bookmark => [bookmark.id, bookmark]));
   const foldersById = new Map(folders.map(folder => [folder.id, folder]));
 
@@ -203,6 +215,11 @@ export function enableGridEditing(container) {
 
     element.classList.add('is-editing');
     enableFolderEditing(container, element, folder);
+  }
+
+  for (const element of container.querySelectorAll('.recycle-bin[data-recycle-bin-id]')) {
+    element.classList.add('is-editing');
+    enableRecycleBinEditing(container, element, recycleBin);
   }
 }
 
