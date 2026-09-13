@@ -86,6 +86,7 @@ test('separates legacy local images from URLs across themes, bookmarks, folders 
 test('adds solid color mode without changing saved backgrounds and normalizes conflicting modes', () => {
   const savedBackground = {
     backgroundColor: '#2468ac',
+    backgroundImageColor: '#102030',
     backgroundImageUrl: 'https://images.test/background.gif',
     backgroundImageLocal: 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9',
     backgroundImageUrlLocked: true
@@ -109,6 +110,19 @@ test('adds solid color mode without changing saved backgrounds and normalizes co
     assert.equal(data.settings.theme.backgroundSolid, !backgroundDefault);
     assert.deepEqual(parseBackupPayload(createBackupEnvelope(data)), data);
   }
+
+  const legacy = migratePersistedData({
+    schemaVersion: 11,
+    bookmarks: [],
+    settings: {
+      theme: {
+        backgroundColor: '#13579b',
+        backgroundImageUrl: 'https://images.test/transparent.gif'
+      }
+    }
+  });
+  assert.equal(legacy.settings.theme.backgroundColor, '#13579b');
+  assert.equal(legacy.settings.theme.backgroundImageColor, '#13579b');
 });
 
 test('migrates legacy data and removes identity from the default preset', () => {

@@ -172,9 +172,15 @@ function normalizeTrashEntries(value, { now, bookmarkGroupIds }) {
 
 function normalizeTheme(value) {
   const source = value && typeof value === 'object' ? value : {};
+  const legacyBackgroundColor = typeof source.backgroundColor === 'string'
+    ? source.backgroundColor
+    : DEFAULT_SETTINGS.theme.backgroundColor;
   const theme = {
     ...structuredClone(DEFAULT_SETTINGS.theme),
     ...source,
+    backgroundImageColor: typeof source.backgroundImageColor === 'string'
+      ? source.backgroundImageColor
+      : legacyBackgroundColor,
     ...normalizeBackgroundImage(source)
   };
   theme.backgroundDefault = theme.backgroundDefault === true;

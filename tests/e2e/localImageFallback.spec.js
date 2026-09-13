@@ -21,7 +21,8 @@ for (const kind of ['bookmark', 'folder']) {
       chrome.storage.local.set({
         bookmarks: [{
           id: 'image-bookmark', name: 'Image bookmark', url: '',
-          backgroundFavicon: false, gx: 0, gy: 0
+          backgroundFavicon: false, noBackground: false,
+          backgroundColor: '#334155', gx: 0, gy: 0
         }],
         folders: [{ id: 'image-folder', name: 'Image folder', gx: 1, gy: 0 }]
       }, resolve);
@@ -30,12 +31,25 @@ for (const kind of ['bookmark', 'folder']) {
 
     const isBookmark = kind === 'bookmark';
     const modal = page.locator(isBookmark ? '#edit-bookmark-modal' : '#edit-folder-modal');
+    const imageUrlField = modal.locator(
+      isBookmark ? '[data-field="backgroundImageUrlField"]' : '#folder-editor-image-url-field'
+    );
     const imageUrl = modal.locator(isBookmark ? '[data-field="backgroundImage"]' : '#folder-editor-image');
+    const imageUrlColor = modal.locator(
+      isBookmark ? '[data-field="backgroundColor"]' : '#folder-editor-color'
+    );
     const localInput = modal.locator(isBookmark ? '[data-field="backgroundImageLocal"]' : '#folder-editor-image-local');
+    const localColor = modal.locator(
+      isBookmark ? '[data-field="backgroundImageLocalColor"]' : '#folder-editor-local-color'
+    );
+    const imageLock = modal.locator(
+      isBookmark ? '[data-field="bgToggle"]' : '#folder-editor-image-toggle'
+    );
     const upload = modal.locator(isBookmark ? '[data-field="bgUploadInput"]' : '#folder-editor-image-upload-input');
     const save = modal.locator(isBookmark ? '#edit-bookmark-modal-save' : '#edit-folder-modal-save');
     const preview = modal.locator(isBookmark ? '.bookmark-preview .bookmark' : '.folder-editor-preview-card');
     const cssProperty = isBookmark ? '--bookmark-bg-image' : '--folder-bg-image';
+    const colorProperty = isBookmark ? '--color-bg-bookmark' : '--folder-color';
     const card = page.locator(isBookmark ? '#bookmark-container > [data-bookmark-id="image-bookmark"]' : '#bookmark-container > [data-folder-id="image-folder"]');
 
     const openEditor = async () => {
@@ -54,22 +68,37 @@ for (const kind of ['bookmark', 'folder']) {
 
     await openEditor();
     await expect(localInput).toBeHidden();
+    await expect(imageUrlField).toBeVisible();
     await imageUrl.fill(fallbackUrl);
+    await imageLock.click();
+    await expect(imageUrlColor).toBeDisabled();
     await upload.setInputFiles(imageFile);
     await expect(localInput).toHaveValue(imageFile.name);
+    await expect(imageUrlField).toBeHidden();
     await expect(imageUrl).toHaveValue(fallbackUrl);
+    await expect(localColor).toBeVisible();
+    await expect(localColor).toBeEnabled();
+    await localColor.fill('#7c3aed');
+    await expect(imageUrlColor).toHaveValue('#7c3aed');
     await expect(preview).toHaveCSS(cssProperty, /data:image\/webp/);
+    await expect(preview).toHaveCSS(colorProperty, '#7c3aed');
     await save.click();
     await expect(modal).toBeHidden();
     await page.reload();
     await expect(card).toHaveCSS(cssProperty, /data:image\/webp/);
+    await expect(card).toHaveCSS(colorProperty, '#7c3aed');
 
     await openEditor();
     await expect(localInput).toHaveValue(imageFile.name);
+    await expect(localColor).toHaveValue('#7c3aed');
+    await expect(imageUrlField).toBeHidden();
     await expect(imageUrl).toHaveValue(fallbackUrl);
     await modal.getByRole('button', { name: 'Remove local image' }).click();
     await expect(localInput).toBeHidden();
+    await expect(imageUrlField).toBeVisible();
     await expect(imageUrl).toHaveValue(fallbackUrl);
+    await expect(imageUrlColor).toHaveValue('#7c3aed');
+    await expect(imageUrlColor).toBeDisabled();
     await expect(preview).toHaveCSS(cssProperty, `url("${fallbackUrl}")`);
     await save.click();
     await expect(modal).toBeHidden();
@@ -77,6 +106,9 @@ for (const kind of ['bookmark', 'folder']) {
     await expect(card).toHaveCSS(cssProperty, `url("${fallbackUrl}")`);
     await openEditor();
     await expect(localInput).toBeHidden();
+    await expect(imageUrlField).toBeVisible();
     await expect(imageUrl).toHaveValue(fallbackUrl);
+    await expect(imageUrlColor).toHaveValue('#7c3aed');
+    await expect(imageUrlColor).toBeDisabled();
   });
 }

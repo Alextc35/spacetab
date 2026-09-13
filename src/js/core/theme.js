@@ -21,7 +21,9 @@ export function applyGlobalTheme(settings = {}) {
 
   root.style.setProperty(
     '--color-bg-body',
-    theme.backgroundColor
+    theme.backgroundSolid
+      ? theme.backgroundColor
+      : (theme.backgroundImageColor ?? theme.backgroundColor)
   );
 
   root.classList.toggle('is-default-bg', Boolean(theme.backgroundDefault));

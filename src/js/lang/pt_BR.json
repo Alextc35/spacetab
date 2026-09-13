@@ -395,6 +395,7 @@
       "backgroundDefault": "Padrão",
       "backgroundSolid": "Cor sólida",
       "backgroundColor": "Cor:",
+      "backgroundImageColor": "Cor atrás da imagem",
       "backgroundImage": "URL da imagem:",
       "urlHidden": "URL oculta",
       "resetBackground": "Restaurar tema"

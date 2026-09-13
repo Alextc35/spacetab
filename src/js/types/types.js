@@ -79,6 +79,7 @@
  * @property {boolean} theme.backgroundDefault
  * @property {boolean} theme.backgroundSolid
  * @property {string} theme.backgroundColor
+ * @property {string} theme.backgroundImageColor
  * @property {string|null} theme.backgroundImageUrl
  * @property {string|null} theme.backgroundImageLocal
  * @property {boolean} theme.backgroundImageUrlLocked

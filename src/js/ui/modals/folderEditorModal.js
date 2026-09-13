@@ -34,7 +34,9 @@ let showPreviewsInput;
 let showNameInput;
 let showCountInput;
 let imageInput;
+let imageUrlField;
 let localImageInput;
+let localColorInput;
 let imageUploadInput;
 let imageUploadButton;
 let imageUploadNotice;
@@ -60,7 +62,9 @@ export function initFolderEditorModal() {
   showNameInput = document.getElementById('folder-editor-show-name');
   showCountInput = document.getElementById('folder-editor-show-count');
   imageInput = document.getElementById('folder-editor-image');
+  imageUrlField = document.getElementById('folder-editor-image-url-field');
   localImageInput = document.getElementById('folder-editor-image-local');
+  localColorInput = document.getElementById('folder-editor-local-color');
   imageUploadInput = document.getElementById('folder-editor-image-upload-input');
   imageUploadButton = document.getElementById('folder-editor-image-upload');
   imageUploadNotice = imageUploadButton?.parentElement?.querySelector('.local-image-notice');
@@ -76,9 +80,17 @@ export function initFolderEditorModal() {
     tabContentSelector: '.edit-bookmark-modal-tab-content'
   });
 
-  for (const input of [nameInput, colorInput, textColorInput]) {
+  for (const input of [nameInput, textColorInput]) {
     input.addEventListener('input', handleInput);
   }
+  colorInput.addEventListener('input', () => {
+    localColorInput.value = colorInput.value;
+    handleInput();
+  });
+  localColorInput.addEventListener('input', () => {
+    colorInput.value = localColorInput.value;
+    handleInput();
+  });
   for (const input of [
     noBackgroundInput, showFolderInput, showPreviewsInput, showNameInput, showCountInput
   ]) {
@@ -132,6 +144,7 @@ export function openFolderEditor(folderId) {
   nameInput.value = initialValue.name;
   noBackgroundInput.checked = initialValue.noBackground;
   colorInput.value = initialValue.backgroundColor;
+  localColorInput.value = initialValue.backgroundColor;
   outerBackgroundColor = initialValue.outerBackgroundColor;
   outerColorInput.value = outerBackgroundColor || '#0f172a';
   showFolderInput.checked = initialValue.showFolder;
@@ -203,7 +216,11 @@ function isDirty() {
 }
 
 function syncStyleControls() {
-  colorInput.disabled = noBackgroundInput.checked;
+  const hasLocalImage = Boolean(getImageInputValue(localImageInput));
+  imageUrlField.classList.toggle('is-hidden', hasLocalImage);
+  colorInput.disabled = noBackgroundInput.checked
+    || (!hasLocalImage && (imageController?.isLocked() ?? false));
+  localColorInput.disabled = noBackgroundInput.checked;
   if (!showFolderInput.checked) showPreviewsInput.checked = false;
   showPreviewsInput.disabled = !showFolderInput.checked;
   outerColorResetButton.disabled = outerBackgroundColor === null;

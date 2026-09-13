@@ -44,7 +44,9 @@ async function expectThemeActionsInsideInputs(page) {
     await expect(button).toHaveCSS('position', 'absolute');
     const bounds = await button.evaluate(element => {
       const action = element.getBoundingClientRect();
-      const field = element.parentElement.querySelector('input').getBoundingClientRect();
+      const field = element.parentElement
+        .querySelector('input:not([type="color"])')
+        .getBoundingClientRect();
       return { top: action.top - field.top, bottom: field.bottom - action.bottom,
         left: action.left - field.left, right: field.right - action.right };
     });
@@ -295,13 +297,17 @@ test('switches to the default wallpaper without losing the custom URL or local i
   await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
 });
 
-test('shows a solid color picker and preserves images while switching background modes', async ({ page }, testInfo) => {
+test('combines a solid base color with images and preserves both across background modes', async ({ page }, testInfo) => {
   const modal = page.locator('#settings-modal');
   const imageUrl = page.locator('#settings-theme-bg-image');
   const localImage = page.locator('#settings-theme-bg-local');
   const useDefault = page.locator('#settings-theme-bg-default');
   const useSolid = page.locator('#settings-theme-bg-solid');
-  const color = page.locator('#settings-theme-bg-color');
+  const solidColor = page.locator('#settings-theme-bg-color');
+  const imageControls = page.locator('#settings-theme-bg-image-controls');
+  const imageUrlField = page.locator('#settings-theme-bg-image-url-field');
+  const imageColor = page.locator('#settings-theme-bg-image-color');
+  const localImageColor = page.locator('#settings-theme-bg-local-color');
   const preview = page.locator('#settings-theme-bg-preview');
   const save = page.locator('#settings-modal-save');
   const fallbackUrl = 'https://images.test/solid-fallback.gif';
@@ -313,9 +319,36 @@ test('shows a solid color picker and preserves images while switching background
   };
 
   await openTheme();
-  await expect(color).toBeHidden();
+  await expect(solidColor).toBeHidden();
+  await expect(imageControls).toBeHidden();
+  await expect(imageColor).toBeDisabled();
   await useDefault.uncheck();
+  await expect(imageControls).toBeVisible();
+  await expect(imageColor).toBeEnabled();
+  const colorPlacement = await page.locator(
+    '#settings-theme-bg-image-url-field .background-image-input'
+  ).evaluate(row => {
+    const field = row.querySelector('#settings-theme-bg-image').getBoundingClientRect();
+    const swatch = row.querySelector('#settings-theme-bg-image-color').getBoundingClientRect();
+    return {
+      leftInset: swatch.left - field.left,
+      rightInset: swatch.right - field.left,
+      centerOffset: Math.abs(
+        (swatch.top + swatch.height / 2) - (field.top + field.height / 2)
+      )
+    };
+  });
+  expect(colorPlacement.leftInset).toBeGreaterThanOrEqual(0);
+  expect(colorPlacement.rightInset).toBeLessThan(44);
+  expect(colorPlacement.centerOffset).toBeLessThanOrEqual(1);
   await imageUrl.fill(fallbackUrl);
+  await imageColor.fill('#13579b');
+  await page.locator('#settings-theme-toggle-bg-image').click();
+  await expect(imageUrl).toHaveJSProperty('readOnly', true);
+  await expect(imageColor).toBeDisabled();
+  await page.locator('#settings-theme-toggle-bg-image').click();
+  await expect(imageUrl).toHaveJSProperty('readOnly', false);
+  await expect(imageColor).toBeEnabled();
   await page.locator('#settings-theme-bg-upload-input').setInputFiles({
     name: 'preserved.png', mimeType: 'image/png',
     buffer: Buffer.from(
@@ -324,40 +357,104 @@ test('shows a solid color picker and preserves images while switching background
     )
   });
   await expect(localImage).toHaveValue('preserved.png');
+  await expect(imageUrlField).toBeHidden();
+  await expect(localImageColor).toBeVisible();
+  await expect(localImageColor).toHaveValue('#13579b');
+  await localImageColor.fill('#2468ac');
+  await expect(imageColor).toHaveValue('#2468ac');
   await useDefault.check();
-  await useSolid.check();
-  await expect(useDefault).not.toBeChecked();
-  await expect(color).toBeVisible();
-  await expect(color).toBeEnabled();
-  await color.fill('#2468ac');
+  await expect(imageControls).toBeHidden();
+  await expect(imageColor).toBeDisabled();
+  await expect(localImageColor).toBeDisabled();
+  await useDefault.uncheck();
+  await expect(imageControls).toBeVisible();
+  await expect(imageUrlField).toBeHidden();
+  await expect(localImageColor).toBeVisible();
+  await expect(localImageColor).toBeEnabled();
   await expect(preview).toHaveCSS('background-color', 'rgb(36, 104, 172)');
-  await expect(preview).toHaveCSS('background-image', 'none');
-  await expect(imageUrl).toBeDisabled();
+  await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
+  await expect(imageUrl).toBeEnabled();
   await expect(imageUrl).toHaveValue(fallbackUrl);
   await expect(localImage).toHaveValue('preserved.png');
+  await useSolid.check();
+  await expect(useDefault).not.toBeChecked();
+  await expect(solidColor).toBeVisible();
+  await expect(solidColor).toBeEnabled();
+  await expect(imageControls).toBeHidden();
+  await expect(imageColor).toBeDisabled();
+  await expect(imageUrl).toBeDisabled();
+  await solidColor.fill('#8a245f');
+  await expect(preview).toHaveCSS('background-color', 'rgb(138, 36, 95)');
+  await expect(preview).toHaveCSS('background-image', 'none');
+  await useSolid.uncheck();
+  await expect(solidColor).toBeHidden();
+  await expect(imageControls).toBeVisible();
+  await expect(localImageColor).toBeEnabled();
+  await expect(imageUrl).toBeEnabled();
+  await expect(preview).toHaveCSS('background-color', 'rgb(36, 104, 172)');
+  await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
   await expectThemeActionsInsideInputs(page);
   await modal.locator('.modal-card').screenshot({ path: testInfo.outputPath('solid-color-theme.png') });
   await save.click();
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(36, 104, 172)');
-  await expect(page.locator('body')).toHaveCSS('background-image', 'none');
+  await expect(page.locator('body')).toHaveCSS('background-image', /data:image\/webp/);
 
   await reloadSavedPage(page);
-  await expect(page.locator('body')).toHaveCSS('background-image', 'none');
+  await expect(page.locator('body')).toHaveCSS('background-image', /data:image\/webp/);
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(36, 104, 172)');
   await openTheme();
-  await expect(useSolid).toBeChecked();
-  await expect(color).toHaveValue('#2468ac');
+  await expect(useSolid).not.toBeChecked();
+  await expect(solidColor).toHaveValue('#8a245f');
+  await expect(imageColor).toHaveValue('#2468ac');
+  await expect(localImageColor).toHaveValue('#2468ac');
+  await expect(imageUrlField).toBeHidden();
   await expect(localImage).toHaveValue('preserved.png');
   await expect(save).toBeHidden();
   await useDefault.check();
-  await expect(useSolid).not.toBeChecked();
-  await expect(color).toBeHidden();
+  await expect(solidColor).toBeHidden();
+  await expect(imageControls).toBeHidden();
+  await expect(imageColor).toBeDisabled();
+  await expect(localImageColor).toBeDisabled();
   await expect(preview).toHaveClass(/is-default-bg/);
   await useDefault.uncheck();
+  await expect(imageControls).toBeVisible();
   await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
   await expect(imageUrl).toHaveValue(fallbackUrl);
+  await page.locator('#settings-theme-clear-bg-local').click();
+  await expect(imageUrlField).toBeVisible();
+  await expect(imageColor).toBeVisible();
+  await expect(imageColor).toBeEnabled();
+  await expect(imageColor).toHaveValue('#2468ac');
+  await expect(preview).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+  await expect(preview).toHaveCSS('background-color', 'rgb(36, 104, 172)');
   await save.click();
-  await expect(page.locator('body')).toHaveCSS('background-image', /data:image\/webp/);
+  await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(36, 104, 172)');
+
+  await openTheme();
+  await useSolid.check();
+  await expect(solidColor).toBeVisible();
+  await expect(solidColor).toBeEnabled();
+  await expect(solidColor).toHaveValue('#8a245f');
+  await expect(imageControls).toBeHidden();
+  await expect(imageColor).toBeDisabled();
+  await expect(imageUrl).toBeDisabled();
+  await expect(preview).toHaveCSS('background-color', 'rgb(138, 36, 95)');
+  await expect(preview).toHaveCSS('background-image', 'none');
+  await save.click();
+  await expect(page.locator('body')).toHaveCSS('background-image', 'none');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(138, 36, 95)');
+
+  await reloadSavedPage(page);
+  await openTheme();
+  await expect(useSolid).toBeChecked();
+  await expect(imageControls).toBeHidden();
+  await useSolid.uncheck();
+  await expect(imageControls).toBeVisible();
+  await expect(imageUrl).toHaveValue(fallbackUrl);
+  await save.click();
+  await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(36, 104, 172)');
 });
 
 test('hides local image sync notices in This Device Only mode', async ({ page }) => {
@@ -1945,6 +2042,36 @@ test('opens the bookmark editor with middle click without opening a tab', async 
   await expect.poll(() => page.context().pages().length).toBe(1);
 });
 
+test('locks the bookmark image base color together with its image URL', async ({ page }) => {
+  await enableEditMode(page);
+  const bookmark = page.locator('#bookmark-container > .bookmark[data-bookmark-id]').nth(1);
+
+  await bookmark.click({ button: 'middle' });
+
+  const editor = page.locator('#edit-bookmark-modal');
+  await editor.getByRole('tab', { name: 'Style' }).click();
+  const imageUrl = editor.locator('[data-field="backgroundImage"]');
+  const imageColor = editor.locator('[data-field="backgroundColor"]');
+  const imageLock = editor.locator('[data-field="bgToggle"]');
+
+  await expect(imageUrl).toHaveJSProperty('readOnly', true);
+  await expect(imageColor).toBeDisabled();
+  await expect(imageColor).toHaveValue('#eeff00');
+  await imageLock.click();
+  await expect(imageUrl).toHaveJSProperty('readOnly', false);
+  await expect(imageColor).toBeEnabled();
+  await imageColor.fill('#dc2626');
+  await imageLock.click();
+  await expect(imageColor).toBeDisabled();
+  await editor.getByRole('button', { name: 'Save' }).click();
+
+  await expect(bookmark).toHaveCSS('--color-bg-bookmark', '#dc2626');
+  await bookmark.click({ button: 'middle' });
+  await editor.getByRole('tab', { name: 'Style' }).click();
+  await expect(editor.locator('[data-field="backgroundColor"]')).toHaveValue('#dc2626');
+  await expect(editor.locator('[data-field="backgroundColor"]')).toBeDisabled();
+});
+
 test('names a single bookmark before deletion and counts multiple selections', async ({ page }) => {
   await enableEditMode(page);
   const bookmarks = page.locator('#bookmark-container > .bookmark[data-bookmark-id]');
@@ -2123,18 +2250,21 @@ test('customizes a folder from its miniature and persists the appearance', async
   await expect(imageClear).toBeHidden();
 
   await imageInput.fill('https://images.test/folder.png');
+  await page.locator('#folder-editor-color').fill('#ef4444');
   await expect(imageLock).toBeVisible();
   await expect(imageLock).toHaveText('🔓');
   await expect(imageCopy).toBeVisible();
   await expect(imageClear).toBeVisible();
   await imageLock.click();
   await expect(imageInput).toHaveJSProperty('readOnly', true);
+  await expect(page.locator('#folder-editor-color')).toBeDisabled();
   await expect(imageLock).toHaveText('🔒');
   await expect(imageCopy).toBeVisible();
   await expect(imageClear).toBeHidden();
 
   await imageLock.click();
   await expect(imageInput).toHaveJSProperty('readOnly', false);
+  await expect(page.locator('#folder-editor-color')).toBeEnabled();
   await expect(imageClear).toBeVisible();
   await imageClear.click();
   await expect(imageInput).toHaveValue('');
@@ -2144,7 +2274,7 @@ test('customizes a folder from its miniature and persists the appearance', async
 
   await imageInput.fill('https://images.test/folder.png');
   await imageLock.click();
-  await page.locator('#folder-editor-color').fill('#ef4444');
+  await expect(page.locator('#folder-editor-color')).toBeDisabled();
   await page.getByRole('tab', { name: 'Text' }).click();
   await page.locator('#folder-editor-text-color').fill('#fef3c7');
   await expect(page.locator('.folder-editor-preview-card')).toContainText('Games');

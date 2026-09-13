@@ -28,6 +28,8 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     name,
     url,
     backgroundColor,
+    backgroundImageLocalColor,
+    backgroundImageUrlField,
     backgroundImage,
     backgroundImageLocal,
     bgLocalClearBtn,
@@ -89,9 +91,15 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
    */
   const updateStates = () => {
     const hasBgImage = hasImage(bookmark.backgroundImageUrl) || hasImage(bookmark.backgroundImageLocal);
+    const hasLocalImage = hasImage(bookmark.backgroundImageLocal);
 
     if (backgroundFavicon) backgroundFavicon.disabled = hasBgImage;
-    if (backgroundColor) backgroundColor.disabled = bookmark.noBackground;
+    if (backgroundColor) {
+      backgroundColor.disabled = bookmark.noBackground
+        || (!hasLocalImage && (bgController?.isLocked() ?? false));
+    }
+    if (backgroundImageLocalColor) backgroundImageLocalColor.disabled = bookmark.noBackground;
+    backgroundImageUrlField?.classList.toggle('is-hidden', hasLocalImage);
     if (textColor) textColor.disabled = !bookmark.showText;
     if (backgroundImage) backgroundImage.disabled = bookmark.backgroundFavicon;
     if (backgroundImageLocal) backgroundImageLocal.disabled = bookmark.backgroundFavicon;
@@ -228,8 +236,23 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     }, eventOptions);
   }
 
+  function bindBackgroundColor(input, mirror) {
+    if (!input) return;
+
+    input.addEventListener('input', () => {
+      if (syncing || input.disabled) return;
+
+      bookmark.backgroundColor = input.value;
+      if (mirror) mirror.value = input.value;
+
+      updateStates();
+      emitChange();
+    }, eventOptions);
+  }
+
   bindInput(name, "name");
-  bindInput(backgroundColor, "backgroundColor");
+  bindBackgroundColor(backgroundColor, backgroundImageLocalColor);
+  bindBackgroundColor(backgroundImageLocalColor, backgroundColor);
   bindInput(backgroundFavicon, "backgroundFavicon", "change");
   bindInput(noBackground, "noBackground", "change");
   bindInput(invertBg, "invertColorBg", "change");
@@ -250,6 +273,9 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     if (name) name.value = bookmark.name ?? "";
     if (url) url.value = bookmark.url ?? "";
     if (backgroundColor) backgroundColor.value = bookmark.backgroundColor ?? "";
+    if (backgroundImageLocalColor) {
+      backgroundImageLocalColor.value = bookmark.backgroundColor ?? "";
+    }
     setImageInputValue(backgroundImage, bookmark.backgroundImageUrl);
     setImageInputValue(backgroundImageLocal, bookmark.backgroundImageLocal);
     if (backgroundFavicon) backgroundFavicon.checked = bookmark.backgroundFavicon ?? false;

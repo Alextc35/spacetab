@@ -180,11 +180,19 @@
   background: linear-gradient(115deg, #fbfbfc 50%, #161c28 50%);
 }
 
-.theme-background-color {
+.theme-solid-background-color {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
+}
+
+.theme-background-image-controls {
+  display: contents;
+}
+
+.theme-background-image-controls.is-hidden {
+  display: none;
 }
 
 #settings-bg-theme:has(#settings-theme-bg-default:checked, #settings-theme-bg-solid:checked) {
@@ -192,7 +200,7 @@
     visibility: hidden;
   }
 
-  & .input-with-actions input {
+  & .input-with-actions > input[type="text"] {
     padding-right: 12px;
   }
 }

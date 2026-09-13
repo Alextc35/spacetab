@@ -252,6 +252,55 @@ input[type="color"] {
   }
 }
 
+/* A color swatch can share the image URL field as its transparent-image base. */
+.background-image-color {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 6px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  transform: translateY(-50%);
+}
+
+.background-image-color input[type="color"] {
+  width: 28px;
+  height: 28px;
+  padding: 2px;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  background: var(--ui-input);
+  cursor: pointer;
+}
+
+.background-image-color input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.background-image-color input[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: 3px;
+}
+
+.background-image-color input[type="color"]:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}
+
+.background-image-input > input[type="text"] {
+  padding-left: 44px;
+}
+
+.background-image-url-field {
+  display: contents;
+}
+
+.background-image-url-field.is-hidden {
+  display: none;
+}
+
 .input-action {
   position: absolute;
   top: 50%;
