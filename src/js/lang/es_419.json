@@ -331,7 +331,7 @@
       "recycleBin": {
         "title": "Papelera de reciclaje",
         "show": "Mostrar la papelera en la cuadrícula Principal",
-        "hint": "Los elementos eliminados se conservan 28 días y se incluyen en Sync."
+        "hint": "Los elementos eliminados se conservan 28 días y se guardan solo en este dispositivo; no se incluyen en Sync."
       },
       "appearance": {
         "title": "Apariencia",

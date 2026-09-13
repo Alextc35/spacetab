@@ -211,11 +211,16 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   }
 
   function renderStorageBreakdown(breakdown, quotaBytes) {
+    const showTrash = getUsageDisplayMode() !== 'sync';
     const categories = {
       system: breakdown?.systemBytes,
       bookmarks: breakdown?.bookmarkBytes,
       trash: breakdown?.trashBytes
     };
+
+    usageSegments.trash?.toggleAttribute('hidden', !showTrash);
+    usageCategoryValues.trash?.closest('.storage-usage-legend-item')
+      ?.toggleAttribute('hidden', !showTrash);
 
     for (const [category, bytes] of Object.entries(categories)) {
       const hasValue = Number.isFinite(bytes);

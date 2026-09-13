@@ -2021,6 +2021,9 @@ test('shows storage availability only for the selected mode', async ({ page }) =
   await expect(summary).toContainText('of 100 KB');
   await expect(summary).toContainText('%');
   await expect(page.locator('#storage-usage-progress')).toHaveAttribute('value', /.+/);
+  await expect(legend).not.toContainText('Recycle bin data');
+  await expect(page.locator('[data-storage-segment="trash"]')).toBeHidden();
+  await expect(page.locator('#storage-usage-trash')).toBeHidden();
 });
 
 test('localizes sync status and confirms synchronized data deletion', async ({ page }) => {

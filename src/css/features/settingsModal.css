@@ -687,6 +687,11 @@
   transition: width 180ms ease;
 }
 
+.storage-usage-segment[hidden],
+.storage-usage-legend-item[hidden] {
+  display: none;
+}
+
 .storage-usage-segment-system {
   background: var(--storage-system-color);
 }
@@ -704,6 +709,10 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin: 0 0 9px;
+}
+
+.storage-usage-item[data-storage-usage="sync"] .storage-usage-legend {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .storage-usage-legend-item {

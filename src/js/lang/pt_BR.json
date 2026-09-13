@@ -331,7 +331,7 @@
       "recycleBin": {
         "title": "Lixeira",
         "show": "Mostrar a lixeira na grade Principal",
-        "hint": "Os itens excluídos são mantidos por 28 dias e incluídos no Sync."
+        "hint": "Os itens excluídos são mantidos por 28 dias e ficam apenas neste dispositivo; não são incluídos no Sync."
       },
       "appearance": {
         "title": "Aparência",
