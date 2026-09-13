@@ -89,6 +89,7 @@ test('adds solid color mode without changing saved backgrounds and normalizes co
     backgroundImageColor: '#102030',
     backgroundImageUrl: 'https://images.test/background.gif',
     backgroundImageLocal: 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9',
+    backgroundImageSource: 'url',
     backgroundImageUrlLocked: true
   };
   for (const backgroundDefault of [true, false]) {

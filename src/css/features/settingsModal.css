@@ -195,7 +195,7 @@
   display: none;
 }
 
-#settings-bg-theme:has(#settings-theme-bg-default:checked) {
+#settings-bg-theme:has(#settings-theme-bg-default:checked, #settings-theme-bg-solid:checked) {
   & .input-action {
     visibility: hidden;
   }

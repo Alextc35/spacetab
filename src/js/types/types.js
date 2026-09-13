@@ -12,6 +12,7 @@
  * @property {string|null} folderId
  * @property {string|null} backgroundImageUrl
  * @property {string|null} backgroundImageLocal
+ * @property {'local'|'url'} backgroundImageSource
  * @property {boolean} backgroundImageUrlLocked
  * @property {boolean} backgroundFavicon
  * @property {boolean} invertColorBg
@@ -39,6 +40,7 @@
  * @property {string|null} outerBackgroundColor Null keeps the automatic tile gradient.
  * @property {string|null} backgroundImageUrl
  * @property {string|null} backgroundImageLocal
+ * @property {'local'|'url'} backgroundImageSource
  * @property {boolean} backgroundImageUrlLocked
  * @property {string} textColor
  * @property {boolean} showFolder
@@ -57,6 +59,7 @@
  * @typedef {Object} BookmarkPreset
  * @property {string|null} backgroundImageUrl
  * @property {string|null} backgroundImageLocal
+ * @property {'local'|'url'} backgroundImageSource
  * @property {boolean} backgroundImageUrlLocked
  * @property {boolean} backgroundFavicon
  * @property {boolean} invertColorBg
@@ -82,6 +85,7 @@
  * @property {string} theme.backgroundImageColor
  * @property {string|null} theme.backgroundImageUrl
  * @property {string|null} theme.backgroundImageLocal
+ * @property {'local'|'url'} theme.backgroundImageSource
  * @property {boolean} theme.backgroundImageUrlLocked
  * @property {BookmarkPreset} bookmarkDefault
  * @property {Array<{id: string, name: string, style: BookmarkPreset}>} bookmarkPresets

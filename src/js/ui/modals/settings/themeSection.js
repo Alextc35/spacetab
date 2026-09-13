@@ -46,11 +46,14 @@ export function initThemeSection({
   const bgSolidColorField = document.getElementById('settings-theme-bg-solid-color-field');
   const bgColorInput = document.getElementById('settings-theme-bg-color');
   const bgImageControls = document.getElementById('settings-theme-bg-image-controls');
+  const bgImageSourceField = document.getElementById('settings-theme-bg-image-source-field');
+  const bgImageSourceSelect = document.getElementById('settings-theme-bg-image-source');
   const bgImageUrlField = document.getElementById('settings-theme-bg-image-url-field');
   const bgImageColorInput = document.getElementById('settings-theme-bg-image-color');
   const bgImageInput = document.getElementById('settings-theme-bg-image');
   const bgLocalColorInput = document.getElementById('settings-theme-bg-local-color');
   const bgLocalInput = document.getElementById('settings-theme-bg-local');
+  const bgLocalField = bgLocalInput.closest('.local-image-field');
   const clearBgLocalBtn = document.getElementById('settings-theme-clear-bg-local');
   const bgImageUploadInput = document.getElementById('settings-theme-bg-upload-input');
   const bgImageUploadButton = document.getElementById('settings-theme-bg-upload');
@@ -117,7 +120,7 @@ export function initThemeSection({
       ? draft.backgroundColor
       : draft.backgroundImageColor;
 
-    const backgroundImage = resolveBackgroundImage(draft);
+    const backgroundImage = draft.backgroundSolid ? null : resolveBackgroundImage(draft);
     if (backgroundImage) {
       bgPreview.style.backgroundImage = `url(${backgroundImage})`;
     }
@@ -144,24 +147,31 @@ export function initThemeSection({
    * Rules:
    * - default and solid backgrounds preserve saved custom images
    * - the color picker stays available as the image's transparent base layer
-   * - image controls are hidden and disabled while the default background is enabled
-   * - solid color mode changes the base layer without covering a configured image
+   * - image controls are hidden and disabled in default and solid-only modes
+   * - solid color mode preserves configured images without displaying them
    * - preview is refreshed after state updates
    */
   function updateStates() {
     const draft = getDraftTheme();
     const backgroundDefault = bgDefault.checked;
     const backgroundSolid = bgSolid.checked && !backgroundDefault;
-    const imagesDisabled = backgroundDefault;
+    const imagesDisabled = backgroundDefault || backgroundSolid;
     const hasLocalImage = hasImageValue(draft.backgroundImageLocal);
+    const activeSource = hasLocalImage && draft.backgroundImageSource !== 'url'
+      ? 'local'
+      : 'url';
 
     bgSolidColorField.classList.toggle('is-hidden', !backgroundSolid);
     bgColorInput.disabled = !backgroundSolid;
     bgImageControls.classList.toggle('is-hidden', imagesDisabled);
-    bgImageUrlField.classList.toggle('is-hidden', hasLocalImage);
-    bgImageColorInput.disabled = imagesDisabled
-      || (!hasLocalImage && (bgController?.isLocked() ?? false));
-    bgLocalColorInput.disabled = imagesDisabled;
+    bgImageSourceField.classList.toggle('is-hidden', !hasLocalImage);
+    bgImageSourceSelect.value = activeSource;
+    bgImageSourceSelect.disabled = imagesDisabled;
+    bgImageUrlField.classList.toggle('is-hidden', hasLocalImage && activeSource === 'local');
+    bgLocalField.classList.toggle('is-hidden', !hasLocalImage || activeSource === 'url');
+    bgImageColorInput.disabled = imagesDisabled || activeSource !== 'url'
+      || (bgController?.isLocked() ?? false);
+    bgLocalColorInput.disabled = imagesDisabled || activeSource !== 'local';
     bgImageInput.disabled = imagesDisabled;
     bgLocalInput.disabled = imagesDisabled;
     clearBgLocalBtn.disabled = imagesDisabled;
@@ -195,6 +205,7 @@ export function initThemeSection({
     bgSolid.checked = draft.backgroundSolid || false;
     bgColorInput.value = draft.backgroundColor;
     syncImageColorInputs(draft.backgroundImageColor);
+    bgImageSourceSelect.value = draft.backgroundImageSource;
     setImageInputValue(bgImageInput, draft.backgroundImageUrl);
     setImageInputValue(bgLocalInput, draft.backgroundImageLocal);
 
@@ -234,7 +245,9 @@ export function initThemeSection({
         targetInput: bgLocalInput,
         clearButton: clearBgLocalBtn,
         onChange: () => {
-          setDraftThemeValue('backgroundImageLocal', getImageInputValue(bgLocalInput) || null);
+          const backgroundImageLocal = getImageInputValue(bgLocalInput) || null;
+          setDraftThemeValue('backgroundImageLocal', backgroundImageLocal);
+          setDraftThemeValue('backgroundImageSource', backgroundImageLocal ? 'local' : 'url');
           updateStates();
           onRequestSaveStateUpdate();
         }
@@ -290,6 +303,12 @@ export function initThemeSection({
     });
   }
 
+  bgImageSourceSelect.addEventListener('change', () => {
+    setDraftThemeValue('backgroundImageSource', bgImageSourceSelect.value);
+    updateStates();
+    onRequestSaveStateUpdate();
+  });
+
   bgSolid.addEventListener('change', () => {
     setDraftThemeValue('backgroundSolid', bgSolid.checked);
     if (bgSolid.checked) {
@@ -323,6 +342,7 @@ export function initThemeSection({
     bgSolid.checked = draft.backgroundSolid;
     bgColorInput.value = draft.backgroundColor;
     syncImageColorInputs(draft.backgroundImageColor);
+    bgImageSourceSelect.value = draft.backgroundImageSource;
     setImageInputValue(bgImageInput, draft.backgroundImageUrl);
     setImageInputValue(bgLocalInput, draft.backgroundImageLocal);
 

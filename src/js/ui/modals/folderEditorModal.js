@@ -34,8 +34,11 @@ let showPreviewsInput;
 let showNameInput;
 let showCountInput;
 let imageInput;
+let imageSourceField;
+let imageSourceSelect;
 let imageUrlField;
 let localImageInput;
+let localImageField;
 let localColorInput;
 let imageUploadInput;
 let imageUploadButton;
@@ -62,8 +65,11 @@ export function initFolderEditorModal() {
   showNameInput = document.getElementById('folder-editor-show-name');
   showCountInput = document.getElementById('folder-editor-show-count');
   imageInput = document.getElementById('folder-editor-image');
+  imageSourceField = document.getElementById('folder-editor-image-source-field');
+  imageSourceSelect = document.getElementById('folder-editor-image-source');
   imageUrlField = document.getElementById('folder-editor-image-url-field');
   localImageInput = document.getElementById('folder-editor-image-local');
+  localImageField = localImageInput.closest('.local-image-field');
   localColorInput = document.getElementById('folder-editor-local-color');
   imageUploadInput = document.getElementById('folder-editor-image-upload-input');
   imageUploadButton = document.getElementById('folder-editor-image-upload');
@@ -96,6 +102,7 @@ export function initFolderEditorModal() {
   ]) {
     input.addEventListener('change', handleInput);
   }
+  imageSourceSelect.addEventListener('change', handleInput);
   outerColorInput.addEventListener('input', () => {
     outerBackgroundColor = outerColorInput.value;
     handleInput();
@@ -117,7 +124,10 @@ export function initFolderEditorModal() {
     fileInput: imageUploadInput,
     targetInput: localImageInput,
     clearButton: document.getElementById('folder-editor-image-local-clear'),
-    onChange: handleInput
+    onChange: () => {
+      imageSourceSelect.value = getImageInputValue(localImageInput) ? 'local' : 'url';
+      handleInput();
+    }
   });
   document.getElementById('edit-folder-modal-cancel')
     .addEventListener('click', handleCancel);
@@ -151,6 +161,7 @@ export function openFolderEditor(folderId) {
   showPreviewsInput.checked = initialValue.showPreviews;
   showNameInput.checked = initialValue.showName;
   showCountInput.checked = initialValue.showCount;
+  imageSourceSelect.value = initialValue.backgroundImageSource;
   setImageInputValue(imageInput, initialValue.backgroundImageUrl);
   setImageInputValue(localImageInput, initialValue.backgroundImageLocal);
   textColorInput.value = initialValue.textColor;
@@ -188,6 +199,7 @@ function currentValue() {
     showCount: showCountInput.checked,
     backgroundImageUrl: getImageInputValue(imageInput) || null,
     backgroundImageLocal: getImageInputValue(localImageInput) || null,
+    backgroundImageSource: imageSourceSelect.value,
     backgroundImageUrlLocked: imageController?.isLocked() ?? false,
     textColor: textColorInput.value
   };
@@ -211,16 +223,22 @@ function isDirty() {
     || current.showCount !== initialValue.showCount
     || current.backgroundImageUrl !== initialValue.backgroundImageUrl
     || current.backgroundImageLocal !== initialValue.backgroundImageLocal
+    || current.backgroundImageSource !== initialValue.backgroundImageSource
     || current.backgroundImageUrlLocked !== initialValue.backgroundImageUrlLocked
     || current.textColor !== initialValue.textColor;
 }
 
 function syncStyleControls() {
   const hasLocalImage = Boolean(getImageInputValue(localImageInput));
-  imageUrlField.classList.toggle('is-hidden', hasLocalImage);
+  const activeSource = hasLocalImage && imageSourceSelect.value !== 'url' ? 'local' : 'url';
+  imageSourceSelect.value = activeSource;
+  imageSourceField.classList.toggle('is-hidden', !hasLocalImage);
+  imageUrlField.classList.toggle('is-hidden', hasLocalImage && activeSource === 'local');
+  localImageField.classList.toggle('is-hidden', !hasLocalImage || activeSource === 'url');
   colorInput.disabled = noBackgroundInput.checked
-    || (!hasLocalImage && (imageController?.isLocked() ?? false));
-  localColorInput.disabled = noBackgroundInput.checked;
+    || activeSource !== 'url'
+    || (imageController?.isLocked() ?? false);
+  localColorInput.disabled = noBackgroundInput.checked || activeSource !== 'local';
   if (!showFolderInput.checked) showPreviewsInput.checked = false;
   showPreviewsInput.disabled = !showFolderInput.checked;
   outerColorResetButton.disabled = outerBackgroundColor === null;

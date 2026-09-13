@@ -61,6 +61,7 @@ test('migrates only available legacy files and keeps every image slot local thro
   assert.equal(JSON.stringify(shared).includes('spacetab-local-image:'), false);
   for (const style of styles(shared)) {
     assert.equal(Object.hasOwn(style, 'backgroundImageLocal'), false);
+    assert.equal(Object.hasOwn(style, 'backgroundImageSource'), false);
     assert.equal(style.backgroundImageUrl, 'https://images.test/fallback.gif');
   }
   for (const style of styles(refreshed)) assert.equal(style.backgroundImageLocal, replacement);
@@ -69,6 +70,18 @@ test('migrates only available legacy files and keeps every image slot local thro
   await saveDeviceImageSelections(refreshed);
   const afterRemoval = await restoreDeviceImageSelections(dataWithImage(owned));
   for (const style of styles(afterRemoval)) assert.equal(style.backgroundImageLocal, null);
+});
+
+test('keeps each device image source choice beside its local file selection', async () => {
+  const data = dataWithImage(owned);
+  for (const style of styles(data)) style.backgroundImageSource = 'url';
+  await saveDeviceImageSelections(data);
+
+  const restored = await restoreDeviceImageSelections(dataWithImage(foreign));
+  for (const style of styles(restored)) {
+    assert.equal(style.backgroundImageLocal, owned);
+    assert.equal(style.backgroundImageSource, 'url');
+  }
 });
 
 test('keeps deleted-item image choices out of synchronized payloads', () => {

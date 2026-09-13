@@ -29,6 +29,8 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     url,
     backgroundColor,
     backgroundImageLocalColor,
+    backgroundImageSourceField,
+    backgroundImageSource,
     backgroundImageUrlField,
     backgroundImage,
     backgroundImageLocal,
@@ -92,14 +94,32 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
   const updateStates = () => {
     const hasBgImage = hasImage(bookmark.backgroundImageUrl) || hasImage(bookmark.backgroundImageLocal);
     const hasLocalImage = hasImage(bookmark.backgroundImageLocal);
+    const activeSource = hasLocalImage && bookmark.backgroundImageSource !== 'url'
+      ? 'local'
+      : 'url';
 
     if (backgroundFavicon) backgroundFavicon.disabled = hasBgImage;
     if (backgroundColor) {
       backgroundColor.disabled = bookmark.noBackground
-        || (!hasLocalImage && (bgController?.isLocked() ?? false));
+        || activeSource !== 'url'
+        || (bgController?.isLocked() ?? false);
     }
-    if (backgroundImageLocalColor) backgroundImageLocalColor.disabled = bookmark.noBackground;
-    backgroundImageUrlField?.classList.toggle('is-hidden', hasLocalImage);
+    if (backgroundImageLocalColor) {
+      backgroundImageLocalColor.disabled = bookmark.noBackground || activeSource !== 'local';
+    }
+    if (backgroundImageSource) {
+      backgroundImageSource.value = activeSource;
+      backgroundImageSource.disabled = bookmark.backgroundFavicon;
+    }
+    backgroundImageSourceField?.classList.toggle('is-hidden', !hasLocalImage);
+    backgroundImageUrlField?.classList.toggle(
+      'is-hidden',
+      hasLocalImage && activeSource === 'local'
+    );
+    backgroundImageLocal?.closest('.local-image-field')?.classList.toggle(
+      'is-hidden',
+      !hasLocalImage || activeSource === 'url'
+    );
     if (textColor) textColor.disabled = !bookmark.showText;
     if (backgroundImage) backgroundImage.disabled = bookmark.backgroundFavicon;
     if (backgroundImageLocal) backgroundImageLocal.disabled = bookmark.backgroundFavicon;
@@ -148,6 +168,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     onChange: () => {
       if (syncing) return;
       bookmark.backgroundImageLocal = getImageInputValue(backgroundImageLocal) || null;
+      bookmark.backgroundImageSource = bookmark.backgroundImageLocal ? 'local' : 'url';
       updateStates();
       emitChange();
     }
@@ -253,6 +274,7 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
   bindInput(name, "name");
   bindBackgroundColor(backgroundColor, backgroundImageLocalColor);
   bindBackgroundColor(backgroundImageLocalColor, backgroundColor);
+  bindInput(backgroundImageSource, "backgroundImageSource", "change");
   bindInput(backgroundFavicon, "backgroundFavicon", "change");
   bindInput(noBackground, "noBackground", "change");
   bindInput(invertBg, "invertColorBg", "change");
@@ -275,6 +297,9 @@ export function createBookmarkEditor({ elements, bookmark, onChange, previewFavi
     if (backgroundColor) backgroundColor.value = bookmark.backgroundColor ?? "";
     if (backgroundImageLocalColor) {
       backgroundImageLocalColor.value = bookmark.backgroundColor ?? "";
+    }
+    if (backgroundImageSource) {
+      backgroundImageSource.value = bookmark.backgroundImageSource ?? "url";
     }
     setImageInputValue(backgroundImage, bookmark.backgroundImageUrl);
     setImageInputValue(backgroundImageLocal, bookmark.backgroundImageLocal);

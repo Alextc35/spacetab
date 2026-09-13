@@ -34,6 +34,12 @@ for (const kind of ['bookmark', 'folder']) {
     const imageUrlField = modal.locator(
       isBookmark ? '[data-field="backgroundImageUrlField"]' : '#folder-editor-image-url-field'
     );
+    const imageSourceField = modal.locator(
+      isBookmark ? '[data-field="backgroundImageSourceField"]' : '#folder-editor-image-source-field'
+    );
+    const imageSource = modal.locator(
+      isBookmark ? '[data-field="backgroundImageSource"]' : '#folder-editor-image-source'
+    );
     const imageUrl = modal.locator(isBookmark ? '[data-field="backgroundImage"]' : '#folder-editor-image');
     const imageUrlColor = modal.locator(
       isBookmark ? '[data-field="backgroundColor"]' : '#folder-editor-color'
@@ -74,6 +80,8 @@ for (const kind of ['bookmark', 'folder']) {
     await expect(imageUrlColor).toBeDisabled();
     await upload.setInputFiles(imageFile);
     await expect(localInput).toHaveValue(imageFile.name);
+    await expect(imageSourceField).toBeVisible();
+    await expect(imageSource).toHaveValue('local');
     await expect(imageUrlField).toBeHidden();
     await expect(imageUrl).toHaveValue(fallbackUrl);
     await expect(localColor).toBeVisible();
@@ -82,6 +90,14 @@ for (const kind of ['bookmark', 'folder']) {
     await expect(imageUrlColor).toHaveValue('#7c3aed');
     await expect(preview).toHaveCSS(cssProperty, /data:image\/webp/);
     await expect(preview).toHaveCSS(colorProperty, '#7c3aed');
+    await imageSource.selectOption('url');
+    await expect(imageUrlField).toBeVisible();
+    await expect(localInput).toBeHidden();
+    await expect(preview).toHaveCSS(cssProperty, `url("${fallbackUrl}")`);
+    await imageSource.selectOption('local');
+    await expect(imageUrlField).toBeHidden();
+    await expect(localInput).toBeVisible();
+    await expect(preview).toHaveCSS(cssProperty, /data:image\/webp/);
     await save.click();
     await expect(modal).toBeHidden();
     await page.reload();
@@ -91,6 +107,7 @@ for (const kind of ['bookmark', 'folder']) {
     await openEditor();
     await expect(localInput).toHaveValue(imageFile.name);
     await expect(localColor).toHaveValue('#7c3aed');
+    await expect(imageSource).toHaveValue('local');
     await expect(imageUrlField).toBeHidden();
     await expect(imageUrl).toHaveValue(fallbackUrl);
     await modal.getByRole('button', { name: 'Remove local image' }).click();

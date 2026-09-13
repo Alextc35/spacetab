@@ -8,6 +8,7 @@ export const FOLDER_STYLE_KEYS = Object.freeze([
   'outerBackgroundColor',
   'backgroundImageUrl',
   'backgroundImageLocal',
+  'backgroundImageSource',
   'backgroundImageUrlLocked',
   'textColor',
   'showFolder',

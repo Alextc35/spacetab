@@ -26,6 +26,14 @@ test('uses the URL when a local file is missing, and prefers it only after the f
   try {
     await preloadLocalImages(background);
     assert.equal(resolveBackgroundImage(background), image);
+    assert.equal(resolveBackgroundImage({
+      ...background,
+      backgroundImageSource: 'url'
+    }), background.backgroundImageUrl);
+    assert.equal(resolveBackgroundImage({
+      ...background,
+      backgroundImageSource: 'local'
+    }), image);
     assert.equal(resolveBackgroundImage({ ...background, backgroundImageLocal: null }), background.backgroundImageUrl);
   } finally {
     delete globalThis.chrome;
@@ -36,4 +44,8 @@ test('does not allow URLs or image bytes in the local reference field', () => {
   for (const invalid of ['https://images.test/local.png', 'data:image/png;base64,c2FtcGxl', {}, 7]) {
     assert.equal(normalizeBackgroundImage({ backgroundImageLocal: invalid }).backgroundImageLocal, null);
   }
+  assert.equal(normalizeBackgroundImage({}).backgroundImageSource, 'url');
+  assert.equal(normalizeBackgroundImage({
+    backgroundImageLocal: 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9'
+  }).backgroundImageSource, 'local');
 });

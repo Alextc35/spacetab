@@ -297,7 +297,7 @@ test('switches to the default wallpaper without losing the custom URL or local i
   await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
 });
 
-test('combines a solid base color with images and preserves both across background modes', async ({ page }, testInfo) => {
+test('keeps solid and image backgrounds separate while preserving both modes', async ({ page }, testInfo) => {
   const modal = page.locator('#settings-modal');
   const imageUrl = page.locator('#settings-theme-bg-image');
   const localImage = page.locator('#settings-theme-bg-local');
@@ -305,6 +305,8 @@ test('combines a solid base color with images and preserves both across backgrou
   const useSolid = page.locator('#settings-theme-bg-solid');
   const solidColor = page.locator('#settings-theme-bg-color');
   const imageControls = page.locator('#settings-theme-bg-image-controls');
+  const imageSourceField = page.locator('#settings-theme-bg-image-source-field');
+  const imageSource = page.locator('#settings-theme-bg-image-source');
   const imageUrlField = page.locator('#settings-theme-bg-image-url-field');
   const imageColor = page.locator('#settings-theme-bg-image-color');
   const localImageColor = page.locator('#settings-theme-bg-local-color');
@@ -357,11 +359,21 @@ test('combines a solid base color with images and preserves both across backgrou
     )
   });
   await expect(localImage).toHaveValue('preserved.png');
+  await expect(imageSourceField).toBeVisible();
+  await expect(imageSource).toHaveValue('local');
   await expect(imageUrlField).toBeHidden();
   await expect(localImageColor).toBeVisible();
   await expect(localImageColor).toHaveValue('#13579b');
   await localImageColor.fill('#2468ac');
   await expect(imageColor).toHaveValue('#2468ac');
+  await imageSource.selectOption('url');
+  await expect(imageUrlField).toBeVisible();
+  await expect(localImage).toBeHidden();
+  await expect(preview).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+  await imageSource.selectOption('local');
+  await expect(imageUrlField).toBeHidden();
+  await expect(localImage).toBeVisible();
+  await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
   await useDefault.check();
   await expect(imageControls).toBeHidden();
   await expect(imageColor).toBeDisabled();
@@ -380,12 +392,13 @@ test('combines a solid base color with images and preserves both across backgrou
   await expect(useDefault).not.toBeChecked();
   await expect(solidColor).toBeVisible();
   await expect(solidColor).toBeEnabled();
-  await expect(imageControls).toBeVisible();
-  await expect(imageColor).toBeEnabled();
-  await expect(imageUrl).toBeEnabled();
+  await expect(imageControls).toBeHidden();
+  await expect(imageColor).toBeDisabled();
+  await expect(localImageColor).toBeDisabled();
+  await expect(imageUrl).toBeDisabled();
   await solidColor.fill('#8a245f');
   await expect(preview).toHaveCSS('background-color', 'rgb(138, 36, 95)');
-  await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
+  await expect(preview).toHaveCSS('background-image', 'none');
   await useSolid.uncheck();
   await expect(solidColor).toBeHidden();
   await expect(imageControls).toBeVisible();
@@ -407,6 +420,7 @@ test('combines a solid base color with images and preserves both across backgrou
   await expect(solidColor).toHaveValue('#8a245f');
   await expect(imageColor).toHaveValue('#2468ac');
   await expect(localImageColor).toHaveValue('#2468ac');
+  await expect(imageSource).toHaveValue('local');
   await expect(imageUrlField).toBeHidden();
   await expect(localImage).toHaveValue('preserved.png');
   await expect(save).toBeHidden();
@@ -421,6 +435,7 @@ test('combines a solid base color with images and preserves both across backgrou
   await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
   await expect(imageUrl).toHaveValue(fallbackUrl);
   await page.locator('#settings-theme-clear-bg-local').click();
+  await expect(imageSourceField).toBeHidden();
   await expect(imageUrlField).toBeVisible();
   await expect(imageColor).toBeVisible();
   await expect(imageColor).toBeEnabled();
@@ -436,21 +451,21 @@ test('combines a solid base color with images and preserves both across backgrou
   await expect(solidColor).toBeVisible();
   await expect(solidColor).toBeEnabled();
   await expect(solidColor).toHaveValue('#8a245f');
-  await expect(imageControls).toBeVisible();
-  await expect(imageColor).toBeEnabled();
-  await expect(imageUrl).toBeEnabled();
+  await expect(imageControls).toBeHidden();
+  await expect(imageColor).toBeDisabled();
+  await expect(imageUrl).toBeDisabled();
   await expect(preview).toHaveCSS('background-color', 'rgb(138, 36, 95)');
-  await expect(preview).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+  await expect(preview).toHaveCSS('background-image', 'none');
   await save.click();
-  await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+  await expect(page.locator('body')).toHaveCSS('background-image', 'none');
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(138, 36, 95)');
 
   await reloadSavedPage(page);
   await openTheme();
   await expect(useSolid).toBeChecked();
-  await expect(imageControls).toBeVisible();
+  await expect(imageControls).toBeHidden();
   await expect(preview).toHaveCSS('background-color', 'rgb(138, 36, 95)');
-  await expect(preview).toHaveCSS('background-image', `url("${fallbackUrl}")`);
+  await expect(preview).toHaveCSS('background-image', 'none');
   await useSolid.uncheck();
   await expect(imageControls).toBeVisible();
   await expect(imageUrl).toHaveValue(fallbackUrl);

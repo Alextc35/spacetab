@@ -51,19 +51,29 @@ export function normalizeBackgroundImage(value = {}) {
     ? value.backgroundImageUrl.trim() || null
     : null;
   const legacyLocal = isLocalImageReference(url);
+  const backgroundImageLocal = isLocalImageReference(value?.backgroundImageLocal)
+    ? value.backgroundImageLocal
+    : legacyLocal ? url : null;
   return {
     backgroundImageUrl: legacyLocal ? null : url,
-    backgroundImageLocal: isLocalImageReference(value?.backgroundImageLocal)
-      ? value.backgroundImageLocal
-      : legacyLocal ? url : null,
+    backgroundImageLocal,
+    backgroundImageSource: backgroundImageLocal && value?.backgroundImageSource !== 'url'
+      ? 'local'
+      : 'url',
     backgroundImageUrlLocked: !legacyLocal && value?.backgroundImageUrlLocked === true
   };
 }
 
-/** Prefers an available local file and otherwise uses the saved image URL. */
+/** Resolves the selected source first and keeps the other image as a fallback. */
 export function resolveBackgroundImage(value = {}) {
-  const { backgroundImageLocal, backgroundImageUrl } = normalizeBackgroundImage(value);
-  return resolveImageSource(backgroundImageLocal) ?? resolveImageSource(backgroundImageUrl);
+  const {
+    backgroundImageLocal,
+    backgroundImageUrl,
+    backgroundImageSource
+  } = normalizeBackgroundImage(value);
+  const local = resolveImageSource(backgroundImageLocal);
+  const url = resolveImageSource(backgroundImageUrl);
+  return backgroundImageSource === 'url' ? url ?? local : local ?? url;
 }
 
 /**

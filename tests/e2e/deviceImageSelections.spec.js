@@ -70,6 +70,7 @@ test('two devices choose and remove their own images while sharing the fallback 
 
     // A real shared change must keep the other device's chosen local file.
     await openTheme(other);
+    await other.locator('#settings-theme-bg-image-source').selectOption('url');
     await other.locator('#settings-theme-bg-image').fill(updatedFallback);
     await other.locator('#settings-modal-save').click();
     await expect(other.locator('#settings-modal')).toBeHidden();
@@ -79,6 +80,7 @@ test('two devices choose and remove their own images while sharing the fallback 
       return getState().data.settings.theme.backgroundImageUrl;
     })).toBe(updatedFallback);
     await openTheme(page);
+    await expect(page.locator('#settings-theme-bg-image-source')).toHaveValue('local');
     await expect(page.locator('#settings-theme-bg-image')).toHaveValue(updatedFallback);
     await expect(page.locator('#settings-theme-bg-local')).toHaveValue('device-a.png');
     await page.getByRole('button', { name: 'Remove local image' }).click();
@@ -91,6 +93,7 @@ test('two devices choose and remove their own images while sharing the fallback 
     await expect(page.locator('#settings-theme-bg-local')).toBeHidden();
     await other.reload();
     await openTheme(other);
+    await expect(other.locator('#settings-theme-bg-image-source')).toHaveValue('url');
     await expect(other.locator('#settings-theme-bg-local')).toHaveValue('device-b.png');
     await expect(other.locator('#settings-theme-bg-image')).toHaveValue(updatedFallback);
 
@@ -103,6 +106,7 @@ test('two devices choose and remove their own images while sharing the fallback 
     await other.getByRole('radio', { name: /Synced/ }).check();
     await other.locator('#settings-modal-save').click();
     await openTheme(other);
+    await expect(other.locator('#settings-theme-bg-image-source')).toHaveValue('url');
     await expect(other.locator('#settings-theme-bg-local')).toHaveValue('device-b.png');
     await expect(other.locator('#settings-theme-bg-image')).toHaveValue(updatedFallback);
   } finally {

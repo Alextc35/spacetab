@@ -3,7 +3,7 @@ import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
 import { DEFAULT_KEYBOARD_SHORTCUTS } from './keyboardShortcuts.js';
 
-export const DATA_SCHEMA_VERSION = 12;
+export const DATA_SCHEMA_VERSION = 13;
 
 export const RECYCLE_BIN_ID = 'spacetab-recycle-bin';
 
@@ -25,6 +25,7 @@ export const DEFAULT_FOLDER_STYLE = Object.freeze({
   outerBackgroundColor: null,
   backgroundImageUrl: null,
   backgroundImageLocal: null,
+  backgroundImageSource: 'url',
   backgroundImageUrlLocked: false,
   textColor: '#f8fafc',
   showFolder: true,
@@ -42,6 +43,7 @@ export const DEFAULT_FOLDER_STYLE = Object.freeze({
 export const DEFAULT_BOOKMARK_STYLE = {
   backgroundImageUrl: null,
   backgroundImageLocal: null,
+  backgroundImageSource: 'url',
   backgroundImageUrlLocked: false,
   backgroundFavicon: true,
   invertColorBg: false,
@@ -150,6 +152,7 @@ export const DEFAULT_SETTINGS = {
     backgroundImageColor: '#ffffff',
     backgroundImageUrl: null,
     backgroundImageLocal: null,
+    backgroundImageSource: 'url',
     backgroundImageUrlLocked: false
   },
 

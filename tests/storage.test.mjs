@@ -144,6 +144,7 @@ test('migrates local data to an empty synchronized area', async () => {
   assert.deepEqual(stored.settings.bookmarkDefault, {
     backgroundImageUrl: null,
     backgroundImageLocal: null,
+    backgroundImageSource: 'url',
     backgroundImageUrlLocked: false,
     backgroundFavicon: true,
     invertColorBg: false,

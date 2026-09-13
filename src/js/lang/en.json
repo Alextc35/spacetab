@@ -155,6 +155,9 @@
   "localImage": {
     "upload": "Upload from this device",
     "label": "Local image:",
+    "activeSource": "Active image:",
+    "sourceLocal": "Local",
+    "sourceUrl": "URL",
     "remove": "Remove local image",
     "notice": "Local images are not synced.",
     "unnamed": "Local image"

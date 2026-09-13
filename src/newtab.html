@@ -201,6 +201,15 @@
                   data-i18n="folder.editor.noBackground">Transparent folder fill</label>
               </div>
               <div class="modal-field">
+                <div id="folder-editor-image-source-field"
+                  class="background-image-source-field is-hidden">
+                  <label for="folder-editor-image-source"
+                    data-i18n="localImage.activeSource">Active image:</label>
+                  <select id="folder-editor-image-source">
+                    <option value="local" data-i18n="localImage.sourceLocal">Local</option>
+                    <option value="url" data-i18n="localImage.sourceUrl">URL</option>
+                  </select>
+                </div>
                 <div id="folder-editor-image-url-field" class="background-image-url-field">
                   <label for="folder-editor-image"
                     data-i18n="folder.editor.backgroundImage">Background image (URL):</label>
@@ -535,6 +544,15 @@
               </div>
               <div id="settings-theme-bg-image-controls"
                 class="theme-background-image-controls is-hidden">
+                <div id="settings-theme-bg-image-source-field"
+                  class="background-image-source-field is-hidden">
+                  <label for="settings-theme-bg-image-source"
+                    data-i18n="localImage.activeSource">Active image:</label>
+                  <select id="settings-theme-bg-image-source">
+                    <option value="local" data-i18n="localImage.sourceLocal">Local</option>
+                    <option value="url" data-i18n="localImage.sourceUrl">URL</option>
+                  </select>
+                </div>
                 <div id="settings-theme-bg-image-url-field" class="background-image-url-field">
                   <label for="settings-theme-bg-image"
                     data-i18n="settingsModal.theme.backgroundImage">Imagen URL:
@@ -866,6 +884,14 @@
               <label data-i18n="editModal.noBackground">Sin fondo</label>
             </div>
             <div class="modal-field">
+              <div data-field="backgroundImageSourceField"
+                class="background-image-source-field is-hidden">
+                <label data-i18n="localImage.activeSource">Active image:</label>
+                <select data-field="backgroundImageSource">
+                  <option value="local" data-i18n="localImage.sourceLocal">Local</option>
+                  <option value="url" data-i18n="localImage.sourceUrl">URL</option>
+                </select>
+              </div>
               <div data-field="backgroundImageUrlField" class="background-image-url-field">
                 <label data-i18n="editModal.backgroundImage">Imagen de fondo (URL):</label>
                 <div class="input-with-actions background-image-input">

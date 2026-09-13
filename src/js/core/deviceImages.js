@@ -22,7 +22,10 @@ function imageSlots(data) {
 /** Removes device selections from the payload sent to Sync, without changing app state. */
 export function withoutDeviceImages(data) {
   const shared = structuredClone(data);
-  for (const [, style] of imageSlots(shared)) delete style.backgroundImageLocal;
+  for (const [, style] of imageSlots(shared)) {
+    delete style.backgroundImageLocal;
+    delete style.backgroundImageSource;
+  }
   return shared;
 }
 
@@ -33,9 +36,13 @@ export async function saveDeviceImageSelections(data) {
   for (const [key, style] of imageSlots(data)) {
     const reference = isLocalImageReference(style.backgroundImageLocal)
       ? style.backgroundImageLocal : null;
+    const selection = {
+      reference,
+      source: reference && style.backgroundImageSource !== 'url' ? 'local' : 'url'
+    };
     if (!Object.hasOwn(selections, key) && !reference) continue;
-    if (selections[key] === reference) continue;
-    selections[key] = reference;
+    if (sameSelection(selections[key], selection)) continue;
+    selections[key] = selection;
     changed = true;
   }
   if (changed) await writeSelections(selections);
@@ -56,18 +63,23 @@ export async function restoreDeviceImageSelections(data) {
   const selections = await readSelections();
   const slots = imageSlots(restored);
   const candidates = slots.map(([key, style]) => (
-    Object.hasOwn(selections, key) ? selections[key] : style.backgroundImageLocal
+    Object.hasOwn(selections, key) ? selections[key].reference : style.backgroundImageLocal
   ));
   await preloadLocalImages(candidates);
 
   let changed = false;
   for (const [key, style] of slots) {
     const hasSelection = Object.hasOwn(selections, key);
-    const reference = hasSelection ? selections[key] : style.backgroundImageLocal;
+    const reference = hasSelection ? selections[key].reference : style.backgroundImageLocal;
+    const source = hasSelection ? selections[key].source : style.backgroundImageSource;
     const available = isLocalImageReference(reference) && resolveImageSource(reference);
     style.backgroundImageLocal = available ? reference : null;
+    style.backgroundImageSource = available && source !== 'url' ? 'local' : 'url';
     if (!hasSelection && isLocalImageReference(reference)) {
-      selections[key] = style.backgroundImageLocal;
+      selections[key] = {
+        reference: style.backgroundImageLocal,
+        source: style.backgroundImageSource
+      };
       changed = true;
     }
   }
@@ -79,9 +91,25 @@ async function readSelections() {
   const stored = await callLocalStorage('get', DEVICE_IMAGE_SELECTIONS_KEY);
   const value = stored[DEVICE_IMAGE_SELECTIONS_KEY];
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
-  return Object.fromEntries(Object.entries(value).filter(([, reference]) => (
-    reference === null || isLocalImageReference(reference)
-  )));
+  return Object.fromEntries(Object.entries(value).flatMap(([key, selection]) => {
+    if (selection === null || isLocalImageReference(selection)) {
+      return [[key, {
+        reference: selection,
+        source: selection ? 'local' : 'url'
+      }]];
+    }
+    if (!selection || typeof selection !== 'object' || Array.isArray(selection)) return [];
+    const reference = selection.reference;
+    if (reference !== null && !isLocalImageReference(reference)) return [];
+    return [[key, {
+      reference,
+      source: reference && selection.source !== 'url' ? 'local' : 'url'
+    }]];
+  }));
+}
+
+function sameSelection(left, right) {
+  return left?.reference === right.reference && left?.source === right.source;
 }
 
 function writeSelections(selections) {

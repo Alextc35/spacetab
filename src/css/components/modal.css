@@ -293,6 +293,20 @@ input[type="color"] {
   padding-left: 44px;
 }
 
+.background-image-source-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.background-image-source-field label {
+  flex: 0 0 auto;
+}
+
+.background-image-source-field select {
+  min-width: 120px;
+}
+
 .background-image-url-field {
   display: contents;
 }

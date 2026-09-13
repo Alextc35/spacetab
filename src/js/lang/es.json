@@ -155,6 +155,9 @@
   "localImage": {
     "upload": "Subir desde este dispositivo",
     "label": "Imagen local:",
+    "activeSource": "Imagen activa:",
+    "sourceLocal": "Local",
+    "sourceUrl": "URL",
     "remove": "Quitar imagen local",
     "notice": "Las imágenes locales no se sincronizan con Sync.",
     "unnamed": "Imagen local"

@@ -9,6 +9,7 @@ import { normalizeBackgroundImage } from './localImages.js';
 export const BOOKMARK_STYLE_KEYS = Object.freeze([
   'backgroundImageUrl',
   'backgroundImageLocal',
+  'backgroundImageSource',
   'backgroundImageUrlLocked',
   'backgroundFavicon',
   'invertColorBg',

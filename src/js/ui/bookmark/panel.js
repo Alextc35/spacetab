@@ -224,6 +224,8 @@ function resolveElements(root) {
     name: field('name'),
     url: field('url'),
     backgroundColor: field('backgroundColor'),
+    backgroundImageSourceField: field('backgroundImageSourceField'),
+    backgroundImageSource: field('backgroundImageSource'),
     backgroundImageUrlField: field('backgroundImageUrlField'),
     backgroundImage: field('backgroundImage'),
     backgroundImageLocalColor: field('backgroundImageLocalColor'),
@@ -254,7 +256,9 @@ function connectLabels(root, elements, idPrefix) {
     const controlId = `${idPrefix}-${field}`;
     input.id = controlId;
 
-    const wrapper = input.closest('.input-with-actions, .checkbox-wrapper');
+    const wrapper = input.closest(
+      '.input-with-actions, .checkbox-wrapper, .background-image-source-field'
+    );
     const label = wrapper?.querySelector('label')
       || (wrapper?.previousElementSibling?.matches('label')
         ? wrapper.previousElementSibling
