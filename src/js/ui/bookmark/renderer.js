@@ -10,9 +10,10 @@ import { createFolderElement, enableFolderEditing } from '../folder/renderer.js'
 import { resolveBackgroundImage } from '../../core/localImages.js';
 import { lightSurfaceTextColor } from '../surfaceContrast.js';
 import { isListView } from '../viewportMode.js';
-import { createListItem } from './listView.js';
+import { createListItem, createRecycleBinListItem } from './listView.js';
 import { createListSearch } from './listSearch.js';
 import { openFolderModal } from '../modals/folderModal.js';
+import { openRecycleBinModal } from '../modals/recycleBinModal.js';
 import { t } from '../../core/i18n.js';
 import { createRecycleBinElement, enableRecycleBinEditing } from '../recycleBin.js';
 
@@ -75,10 +76,26 @@ export function renderBookmarks(container) {
     const list = document.createElement('ul');
     list.className = 'bookmark-list-items';
     const rows = [
+      ...(settings.showRecycleBin && settings.activeBookmarkGroupId === null
+        ? [{ item: recycleBin, recycleBin: true }]
+        : []),
       ...visibleBookmarks.map(item => ({ item, folder: false })),
       ...visibleFolders.map(item => ({ item, folder: true }))
-    ].sort((a, b) => a.item.gy - b.item.gy || a.item.gx - b.item.gx || a.item.id.localeCompare(b.item.id));
-    for (const { item, folder } of rows) {
+    ].sort((a, b) => {
+      if (a.recycleBin) return -1;
+      if (b.recycleBin) return 1;
+      return a.item.gy - b.item.gy || a.item.gx - b.item.gx || a.item.id.localeCompare(b.item.id);
+    });
+    for (const { item, folder, recycleBin: isRecycleBin } of rows) {
+      if (isRecycleBin) {
+        list.append(createRecycleBinListItem({
+          recycleBin: item,
+          count: trash.length,
+          active: isGridKeyboardActive(item.id),
+          onOpen: openRecycleBinModal
+        }));
+        continue;
+      }
       list.append(createListItem(item, {
         folder,
         count: bookmarksByFolderId.get(item.id)?.length ?? 0,

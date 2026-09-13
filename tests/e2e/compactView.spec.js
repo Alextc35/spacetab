@@ -55,6 +55,32 @@ async function sideAction(page, id) {
   await page.locator(`#${id}`).click();
 }
 
+test('puts the enabled recycle bin first in list view without changing its grid position', async ({ page }) => {
+  await start(page);
+  const before = await data(page);
+  const recycleBinId = before.recycleBin.id;
+  await page.evaluate(async () => {
+    const { getState, setState } = await import('/src/js/core/store.js');
+    const { data } = getState();
+    await setState({ data: {
+      ...data,
+      recycleBin: { ...data.recycleBin, gx: 11, gy: 5 },
+      settings: { ...data.settings, showRecycleBin: true }
+    } });
+  });
+
+  await page.setViewportSize({ width: 430, height: 720 });
+  const list = page.locator('#bookmark-container');
+  await expect(list).toHaveClass(/is-list-view/);
+  await expect(list.locator('.bookmark-list-item').first())
+    .toHaveAttribute('data-recycle-bin-id', recycleBinId);
+
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await expect(list).not.toHaveClass(/is-list-view/);
+  await expect(list.locator(`.recycle-bin[data-recycle-bin-id="${recycleBinId}"]`)).toBeVisible();
+  expect((await data(page)).recycleBin).toMatchObject({ gx: 11, gy: 5 });
+});
+
 test('list search filters names, handles accents and spaces, and keeps keyboard navigation within results', async ({ page }) => {
   await start(page, 430);
   await page.evaluate(async () => {

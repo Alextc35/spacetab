@@ -44,13 +44,18 @@ export function createListSearch({ list, query = '', onChange, onFocus }) {
 
   const rows = [...list.children].map(row => ({
     element: row,
-    name: normalize(row.querySelector('.bookmark-list-name')?.textContent ?? '')
+    name: normalize(row.querySelector('.bookmark-list-name')?.textContent ?? ''),
+    static: row.dataset.listSearchStatic === 'true'
   }));
 
   function filter() {
     const term = normalize(input.value);
     let matches = 0;
     for (const row of rows) {
+      if (row.static) {
+        row.element.hidden = false;
+        continue;
+      }
       row.element.hidden = !row.name.includes(term);
       if (!row.element.hidden) matches++;
     }

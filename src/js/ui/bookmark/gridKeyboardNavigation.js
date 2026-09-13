@@ -29,6 +29,12 @@ const OPPOSITE_DIRECTIONS = {
 // columns are empty, the diagonal route is allowed to win.
 const MAX_HORIZONTAL_CROSS_AXIS = 1;
 const MAX_HORIZONTAL_ROW_GAP = 1;
+const GRID_ITEM_SELECTOR = [
+  '.bookmark[data-bookmark-id]',
+  '.bookmark-folder[data-folder-id]',
+  '.recycle-bin[data-recycle-bin-id]',
+  '.bookmark-list-item[data-recycle-bin-id]'
+].join(', ');
 
 let containerRef = null;
 let activeItemId = null;
@@ -184,7 +190,9 @@ function getVisibleGridItems() {
   const activeGroupId = settings.activeBookmarkGroupId ?? null;
   const visibleIds = isListView() ? new Set(
     [...containerRef.querySelectorAll('.bookmark-list-item:not([hidden])')]
-      .map(element => element.dataset.bookmarkId ?? element.dataset.folderId)
+      .map(element => element.dataset.bookmarkId
+        ?? element.dataset.folderId
+        ?? element.dataset.recycleBinId)
   ) : null;
   return [
     ...bookmarks
@@ -193,14 +201,16 @@ function getVisibleGridItems() {
     ...folders
       .filter(folder => (folder.groupId ?? null) === activeGroupId)
       .map(folder => ({ ...folder, kind: 'folder' })),
-    ...(!isListView() && activeGroupId === null && settings.showRecycleBin
+    ...(activeGroupId === null && settings.showRecycleBin
       ? [{ ...recycleBin, kind: 'recycle-bin' }]
       : [])
-  ].filter(item => !visibleIds || visibleIds.has(item.id)).sort((a, b) => (
-    a.gy - b.gy
-    || a.gx - b.gx
-    || a.id.localeCompare(b.id)
-  ));
+  ].filter(item => !visibleIds || visibleIds.has(item.id)).sort((a, b) => {
+    if (isListView()) {
+      if (a.kind === 'recycle-bin') return -1;
+      if (b.kind === 'recycle-bin') return 1;
+    }
+    return a.gy - b.gy || a.gx - b.gx || a.id.localeCompare(b.id);
+  });
 }
 
 function findDirectionalRoute(current, direction) {
@@ -371,7 +381,7 @@ function setActiveItem(itemId) {
   containerRef?.focus({ preventScroll: true });
 
   containerRef?.querySelectorAll(
-    '.bookmark[data-bookmark-id], .bookmark-folder[data-folder-id], .recycle-bin[data-recycle-bin-id]'
+    GRID_ITEM_SELECTOR
   )
     .forEach(element => {
       const id = element.dataset.bookmarkId
@@ -394,7 +404,7 @@ export function clearGridKeyboardNavigation() {
 
 function getGridItemElement(itemId) {
   return [...(containerRef?.querySelectorAll(
-    '.bookmark[data-bookmark-id], .bookmark-folder[data-folder-id], .recycle-bin[data-recycle-bin-id]'
+    GRID_ITEM_SELECTOR
   ) ?? [])].find(element => (
     element.dataset.bookmarkId === itemId
     || element.dataset.folderId === itemId

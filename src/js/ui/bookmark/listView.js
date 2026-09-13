@@ -63,6 +63,51 @@ export function createListItem(item, { folder = false, count = 0, active = false
   return row;
 }
 
+/** A read-only recycle-bin row. Its list position is intentionally independent from its grid position. */
+export function createRecycleBinListItem({ recycleBin, count = 0, active = false, onOpen = () => {} } = {}) {
+  const row = document.createElement('li');
+  row.className = 'bookmark bookmark-list-item recycle-bin-list-item';
+  row.dataset.recycleBinId = recycleBin.id;
+  row.dataset.listSearchStatic = 'true';
+  row.classList.toggle('is-keyboard-active', active);
+
+  const link = document.createElement('button');
+  link.className = 'bookmark-list-link recycle-bin-list-link';
+  link.type = 'button';
+  link.title = t('recycleBin.open');
+  link.setAttribute('aria-label', t('recycleBin.openCount', { count }));
+  link.addEventListener('click', onOpen);
+
+  const icon = document.createElement('span');
+  icon.className = 'bookmark-list-icon recycle-bin-list-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  const glyph = document.createElement('span');
+  glyph.className = 'recycle-bin-glyph bookmark-list-recycle-glyph';
+  glyph.append(
+    Object.assign(document.createElement('span'), { className: 'recycle-bin-lid' }),
+    Object.assign(document.createElement('span'), { className: 'recycle-bin-can' })
+  );
+  icon.append(glyph);
+
+  const copy = document.createElement('span');
+  copy.className = 'bookmark-list-copy';
+  const name = document.createElement('span');
+  name.className = 'bookmark-list-name';
+  name.textContent = t('recycleBin.title');
+  const detail = document.createElement('span');
+  detail.className = 'bookmark-list-detail';
+  detail.textContent = t(count === 1 ? 'recycleBin.countOne' : 'recycleBin.count', { count });
+  copy.append(name, detail);
+
+  const arrow = document.createElement('span');
+  arrow.className = 'bookmark-list-arrow';
+  arrow.textContent = '›';
+  arrow.setAttribute('aria-hidden', 'true');
+  link.append(icon, copy, arrow);
+  row.append(link);
+  return row;
+}
+
 function describeUrl(value) {
   try { return new URL(value).hostname.replace(/^www\./, '') || value; }
   catch { return value || ''; }
