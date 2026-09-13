@@ -640,8 +640,11 @@ test('navigates the grid with Tab and opens the keyboard-focused bookmark', asyn
   const bookmarks = page.locator('#bookmark-container > .bookmark[data-bookmark-id]');
   const first = bookmarks.nth(0);
   const second = bookmarks.nth(1);
+  const recycleBin = page.locator('#bookmark-container .recycle-bin');
 
   await page.keyboard.press('Tab');
+  await expect(recycleBin).toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowDown');
   await expect(first).toHaveClass(/is-keyboard-active/);
   await expect(page.locator('.flash-message').last()).toHaveText('Selection mode enabled');
 
@@ -656,6 +659,8 @@ test('navigates the grid with Tab and opens the keyboard-focused bookmark', asyn
   await expect(page.locator('.flash-message').last()).toHaveText('Selection mode disabled');
 
   await page.keyboard.press('Tab');
+  await expect(recycleBin).toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowDown');
   await expect(first).toHaveClass(/is-keyboard-active/);
 
   await first.locator('.bookmark-link').evaluate(link => {
@@ -663,6 +668,24 @@ test('navigates the grid with Tab and opens the keyboard-focused bookmark', asyn
   });
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/#keyboard-opened$/);
+});
+
+test('opens the recycle bin from Tab navigation in either mode', async ({ page }) => {
+  const recycleBin = page.locator('#bookmark-container .recycle-bin');
+
+  await page.keyboard.press('Tab');
+  await expect(recycleBin).toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#recycle-bin-modal')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#recycle-bin-modal')).toBeHidden();
+
+  await enableEditMode(page);
+  await expect(page.locator('#bookmark-container')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(recycleBin).toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#recycle-bin-modal')).toBeVisible();
 });
 
 test('marks the keyboard-focused bookmark with S while editing', async ({ page }) => {
@@ -674,6 +697,7 @@ test('marks the keyboard-focused bookmark with S while editing', async ({ page }
 
   await expect(grid).toBeFocused();
   await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowDown');
   await expect(first).toHaveClass(/is-keyboard-active/);
 
   await page.keyboard.press('s');
@@ -701,6 +725,7 @@ test('does not move a selected bookmark until Tab navigation is disabled', async
   await expect(first).toHaveClass(/is-selected/);
   await grid.focus();
   await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowDown');
   await expect(first).toHaveClass(/is-keyboard-active/);
 
   const start = await visibleBox(first);
@@ -730,6 +755,7 @@ test('navigates folders and opens them according to the current edit mode', asyn
   await grid.focus();
   await page.keyboard.press('Tab');
   await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
   await expect(folder).toHaveClass(/is-keyboard-active/);
 
   await page.keyboard.press('Enter');
@@ -740,6 +766,7 @@ test('navigates folders and opens them according to the current edit mode', asyn
   await enableEditMode(page);
   await expect(grid).toBeFocused();
   await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowDown');
   await expect(folder).toHaveClass(/is-keyboard-active/);
 
@@ -770,7 +797,8 @@ test('prefers the item aligned with the active grid column', async ({ page }) =>
     Object.assign(stored.bookmarks[1], { gx: 1, gy: 3 });
     Object.assign(folder, { gx: 5, gy: 0 });
     Object.assign(below, { gx: 5, gy: 1 });
-    Object.assign(leftBelow, { gx: 4, gy: 1 });
+    Object.assign(leftBelow, { gx: 3, gy: 1 });
+    Object.assign(stored.recycleBin, { gx: 6, gy: 0 });
     sessionStorage.setItem(storageKey, JSON.stringify(stored));
   });
   await reloadSavedPage(page);
@@ -781,6 +809,143 @@ test('prefers the item aligned with the active grid column', async ({ page }) =>
     .toHaveClass(/is-keyboard-active/);
   await page.keyboard.press('ArrowDown');
   await expect(page.locator('.bookmark', { hasText: 'Directly below' }))
+    .toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.locator('.bookmark', { hasText: 'Left below' }))
+    .toHaveClass(/is-keyboard-active/);
+});
+
+test('keeps horizontal navigation on the current row across a gap', async ({ page }) => {
+  await page.evaluate(() => {
+    const storageKey = 'spacetab-test-local';
+    const stored = JSON.parse(sessionStorage.getItem(storageKey));
+
+    Object.assign(stored.bookmarks[0], { gx: 4, gy: 2 });
+    Object.assign(stored.bookmarks[1], { gx: 2, gy: 2 });
+    Object.assign(stored.recycleBin, { gx: 4, gy: 1 });
+    sessionStorage.setItem(storageKey, JSON.stringify(stored));
+  });
+  await reloadSavedPage(page);
+
+  const grid = page.locator('#bookmark-container');
+  const current = page.locator('#bookmark-container > .bookmark').nth(0);
+  const left = page.locator('#bookmark-container > .bookmark').nth(1);
+  const recycleBin = page.locator('#bookmark-container .recycle-bin');
+
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await expect(recycleBin).toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowDown');
+  await expect(current).toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowLeft');
+  await expect(left).toHaveClass(/is-keyboard-active/);
+});
+
+test('keeps the current row before a nearer diagonal card', async ({ page }) => {
+  await createBookmark(page, 'Same row target', 'same-row.test');
+
+  await page.evaluate(() => {
+    const storageKey = 'spacetab-test-local';
+    const stored = JSON.parse(sessionStorage.getItem(storageKey));
+    const target = stored.bookmarks.find(entry => entry.name === 'Same row target');
+
+    Object.assign(stored.bookmarks[0], { gx: 0, gy: 1 });
+    Object.assign(stored.bookmarks[1], { gx: 1, gy: 0 });
+    Object.assign(target, { gx: 2, gy: 1 });
+    Object.assign(stored.recycleBin, { gx: 0, gy: 0 });
+    sessionStorage.setItem(storageKey, JSON.stringify(stored));
+  });
+  await reloadSavedPage(page);
+
+  const grid = page.locator('#bookmark-container');
+  const current = page.locator('.bookmark', { hasText: 'DEVELOPED BY' });
+  const target = page.locator('.bookmark', { hasText: 'Same row target' });
+
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowDown');
+  await expect(current).toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowRight');
+  await expect(target).toHaveClass(/is-keyboard-active/);
+
+  // With two empty cells, the nearby diagonal route is allowed to win.
+  await page.evaluate(() => {
+    const storageKey = 'spacetab-test-local';
+    const stored = JSON.parse(sessionStorage.getItem(storageKey));
+    const targetEntry = stored.bookmarks.find(entry => entry.name === 'Same row target');
+    Object.assign(targetEntry, { gx: 3, gy: 1 });
+    sessionStorage.setItem(storageKey, JSON.stringify(stored));
+  });
+  await reloadSavedPage(page);
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('.bookmark', { hasText: 'banana' }))
+    .toHaveClass(/is-keyboard-active/);
+});
+
+test('follows adjacent folders through remembered entry rows and columns', async ({ page }) => {
+  await revealSideDock(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('PokeMMO');
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await waitForSaved(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('test');
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await waitForSaved(page);
+  await createBookmark(page, 'Wayback Machine', 'https://web.archive.org');
+  await createBookmark(page, 'Gmail', 'https://mail.google.com');
+  await createBookmark(page, 'Web3Forms', 'https://web3forms.com');
+
+  await page.evaluate(() => {
+    const storageKey = 'spacetab-test-local';
+    const stored = JSON.parse(sessionStorage.getItem(storageKey));
+    const folder = stored.folders.find(entry => entry.name === 'PokeMMO');
+    const testFolder = stored.folders.find(entry => entry.name === 'test');
+    const wayback = stored.bookmarks.find(entry => entry.name === 'Wayback Machine');
+    const gmail = stored.bookmarks.find(entry => entry.name === 'Gmail');
+    const web3 = stored.bookmarks.find(entry => entry.name === 'Web3Forms');
+
+    Object.assign(stored.bookmarks[0], { gx: 0, gy: 3 });
+    Object.assign(stored.bookmarks[1], { gx: 1, gy: 0 });
+    Object.assign(wayback, { gx: 1, gy: 1 });
+    Object.assign(folder, { gx: 2, gy: 0, w: 2, h: 2 });
+    Object.assign(gmail, { gx: 8, gy: 1 });
+    Object.assign(web3, { gx: 5, gy: 4 });
+    Object.assign(testFolder, { gx: 9, gy: 4 });
+    Object.assign(stored.recycleBin, { gx: 7, gy: 4, w: 2, h: 2 });
+    sessionStorage.setItem(storageKey, JSON.stringify(stored));
+  });
+  await reloadSavedPage(page);
+
+  const grid = page.locator('#bookmark-container');
+  const banana = page.locator('#bookmark-container > .bookmark').nth(1);
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await expect(banana).toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('.bookmark-folder', { hasText: 'PokeMMO' }))
+    .toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowLeft');
+  await expect(banana).toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator('.bookmark', { hasText: 'Wayback Machine' }))
+    .toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('.bookmark-folder', { hasText: 'PokeMMO' }))
+    .toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.locator('.bookmark', { hasText: 'Wayback Machine' }))
+    .toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('.bookmark-folder', { hasText: 'PokeMMO' }))
+    .toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('ArrowDown');
+  await expect(page.locator('.bookmark-folder', { hasText: 'PokeMMO' }))
     .toHaveClass(/is-keyboard-active/);
 });
 

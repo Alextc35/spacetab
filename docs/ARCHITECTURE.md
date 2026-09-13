@@ -117,13 +117,19 @@ Middle click delegates to the same editor entry point as the direct pencil and
 prevents the bookmark link from opening a tab.
 
 `gridKeyboardNavigation.js` owns explicit top-level grid focus. `Tab` enters
-or leaves the mode, and arrows select the nearest visible bookmark or folder in
-the requested direction. Outside edit mode, `Enter` opens the focused item. In
+or leaves the mode, and arrows select the nearest visible bookmark, folder or
+recycle bin in the requested direction while carrying the row or column used
+to enter resized cards. Horizontal arrows choose the closest candidate using
+that row as the cross-axis. A diagonal candidate is ignored across zero or one
+empty cell, but can fill a route after two or more empty cells; vertical arrows
+stay in the remembered column and are no-ops when the column is empty. Outside
+edit mode, `Enter` opens the focused item. In
 edit mode, `Enter` opens its editor when there is no selection or when the
 focused bookmark is the sole selected item; `S` toggles only bookmark selection
 and gives folders a transient unavailable-state signal. The active item is
-transient UI state rendered as a
-keyboard-focus affordance.
+transient UI state rendered as a keyboard-focus affordance. Reversing the last
+arrow movement returns to its origin, preserving the route used to enter a
+folder or bookmark.
 
 `keyboardMovement.js` remains responsible for moving one visible, top-level
 selected bookmark in edit mode when keyboard grid navigation is not active.

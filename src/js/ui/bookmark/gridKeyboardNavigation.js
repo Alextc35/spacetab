@@ -4,6 +4,7 @@ import { hasOpenModal } from '../modalManager.js';
 import { isListView } from '../viewportMode.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { openFolderEditor } from '../modals/folderEditorModal.js';
+import { openRecycleBinModal } from '../modals/recycleBinModal.js';
 import {
   getSelectedBookmarkIds,
   toggleBookmarkSelection
@@ -16,8 +17,23 @@ const ARROW_DIRECTIONS = new Set([
   'ArrowDown'
 ]);
 
+const OPPOSITE_DIRECTIONS = {
+  ArrowLeft: 'ArrowRight',
+  ArrowRight: 'ArrowLeft',
+  ArrowUp: 'ArrowDown',
+  ArrowDown: 'ArrowUp'
+};
+
+// A diagonal candidate is only a gap-filler. Keep the current row while there
+// are at most one empty column between it and a same-row candidate; once two
+// columns are empty, the diagonal route is allowed to win.
+const MAX_HORIZONTAL_CROSS_AXIS = 1;
+const MAX_HORIZONTAL_ROW_GAP = 1;
+
 let containerRef = null;
 let activeItemId = null;
+let navigationPoint = null;
+let navigationHistory = [];
 
 /**
  * Adds keyboard navigation for the visible top-level grid items.
@@ -78,6 +94,8 @@ function handleGridKeyboardNavigation(event) {
     if (!items.length) return;
     event.preventDefault();
     setActiveItem(items[0].id);
+    navigationPoint = getItemAnchor(items[0]);
+    navigationHistory = [];
     flashInfo('flash.selectionMode.enabled');
     return;
   }
@@ -86,11 +104,26 @@ function handleGridKeyboardNavigation(event) {
 
   if (ARROW_DIRECTIONS.has(event.key)) {
     const current = getVisibleGridItems().find(item => item.id === activeItemId);
-    const next = current ? findDirectionalItem(current, event.key) : null;
-    if (!next) return;
+    const route = current ? findDirectionalRoute(current, event.key) : null;
+    if (!route) {
+      event.preventDefault();
+      return;
+    }
 
     event.preventDefault();
-    setActiveItem(next.id);
+    if (route.reversed) {
+      navigationHistory.pop();
+    } else {
+      navigationHistory.push({
+        from: activeItemId,
+        to: route.item.id,
+        direction: event.key,
+        fromPoint: navigationPoint,
+        toPoint: route.point
+      });
+    }
+    navigationPoint = route.point;
+    setActiveItem(route.item.id);
     return;
   }
 
@@ -102,7 +135,7 @@ function handleGridKeyboardNavigation(event) {
     if (item.kind === 'recycle-bin') {
       event.preventDefault();
       clearGridKeyboardNavigation();
-      if (!ui.isEditing) openGridItem(item);
+      openGridItem(item);
       return;
     }
 
@@ -145,7 +178,7 @@ function canStartGridNavigation() {
 }
 
 function getVisibleGridItems() {
-  const { data: { bookmarks, folders, settings } } = getState();
+  const { data: { bookmarks, folders, recycleBin, settings } } = getState();
   const activeGroupId = settings.activeBookmarkGroupId ?? null;
   const visibleIds = isListView() ? new Set(
     [...containerRef.querySelectorAll('.bookmark-list-item:not([hidden])')]
@@ -158,6 +191,9 @@ function getVisibleGridItems() {
     ...folders
       .filter(folder => (folder.groupId ?? null) === activeGroupId)
       .map(folder => ({ ...folder, kind: 'folder' })),
+    ...(!isListView() && activeGroupId === null && settings.showRecycleBin
+      ? [{ ...recycleBin, kind: 'recycle-bin' }]
+      : [])
   ].filter(item => !visibleIds || visibleIds.has(item.id)).sort((a, b) => (
     a.gy - b.gy
     || a.gx - b.gx
@@ -165,32 +201,83 @@ function getVisibleGridItems() {
   ));
 }
 
-function findDirectionalItem(current, direction) {
+function findDirectionalRoute(current, direction) {
   if (isListView()) {
     const items = getVisibleGridItems();
     const index = items.findIndex(item => item.id === current.id);
-    if (direction === 'ArrowDown') return items[index + 1] ?? null;
-    if (direction === 'ArrowUp') return items[index - 1] ?? null;
+    if (direction === 'ArrowDown') {
+      const item = items[index + 1] ?? null;
+      return item ? { item, point: getItemAnchor(item) } : null;
+    }
+    if (direction === 'ArrowUp') {
+      const item = items[index - 1] ?? null;
+      return item ? { item, point: getItemAnchor(item) } : null;
+    }
     return null;
   }
+
+  const last = navigationHistory.at(-1);
+  if (
+    last
+    && last.to === current.id
+    && OPPOSITE_DIRECTIONS[last.direction] === direction
+  ) {
+    const previous = getVisibleGridItems().find(item => item.id === last.from);
+    if (previous && getDirectionalDistance(current, previous, direction, last.toPoint)) {
+      return {
+        item: previous,
+        point: last.fromPoint ?? getItemAnchor(previous),
+        reversed: true
+      };
+    }
+  }
+
+  const point = navigationPoint ?? getItemAnchor(current);
   const candidates = getVisibleGridItems()
     .filter(item => item.id !== current.id)
     .map(item => ({
       item,
-      distance: getDirectionalDistance(current, item, direction)
+      distance: getDirectionalDistance(current, item, direction, point)
     }))
-    .filter(candidate => candidate.distance)
-    .sort((a, b) => (
-      a.distance.forward - b.distance.forward
-      || a.distance.crossAxis - b.distance.crossAxis
+    .filter(candidate => candidate.distance);
+
+  // Vertical movement is lane-based. When no item occupies the remembered
+  // column, the arrow is intentionally a no-op instead of a diagonal jump.
+  const laneCandidates = candidates.filter(candidate => candidate.distance.inLane);
+  const isVertical = direction === 'ArrowUp' || direction === 'ArrowDown';
+  const immediate = candidates.filter(candidate => (
+    candidate.distance.inLane && candidate.distance.forward === 0
+  ));
+  const sameRow = candidates.filter(candidate => candidate.distance.sameRow);
+  const sameRowNear = sameRow.filter(candidate => (
+    candidate.distance.forward <= MAX_HORIZONTAL_ROW_GAP
+  ));
+  const nearby = candidates.filter(candidate => (
+    candidate.distance.crossAxis <= MAX_HORIZONTAL_CROSS_AXIS
+  ));
+  const pool = isVertical
+    ? laneCandidates
+    : (immediate.length ? immediate : sameRowNear.length ? sameRowNear : nearby);
+  const selected = pool.sort((a, b) => (
+    isVertical
+      ? a.distance.forward - b.distance.forward
+        || a.distance.crossAxis - b.distance.crossAxis
+      : (a.distance.forward + a.distance.crossAxis)
+        - (b.distance.forward + b.distance.crossAxis)
+        || a.distance.forward - b.distance.forward
+        || a.distance.crossAxis - b.distance.crossAxis
       || a.item.gy - b.item.gy
       || a.item.gx - b.item.gx
-    ));
+  ))[0];
 
-  return candidates[0]?.item ?? null;
+  if (!selected) return null;
+  return {
+    item: selected.item,
+    point: getEntryPoint(selected.item, direction, point)
+  };
 }
 
-function getDirectionalDistance(current, candidate, direction) {
+function getDirectionalDistance(current, candidate, direction, point = getItemAnchor(current)) {
   const currentRight = current.gx + current.w;
   const currentBottom = current.gy + current.h;
   const candidateRight = candidate.gx + candidate.w;
@@ -200,39 +287,66 @@ function getDirectionalDistance(current, candidate, direction) {
     case 'ArrowRight':
       if (candidate.gx < currentRight) return null;
       return {
+        inLane: point.gy >= candidate.gy && point.gy < candidateBottom,
+        sameRow: candidate.gy === point.gy,
         forward: candidate.gx - currentRight,
-        crossAxis: centerDistance(current.gy, currentBottom, candidate.gy, candidateBottom)
+        crossAxis: Math.abs(point.gy - clamp(point.gy, candidate.gy, candidateBottom - 1))
       };
     case 'ArrowLeft':
       if (candidateRight > current.gx) return null;
       return {
+        inLane: point.gy >= candidate.gy && point.gy < candidateBottom,
+        sameRow: candidate.gy === point.gy,
         forward: current.gx - candidateRight,
-        crossAxis: centerDistance(current.gy, currentBottom, candidate.gy, candidateBottom)
+        crossAxis: Math.abs(point.gy - clamp(point.gy, candidate.gy, candidateBottom - 1))
       };
     case 'ArrowDown':
       if (candidate.gy < currentBottom) return null;
       return {
+        inLane: point.gx >= candidate.gx && point.gx < candidateRight,
         forward: candidate.gy - currentBottom,
-        crossAxis: centerDistance(current.gx, currentRight, candidate.gx, candidateRight)
+        crossAxis: Math.abs(point.gx - clamp(point.gx, candidate.gx, candidateRight - 1))
       };
     case 'ArrowUp':
       if (candidateBottom > current.gy) return null;
       return {
+        inLane: point.gx >= candidate.gx && point.gx < candidateRight,
         forward: current.gy - candidateBottom,
-        crossAxis: centerDistance(current.gx, currentRight, candidate.gx, candidateRight)
+        crossAxis: Math.abs(point.gx - clamp(point.gx, candidate.gx, candidateRight - 1))
       };
     default:
       return null;
   }
 }
 
-function centerDistance(startA, endA, startB, endB) {
-  return Math.abs((startA + endA) / 2 - (startB + endB) / 2);
+function getItemAnchor(item) {
+  return { gx: item.gx, gy: item.gy };
+}
+
+function getEntryPoint(item, direction, point) {
+  const right = item.gx + item.w;
+  const bottom = item.gy + item.h;
+  switch (direction) {
+    case 'ArrowRight':
+      return { gx: item.gx, gy: clamp(point.gy, item.gy, bottom - 1) };
+    case 'ArrowLeft':
+      return { gx: right - 1, gy: clamp(point.gy, item.gy, bottom - 1) };
+    case 'ArrowDown':
+      return { gx: clamp(point.gx, item.gx, right - 1), gy: item.gy };
+    case 'ArrowUp':
+      return { gx: clamp(point.gx, item.gx, right - 1), gy: bottom - 1 };
+    default:
+      return getItemAnchor(item);
+  }
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }
 
 function openGridItem(item) {
   if (item.kind === 'recycle-bin') {
-    getGridItemElement(item.id)?.querySelector('.recycle-bin-open')?.click();
+    openRecycleBinModal();
     return;
   }
   if (item.kind === 'folder') {
@@ -268,6 +382,8 @@ function setActiveItem(itemId) {
 
 export function clearGridKeyboardNavigation() {
   activeItemId = null;
+  navigationPoint = null;
+  navigationHistory = [];
   containerRef?.querySelectorAll('.is-keyboard-active').forEach(element => {
     element.classList.remove('is-keyboard-active');
   });

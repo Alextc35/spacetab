@@ -265,13 +265,20 @@ devices when Sync is enabled.
 Press `Tab` while the page is focused to enter keyboard grid navigation; press
 `Tab` again to leave it. The first visible top-level item receives focus and
 an informational flash confirms both mode changes. `↑/↓/←/→` moves to the
-nearest bookmark or folder in that direction. While
-this navigation is active, `Enter` opens the focused bookmark or folder outside
-edit mode. In edit mode, `Enter` opens the focused item's editor when there is
+nearest bookmark, folder or recycle bin in that direction while keeping the
+remembered row or column used to enter resized cards. Horizontal arrows keep
+the closest item on that row; with at most one empty cell, a diagonal candidate
+is ignored, while two or more empty cells allow the nearest diagonal route.
+Vertical arrows stay in the remembered column and do nothing when that lane is
+empty. While this navigation is active, `Enter` opens the focused bookmark,
+folder or recycle bin outside edit mode. In edit mode, `Enter` opens the
+focused item's editor when there is
 no selection or when that bookmark is the sole selected item; `S` toggles the
 focused bookmark's selection.
 Folders cannot be added to the bookmark selection and flash red when `S` is
 pressed on one.
+When reversing the last arrow movement, navigation returns to the item from
+which that movement started before looking for another candidate.
 
 Outside keyboard grid navigation, `↑/↓/←/→` moves exactly one selected
 top-level bookmark while editing. A bookmark that is already selected remains
