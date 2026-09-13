@@ -5,6 +5,9 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => sessionStorage.clear());
   await page.reload();
   await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
+  // The static developer link can render before the asynchronous application
+  // bootstrap has installed grid keyboard navigation.
+  await expect(page.locator('#bookmark-container')).toHaveAttribute('tabindex', '-1');
 });
 
 async function waitForSaved(page) {
@@ -172,7 +175,10 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
     };
   })).toEqual({
     localAssetCount: 1,
-    localSelection: expect.stringMatching(/^spacetab-local-image:/),
+    localSelection: {
+      reference: expect.stringMatching(/^spacetab-local-image:/),
+      source: 'local'
+    },
     containsLocalSelection: false,
     syncedUrl: fallbackUrl,
     containsImageBytes: false,

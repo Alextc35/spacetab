@@ -70,6 +70,7 @@ globalThis.chrome = {
 
 const { storage, STORAGE_MODES } = await import('../src/js/core/storage.js');
 const { DATA_SCHEMA_VERSION } = await import('../src/js/core/defaults.js');
+const { DEVICE_TRASH_KEY } = await import('../src/js/core/deviceTrash.js');
 
 const SETTINGS = {
   language: 'es',
@@ -173,6 +174,7 @@ test('keeps a local copy when synchronization is disabled', async () => {
   assert.equal(storage.getMode(), STORAGE_MODES.LOCAL);
   assert.equal((await storage.get(null)).bookmarks[0].id, 'local');
   assert.ok(chrome.storage.sync.data.spacetabSyncMeta);
+  assert.equal(chrome.storage.local.data[DEVICE_TRASH_KEY], undefined);
 });
 
 test('uses existing synchronized data instead of overwriting it', async () => {
@@ -186,6 +188,47 @@ test('uses existing synchronized data instead of overwriting it', async () => {
 
   assert.equal(result.source, 'existing');
   assert.equal(result.data.bookmarks[0].id, 'local');
+});
+
+test('adopts and removes recycle-bin contents from a legacy synchronized payload', async () => {
+  const current = await storage.get(null);
+  const legacyTrash = [{
+    id: 'legacy-trash-entry',
+    type: 'bookmark',
+    deletedAt: Date.now(),
+    bookmark: { id: 'legacy-deleted', name: 'Legacy deleted bookmark' }
+  }];
+  const legacyPayload = {
+    ...current,
+    schemaVersion: DATA_SCHEMA_VERSION - 1,
+    trash: legacyTrash
+  };
+  const previousMeta = chrome.storage.sync.data.spacetabSyncMeta;
+
+  await new Promise(resolve => chrome.storage.local.remove(DEVICE_TRASH_KEY, resolve));
+  await new Promise(resolve => chrome.storage.sync.set({
+    spacetabSyncMeta: {
+      ...previousMeta,
+      schemaVersion: DATA_SCHEMA_VERSION - 1,
+      chunkCount: 1,
+      updatedAt: previousMeta.updatedAt + 1,
+      writerDeviceId: 'legacy-device',
+      writeId: 'legacy-write'
+    },
+    'spacetabSyncChunk:0': JSON.stringify(legacyPayload)
+  }, resolve));
+
+  const restored = await storage.get(null);
+  const migratedMeta = chrome.storage.sync.data.spacetabSyncMeta;
+  const migratedPayload = JSON.parse(Array.from(
+    { length: migratedMeta.chunkCount },
+    (_, index) => chrome.storage.sync.data[`spacetabSyncChunk:${index}`]
+  ).join(''));
+
+  assert.equal(restored.trash[0].id, 'legacy-trash-entry');
+  assert.equal(migratedMeta.schemaVersion, DATA_SCHEMA_VERSION);
+  assert.equal(Object.hasOwn(migratedPayload, 'trash'), false);
+  assert.deepEqual(chrome.storage.local.data[DEVICE_TRASH_KEY], restored.trash);
 });
 
 test('identifies synchronized writes from this and other devices', async () => {
@@ -242,20 +285,36 @@ test('chunks values safely below Chrome per-item quota', async () => {
   assert.equal(storedBookmarks[0].name, chunkedData.bookmarks[0].name.trim());
 });
 
-test('reports recycle-bin data as a separate storage category', async () => {
+test('keeps recycle-bin contents on this device and out of synchronized storage', async () => {
+  const trash = [{
+    id: 'trash-entry',
+    type: 'bookmark',
+    deletedAt: Date.now(),
+    bookmark: { ...LOCAL_DATA.bookmarks[0], id: 'deleted' }
+  }];
   await storage.set({
     ...LOCAL_DATA,
-    trash: [{
-      id: 'trash-entry',
-      type: 'bookmark',
-      deletedAt: Date.now(),
-      bookmark: { ...LOCAL_DATA.bookmarks[0], id: 'deleted' }
-    }]
+    trash
   });
 
-  const usage = await storage.getUsage(STORAGE_MODES.SYNC);
-  assertBreakdownMatchesUsage(usage);
-  assert.ok(usage.breakdown.trashBytes > 0);
+  const meta = chrome.storage.sync.data.spacetabSyncMeta;
+  const payload = JSON.parse(Array.from(
+    { length: meta.chunkCount },
+    (_, index) => chrome.storage.sync.data[`spacetabSyncChunk:${index}`]
+  ).join(''));
+  assert.equal(Object.hasOwn(payload, 'trash'), false);
+  const restoredTrash = (await storage.get(null)).trash;
+  assert.equal(restoredTrash[0].id, trash[0].id);
+  assert.equal(restoredTrash[0].bookmark.id, trash[0].bookmark.id);
+  assert.deepEqual(chrome.storage.local.data[DEVICE_TRASH_KEY], restoredTrash);
+
+  const syncUsage = await storage.getUsage(STORAGE_MODES.SYNC);
+  assertBreakdownMatchesUsage(syncUsage);
+  assert.equal(syncUsage.breakdown.trashBytes, 0);
+
+  const localUsage = await storage.getUsage(STORAGE_MODES.LOCAL);
+  assertBreakdownMatchesUsage(localUsage);
+  assert.ok(localUsage.breakdown.trashBytes > 0);
 });
 
 test('rejects synchronized payloads above Chrome quota', async () => {

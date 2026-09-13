@@ -10,6 +10,13 @@ import {
   saveDeviceImageSelections,
   withoutDeviceImages
 } from './deviceImages.js';
+import {
+  clearDeviceTrash,
+  DEVICE_TRASH_KEY,
+  restoreDeviceTrash,
+  saveDeviceTrash,
+  withoutDeviceTrash
+} from './deviceTrash.js';
 
 export const STORAGE_MODES = Object.freeze({
   LOCAL: 'local',
@@ -222,7 +229,8 @@ function getDirectStorageBreakdown(values, { includeLocalImages = false } = {}) 
     let category = 'system';
     if ((key === 'bookmarks' || key === 'folders') && containsBookmarks) {
       category = 'bookmark';
-    } else if (key === 'trash' && containsTrash) {
+    } else if ((key === 'trash' && containsTrash)
+      || (key === DEVICE_TRASH_KEY && Array.isArray(value) && value.length > 0)) {
       category = 'trash';
     } else if (includeLocalImages && key.startsWith(LOCAL_IMAGE_STORAGE_PREFIX)) {
       const reference = `spacetab-local-image:${key.slice(LOCAL_IMAGE_STORAGE_PREFIX.length)}`;
@@ -424,7 +432,9 @@ async function writeLocalData(data) {
 async function writeSyncData(data) {
   const normalized = normalizePersistedData(data);
   await saveDeviceImageSelections(normalized);
-  const chunks = splitForSync(JSON.stringify(withoutDeviceImages(normalized)));
+  await saveDeviceTrash(normalized);
+  const shared = withoutDeviceTrash(withoutDeviceImages(normalized));
+  const chunks = splitForSync(JSON.stringify(shared));
   const previous = await callStorage(
     chrome.storage.sync,
     'get',
@@ -783,10 +793,12 @@ export const storage = {
   async get(keys) {
     await initialize();
     const requestedMode = activeMode;
+    let persistedData = null;
     let data;
 
     try {
-      data = normalizePersistedData(await readData(requestedMode));
+      persistedData = await readData(requestedMode);
+      data = normalizePersistedData(persistedData);
     } catch (error) {
       if (requestedMode !== STORAGE_MODES.SYNC || !isNewerSyncDataError(error)) {
         throw error;
@@ -795,7 +807,19 @@ export const storage = {
       data = await fallBackToLocalData(error);
     }
 
+    if (requestedMode === STORAGE_MODES.SYNC && activeMode === STORAGE_MODES.SYNC) {
+      data = normalizePersistedData(await restoreDeviceTrash(data));
+    }
     data = await restoreDeviceImageSelections(data);
+
+    // Rewrite legacy synchronized payloads once their trash has safely moved
+    // to this device. Future reads then avoid downloading those entries.
+    if (requestedMode === STORAGE_MODES.SYNC
+      && activeMode === STORAGE_MODES.SYNC
+      && persistedData
+      && Object.hasOwn(persistedData, 'trash')) {
+      await writeSyncData(data);
+    }
 
     if (keys === null) return data;
 
@@ -886,13 +910,19 @@ export const storage = {
 
       if (existingSyncData) {
         await saveDeviceImageSelections(nextData);
-        nextData = await restoreDeviceImageSelections(normalizePersistedData(existingSyncData));
+        await saveDeviceTrash(nextData);
+        nextData = normalizePersistedData(
+          await restoreDeviceTrash(normalizePersistedData(existingSyncData))
+        );
+        nextData = await restoreDeviceImageSelections(nextData);
+        await writeSyncData(nextData);
         source = 'existing';
       } else {
         await writeSyncData(nextData);
       }
     } else {
       await writeLocalData(nextData);
+      await clearDeviceTrash();
     }
 
     await callStorage(chrome.storage.local, 'set', {
@@ -942,7 +972,8 @@ function placeConcurrentAdditions(base, latest, data) {
 }
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === STORAGE_MODES.LOCAL && changes[DEVICE_IMAGE_SELECTIONS_KEY]) {
+  if (areaName === STORAGE_MODES.LOCAL
+    && (changes[DEVICE_IMAGE_SELECTIONS_KEY] || changes[DEVICE_TRASH_KEY])) {
     for (const listener of changeListeners) listener({ areaName, origin: 'same-device' });
   }
 

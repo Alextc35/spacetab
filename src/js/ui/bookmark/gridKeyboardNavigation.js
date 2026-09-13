@@ -145,7 +145,7 @@ function canStartGridNavigation() {
 }
 
 function getVisibleGridItems() {
-  const { data: { bookmarks, folders, recycleBin, settings } } = getState();
+  const { data: { bookmarks, folders, settings } } = getState();
   const activeGroupId = settings.activeBookmarkGroupId ?? null;
   const visibleIds = isListView() ? new Set(
     [...containerRef.querySelectorAll('.bookmark-list-item:not([hidden])')]
@@ -158,9 +158,6 @@ function getVisibleGridItems() {
     ...folders
       .filter(folder => (folder.groupId ?? null) === activeGroupId)
       .map(folder => ({ ...folder, kind: 'folder' })),
-    ...(!isListView() && activeGroupId === null && settings.showRecycleBin
-      ? [{ ...recycleBin, kind: 'recycle-bin' }]
-      : [])
   ].filter(item => !visibleIds || visibleIds.has(item.id)).sort((a, b) => (
     a.gy - b.gy
     || a.gx - b.gx

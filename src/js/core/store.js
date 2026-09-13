@@ -5,6 +5,7 @@ import { storage, STORAGE_MODES } from './storage.js';
 import { mergeChanges } from './mergeChanges.js';
 import { clearLocalImages } from './localImages.js';
 import { clearDeviceImageSelections } from './deviceImages.js';
+import { clearDeviceTrash } from './deviceTrash.js';
 
 /**
  * Global application state.
@@ -304,7 +305,8 @@ export async function clearAllData() {
   await deleteSyncedData();
   await Promise.all([
     clearLocalImages(),
-    clearDeviceImageSelections()
+    clearDeviceImageSelections(),
+    clearDeviceTrash()
   ]);
   clearBookmarkHistory();
 }

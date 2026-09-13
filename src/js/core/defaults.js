@@ -3,7 +3,7 @@ import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
 import { DEFAULT_KEYBOARD_SHORTCUTS } from './keyboardShortcuts.js';
 
-export const DATA_SCHEMA_VERSION = 13;
+export const DATA_SCHEMA_VERSION = 14;
 
 export const RECYCLE_BIN_ID = 'spacetab-recycle-bin';
 
