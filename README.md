@@ -275,6 +275,9 @@ folder or recycle bin outside edit mode. In edit mode, `Enter` opens the
 focused item's editor when there is
 no selection or when that bookmark is the sole selected item; `S` toggles the
 focused bookmark's selection.
+Opening a folder, an editor or the recycle bin keeps Tab navigation active and
+returns focus to the same card when the modal closes; only opening a bookmark
+URL leaves the page and ends the mode.
 Folders cannot be added to the bookmark selection and flash red when `S` is
 pressed on one.
 When reversing the last arrow movement, navigation returns to the item from

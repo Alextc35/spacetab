@@ -129,7 +129,9 @@ focused bookmark is the sole selected item; `S` toggles only bookmark selection
 and gives folders a transient unavailable-state signal. The active item is
 transient UI state rendered as a keyboard-focus affordance. Reversing the last
 arrow movement returns to its origin, preserving the route used to enter a
-folder or bookmark.
+folder or bookmark. Opening an in-app folder, editor or recycle-bin modal keeps
+that state and lets the modal manager restore focus to the same card on close;
+bookmark URLs are the one exception because they navigate away from the page.
 
 `keyboardMovement.js` remains responsible for moving one visible, top-level
 selected bookmark in edit mode when keyboard grid navigation is not active.

@@ -682,7 +682,6 @@ test('opens the recycle bin from Tab navigation in either mode', async ({ page }
 
   await enableEditMode(page);
   await expect(page.locator('#bookmark-container')).toBeFocused();
-  await page.keyboard.press('Tab');
   await expect(recycleBin).toHaveClass(/is-keyboard-active/);
   await page.keyboard.press('Enter');
   await expect(page.locator('#recycle-bin-modal')).toBeVisible();
@@ -708,8 +707,8 @@ test('marks the keyboard-focused bookmark with S while editing', async ({ page }
   await page.keyboard.press('Escape');
   await expect(page.locator('#edit-bookmark-modal')).toBeHidden();
 
-  await grid.focus();
-  await page.keyboard.press('Tab');
+  await expect(grid).toBeFocused();
+  await expect(first).toHaveClass(/is-keyboard-active/);
   await page.keyboard.press('ArrowRight');
   await expect(second).toHaveClass(/is-keyboard-active/);
   await expect(first).toHaveClass(/is-selected/);
@@ -765,9 +764,6 @@ test('navigates folders and opens them according to the current edit mode', asyn
 
   await enableEditMode(page);
   await expect(grid).toBeFocused();
-  await page.keyboard.press('Tab');
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowDown');
   await expect(folder).toHaveClass(/is-keyboard-active/);
 
   await page.keyboard.press('s');
@@ -775,6 +771,10 @@ test('navigates folders and opens them according to the current edit mode', asyn
   await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
   await page.keyboard.press('Enter');
   await expect(page.locator('#edit-folder-modal')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#edit-folder-modal')).toBeHidden();
+  await expect(grid).toBeFocused();
+  await expect(folder).toHaveClass(/is-keyboard-active/);
 });
 
 test('prefers the item aligned with the active grid column', async ({ page }) => {

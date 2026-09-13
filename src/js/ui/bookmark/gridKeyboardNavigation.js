@@ -134,21 +134,23 @@ function handleGridKeyboardNavigation(event) {
 
     if (item.kind === 'recycle-bin') {
       event.preventDefault();
-      clearGridKeyboardNavigation();
       openGridItem(item);
       return;
     }
 
     if (!ui.isEditing) {
       event.preventDefault();
-      clearGridKeyboardNavigation();
+      // A bookmark leaves the page, so there is no navigation state to restore.
+      // Folders open an in-app modal and keep the active grid item/focus alive.
+      if (item.kind === 'bookmark') {
+        clearGridKeyboardNavigation();
+      }
       openGridItem(item);
       return;
     }
 
     if (!canOpenFocusedItemEditor(item)) return;
     event.preventDefault();
-    clearGridKeyboardNavigation();
     if (item.kind === 'bookmark') openEditBookmark(item.id);
     else openFolderEditor(item.id);
     return;
