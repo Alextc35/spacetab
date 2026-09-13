@@ -472,41 +472,81 @@
 
             <section class="storage-usage" aria-labelledby="storage-usage-title">
               <h3 id="storage-usage-title" data-i18n="settingsModal.sync.usage.title">Disponibilidad de almacenamiento</h3>
-              <article class="storage-usage-item" data-storage-usage-active>
-                <div class="storage-usage-heading">
-                  <strong id="storage-usage-mode">Local</strong>
-                  <span id="storage-usage-summary" data-storage-usage-summary
-                    data-i18n="settingsModal.sync.usage.loading">Calculando…</span>
-                </div>
-                <div id="storage-usage-progress" class="storage-usage-progress" role="progressbar"
-                  aria-label="Local storage usage" aria-valuemin="0" aria-valuemax="100"
-                  aria-valuenow="0" value="0">
-                  <span class="storage-usage-segment storage-usage-segment-system"
-                    data-storage-segment="system"></span>
-                  <span class="storage-usage-segment storage-usage-segment-bookmarks"
-                    data-storage-segment="bookmarks"></span>
-                  <span class="storage-usage-segment storage-usage-segment-trash"
-                    data-storage-segment="trash"></span>
-                </div>
-                <div id="storage-usage-legend" class="storage-usage-legend">
-                  <span class="storage-usage-legend-item">
-                    <i class="storage-usage-dot storage-usage-dot-system" aria-hidden="true"></i>
-                    <span data-i18n="settingsModal.sync.usage.system">Opciones del sistema</span>
-                    <strong id="storage-usage-system">0 B</strong>
-                  </span>
-                  <span class="storage-usage-legend-item">
-                    <i class="storage-usage-dot storage-usage-dot-bookmarks" aria-hidden="true"></i>
-                    <span data-i18n="settingsModal.sync.usage.bookmarks">Bookmarks</span>
-                    <strong id="storage-usage-bookmarks">0 B</strong>
-                  </span>
-                  <span class="storage-usage-legend-item">
-                    <i class="storage-usage-dot storage-usage-dot-trash" aria-hidden="true"></i>
-                    <span data-i18n="settingsModal.sync.usage.trash">Información en papelera</span>
-                    <strong id="storage-usage-trash">0 B</strong>
-                  </span>
-                </div>
-                <small id="storage-usage-available" data-storage-usage-available></small>
-              </article>
+              <div class="storage-usage-items">
+                <article class="storage-usage-item" data-storage-usage-active>
+                  <div class="storage-usage-heading">
+                    <strong id="storage-usage-mode" data-storage-usage-mode>Local</strong>
+                    <span id="storage-usage-summary" data-storage-usage-summary
+                      data-i18n="settingsModal.sync.usage.loading">Calculando…</span>
+                  </div>
+                  <div id="storage-usage-progress" class="storage-usage-progress" role="progressbar"
+                    aria-label="Local storage usage" aria-valuemin="0" aria-valuemax="100"
+                    aria-valuenow="0" value="0">
+                    <span class="storage-usage-segment storage-usage-segment-system"
+                      data-storage-segment="system"></span>
+                    <span class="storage-usage-segment storage-usage-segment-bookmarks"
+                      data-storage-segment="bookmarks"></span>
+                    <span class="storage-usage-segment storage-usage-segment-trash"
+                      data-storage-segment="trash"></span>
+                  </div>
+                  <div id="storage-usage-legend" class="storage-usage-legend">
+                    <span class="storage-usage-legend-item">
+                      <i class="storage-usage-dot storage-usage-dot-system" aria-hidden="true"></i>
+                      <span data-i18n="settingsModal.sync.usage.system">Opciones del sistema</span>
+                      <strong id="storage-usage-system" data-storage-category="system">0 B</strong>
+                    </span>
+                    <span class="storage-usage-legend-item">
+                      <i class="storage-usage-dot storage-usage-dot-bookmarks" aria-hidden="true"></i>
+                      <span data-i18n="settingsModal.sync.usage.bookmarks">Bookmarks</span>
+                      <strong id="storage-usage-bookmarks" data-storage-category="bookmarks">0 B</strong>
+                    </span>
+                    <span class="storage-usage-legend-item">
+                      <i class="storage-usage-dot storage-usage-dot-trash" aria-hidden="true"></i>
+                      <span data-i18n="settingsModal.sync.usage.trash">Información en papelera</span>
+                      <strong id="storage-usage-trash" data-storage-category="trash">0 B</strong>
+                    </span>
+                  </div>
+                  <small id="storage-usage-available" data-storage-usage-available></small>
+                </article>
+
+                <article class="storage-usage-item storage-usage-item-local" data-storage-usage-local hidden>
+                  <div class="storage-usage-heading">
+                    <strong id="storage-usage-local-mode" data-storage-usage-mode>Local</strong>
+                    <span id="storage-usage-local-summary" data-storage-usage-summary
+                      data-i18n="settingsModal.sync.usage.loading">Calculando…</span>
+                  </div>
+
+                  <div id="storage-usage-local-progress" class="storage-usage-progress" role="progressbar"
+                    aria-label="Local storage usage"
+                    data-i18n-aria-label="settingsModal.sync.usage.localAria"
+                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" value="0">
+                    <span class="storage-usage-segment storage-usage-segment-system"
+                      data-storage-segment="system"></span>
+                    <span class="storage-usage-segment storage-usage-segment-synced"
+                      data-storage-segment="synced"></span>
+                    <span class="storage-usage-segment storage-usage-segment-trash"
+                      data-storage-segment="trash"></span>
+                  </div>
+                  <div id="storage-usage-local-legend" class="storage-usage-legend">
+                    <span class="storage-usage-legend-item">
+                      <i class="storage-usage-dot storage-usage-dot-system" aria-hidden="true"></i>
+                      <span data-i18n="settingsModal.sync.usage.system">Opciones del sistema</span>
+                      <strong id="storage-usage-local-system" data-storage-category="system">0 B</strong>
+                    </span>
+                    <span class="storage-usage-legend-item">
+                      <i class="storage-usage-dot storage-usage-dot-synced" aria-hidden="true"></i>
+                      <span data-i18n="settingsModal.sync.usage.sync">Sincronizado</span>
+                      <strong id="storage-usage-local-synced" data-storage-category="synced">0 B</strong>
+                    </span>
+                    <span class="storage-usage-legend-item">
+                      <i class="storage-usage-dot storage-usage-dot-trash" aria-hidden="true"></i>
+                      <span data-i18n="settingsModal.sync.usage.trash">Información en papelera</span>
+                      <strong id="storage-usage-local-trash" data-storage-category="trash">0 B</strong>
+                    </span>
+                  </div>
+                  <small id="storage-usage-local-available" data-storage-usage-available></small>
+                </article>
+              </div>
             </section>
 
             <div class="storage-sync-management">

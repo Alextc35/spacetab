@@ -1994,14 +1994,16 @@ test('persists the synchronized storage choice', async ({ page }) => {
   await expect(page.getByRole('radio', { name: /Synced/ })).toBeChecked();
 });
 
-test('shows storage availability only for the selected mode', async ({ page }) => {
+test('shows selected storage and local storage availability when sync is selected', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
   await page.getByRole('button', { name: '☁️ Sync' }).click();
 
   const usage = page.locator('[data-storage-usage-active]');
+  const localUsage = page.locator('[data-storage-usage-local]');
   const summary = page.locator('#storage-usage-summary');
   await expect(usage).toHaveAttribute('data-storage-usage', 'local');
+  await expect(localUsage).toBeHidden();
   await expect(page.locator('#storage-usage-mode')).toHaveText('Local');
   await expect(summary).toContainText('of 10 MB');
   await expect(summary).toContainText('%');
@@ -2020,10 +2022,27 @@ test('shows storage availability only for the selected mode', async ({ page }) =
   await expect(page.locator('#storage-usage-mode')).toHaveText('Synced');
   await expect(summary).toContainText('of 100 KB');
   await expect(summary).toContainText('%');
-  await expect(page.locator('#storage-usage-progress')).toHaveAttribute('value', /.+/);
+  await expect(usage.locator('#storage-usage-progress')).toHaveAttribute('value', /.+/);
   await expect(legend).not.toContainText('Recycle bin data');
-  await expect(page.locator('[data-storage-segment="trash"]')).toBeHidden();
+  await expect(usage.locator('[data-storage-segment="trash"]')).toBeHidden();
   await expect(page.locator('#storage-usage-trash')).toBeHidden();
+
+  await expect(localUsage).toBeVisible();
+  await expect(localUsage).toHaveAttribute('data-storage-usage', 'local');
+  await expect(localUsage.locator('#storage-usage-local-mode')).toHaveText('Local');
+  await expect(localUsage.locator('#storage-usage-local-summary')).toContainText('of 10 MB');
+  await expect(localUsage.locator('#storage-usage-local-available')).toContainText('available');
+  await expect(localUsage.locator('#storage-usage-local-system')).not.toHaveText('—');
+  await expect(localUsage.locator('#storage-usage-local-synced')).not.toHaveText('—');
+  await expect(localUsage.locator('#storage-usage-local-trash')).not.toHaveText('—');
+  await expect(localUsage.locator('#storage-usage-local-progress [data-storage-segment="synced"]'))
+    .not.toHaveAttribute('style', /width: 0%/);
+  await expect(localUsage.locator('#storage-usage-local-progress [data-storage-segment="trash"]'))
+    .toBeVisible();
+  await expect(localUsage.locator('[role="progressbar"]')).toHaveCount(1);
+  await expect(localUsage.locator('.storage-usage-legend')).toContainText('System options');
+  await expect(localUsage.locator('.storage-usage-legend')).toContainText('Synced');
+  await expect(localUsage.locator('.storage-usage-legend')).toContainText('Recycle bin data');
 });
 
 test('localizes sync status and confirms synchronized data deletion', async ({ page }) => {

@@ -117,6 +117,12 @@ test('reports used, total, and available bytes for both storage areas', async ()
   assert.equal(local.availableBytes, local.quotaBytes - local.usedBytes);
   assert.ok(local.usedBytes >= 0);
   assertBreakdownMatchesUsage(local);
+  assert.deepEqual(local.localBreakdown, {
+    localSystemBytes: 0,
+    syncSystemBytes: 0,
+    syncBookmarkBytes: 0,
+    trashBytes: 0
+  });
 
   assert.equal(sync.mode, STORAGE_MODES.SYNC);
   assert.equal(sync.quotaBytes, 102400);
@@ -164,6 +170,16 @@ test('migrates local data to an empty synchronized area', async () => {
   assert.ok(usage.breakdown.systemBytes > 0);
   assert.ok(usage.breakdown.bookmarkBytes > 0);
   assert.equal(usage.breakdown.trashBytes, 0);
+
+  const localUsage = await storage.getUsage(STORAGE_MODES.LOCAL);
+  const localBreakdown = localUsage.localBreakdown;
+  assert.ok(localBreakdown.localSystemBytes > 0);
+  assert.ok(localBreakdown.syncSystemBytes > 0);
+  assert.ok(localBreakdown.syncBookmarkBytes > 0);
+  assert.equal(
+    Object.values(localBreakdown).reduce((sum, bytes) => sum + bytes, 0),
+    localUsage.usedBytes
+  );
 });
 
 test('keeps a local copy when synchronization is disabled', async () => {

@@ -39,6 +39,8 @@ const LEGACY_SYNC_KEYS = [
   'trash',
   'settings'
 ];
+const SYNC_LOCAL_SYSTEM_KEYS = new Set(['schemaVersion', 'settings', 'recycleBin']);
+const SYNC_LOCAL_BOOKMARK_KEYS = new Set(['bookmarks', 'folders']);
 
 /** @type {'local'|'sync'} */
 let activeMode = STORAGE_MODES.LOCAL;
@@ -241,6 +243,54 @@ function getDirectStorageBreakdown(values, { includeLocalImages = false } = {}) 
   }
 
   return breakdown;
+}
+
+function getLocalStorageBreakdown(values) {
+  const breakdown = {
+    localSystemBytes: 0,
+    syncSystemBytes: 0,
+    syncBookmarkBytes: 0,
+    trashBytes: 0
+  };
+  const containsTrash = hasTrashData(values);
+
+  for (const [key, value] of Object.entries(values)) {
+    let category = 'localSystemBytes';
+    if (SYNC_LOCAL_BOOKMARK_KEYS.has(key)) {
+      category = 'syncBookmarkBytes';
+    } else if (SYNC_LOCAL_SYSTEM_KEYS.has(key)) {
+      category = 'syncSystemBytes';
+    } else if ((key === 'trash' && containsTrash)
+      || (key === DEVICE_TRASH_KEY && Array.isArray(value) && value.length > 0)) {
+      category = 'trashBytes';
+    }
+
+    breakdown[category] += getEntryBytes(key, value);
+  }
+
+  return breakdown;
+}
+
+function scaleLocalStorageBreakdown(breakdown, usedBytes) {
+  const measuredBytes = Object.values(breakdown).reduce((sum, bytes) => sum + bytes, 0);
+  if (measuredBytes <= 0) {
+    return {
+      localSystemBytes: usedBytes,
+      syncSystemBytes: 0,
+      syncBookmarkBytes: 0,
+      trashBytes: 0
+    };
+  }
+
+  const scaled = {};
+  let assignedBytes = 0;
+  const categories = ['syncSystemBytes', 'syncBookmarkBytes', 'trashBytes'];
+  for (const category of categories) {
+    scaled[category] = Math.floor(usedBytes * breakdown[category] / measuredBytes);
+    assignedBytes += scaled[category];
+  }
+  scaled.localSystemBytes = Math.max(0, usedBytes - assignedBytes);
+  return scaled;
 }
 
 function readChunkedSyncPayload(values) {
@@ -501,6 +551,12 @@ async function writeSyncData(data) {
  *     systemBytes: number,
  *     bookmarkBytes: number,
  *     trashBytes: number
+ *   },
+ *   localBreakdown?: {
+ *     localSystemBytes: number,
+ *     syncSystemBytes: number,
+ *     syncBookmarkBytes: number,
+ *     trashBytes: number
  *   }
  * }>}
  */
@@ -523,13 +579,17 @@ async function getStorageUsage(mode) {
     : getDirectStorageBreakdown(values, {
         includeLocalImages: mode === STORAGE_MODES.LOCAL
       });
+  const localBreakdown = mode === STORAGE_MODES.LOCAL
+    ? scaleLocalStorageBreakdown(getLocalStorageBreakdown(values), usedBytes)
+    : undefined;
 
   return {
     mode,
     usedBytes,
     quotaBytes,
     availableBytes: Math.max(0, quotaBytes - usedBytes),
-    breakdown: scaleStorageBreakdown(measuredBreakdown, usedBytes)
+    breakdown: scaleStorageBreakdown(measuredBreakdown, usedBytes),
+    ...(localBreakdown ? { localBreakdown } : {})
   };
 }
 

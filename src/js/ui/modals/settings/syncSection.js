@@ -84,26 +84,53 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   const persistenceIndicator = document.getElementById('storage-persistence-indicator');
   const lastUpdated = document.getElementById('storage-sync-last-updated');
   const deleteSyncData = document.getElementById('storage-sync-delete');
-  const usageItem = document.querySelector('[data-storage-usage-active]');
-  const usageMode = document.getElementById('storage-usage-mode');
-  const usageSummary = document.getElementById('storage-usage-summary');
-  const usageAvailable = document.getElementById('storage-usage-available');
-  const usageProgress = document.getElementById('storage-usage-progress');
-  const usageSegments = {
-    system: document.querySelector('[data-storage-segment="system"]'),
-    bookmarks: document.querySelector('[data-storage-segment="bookmarks"]'),
-    trash: document.querySelector('[data-storage-segment="trash"]')
-  };
-  const usageCategoryValues = {
-    system: document.getElementById('storage-usage-system'),
-    bookmarks: document.getElementById('storage-usage-bookmarks'),
-    trash: document.getElementById('storage-usage-trash')
+  function createUsageView(item, selectors = {}) {
+    const query = (key, fallback) => item?.querySelector(selectors[key] ?? fallback);
+
+    return {
+      item,
+      mode: query('mode', '[data-storage-usage-mode]'),
+      summary: query('summary', '[data-storage-usage-summary]'),
+      available: query('available', '[data-storage-usage-available]'),
+      progress: query('progress', '[role="progressbar"]'),
+      segments: {
+        system: query('systemSegment', '[data-storage-segment="system"]'),
+        bookmarks: query('bookmarksSegment', '[data-storage-segment="bookmarks"]'),
+        synced: query('syncedSegment', '[data-storage-segment="synced"]'),
+        trash: query('trashSegment', '[data-storage-segment="trash"]')
+      },
+      categoryValues: {
+        system: query('systemValue', '[data-storage-category="system"]'),
+        bookmarks: query('bookmarksValue', '[data-storage-category="bookmarks"]'),
+        synced: query('syncedValue', '[data-storage-category="synced"]'),
+        trash: query('trashValue', '[data-storage-category="trash"]')
+      }
+    };
+  }
+
+  const localUsageItem = document.querySelector('[data-storage-usage-local]');
+  const usageViews = {
+    active: createUsageView(document.querySelector('[data-storage-usage-active]')),
+    local: createUsageView(localUsageItem, {
+      mode: '#storage-usage-local-mode',
+      summary: '#storage-usage-local-summary',
+      available: '#storage-usage-local-available',
+      progress: '#storage-usage-local-progress',
+      systemSegment: '#storage-usage-local-progress [data-storage-segment="system"]',
+      syncedSegment: '#storage-usage-local-progress [data-storage-segment="synced"]',
+      trashSegment: '#storage-usage-local-progress [data-storage-segment="trash"]',
+      systemValue: '#storage-usage-local-system',
+      syncedValue: '#storage-usage-local-synced',
+      trashValue: '#storage-usage-local-trash'
+    })
   };
   let syncMetadata = null;
   let metadataError = false;
   let metadataRequestId = 0;
   let storageUsage = null;
   let storageUsageError = false;
+  let localStorageUsage = null;
+  let localStorageUsageError = false;
   let usageRequestId = 0;
   let isDeleting = false;
   let isTooltipPinned = false;
@@ -210,16 +237,42 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
     return getDraftStorageMode() ?? getStorageMode();
   }
 
-  function renderStorageBreakdown(breakdown, quotaBytes) {
-    const showTrash = getUsageDisplayMode() !== 'sync';
-    const categories = {
-      system: breakdown?.systemBytes,
-      bookmarks: breakdown?.bookmarkBytes,
-      trash: breakdown?.trashBytes
-    };
+  function getUsageBreakdown(view, usage) {
+    if (view.categoryValues.synced) {
+      const localBreakdown = usage?.localBreakdown;
+      return {
+        systemBytes: localBreakdown?.localSystemBytes,
+        syncedBytes: Number.isFinite(localBreakdown?.syncSystemBytes)
+          && Number.isFinite(localBreakdown?.syncBookmarkBytes)
+          ? localBreakdown.syncSystemBytes + localBreakdown.syncBookmarkBytes
+          : undefined,
+        trashBytes: localBreakdown?.trashBytes
+      };
+    }
 
-    usageSegments.trash?.toggleAttribute('hidden', !showTrash);
-    usageCategoryValues.trash?.closest('.storage-usage-legend-item')
+    return {
+      systemBytes: usage?.breakdown?.systemBytes,
+      bookmarkBytes: usage?.breakdown?.bookmarkBytes,
+      trashBytes: usage?.breakdown?.trashBytes
+    };
+  }
+
+  function renderStorageBreakdown(view, breakdown, quotaBytes, modeKey) {
+    const showTrash = modeKey !== 'sync';
+    const categories = view.categoryValues.synced
+      ? {
+          system: breakdown?.systemBytes,
+          synced: breakdown?.syncedBytes,
+          trash: breakdown?.trashBytes
+        }
+      : {
+          system: breakdown?.systemBytes,
+          bookmarks: breakdown?.bookmarkBytes,
+          trash: breakdown?.trashBytes
+        };
+
+    view.segments.trash?.toggleAttribute('hidden', !showTrash);
+    view.categoryValues.trash?.closest('.storage-usage-legend-item')
       ?.toggleAttribute('hidden', !showTrash);
 
     for (const [category, bytes] of Object.entries(categories)) {
@@ -228,86 +281,123 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
       const percentage = hasValue && quotaBytes > 0
         ? Math.min(100, (bytes / quotaBytes) * 100)
         : 0;
-      const segment = usageSegments[category];
+      const segment = view.segments[category];
 
       if (segment) {
         segment.style.width = `${percentage}%`;
         segment.title = hasValue
-          ? `${t(`settingsModal.sync.usage.${category}`)}: ${formattedBytes}`
+          ? `${t(`settingsModal.sync.usage.${category === 'synced' ? 'sync' : category}`)}: ${formattedBytes}`
           : '';
       }
-      if (usageCategoryValues[category]) {
-        usageCategoryValues[category].textContent = formattedBytes;
+      if (view.categoryValues[category]) {
+        view.categoryValues[category].textContent = formattedBytes;
       }
     }
   }
 
-  function setStorageProgress(percentage) {
+  function setStorageProgress(view, percentage) {
     const value = Number.isFinite(percentage) ? percentage : 0;
-    usageProgress?.setAttribute('aria-valuenow', String(value));
-    usageProgress?.setAttribute('value', String(value));
+    view.progress?.setAttribute('aria-valuenow', String(value));
+    view.progress?.setAttribute('value', String(value));
   }
 
-  function renderStorageUsage() {
-    if (!usageItem) return;
+  function renderStorageUsageView(view, modeKey, usage, usageError) {
+    if (!view.item) return;
 
-    const mode = getUsageDisplayMode();
-    const modeKey = mode === 'sync' ? 'sync' : 'local';
-    usageItem.dataset.storageUsage = modeKey;
-    usageMode.textContent = t(`settingsModal.sync.usage.${modeKey}`);
-    usageProgress.setAttribute(
+    view.item.dataset.storageUsage = modeKey;
+    if (view.mode) view.mode.textContent = t(`settingsModal.sync.usage.${modeKey}`);
+    view.progress?.setAttribute(
       'aria-label',
       t(`settingsModal.sync.usage.${modeKey}Aria`)
     );
 
-    if (storageUsageError) {
-      usageSummary.textContent = t('settingsModal.sync.usage.error');
-      usageAvailable.textContent = '';
-      setStorageProgress(0);
-      renderStorageBreakdown(null, 0);
+    if (usageError) {
+      if (view.summary) view.summary.textContent = t('settingsModal.sync.usage.error');
+      if (view.available) view.available.textContent = '';
+      setStorageProgress(view, 0);
+      renderStorageBreakdown(view, null, 0, modeKey);
       return;
     }
 
-    if (!storageUsage || storageUsage.mode !== modeKey) {
-      usageSummary.textContent = t('settingsModal.sync.usage.loading');
-      usageAvailable.textContent = '';
-      setStorageProgress(0);
-      renderStorageBreakdown(null, 0);
+    if (!usage || usage.mode !== modeKey) {
+      if (view.summary) view.summary.textContent = t('settingsModal.sync.usage.loading');
+      if (view.available) view.available.textContent = '';
+      setStorageProgress(view, 0);
+      renderStorageBreakdown(view, null, 0, modeKey);
       return;
     }
 
-    const percentage = storageUsage.quotaBytes > 0
-      ? Math.min(100, (storageUsage.usedBytes / storageUsage.quotaBytes) * 100)
+    const percentage = usage.quotaBytes > 0
+      ? Math.min(100, (usage.usedBytes / usage.quotaBytes) * 100)
       : 0;
-    const used = formatBytes(storageUsage.usedBytes);
-    const total = formatBytes(storageUsage.quotaBytes);
-    const free = formatBytes(storageUsage.availableBytes);
+    const used = formatBytes(usage.usedBytes);
+    const total = formatBytes(usage.quotaBytes);
+    const free = formatBytes(usage.availableBytes);
     const percent = formatPercentage(percentage);
 
-    usageSummary.textContent = t(
-      'settingsModal.sync.usage.summary',
-      { used, total, percent }
+    if (view.summary) {
+      view.summary.textContent = t(
+        'settingsModal.sync.usage.summary',
+        { used, total, percent }
+      );
+    }
+    if (view.available) {
+      view.available.textContent = t('settingsModal.sync.usage.available', { free });
+    }
+    setStorageProgress(view, percentage);
+    renderStorageBreakdown(view, getUsageBreakdown(view, usage), usage.quotaBytes, modeKey);
+  }
+
+  function renderStorageUsage() {
+    const modeKey = getUsageDisplayMode() === 'sync' ? 'sync' : 'local';
+    const showLocalUsage = modeKey === 'sync';
+
+    usageViews.local.item?.toggleAttribute('hidden', !showLocalUsage);
+    renderStorageUsageView(
+      usageViews.active,
+      modeKey,
+      storageUsage,
+      storageUsageError
     );
-    usageAvailable.textContent = t('settingsModal.sync.usage.available', { free });
-    setStorageProgress(percentage);
-    renderStorageBreakdown(storageUsage.breakdown, storageUsage.quotaBytes);
+
+    if (showLocalUsage) {
+      renderStorageUsageView(
+        usageViews.local,
+        'local',
+        localStorageUsage,
+        localStorageUsageError
+      );
+    }
   }
 
   async function refreshStorageUsage() {
     const requestId = ++usageRequestId;
-    const mode = getUsageDisplayMode();
+    const modeKey = getUsageDisplayMode() === 'sync' ? 'sync' : 'local';
     storageUsage = null;
     storageUsageError = false;
+    localStorageUsage = null;
+    localStorageUsageError = false;
     renderStorageUsage();
 
-    try {
-      const usage = await getStorageUsage(mode);
-      if (requestId !== usageRequestId || mode !== getUsageDisplayMode()) return;
-      storageUsage = usage;
-    } catch (error) {
-      if (requestId !== usageRequestId || mode !== getUsageDisplayMode()) return;
-      console.error(`[SETTINGS] Could not read ${mode} storage usage:`, error);
+    const modes = modeKey === 'sync' ? ['sync', 'local'] : ['local'];
+    const results = await Promise.allSettled(modes.map(mode => getStorageUsage(mode)));
+    if (requestId !== usageRequestId || modeKey !== getUsageDisplayMode()) return;
+
+    const [activeResult, localResult] = results;
+    if (activeResult.status === 'fulfilled') {
+      storageUsage = activeResult.value;
+    } else {
+      console.error(`[SETTINGS] Could not read ${modes[0]} storage usage:`, activeResult.reason);
       storageUsageError = true;
+    }
+
+    if (modeKey === 'sync') {
+      if (localResult.status === 'fulfilled') {
+        localStorageUsage = localResult.value;
+      } else {
+        console.error('[SETTINGS] Could not read local storage usage:', localResult.reason);
+        localStorageUsageError = true;
+      }
     }
 
     renderStorageUsage();

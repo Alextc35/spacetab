@@ -637,12 +637,22 @@
   font-size: 13px;
 }
 
+.storage-usage-items {
+  display: grid;
+  gap: 16px;
+}
+
 .storage-usage-item {
   --storage-system-color: #4aa8ff;
   --storage-bookmarks-color: #8b7cf6;
   --storage-trash-color: #ff7a6b;
 
   min-width: 0;
+}
+
+.storage-usage-item + .storage-usage-item {
+  padding-top: 16px;
+  border-top: 1px solid var(--ui-divider);
 }
 
 .storage-usage-heading {
@@ -697,6 +707,11 @@
 }
 
 .storage-usage-segment-bookmarks {
+  background: var(--storage-bookmarks-color);
+}
+
+.storage-usage-segment-synced,
+.storage-usage-dot-synced {
   background: var(--storage-bookmarks-color);
 }
 
