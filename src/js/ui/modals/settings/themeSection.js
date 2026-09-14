@@ -41,7 +41,7 @@ export function initThemeSection({
   /**
    * Background mode and appearance controls.
    */
-  const bgDefault = document.getElementById('settings-theme-bg-default');
+  const bgImageMode = document.getElementById('settings-theme-bg-image-mode');
   const bgSolid = document.getElementById('settings-theme-bg-solid');
   const bgSolidColorField = document.getElementById('settings-theme-bg-solid-color-field');
   const bgColorInput = document.getElementById('settings-theme-bg-color');
@@ -97,12 +97,19 @@ export function initThemeSection({
     bgLocalColorInput.value = value;
   }
 
+  function setBackgroundMode(mode) {
+    bgImageMode.checked = mode === 'image';
+    bgSolid.checked = mode === 'solid';
+    setDraftThemeValue('backgroundDefault', mode === 'default');
+    setDraftThemeValue('backgroundSolid', mode === 'solid');
+  }
+
   /**
    * Updates the theme background preview based on the current draft state.
    *
    * Behavior:
    * - clears previous inline styles
-   * - shows the default wallpaper when default background is enabled
+   * - shows the default wallpaper when neither custom mode is selected
    * - otherwise applies the selected background color and optional image
    */
   function updatePreview() {
@@ -145,17 +152,17 @@ export function initThemeSection({
    * according to the current draft values.
    *
    * Rules:
-   * - default and solid backgrounds preserve saved custom images
+   * - the default and solid backgrounds preserve saved custom images
    * - the color picker stays available as the image's transparent base layer
-   * - image controls are hidden and disabled in default and solid-only modes
+   * - image controls are visible only while image mode is selected
    * - solid color mode preserves configured images without displaying them
    * - preview is refreshed after state updates
    */
   function updateStates() {
     const draft = getDraftTheme();
-    const backgroundDefault = bgDefault.checked;
-    const backgroundSolid = bgSolid.checked && !backgroundDefault;
-    const imagesDisabled = backgroundDefault || backgroundSolid;
+    const backgroundImage = bgImageMode.checked && !bgSolid.checked;
+    const backgroundSolid = bgSolid.checked && !backgroundImage;
+    const imagesDisabled = !backgroundImage;
     const hasLocalImage = hasImageValue(draft.backgroundImageLocal);
     const activeSource = hasLocalImage && draft.backgroundImageSource !== 'url'
       ? 'local'
@@ -201,7 +208,7 @@ export function initThemeSection({
       getDraftStorageMode() ?? getStorageMode()
     );
 
-    bgDefault.checked = draft.backgroundDefault || false;
+    bgImageMode.checked = !draft.backgroundDefault && !draft.backgroundSolid;
     bgSolid.checked = draft.backgroundSolid || false;
     bgColorInput.value = draft.backgroundColor;
     syncImageColorInputs(draft.backgroundImageColor);
@@ -277,16 +284,10 @@ export function initThemeSection({
   });
 
   /**
-   * Toggles whether the theme should use the default background
-   * and refreshes dependent UI state.
+   * Selects or clears image mode. Clearing it returns to the default theme.
    */
-  bgDefault.addEventListener('change', () => {
-    setDraftThemeValue('backgroundDefault', bgDefault.checked);
-    if (bgDefault.checked) {
-      bgSolid.checked = false;
-      setDraftThemeValue('backgroundSolid', false);
-    }
-
+  bgImageMode.addEventListener('change', () => {
+    setBackgroundMode(bgImageMode.checked ? 'image' : 'default');
     updateStates();
     onRequestSaveStateUpdate();
   });
@@ -310,12 +311,7 @@ export function initThemeSection({
   });
 
   bgSolid.addEventListener('change', () => {
-    setDraftThemeValue('backgroundSolid', bgSolid.checked);
-    if (bgSolid.checked) {
-      bgDefault.checked = false;
-      setDraftThemeValue('backgroundDefault', false);
-    }
-
+    setBackgroundMode(bgSolid.checked ? 'solid' : 'default');
     updateStates();
     onRequestSaveStateUpdate();
   });
@@ -338,7 +334,7 @@ export function initThemeSection({
 
     const draft = getDraftTheme();
 
-    bgDefault.checked = draft.backgroundDefault;
+    bgImageMode.checked = !draft.backgroundDefault && !draft.backgroundSolid;
     bgSolid.checked = draft.backgroundSolid;
     bgColorInput.value = draft.backgroundColor;
     syncImageColorInputs(draft.backgroundImageColor);

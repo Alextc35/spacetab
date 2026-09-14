@@ -143,7 +143,7 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
   const imageUrl = page.locator('#settings-theme-bg-image');
   const imageReference = page.locator('#settings-theme-bg-local');
   await expect(imageReference).toBeHidden();
-  await page.locator('#settings-theme-bg-default').uncheck();
+  await page.locator('#settings-theme-bg-image-mode').check();
   await imageUrl.fill(fallbackUrl);
   await page.locator('#settings-theme-toggle-bg-image').click();
   await fileInput.setInputFiles({
@@ -220,7 +220,7 @@ test('switches to the default wallpaper without losing the custom URL or local i
   const modal = page.locator('#settings-modal');
   const imageUrl = page.locator('#settings-theme-bg-image');
   const localImage = page.locator('#settings-theme-bg-local');
-  const useDefault = page.locator('#settings-theme-bg-default');
+  const useImage = page.locator('#settings-theme-bg-image-mode');
   const preview = page.locator('#settings-theme-bg-preview');
   const save = page.locator('#settings-modal-save');
   const fallbackUrl = 'https://images.test/fallback.gif';
@@ -239,7 +239,8 @@ test('switches to the default wallpaper without losing the custom URL or local i
   ));
 
   await openTheme();
-  await useDefault.uncheck();
+  await expect(useImage).not.toBeChecked();
+  await useImage.check();
   await imageUrl.fill(fallbackUrl);
   await page.locator('#settings-theme-toggle-bg-image').click();
   await page.locator('#settings-theme-bg-upload-input').setInputFiles({
@@ -254,8 +255,8 @@ test('switches to the default wallpaper without losing the custom URL or local i
   await expect(page.locator('body')).toHaveCSS('background-image', /data:image\/webp/);
 
   await openTheme();
-  await expect(useDefault).toBeEnabled();
-  await useDefault.check();
+  await expect(useImage).toBeEnabled();
+  await useImage.uncheck();
   await expect(imageUrl).toHaveValue(fallbackUrl);
   await expect(localImage).toHaveValue('saved-wallpaper.png');
   await expect(imageUrl).toBeDisabled();
@@ -270,11 +271,11 @@ test('switches to the default wallpaper without losing the custom URL or local i
   await reloadSavedPage(page);
   await expect(page.locator('body')).toHaveCSS('background-image', defaultWallpaper);
   await openTheme();
-  await expect(useDefault).toBeChecked();
+  await expect(useImage).not.toBeChecked();
   await expect(imageUrl).toHaveValue(fallbackUrl);
   await expect(localImage).toHaveValue('saved-wallpaper.png');
   await expect(save).toBeHidden();
-  await useDefault.uncheck();
+  await useImage.check();
   await expect(imageUrl).toHaveJSProperty('readOnly', true);
   await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
   await save.click();
@@ -293,11 +294,11 @@ test('switches to the default wallpaper without losing the custom URL or local i
   await reloadSavedPage(page);
   await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
   await openTheme();
-  await useDefault.check();
+  await useImage.uncheck();
   await save.click();
   await expect(page.locator('body')).toHaveCSS('background-image', defaultWallpaper);
   await openTheme();
-  await useDefault.uncheck();
+  await useImage.check();
   await expect(imageUrl).toHaveValue(fallbackUrl);
   await save.click();
   await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
@@ -307,7 +308,7 @@ test('keeps solid and image backgrounds separate while preserving both modes', a
   const modal = page.locator('#settings-modal');
   const imageUrl = page.locator('#settings-theme-bg-image');
   const localImage = page.locator('#settings-theme-bg-local');
-  const useDefault = page.locator('#settings-theme-bg-default');
+  const useImage = page.locator('#settings-theme-bg-image-mode');
   const useSolid = page.locator('#settings-theme-bg-solid');
   const solidColor = page.locator('#settings-theme-bg-color');
   const imageControls = page.locator('#settings-theme-bg-image-controls');
@@ -330,7 +331,8 @@ test('keeps solid and image backgrounds separate while preserving both modes', a
   await expect(solidColor).toBeHidden();
   await expect(imageControls).toBeHidden();
   await expect(imageColor).toBeDisabled();
-  await useDefault.uncheck();
+  await expect(useImage).not.toBeChecked();
+  await useImage.check();
   await expect(imageControls).toBeVisible();
   await expect(imageColor).toBeEnabled();
   const colorPlacement = await page.locator(
@@ -380,11 +382,11 @@ test('keeps solid and image backgrounds separate while preserving both modes', a
   await expect(imageUrlField).toBeHidden();
   await expect(localImage).toBeVisible();
   await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
-  await useDefault.check();
+  await useImage.uncheck();
   await expect(imageControls).toBeHidden();
   await expect(imageColor).toBeDisabled();
   await expect(localImageColor).toBeDisabled();
-  await useDefault.uncheck();
+  await useImage.check();
   await expect(imageControls).toBeVisible();
   await expect(imageUrlField).toBeHidden();
   await expect(localImageColor).toBeVisible();
@@ -395,7 +397,7 @@ test('keeps solid and image backgrounds separate while preserving both modes', a
   await expect(imageUrl).toHaveValue(fallbackUrl);
   await expect(localImage).toHaveValue('preserved.png');
   await useSolid.check();
-  await expect(useDefault).not.toBeChecked();
+  await expect(useImage).not.toBeChecked();
   await expect(solidColor).toBeVisible();
   await expect(solidColor).toBeEnabled();
   await expect(imageControls).toBeHidden();
@@ -407,6 +409,10 @@ test('keeps solid and image backgrounds separate while preserving both modes', a
   await expect(preview).toHaveCSS('background-image', 'none');
   await useSolid.uncheck();
   await expect(solidColor).toBeHidden();
+  await expect(useImage).not.toBeChecked();
+  await expect(imageControls).toBeHidden();
+  await expect(preview).toHaveClass(/is-default-bg/);
+  await useImage.check();
   await expect(imageControls).toBeVisible();
   await expect(localImageColor).toBeEnabled();
   await expect(imageUrl).toBeEnabled();
@@ -423,6 +429,7 @@ test('keeps solid and image backgrounds separate while preserving both modes', a
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(36, 104, 172)');
   await openTheme();
   await expect(useSolid).not.toBeChecked();
+  await expect(useImage).toBeChecked();
   await expect(solidColor).toHaveValue('#8a245f');
   await expect(imageColor).toHaveValue('#2468ac');
   await expect(localImageColor).toHaveValue('#2468ac');
@@ -430,13 +437,13 @@ test('keeps solid and image backgrounds separate while preserving both modes', a
   await expect(imageUrlField).toBeHidden();
   await expect(localImage).toHaveValue('preserved.png');
   await expect(save).toBeHidden();
-  await useDefault.check();
+  await useImage.uncheck();
   await expect(solidColor).toBeHidden();
   await expect(imageControls).toBeHidden();
   await expect(imageColor).toBeDisabled();
   await expect(localImageColor).toBeDisabled();
   await expect(preview).toHaveClass(/is-default-bg/);
-  await useDefault.uncheck();
+  await useImage.check();
   await expect(imageControls).toBeVisible();
   await expect(preview).toHaveCSS('background-image', /data:image\/webp/);
   await expect(imageUrl).toHaveValue(fallbackUrl);
@@ -473,6 +480,10 @@ test('keeps solid and image backgrounds separate while preserving both modes', a
   await expect(preview).toHaveCSS('background-color', 'rgb(138, 36, 95)');
   await expect(preview).toHaveCSS('background-image', 'none');
   await useSolid.uncheck();
+  await expect(useImage).not.toBeChecked();
+  await expect(imageControls).toBeHidden();
+  await expect(preview).toHaveClass(/is-default-bg/);
+  await useImage.check();
   await expect(imageControls).toBeVisible();
   await expect(imageUrl).toHaveValue(fallbackUrl);
   await save.click();
@@ -502,7 +513,7 @@ test('treats a local image as one removable value without copying or changing it
   await page.getByRole('button', { name: '🖼️ Theme' }).click();
 
   const imageUrl = page.locator('#settings-theme-bg-image');
-  await page.locator('#settings-theme-bg-default').uncheck();
+  await page.locator('#settings-theme-bg-image-mode').check();
   await imageUrl.fill('https://images.test/fallback.png');
   await page.locator('#settings-theme-bg-upload-input').setInputFiles({
     name: 'theme.png',
@@ -2005,32 +2016,39 @@ test('shows selected storage and local storage availability when sync is selecte
   await expect(usage).toHaveAttribute('data-storage-usage', 'local');
   await expect(localUsage).toBeHidden();
   await expect(page.locator('#storage-usage-mode')).toHaveText('Local');
-  await expect(summary).toContainText('of 10 MB');
+  await expect(summary).toContainText('of 10 MiB');
   await expect(summary).toContainText('%');
   await expect(page.locator('#storage-usage-available')).toContainText('available');
   const legend = page.locator('#storage-usage-legend');
-  await expect(legend).toContainText('System options');
+  await expect(legend).toContainText('System and metadata');
   await expect(legend).toContainText('Bookmarks');
   await expect(legend).toContainText('Recycle bin data');
   await expect(page.locator('#storage-usage-system')).not.toHaveText('—');
   await expect(page.locator('#storage-usage-bookmarks')).not.toHaveText('—');
   await expect(page.locator('[data-storage-segment="bookmarks"]'))
     .not.toHaveAttribute('style', /width: 0%/);
+  const activeImages = usage.locator('[data-storage-image-breakdown]');
+  await expect(activeImages).toBeVisible();
+  await expect(activeImages).toContainText('Local images');
+  await expect(activeImages).toContainText('Theme');
+  await expect(activeImages).toContainText('Folders');
+  await expect(activeImages.locator('[data-storage-image-total]')).toHaveText('0 B');
 
   await page.getByRole('radio', { name: /Synced/ }).check();
   await expect(usage).toHaveAttribute('data-storage-usage', 'sync');
   await expect(page.locator('#storage-usage-mode')).toHaveText('Synced');
-  await expect(summary).toContainText('of 100 KB');
+  await expect(summary).toContainText('of 100 KiB');
   await expect(summary).toContainText('%');
   await expect(usage.locator('#storage-usage-progress')).toHaveAttribute('value', /.+/);
   await expect(legend.getByText('Recycle bin data', { exact: true })).toBeHidden();
   await expect(usage.locator('[data-storage-segment="trash"]')).toBeHidden();
   await expect(page.locator('#storage-usage-trash')).toBeHidden();
+  await expect(activeImages).toBeHidden();
 
   await expect(localUsage).toBeVisible();
   await expect(localUsage).toHaveAttribute('data-storage-usage', 'local');
   await expect(localUsage.locator('#storage-usage-local-mode')).toHaveText('Local');
-  await expect(localUsage.locator('#storage-usage-local-summary')).toContainText('of 10 MB');
+  await expect(localUsage.locator('#storage-usage-local-summary')).toContainText('of 10 MiB');
   await expect(localUsage.locator('#storage-usage-local-available')).toContainText('available');
   await expect(localUsage.locator('#storage-usage-local-system')).not.toHaveText('—');
   await expect(localUsage.locator('#storage-usage-local-synced')).not.toHaveText('—');
@@ -2040,9 +2058,12 @@ test('shows selected storage and local storage availability when sync is selecte
   await expect(localUsage.locator('#storage-usage-local-progress [data-storage-segment="trash"]'))
     .not.toHaveAttribute('hidden', '');
   await expect(localUsage.locator('[role="progressbar"]')).toHaveCount(1);
-  await expect(localUsage.locator('.storage-usage-legend')).toContainText('System options');
-  await expect(localUsage.locator('.storage-usage-legend')).toContainText('Synced');
+  await expect(localUsage.locator('.storage-usage-legend')).toContainText('System and metadata');
+  await expect(localUsage.locator('.storage-usage-legend')).toContainText('Local Sync copy');
   await expect(localUsage.locator('.storage-usage-legend')).toContainText('Recycle bin data');
+  await expect(localUsage.locator('[data-storage-image-breakdown]')).toBeVisible();
+  await expect(localUsage.locator('[data-storage-image-category="bookmarks"]'))
+    .toHaveText('0 B');
 });
 
 test('localizes sync status and confirms synchronized data deletion', async ({ page }) => {

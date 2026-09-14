@@ -14,6 +14,13 @@ function selectValues(data, keys) {
   );
 }
 
+function getStorageBytes(items) {
+  const encoder = new TextEncoder();
+  return Object.entries(items).reduce((total, [key, value]) => (
+    total + encoder.encode(key).length + encoder.encode(JSON.stringify(value)).length
+  ), 0);
+}
+
 function createStorageArea(areaName) {
   const data = {};
 
@@ -23,6 +30,10 @@ function createStorageArea(areaName) {
 
     get(keys, callback) {
       callback(selectValues(data, keys));
+    },
+
+    getBytesInUse(keys, callback) {
+      callback(getStorageBytes(selectValues(data, keys)));
     },
 
     set(items, callback) {
@@ -71,6 +82,7 @@ globalThis.chrome = {
 const { storage, STORAGE_MODES } = await import('../src/js/core/storage.js');
 const { DATA_SCHEMA_VERSION } = await import('../src/js/core/defaults.js');
 const { DEVICE_TRASH_KEY } = await import('../src/js/core/deviceTrash.js');
+const { DEVICE_IMAGE_SELECTIONS_KEY } = await import('../src/js/core/deviceImages.js');
 
 const SETTINGS = {
   language: 'es',
@@ -133,6 +145,90 @@ test('reports used, total, and available bytes for both storage areas', async ()
   await assert.rejects(storage.getUsage('session'), /Unsupported storage mode/);
 });
 
+test('reports exact local data and image categories', async () => {
+  const localData = chrome.storage.local.data;
+  const previous = structuredClone(localData);
+  const imageKeys = {
+    theme: 'spacetabLocalImage:theme-image',
+    bookmark: 'spacetabLocalImage:bookmark-image',
+    folder: 'spacetabLocalImage:folder-image',
+    trash: 'spacetabLocalImage:trash-image',
+    other: 'spacetabLocalImage:orphan-image'
+  };
+
+  for (const key of Object.keys(localData)) delete localData[key];
+  Object.assign(localData, {
+    settings: SETTINGS,
+    bookmarks: [{ id: 'bookmark', name: 'Bookmark' }],
+    folders: [{ id: 'folder', name: 'Folder' }],
+    trash: [{ id: 'deleted', type: 'bookmark', bookmark: { id: 'deleted-bookmark' } }],
+    [DEVICE_IMAGE_SELECTIONS_KEY]: {
+      theme: { reference: 'spacetab-local-image:theme-image', source: 'local' },
+      'bookmark:bookmark': {
+        reference: 'spacetab-local-image:bookmark-image', source: 'local'
+      },
+      'folder:folder': { reference: 'spacetab-local-image:folder-image', source: 'local' },
+      'trash:deleted:bookmark:deleted-bookmark': {
+        reference: 'spacetab-local-image:trash-image', source: 'local'
+      }
+    },
+    [imageKeys.theme]: { dataUrl: 'data:image/webp;base64,dGhlbWU=', name: 'theme.webp' },
+    [imageKeys.bookmark]: { dataUrl: 'data:image/gif;base64,Ym9va21hcms=', name: 'bookmark.gif' },
+    [imageKeys.folder]: { dataUrl: 'data:image/webp;base64,Zm9sZGVy', name: 'folder.webp' },
+    [imageKeys.trash]: { dataUrl: 'data:image/gif;base64,dHJhc2g=', name: 'trash.gif' },
+    [imageKeys.other]: { dataUrl: 'data:image/webp;base64,b3RoZXI=', name: 'other.webp' }
+  });
+
+  try {
+    const usage = await storage.getUsage(STORAGE_MODES.LOCAL);
+    const imageBreakdown = usage.imageBreakdown;
+
+    assertBreakdownMatchesUsage(usage);
+    assert.equal(imageBreakdown.themeBytes, getStorageBytes({
+      [imageKeys.theme]: localData[imageKeys.theme]
+    }));
+    assert.equal(imageBreakdown.bookmarkBytes, getStorageBytes({
+      [imageKeys.bookmark]: localData[imageKeys.bookmark]
+    }));
+    assert.equal(imageBreakdown.folderBytes, getStorageBytes({
+      [imageKeys.folder]: localData[imageKeys.folder]
+    }));
+    assert.equal(imageBreakdown.trashBytes, getStorageBytes({
+      [imageKeys.trash]: localData[imageKeys.trash]
+    }));
+    assert.equal(imageBreakdown.otherBytes, getStorageBytes({
+      [imageKeys.other]: localData[imageKeys.other]
+    }));
+    assert.equal(
+      imageBreakdown.themeBytes
+        + imageBreakdown.bookmarkBytes
+        + imageBreakdown.folderBytes
+        + imageBreakdown.trashBytes
+        + imageBreakdown.otherBytes,
+      imageBreakdown.totalBytes
+    );
+    assert.equal(
+      usage.breakdown.bookmarkBytes,
+      getStorageBytes({
+        bookmarks: localData.bookmarks,
+        folders: localData.folders,
+        [imageKeys.bookmark]: localData[imageKeys.bookmark],
+        [imageKeys.folder]: localData[imageKeys.folder]
+      })
+    );
+    assert.equal(
+      usage.breakdown.trashBytes,
+      getStorageBytes({
+        trash: localData.trash,
+        [imageKeys.trash]: localData[imageKeys.trash]
+      })
+    );
+  } finally {
+    for (const key of Object.keys(localData)) delete localData[key];
+    Object.assign(localData, previous);
+  }
+});
+
 test('migrates local data to an empty synchronized area', async () => {
   await storage.initialize();
   await storage.set(LOCAL_DATA);
@@ -180,6 +276,26 @@ test('migrates local data to an empty synchronized area', async () => {
     Object.values(localBreakdown).reduce((sum, bytes) => sum + bytes, 0),
     localUsage.usedBytes
   );
+});
+
+test('does not report a stale local snapshot as synchronized recycle-bin data', async () => {
+  const localData = chrome.storage.local.data;
+  const previousTrash = structuredClone(localData.trash);
+  localData.trash = [{
+    id: 'stale-trash',
+    type: 'bookmark',
+    bookmark: { id: 'stale-bookmark' }
+  }];
+
+  try {
+    const usage = await storage.getUsage(STORAGE_MODES.LOCAL);
+    assert.equal(storage.getMode(), STORAGE_MODES.SYNC);
+    assert.equal(usage.breakdown.trashBytes, 0);
+    assert.equal(usage.localBreakdown.trashBytes, 0);
+    assertBreakdownMatchesUsage(usage);
+  } finally {
+    localData.trash = previousTrash;
+  }
 });
 
 test('keeps a local copy when synchronization is disabled', async () => {

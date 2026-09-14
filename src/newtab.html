@@ -492,12 +492,12 @@
                   <div id="storage-usage-legend" class="storage-usage-legend">
                     <span class="storage-usage-legend-item">
                       <i class="storage-usage-dot storage-usage-dot-system" aria-hidden="true"></i>
-                      <span data-i18n="settingsModal.sync.usage.system">Opciones del sistema</span>
+                      <span data-i18n="settingsModal.sync.usage.system">Sistema y metadatos</span>
                       <strong id="storage-usage-system" data-storage-category="system">0 B</strong>
                     </span>
                     <span class="storage-usage-legend-item">
                       <i class="storage-usage-dot storage-usage-dot-bookmarks" aria-hidden="true"></i>
-                      <span data-i18n="settingsModal.sync.usage.bookmarks">Bookmarks</span>
+                      <span data-i18n="settingsModal.sync.usage.bookmarks">Favoritos</span>
                       <strong id="storage-usage-bookmarks" data-storage-category="bookmarks">0 B</strong>
                     </span>
                     <span class="storage-usage-legend-item">
@@ -507,6 +507,35 @@
                     </span>
                   </div>
                   <small id="storage-usage-available" data-storage-usage-available></small>
+                  <div class="storage-image-breakdown" data-storage-image-breakdown hidden>
+                    <div class="storage-image-heading">
+                      <span data-i18n="settingsModal.sync.usage.localImages">Imágenes locales</span>
+                      <strong data-storage-image-total>0 B</strong>
+                    </div>
+                    <div class="storage-image-grid">
+                      <span class="storage-image-item">
+                        <span data-i18n="settingsModal.sync.usage.themeImages">Tema</span>
+                        <strong data-storage-image-category="theme">0 B</strong>
+                      </span>
+                      <span class="storage-image-item">
+                        <span data-i18n="settingsModal.sync.usage.bookmarkImages">Favoritos</span>
+                        <strong data-storage-image-category="bookmarks">0 B</strong>
+                      </span>
+                      <span class="storage-image-item">
+                        <span data-i18n="settingsModal.sync.usage.folderImages">Carpetas</span>
+                        <strong data-storage-image-category="folders">0 B</strong>
+                      </span>
+                      <span class="storage-image-item">
+                        <span data-i18n="settingsModal.sync.usage.trashImages">Papelera</span>
+                        <strong data-storage-image-category="trash">0 B</strong>
+                      </span>
+                      <span class="storage-image-item">
+                        <span data-i18n="settingsModal.sync.usage.otherImages">Otras</span>
+                        <strong data-storage-image-category="other">0 B</strong>
+                      </span>
+                    </div>
+                    <small data-i18n="settingsModal.sync.usage.localImagesHint">Incluidas en los totales anteriores. Las imágenes remotas solo ocupan el texto de su dirección.</small>
+                  </div>
                 </article>
 
                 <article class="storage-usage-item storage-usage-item-local" data-storage-usage-local hidden>
@@ -530,12 +559,12 @@
                   <div id="storage-usage-local-legend" class="storage-usage-legend">
                     <span class="storage-usage-legend-item">
                       <i class="storage-usage-dot storage-usage-dot-system" aria-hidden="true"></i>
-                      <span data-i18n="settingsModal.sync.usage.system">Opciones del sistema</span>
+                      <span data-i18n="settingsModal.sync.usage.system">Sistema y metadatos</span>
                       <strong id="storage-usage-local-system" data-storage-category="system">0 B</strong>
                     </span>
                     <span class="storage-usage-legend-item">
                       <i class="storage-usage-dot storage-usage-dot-synced" aria-hidden="true"></i>
-                      <span data-i18n="settingsModal.sync.usage.sync">Sincronizado</span>
+                      <span data-i18n="settingsModal.sync.usage.localSyncCopy">Copia local de sincronización</span>
                       <strong id="storage-usage-local-synced" data-storage-category="synced">0 B</strong>
                     </span>
                     <span class="storage-usage-legend-item">
@@ -545,6 +574,35 @@
                     </span>
                   </div>
                   <small id="storage-usage-local-available" data-storage-usage-available></small>
+                  <div class="storage-image-breakdown" data-storage-image-breakdown hidden>
+                    <div class="storage-image-heading">
+                      <span data-i18n="settingsModal.sync.usage.localImages">Imágenes locales</span>
+                      <strong data-storage-image-total>0 B</strong>
+                    </div>
+                    <div class="storage-image-grid">
+                      <span class="storage-image-item">
+                        <span data-i18n="settingsModal.sync.usage.themeImages">Tema</span>
+                        <strong data-storage-image-category="theme">0 B</strong>
+                      </span>
+                      <span class="storage-image-item">
+                        <span data-i18n="settingsModal.sync.usage.bookmarkImages">Favoritos</span>
+                        <strong data-storage-image-category="bookmarks">0 B</strong>
+                      </span>
+                      <span class="storage-image-item">
+                        <span data-i18n="settingsModal.sync.usage.folderImages">Carpetas</span>
+                        <strong data-storage-image-category="folders">0 B</strong>
+                      </span>
+                      <span class="storage-image-item">
+                        <span data-i18n="settingsModal.sync.usage.trashImages">Papelera</span>
+                        <strong data-storage-image-category="trash">0 B</strong>
+                      </span>
+                      <span class="storage-image-item">
+                        <span data-i18n="settingsModal.sync.usage.otherImages">Otras</span>
+                        <strong data-storage-image-category="other">0 B</strong>
+                      </span>
+                    </div>
+                    <small data-i18n="settingsModal.sync.usage.localImagesHint">Incluidas en los totales anteriores. Las imágenes remotas solo ocupan el texto de su dirección.</small>
+                  </div>
                 </article>
               </div>
             </section>
@@ -564,10 +622,10 @@
             <div id="settings-bg-theme" class="modal-field">
               <div class="theme-background-options">
                 <div class="checkbox-wrapper">
-                  <input id="settings-theme-bg-default" type="checkbox"
+                  <input id="settings-theme-bg-image-mode" type="checkbox"
                     aria-controls="settings-theme-bg-image-controls">
-                  <label for="settings-theme-bg-default"
-                    data-i18n="settingsModal.theme.backgroundDefault">Por defecto</label>
+                  <label for="settings-theme-bg-image-mode"
+                    data-i18n="settingsModal.theme.backgroundImageMode">Imagen</label>
                 </div>
                 <div class="checkbox-wrapper">
                   <input id="settings-theme-bg-solid" type="checkbox"
@@ -576,6 +634,8 @@
                     data-i18n="settingsModal.theme.backgroundSolid">Color sólido</label>
                 </div>
               </div>
+              <small class="theme-background-default-hint"
+                data-i18n="settingsModal.theme.backgroundDefaultHint">Sin seleccionar ninguna opción se usa el fondo predeterminado de SpaceTab.</small>
               <div id="settings-theme-bg-solid-color-field"
                 class="theme-solid-background-color is-hidden">
                 <label for="settings-theme-bg-color"

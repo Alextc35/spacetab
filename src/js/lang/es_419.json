@@ -159,7 +159,7 @@
     "sourceLocal": "Local",
     "sourceUrl": "URL",
     "remove": "Quitar imagen local",
-    "notice": "Las imágenes locales no se sincronizan con Sync.",
+    "notice": "Las imágenes locales no se sincronizan entre dispositivos.",
     "unnamed": "Imagen local"
   },
   "workspace": {
@@ -331,7 +331,7 @@
       "recycleBin": {
         "title": "Papelera de reciclaje",
         "show": "Mostrar la papelera en la cuadrícula Principal",
-        "hint": "Los elementos eliminados se conservan 28 días y se guardan solo en este dispositivo; no se incluyen en Sync."
+        "hint": "Los elementos eliminados se conservan 28 días y se guardan solo en este dispositivo; no se sincronizan."
       },
       "appearance": {
         "title": "Apariencia",
@@ -361,14 +361,22 @@
         "title": "Disponibilidad de almacenamiento",
         "local": "Local",
         "sync": "Sincronizado",
+        "localSyncCopy": "Copia local de sincronización",
         "localAria": "Uso del almacenamiento local",
         "syncAria": "Uso del almacenamiento sincronizado",
         "loading": "Calculando…",
         "summary": "{{used}} de {{total}} · {{percent}}%",
         "available": "{{free}} disponibles",
-        "system": "Opciones del sistema",
-        "bookmarks": "Bookmarks",
+        "system": "Sistema y metadatos",
+        "bookmarks": "Marcadores",
         "trash": "Información en papelera",
+        "localImages": "Imágenes locales",
+        "themeImages": "Tema",
+        "bookmarkImages": "Marcadores",
+        "folderImages": "Carpetas",
+        "trashImages": "Papelera",
+        "otherImages": "Otras",
+        "localImagesHint": "Incluidas en los totales anteriores. Las imágenes remotas solo ocupan el texto de su dirección.",
         "error": "Uso no disponible"
       },
       "browserSupport": {
@@ -395,7 +403,8 @@
     "theme": {
       "title": "Tema",
       "subtitle": "Fondo de la página",
-      "backgroundDefault": "Predeterminado",
+      "backgroundImageMode": "Imagen",
+      "backgroundDefaultHint": "Si no seleccionas ninguna opción, se usa el fondo predeterminado de SpaceTab.",
       "backgroundSolid": "Color sólido",
       "backgroundColor": "Color:",
       "backgroundImageColor": "Color detrás de la imagen",

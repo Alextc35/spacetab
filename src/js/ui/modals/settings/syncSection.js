@@ -31,31 +31,43 @@ function getBrowserNoticeKey(browser) {
   return 'settingsModal.sync.browserSupport.unsupported';
 }
 
-function formatBytes(bytes) {
+function formatExactBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
 
-  const units = ['B', 'KB', 'MB', 'GB'];
-  const unitIndex = Math.min(
-    Math.floor(Math.log(bytes) / Math.log(1024)),
-    units.length - 1
-  );
-  const value = bytes / (1024 ** unitIndex);
   const language = document.documentElement.lang || 'en';
   const formatted = new Intl.NumberFormat(language, {
-    maximumFractionDigits: value >= 10 ? 0 : 1
-  }).format(value);
+    maximumFractionDigits: 0
+  }).format(Math.round(bytes));
 
-  return `${formatted} ${units[unitIndex]}`;
+  return `${formatted} B`;
+}
+
+function formatQuotaBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
+
+  const language = document.documentElement.lang || 'en';
+  const units = [
+    ['GiB', 1024 ** 3],
+    ['MiB', 1024 ** 2],
+    ['KiB', 1024]
+  ];
+  const exactUnit = units.find(([, size]) => bytes >= size && bytes % size === 0);
+  if (!exactUnit) return formatExactBytes(bytes);
+
+  const [unit, size] = exactUnit;
+  const formatted = new Intl.NumberFormat(language).format(bytes / size);
+
+  return `${formatted} ${unit}`;
 }
 
 function formatPercentage(value) {
   const language = document.documentElement.lang || 'en';
-  if (value > 0 && value < 0.1) {
-    return `<${new Intl.NumberFormat(language).format(0.1)}`;
+  if (value > 0 && value < 0.0001) {
+    return `<${new Intl.NumberFormat(language).format(0.0001)}`;
   }
 
   return new Intl.NumberFormat(language, {
-    maximumFractionDigits: 1
+    maximumFractionDigits: value < 1 ? 4 : 2
   }).format(value);
 }
 
@@ -93,6 +105,8 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
       summary: query('summary', '[data-storage-usage-summary]'),
       available: query('available', '[data-storage-usage-available]'),
       progress: query('progress', '[role="progressbar"]'),
+      imageBreakdown: query('imageBreakdown', '[data-storage-image-breakdown]'),
+      imageTotal: query('imageTotal', '[data-storage-image-total]'),
       segments: {
         system: query('systemSegment', '[data-storage-segment="system"]'),
         bookmarks: query('bookmarksSegment', '[data-storage-segment="bookmarks"]'),
@@ -104,6 +118,13 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
         bookmarks: query('bookmarksValue', '[data-storage-category="bookmarks"]'),
         synced: query('syncedValue', '[data-storage-category="synced"]'),
         trash: query('trashValue', '[data-storage-category="trash"]')
+      },
+      imageValues: {
+        theme: query('themeImageValue', '[data-storage-image-category="theme"]'),
+        bookmarks: query('bookmarkImageValue', '[data-storage-image-category="bookmarks"]'),
+        folders: query('folderImageValue', '[data-storage-image-category="folders"]'),
+        trash: query('trashImageValue', '[data-storage-image-category="trash"]'),
+        other: query('otherImageValue', '[data-storage-image-category="other"]')
       }
     };
   }
@@ -277,7 +298,7 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
 
     for (const [category, bytes] of Object.entries(categories)) {
       const hasValue = Number.isFinite(bytes);
-      const formattedBytes = hasValue ? formatBytes(bytes) : '—';
+      const formattedBytes = hasValue ? formatExactBytes(bytes) : '—';
       const percentage = hasValue && quotaBytes > 0
         ? Math.min(100, (bytes / quotaBytes) * 100)
         : 0;
@@ -286,7 +307,7 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
       if (segment) {
         segment.style.width = `${percentage}%`;
         segment.title = hasValue
-          ? `${t(`settingsModal.sync.usage.${category === 'synced' ? 'sync' : category}`)}: ${formattedBytes}`
+          ? `${t(`settingsModal.sync.usage.${category === 'synced' ? 'localSyncCopy' : category}`)}: ${formattedBytes}`
           : '';
       }
       if (view.categoryValues[category]) {
@@ -299,6 +320,33 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
     const value = Number.isFinite(percentage) ? percentage : 0;
     view.progress?.setAttribute('aria-valuenow', String(value));
     view.progress?.setAttribute('value', String(value));
+  }
+
+  function renderLocalImageBreakdown(view, imageBreakdown, show) {
+    view.imageBreakdown?.toggleAttribute('hidden', !show);
+    if (!show) return;
+
+    const categories = {
+      theme: imageBreakdown?.themeBytes,
+      bookmarks: imageBreakdown?.bookmarkBytes,
+      folders: imageBreakdown?.folderBytes,
+      trash: imageBreakdown?.trashBytes,
+      other: imageBreakdown?.otherBytes
+    };
+
+    if (view.imageTotal) {
+      view.imageTotal.textContent = Number.isFinite(imageBreakdown?.totalBytes)
+        ? formatExactBytes(imageBreakdown.totalBytes)
+        : '—';
+    }
+
+    for (const [category, bytes] of Object.entries(categories)) {
+      if (view.imageValues[category]) {
+        view.imageValues[category].textContent = Number.isFinite(bytes)
+          ? formatExactBytes(bytes)
+          : '—';
+      }
+    }
   }
 
   function renderStorageUsageView(view, modeKey, usage, usageError) {
@@ -316,6 +364,7 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
       if (view.available) view.available.textContent = '';
       setStorageProgress(view, 0);
       renderStorageBreakdown(view, null, 0, modeKey);
+      renderLocalImageBreakdown(view, null, modeKey === 'local');
       return;
     }
 
@@ -324,15 +373,16 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
       if (view.available) view.available.textContent = '';
       setStorageProgress(view, 0);
       renderStorageBreakdown(view, null, 0, modeKey);
+      renderLocalImageBreakdown(view, null, modeKey === 'local');
       return;
     }
 
     const percentage = usage.quotaBytes > 0
       ? Math.min(100, (usage.usedBytes / usage.quotaBytes) * 100)
       : 0;
-    const used = formatBytes(usage.usedBytes);
-    const total = formatBytes(usage.quotaBytes);
-    const free = formatBytes(usage.availableBytes);
+    const used = formatExactBytes(usage.usedBytes);
+    const total = formatQuotaBytes(usage.quotaBytes);
+    const free = formatExactBytes(usage.availableBytes);
     const percent = formatPercentage(percentage);
 
     if (view.summary) {
@@ -346,6 +396,7 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
     }
     setStorageProgress(view, percentage);
     renderStorageBreakdown(view, getUsageBreakdown(view, usage), usage.quotaBytes, modeKey);
+    renderLocalImageBreakdown(view, usage.imageBreakdown, modeKey === 'local');
   }
 
   function renderStorageUsage() {

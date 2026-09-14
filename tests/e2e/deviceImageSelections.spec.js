@@ -43,7 +43,7 @@ test('two devices choose and remove their own images while sharing the fallback 
     }
 
     await openTheme(page);
-    await page.locator('#settings-theme-bg-default').uncheck();
+    await page.locator('#settings-theme-bg-image-mode').check();
     await page.locator('#settings-theme-bg-image').fill(fallback);
     await page.getByRole('button', { name: '☁️ Sync' }).click();
     await page.getByRole('radio', { name: /Synced/ }).check();

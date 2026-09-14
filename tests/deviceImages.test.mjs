@@ -51,6 +51,12 @@ test('migrates only available legacy files and keeps every image slot local thro
   assert.equal(restored.settings.theme.backgroundImageLocal, owned);
   assert.equal(restored.folders[0].backgroundImageLocal, null);
   assert.equal(Object.keys(local[DEVICE_IMAGE_SELECTIONS_KEY]).length, 5);
+  local[DEVICE_IMAGE_SELECTIONS_KEY]['bookmark:removed'] = {
+    reference: owned,
+    source: 'local'
+  };
+  await restoreDeviceImageSelections(restored);
+  assert.equal(Object.hasOwn(local[DEVICE_IMAGE_SELECTIONS_KEY], 'bookmark:removed'), false);
 
   for (const style of styles(restored)) style.backgroundImageLocal = replacement;
   await saveDeviceImageSelections(restored);

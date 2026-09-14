@@ -32,8 +32,9 @@ export function withoutDeviceImages(data) {
 /** Commits local selections, including explicit removals, when the user saves a draft. */
 export async function saveDeviceImageSelections(data) {
   const selections = await readSelections();
-  let changed = false;
-  for (const [key, style] of imageSlots(data)) {
+  const slots = imageSlots(data);
+  let changed = pruneSelections(selections, slots);
+  for (const [key, style] of slots) {
     const reference = isLocalImageReference(style.backgroundImageLocal)
       ? style.backgroundImageLocal : null;
     const selection = {
@@ -67,7 +68,7 @@ export async function restoreDeviceImageSelections(data) {
   ));
   await preloadLocalImages(candidates);
 
-  let changed = false;
+  let changed = pruneSelections(selections, slots);
   for (const [key, style] of slots) {
     const hasSelection = Object.hasOwn(selections, key);
     const reference = hasSelection ? selections[key].reference : style.backgroundImageLocal;
@@ -110,6 +111,19 @@ async function readSelections() {
 
 function sameSelection(left, right) {
   return left?.reference === right.reference && left?.source === right.source;
+}
+
+function pruneSelections(selections, slots) {
+  const validKeys = new Set(slots.map(([key]) => key));
+  let changed = false;
+
+  for (const key of Object.keys(selections)) {
+    if (validKeys.has(key)) continue;
+    delete selections[key];
+    changed = true;
+  }
+
+  return changed;
 }
 
 function writeSelections(selections) {
