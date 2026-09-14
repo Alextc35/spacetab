@@ -99,6 +99,46 @@ test('previews, persists and resets the exterior color without making an unchang
   await expect(saveButton(page)).toBeHidden();
 });
 
+test('shares the bookmark edit control position and adapts it to the folder surface', async ({ page }) => {
+  await start(page, [
+    { id: 'light-folder', gx: 0, gy: 0, w: 1, h: 1, outerBackgroundColor: '#ffffff' },
+    { id: 'dark-folder', gx: 1, gy: 0, w: 1, h: 1, outerBackgroundColor: '#000000' }
+  ]);
+  await page.evaluate(async () => {
+    const { DEFAULT_BOOKMARK } = await import('/src/js/core/defaults.js');
+    const { getState, setState } = await import('/src/js/core/store.js');
+    await setState({ data: { bookmarks: [...getState().data.bookmarks, {
+      ...DEFAULT_BOOKMARK,
+      id: 'action-bookmark',
+      name: 'Action bookmark',
+      url: 'https://action.test',
+      gx: 2,
+      gy: 0,
+      noBackground: false,
+      backgroundColor: '#ffffff'
+    }] } });
+  });
+  await page.keyboard.press('Control+KeyE');
+
+  const bookmark = page.locator('[data-bookmark-id="action-bookmark"]');
+  const lightFolder = page.locator('[data-folder-id="light-folder"]');
+  const darkFolder = page.locator('[data-folder-id="dark-folder"]');
+  const editOffset = locator => locator.evaluate(element => {
+    const card = element.getBoundingClientRect();
+    const action = element.querySelector('.item-action-button.edit').getBoundingClientRect();
+    return {
+      x: Math.round(action.x - card.x),
+      y: Math.round(action.y - card.y),
+      width: Math.round(action.width),
+      height: Math.round(action.height)
+    };
+  });
+
+  expect(await editOffset(lightFolder)).toEqual(await editOffset(bookmark));
+  await expect(lightFolder.locator('.item-action-button.edit')).toHaveClass(/is-light/);
+  await expect(darkFolder.locator('.item-action-button.edit')).toHaveClass(/is-dark/);
+});
+
 test('hides previews and keeps the folder name and saved count independently configurable', async ({ page }) => {
   await start(page);
   await openEditor(page);

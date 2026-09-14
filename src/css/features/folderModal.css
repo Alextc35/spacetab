@@ -97,19 +97,19 @@
 }
 
 .bookmark-folder .item-actions {
-  top: clamp(2px, calc(14cqh - 6px), 8px);
-  left: 0;
-  right: 0;
+  /* The folder has a 1px border; compensate it to match bookmark coordinates. */
+  top: 5px;
+  left: 9px;
+  right: auto;
   width: max-content;
-  margin-inline: auto;
-  gap: clamp(2px, 2cqw, 6px);
+  margin-inline: 0;
+  gap: 2px;
 }
 
 .bookmark-folder .item-action-button {
-  width: clamp(16px, min(26cqw, 22cqh), 24px);
-  height: clamp(16px, min(26cqw, 22cqh), 24px);
+  width: clamp(14px, calc(25cqh - 1px), 20px);
+  height: clamp(14px, calc(25cqh - 1px), 20px);
   border-radius: 25%;
-  font-size: 11px;
 }
 
 .bookmark-folder.is-editing .folder-open {
