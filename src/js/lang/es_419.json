@@ -33,7 +33,8 @@
     "recycleBin": {
       "moved": "Movido a la papelera",
       "restored": "Elementos recuperados",
-      "deletedPermanently": "Elementos eliminados definitivamente"
+      "deletedPermanently": "Elementos eliminados definitivamente",
+      "updated": "Papelera actualizada"
     },
     "workspace": {
       "created": "Espacio de trabajo creado",
@@ -116,7 +117,8 @@
       "folder": "¿Mover “{{name}}” y sus {{count}} marcadores a la papelera?",
       "empty": "¿Eliminar definitivamente todo el contenido de la papelera? Esta acción no se puede deshacer.",
       "deleteSelected": "¿Eliminar definitivamente los {{count}} elementos seleccionados? Esta acción no se puede deshacer.",
-      "noSpace": "No se pudieron recuperar {{count}} elementos porque no hay espacio suficiente en la cuadrícula. Permanecen en la papelera."
+      "noSpace": "No se pudieron recuperar {{count}} elementos porque no hay espacio suficiente en la cuadrícula. Permanecen en la papelera.",
+      "cancel": "¿Descartar los cambios de la papelera?"
     },
     "settings": {
       "cancel": "¿Descartar los cambios de la configuración?",
@@ -268,7 +270,24 @@
     "restoreAll": "Recuperar todo",
     "deleteAll": "Eliminar todo",
     "restoreSelected": "Recuperar seleccionados",
-    "deleteSelected": "Eliminar seleccionados"
+    "deleteSelected": "Eliminar seleccionados",
+    "editor": {
+      "title": "Personalizar papelera",
+      "appearance": "Apariencia",
+      "customBackground": "Usar fondo personalizado",
+      "backgroundColor": "Color de fondo:",
+      "iconColor": "Color del ícono:",
+      "customText": "Usar color de texto personalizado",
+      "textColor": "Color del texto:",
+      "elements": "Elementos visibles",
+      "showIcon": "Mostrar ícono",
+      "showName": "Mostrar nombre",
+      "showCount": "Mostrar cantidad de elementos",
+      "visible": "Mostrar la papelera en la cuadrícula Principal",
+      "preview": "Vista previa",
+      "actions": "Acciones de la papelera",
+      "edit": "Personalizar papelera"
+    }
   },
   "validation": {
     "preset": {

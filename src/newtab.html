@@ -347,6 +347,81 @@
     </div>
   </div>
 
+  <div id="edit-recycle-bin-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-card modal-xl modal-recycle-bin-editor">
+      <header class="edit-bookmark-modal-header">
+        <h2 data-i18n="recycleBin.editor.title">Customize recycle bin</h2>
+      </header>
+      <div class="recycle-bin-editor-form">
+        <div class="edit-bookmark-modal-layout">
+          <div class="edit-bookmark-modal-panel">
+            <div class="modal-field recycle-bin-editor-options custom-scrollbar">
+              <h3 data-i18n="recycleBin.editor.appearance">Appearance</h3>
+              <div class="checkbox-wrapper">
+                <input id="recycle-bin-editor-custom-background" type="checkbox">
+                <label for="recycle-bin-editor-custom-background"
+                  data-i18n="recycleBin.editor.customBackground">Use custom background</label>
+              </div>
+              <div class="edit-bookmark-modal-color-options">
+                <label for="recycle-bin-editor-background-color"
+                  data-i18n="recycleBin.editor.backgroundColor">Background color:</label>
+                <input id="recycle-bin-editor-background-color" type="color">
+              </div>
+              <div class="edit-bookmark-modal-color-options">
+                <label for="recycle-bin-editor-icon-color"
+                  data-i18n="recycleBin.editor.iconColor">Icon color:</label>
+                <input id="recycle-bin-editor-icon-color" type="color">
+              </div>
+              <div class="checkbox-wrapper">
+                <input id="recycle-bin-editor-custom-text" type="checkbox">
+                <label for="recycle-bin-editor-custom-text"
+                  data-i18n="recycleBin.editor.customText">Use custom text color</label>
+              </div>
+              <div class="edit-bookmark-modal-color-options">
+                <label for="recycle-bin-editor-text-color"
+                  data-i18n="recycleBin.editor.textColor">Text color:</label>
+                <input id="recycle-bin-editor-text-color" type="color">
+              </div>
+
+              <h3 data-i18n="recycleBin.editor.elements">Visible elements</h3>
+              <div class="checkbox-wrapper">
+                <input id="recycle-bin-editor-show-icon" type="checkbox" checked>
+                <label for="recycle-bin-editor-show-icon"
+                  data-i18n="recycleBin.editor.showIcon">Show icon</label>
+              </div>
+              <div class="checkbox-wrapper">
+                <input id="recycle-bin-editor-show-name" type="checkbox" checked>
+                <label for="recycle-bin-editor-show-name"
+                  data-i18n="recycleBin.editor.showName">Show name</label>
+              </div>
+              <div class="checkbox-wrapper">
+                <input id="recycle-bin-editor-show-count" type="checkbox" checked>
+                <label for="recycle-bin-editor-show-count"
+                  data-i18n="recycleBin.editor.showCount">Show item count</label>
+              </div>
+              <div class="checkbox-wrapper recycle-bin-editor-visibility">
+                <input id="recycle-bin-editor-visible" type="checkbox" checked>
+                <label for="recycle-bin-editor-visible"
+                  data-i18n="recycleBin.editor.visible">Show recycle bin on the main grid</label>
+              </div>
+            </div>
+          </div>
+          <div class="edit-bookmark-modal-preview-panel">
+            <h3 data-i18n="recycleBin.editor.preview">Preview</h3>
+            <div id="recycle-bin-editor-preview" class="recycle-bin-editor-preview"></div>
+          </div>
+        </div>
+      </div>
+      <footer class="modal-actions">
+        <button id="edit-recycle-bin-modal-cancel" class="btn btn-ghost" type="button"
+          data-i18n="buttons.cancel">Cancel</button>
+        <button id="edit-recycle-bin-modal-save" class="btn btn-primary" type="button"
+          data-i18n="buttons.save">Save</button>
+      </footer>
+    </div>
+  </div>
+
   <div id="settings-modal" class="modal">
     <div class="modal-overlay"></div>
     <div class="modal-card modal-lg">

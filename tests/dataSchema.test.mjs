@@ -301,7 +301,18 @@ test('round-trips recycle bin geometry and deleted folder contents', () => {
   const migrated = migratePersistedData({
     bookmarks: [],
     folders: [],
-    recycleBin: { gx: 8, gy: 2, w: 3, h: 2 },
+    recycleBin: {
+      gx: 8,
+      gy: 2,
+      w: 3,
+      h: 2,
+      backgroundColor: '#663399',
+      iconColor: '#FFAA00',
+      textColor: '#FFFFFF',
+      showIcon: false,
+      showName: false,
+      showCount: true
+    },
     trash: [{
       id: 'deleted-folder-entry',
       type: 'folder',
@@ -315,6 +326,19 @@ test('round-trips recycle bin geometry and deleted folder contents', () => {
   assert.deepEqual(
     { gx: migrated.recycleBin.gx, gy: migrated.recycleBin.gy, w: migrated.recycleBin.w, h: migrated.recycleBin.h },
     { gx: 8, gy: 2, w: 3, h: 2 }
+  );
+  assert.deepEqual(
+    (({ backgroundColor, iconColor, textColor, showIcon, showName, showCount }) => (
+      { backgroundColor, iconColor, textColor, showIcon, showName, showCount }
+    ))(migrated.recycleBin),
+    {
+      backgroundColor: '#663399',
+      iconColor: '#ffaa00',
+      textColor: '#ffffff',
+      showIcon: false,
+      showName: false,
+      showCount: true
+    }
   );
   assert.equal(migrated.settings.showRecycleBin, false);
   assert.equal(migrated.trash[0].deletedAt, deletedAt);

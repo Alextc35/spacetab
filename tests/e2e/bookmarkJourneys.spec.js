@@ -681,7 +681,7 @@ test('navigates the grid with Tab and opens the keyboard-focused bookmark', asyn
   await expect(page).toHaveURL(/#keyboard-opened$/);
 });
 
-test('opens the recycle bin from Tab navigation in either mode', async ({ page }) => {
+test('opens the recycle bin or its editor from Tab navigation according to edit mode', async ({ page }) => {
   const recycleBin = page.locator('#bookmark-container .recycle-bin');
 
   await page.keyboard.press('Tab');
@@ -695,7 +695,39 @@ test('opens the recycle bin from Tab navigation in either mode', async ({ page }
   await expect(page.locator('#bookmark-container')).toBeFocused();
   await expect(recycleBin).toHaveClass(/is-keyboard-active/);
   await page.keyboard.press('Enter');
-  await expect(page.locator('#recycle-bin-modal')).toBeVisible();
+  await expect(page.locator('#edit-recycle-bin-modal')).toBeVisible();
+});
+
+test('customizes and hides the recycle bin from its edit action', async ({ page }) => {
+  await enableEditMode(page);
+  let recycleBin = page.locator('#bookmark-container .recycle-bin');
+  const edit = recycleBin.getByRole('button', { name: 'Customize recycle bin' });
+  await expect(edit).toBeVisible();
+  await edit.click();
+
+  const editor = page.locator('#edit-recycle-bin-modal');
+  await expect(editor).toBeVisible();
+  await page.locator('#recycle-bin-editor-custom-background').check();
+  await page.locator('#recycle-bin-editor-background-color').fill('#663399');
+  await page.locator('#recycle-bin-editor-icon-color').fill('#ffaa00');
+  await page.locator('#recycle-bin-editor-show-icon').uncheck();
+  await page.locator('#recycle-bin-editor-show-name').uncheck();
+  await page.locator('#edit-recycle-bin-modal-save').click();
+  await expect(editor).toBeHidden();
+
+  recycleBin = page.locator('#bookmark-container .recycle-bin');
+  await expect(recycleBin).toHaveClass(/has-recycle-bin-background/);
+  await expect(recycleBin).toHaveClass(/is-recycle-bin-icon-hidden/);
+  await expect(recycleBin).toHaveClass(/is-recycle-bin-name-hidden/);
+  await expect(recycleBin).toHaveCSS('background-color', 'rgb(102, 51, 153)');
+
+  await recycleBin.getByRole('button', { name: 'Customize recycle bin' }).click();
+  await page.locator('#recycle-bin-editor-visible').uncheck();
+  await page.locator('#edit-recycle-bin-modal-save').click();
+  await expect(page.locator('#bookmark-container .recycle-bin')).toHaveCount(0);
+  await expect.poll(() => page.evaluate(async () => (
+    await import('/src/js/core/store.js')
+  ).getState().data.settings.showRecycleBin)).toBe(false);
 });
 
 test('marks the keyboard-focused bookmark with S while editing', async ({ page }) => {

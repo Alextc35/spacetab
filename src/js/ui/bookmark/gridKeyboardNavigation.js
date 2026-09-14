@@ -5,6 +5,7 @@ import { isListView } from '../viewportMode.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { openFolderEditor } from '../modals/folderEditorModal.js';
 import { openRecycleBinModal } from '../modals/recycleBinModal.js';
+import { openRecycleBinEditor } from '../modals/recycleBinEditorModal.js';
 import {
   getSelectedGridItems,
   toggleGridItemSelection
@@ -138,7 +139,7 @@ function handleGridKeyboardNavigation(event) {
     const item = getVisibleGridItems().find(entry => entry.id === activeItemId);
     if (!item) return;
 
-    if (item.kind === 'recycle-bin') {
+    if (item.kind === 'recycle-bin' && !ui.isEditing) {
       event.preventDefault();
       openGridItem(item);
       return;
@@ -158,7 +159,8 @@ function handleGridKeyboardNavigation(event) {
     if (!canOpenFocusedItemEditor(item)) return;
     event.preventDefault();
     if (item.kind === 'bookmark') openEditBookmark(item.id);
-    else openFolderEditor(item.id);
+    else if (item.kind === 'folder') openFolderEditor(item.id);
+    else openRecycleBinEditor();
     return;
   }
 

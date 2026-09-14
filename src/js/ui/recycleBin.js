@@ -3,6 +3,10 @@ import { applyGridItemPosition } from './gridItemLayout.js';
 import { addDragAndResize } from './bookmark/dragResize.js';
 import { openRecycleBinModal } from './modals/recycleBinModal.js';
 import { isGridKeyboardActive } from './bookmark/gridKeyboardNavigation.js';
+import { createItemActionButton } from './bookmark/actions.js';
+import { isVisuallyDark } from './bookmark/utils.js';
+import { openRecycleBinEditor } from './modals/recycleBinEditorModal.js';
+import { applyRecycleBinAppearance, createRecycleBinGlyph } from './recycleBinAppearance.js';
 
 export function createRecycleBinElement({ container, recycleBin, trash, isEditing }) {
   const element = document.createElement('div');
@@ -10,6 +14,7 @@ export function createRecycleBinElement({ container, recycleBin, trash, isEditin
   element.dataset.recycleBinId = recycleBin.id;
   element.classList.toggle('is-editing', isEditing);
   element.classList.toggle('is-keyboard-active', isGridKeyboardActive(recycleBin.id));
+  applyRecycleBinAppearance(element, recycleBin);
   applyGridItemPosition(container, element, recycleBin);
 
   const button = document.createElement('button');
@@ -18,13 +23,7 @@ export function createRecycleBinElement({ container, recycleBin, trash, isEditin
   button.title = t('recycleBin.open');
   button.setAttribute('aria-label', t('recycleBin.openCount', { count: trash.length }));
 
-  const glyph = document.createElement('span');
-  glyph.className = 'recycle-bin-glyph';
-  glyph.setAttribute('aria-hidden', 'true');
-  glyph.append(
-    Object.assign(document.createElement('span'), { className: 'recycle-bin-lid' }),
-    Object.assign(document.createElement('span'), { className: 'recycle-bin-can' })
-  );
+  const glyph = createRecycleBinGlyph();
 
   const caption = document.createElement('span');
   caption.className = 'recycle-bin-caption';
@@ -43,7 +42,7 @@ export function createRecycleBinElement({ container, recycleBin, trash, isEditin
 
   button.append(glyph, caption, dropFeedback);
   button.addEventListener('click', event => {
-    if (isEditing || element.dataset.suppressOpen === 'true') {
+    if (element.classList.contains('is-editing') || element.dataset.suppressOpen === 'true') {
       event.preventDefault();
       return;
     }
@@ -58,5 +57,33 @@ export function createRecycleBinElement({ container, recycleBin, trash, isEditin
 export function enableRecycleBinEditing(container, element, recycleBin) {
   if (element.dataset.editingControlsAttached === 'true') return;
   element.dataset.editingControlsAttached = 'true';
+  addRecycleBinActions(element, recycleBin);
   addDragAndResize(container, element, recycleBin, { kind: 'recycle-bin' });
+}
+
+function addRecycleBinActions(container, recycleBin) {
+  const themeClass = recycleBin.backgroundColor
+    ? (isVisuallyDark(recycleBin) ? 'is-dark' : 'is-light')
+    : defaultActionTheme();
+  const actions = document.createElement('div');
+  actions.className = 'item-actions recycle-bin-item-actions';
+  actions.setAttribute('role', 'group');
+  actions.setAttribute('aria-label', t('recycleBin.editor.actions'));
+
+  const editButton = createItemActionButton(
+    '✎',
+    'edit',
+    themeClass,
+    openRecycleBinEditor
+  );
+  editButton.setAttribute('aria-label', t('recycleBin.editor.edit'));
+  actions.append(editButton);
+  container.append(actions);
+}
+
+function defaultActionTheme() {
+  const interfaceTheme = document.documentElement.dataset.interfaceTheme;
+  if (interfaceTheme === 'light') return 'is-light';
+  if (interfaceTheme === 'dark') return 'is-dark';
+  return globalThis.matchMedia?.('(prefers-color-scheme: dark)')?.matches ? 'is-dark' : 'is-light';
 }

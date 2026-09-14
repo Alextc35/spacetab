@@ -9,9 +9,30 @@ import {
 } from './folderGrid.js';
 import { findFirstFreeSlot, isAreaFree } from './grid.js';
 import { clearBookmarkHistory, getState, setState } from './store.js';
+import { normalizeRecycleBinStyle } from './recycleBinModel.js';
 
 export const RECYCLE_BIN_RETENTION_DAYS = 28;
 export const RECYCLE_BIN_RETENTION_MS = RECYCLE_BIN_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
+/** Updates recycle bin appearance and grid visibility together. */
+export async function updateRecycleBinAppearance(value = {}) {
+  const { data } = getState();
+  const showRecycleBin = value.showRecycleBin !== false;
+  const recycleBin = {
+    ...data.recycleBin,
+    ...normalizeRecycleBinStyle(value),
+    updatedAt: Date.now()
+  };
+
+  await setState({
+    data: {
+      recycleBin,
+      settings: { ...data.settings, showRecycleBin }
+    }
+  });
+  if (showRecycleBin) ensureRecycleBinPosition();
+  return recycleBin;
+}
 
 function makeTrashId() {
   return crypto.randomUUID();

@@ -272,14 +272,13 @@ is ignored, while two or more empty cells allow the nearest diagonal route.
 Vertical arrows stay in the remembered column and do nothing when that lane is
 empty. While this navigation is active, `Enter` opens the focused bookmark,
 folder or recycle bin outside edit mode. In edit mode, `Enter` opens the
-focused item's editor when there is
-no selection or when that bookmark is the sole selected item; `S` toggles the
-focused bookmark's selection.
+focused bookmark, folder or recycle bin editor when there is
+no selection or when that item is the sole selected item; `S` toggles the
+focused bookmark or folder's selection.
 Opening a folder, an editor or the recycle bin keeps Tab navigation active and
 returns focus to the same card when the modal closes; only opening a bookmark
 URL leaves the page and ends the mode.
-Folders cannot be added to the bookmark selection and flash red when `S` is
-pressed on one.
+The recycle bin is excluded from `S` selection.
 When reversing the last arrow movement, navigation returns to the item from
 which that movement started before looking for another candidate.
 

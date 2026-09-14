@@ -1,0 +1,34 @@
+/** Applies persisted recycle bin colors and element visibility. */
+export function applyRecycleBinAppearance(element, recycleBin = {}) {
+  const backgroundColor = recycleBin.backgroundColor || null;
+  const textColor = recycleBin.textColor || null;
+
+  element.classList.toggle('has-recycle-bin-background', Boolean(backgroundColor));
+  element.classList.toggle('is-recycle-bin-icon-hidden', recycleBin.showIcon === false);
+  element.classList.toggle('is-recycle-bin-name-hidden', recycleBin.showName === false);
+  element.classList.toggle('is-recycle-bin-count-hidden', recycleBin.showCount === false);
+
+  if (backgroundColor) {
+    element.style.setProperty('--recycle-bin-background', backgroundColor);
+  } else {
+    element.style.removeProperty('--recycle-bin-background');
+  }
+  element.style.setProperty('--recycle-bin-icon-color', recycleBin.iconColor || '#475569');
+  if (textColor) {
+    element.style.setProperty('--recycle-bin-text-color', textColor);
+  } else {
+    element.style.removeProperty('--recycle-bin-text-color');
+  }
+}
+
+/** Creates the shared recycle bin glyph used by the card and its editor preview. */
+export function createRecycleBinGlyph() {
+  const glyph = document.createElement('span');
+  glyph.className = 'recycle-bin-glyph';
+  glyph.setAttribute('aria-hidden', 'true');
+  glyph.append(
+    Object.assign(document.createElement('span'), { className: 'recycle-bin-lid' }),
+    Object.assign(document.createElement('span'), { className: 'recycle-bin-can' })
+  );
+  return glyph;
+}

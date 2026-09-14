@@ -41,7 +41,8 @@ const {
   purgeExpiredRecycleBinEntries,
   RECYCLE_BIN_RETENTION_MS,
   ensureRecycleBinPosition,
-  restoreTrashEntries
+  restoreTrashEntries,
+  updateRecycleBinAppearance
 } = await import('../src/js/core/recycleBin.js');
 const {
   clearBookmarkHistory,
@@ -196,5 +197,36 @@ test('showing the recycle bin again finds the first available grid slot', async 
     (({ gx, gy }) => ({ gx, gy }))(getState().data.recycleBin),
     { gx: 0, gy: 2 }
   );
+  await waitForPersistence();
+});
+
+test('updates recycle bin appearance and visibility together', async () => {
+  await resetData();
+
+  await updateRecycleBinAppearance({
+    backgroundColor: '#663399',
+    iconColor: '#FFAA00',
+    textColor: '#FFFFFF',
+    showIcon: false,
+    showName: true,
+    showCount: false,
+    showRecycleBin: false
+  });
+
+  const { recycleBin, settings } = getState().data;
+  assert.deepEqual(
+    (({ backgroundColor, iconColor, textColor, showIcon, showName, showCount }) => (
+      { backgroundColor, iconColor, textColor, showIcon, showName, showCount }
+    ))(recycleBin),
+    {
+      backgroundColor: '#663399',
+      iconColor: '#ffaa00',
+      textColor: '#ffffff',
+      showIcon: false,
+      showName: true,
+      showCount: false
+    }
+  );
+  assert.equal(settings.showRecycleBin, false);
   await waitForPersistence();
 });

@@ -101,6 +101,12 @@
  * @property {number} gy
  * @property {number} w
  * @property {number} h
+ * @property {string|null} backgroundColor
+ * @property {string} iconColor
+ * @property {string|null} textColor
+ * @property {boolean} showIcon
+ * @property {boolean} showName
+ * @property {boolean} showCount
  * @property {null} groupId
  * @property {number} updatedAt
  */

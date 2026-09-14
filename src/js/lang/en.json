@@ -33,7 +33,8 @@
     "recycleBin": {
       "moved": "Moved to the recycle bin",
       "restored": "Items restored",
-      "deletedPermanently": "Items permanently deleted"
+      "deletedPermanently": "Items permanently deleted",
+      "updated": "Recycle bin updated"
     },
     "workspace": {
       "created": "Workspace created",
@@ -116,7 +117,8 @@
       "folder": "Move “{{name}}” and its {{count}} bookmarks to the recycle bin?",
       "empty": "Permanently delete everything in the recycle bin? This cannot be undone.",
       "deleteSelected": "Permanently delete {{count}} selected items? This cannot be undone.",
-      "noSpace": "{{count}} items could not be restored because there is not enough grid space. They remain in the recycle bin."
+      "noSpace": "{{count}} items could not be restored because there is not enough grid space. They remain in the recycle bin.",
+      "cancel": "Discard recycle bin changes?"
     },
     "settings": {
       "cancel": "Discard settings changes?",
@@ -268,7 +270,24 @@
     "restoreAll": "Restore all",
     "deleteAll": "Delete all",
     "restoreSelected": "Restore selected",
-    "deleteSelected": "Delete selected"
+    "deleteSelected": "Delete selected",
+    "editor": {
+      "title": "Customize recycle bin",
+      "appearance": "Appearance",
+      "customBackground": "Use custom background",
+      "backgroundColor": "Background color:",
+      "iconColor": "Icon color:",
+      "customText": "Use custom text color",
+      "textColor": "Text color:",
+      "elements": "Visible elements",
+      "showIcon": "Show icon",
+      "showName": "Show name",
+      "showCount": "Show item count",
+      "visible": "Show recycle bin on the main grid",
+      "preview": "Preview",
+      "actions": "Recycle bin actions",
+      "edit": "Customize recycle bin"
+    }
   },
   "validation": {
     "preset": {

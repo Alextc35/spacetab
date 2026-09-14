@@ -15,6 +15,7 @@ import { normalizeKeyboardShortcuts } from './keyboardShortcuts.js';
 import { normalizeFolderStyle } from './folderModel.js';
 import { normalizeBackgroundImage } from './localImages.js';
 import { normalizeInterfaceTheme, normalizeLanguagePreference } from './interfacePreferences.js';
+import { normalizeRecycleBinStyle } from './recycleBinModel.js';
 
 /**
  * Upgrades and normalizes application data from every supported SpaceTab
@@ -116,6 +117,7 @@ function normalizeRecycleBin(value) {
   const h = Math.min(6, normalizeGridSize(source.h ?? DEFAULT_RECYCLE_BIN.h));
   return {
     ...structuredClone(DEFAULT_RECYCLE_BIN),
+    ...normalizeRecycleBinStyle(source),
     gx: Math.min(12 - w, normalizeGridValue(source.gx ?? DEFAULT_RECYCLE_BIN.gx)),
     gy: Math.min(6 - h, normalizeGridValue(source.gy ?? DEFAULT_RECYCLE_BIN.gy)),
     w,

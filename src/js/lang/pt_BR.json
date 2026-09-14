@@ -33,7 +33,8 @@
     "recycleBin": {
       "moved": "Movido para a lixeira",
       "restored": "Itens restaurados",
-      "deletedPermanently": "Itens excluídos permanentemente"
+      "deletedPermanently": "Itens excluídos permanentemente",
+      "updated": "Lixeira atualizada"
     },
     "workspace": {
       "created": "Espaço de trabalho criado",
@@ -116,7 +117,8 @@
       "folder": "Mover “{{name}}” e seus {{count}} favoritos para a lixeira?",
       "empty": "Excluir permanentemente todo o conteúdo da lixeira? Esta ação não pode ser desfeita.",
       "deleteSelected": "Excluir permanentemente os {{count}} itens selecionados? Esta ação não pode ser desfeita.",
-      "noSpace": "{{count}} itens não puderam ser restaurados porque não há espaço suficiente na grade. Eles permanecem na lixeira."
+      "noSpace": "{{count}} itens não puderam ser restaurados porque não há espaço suficiente na grade. Eles permanecem na lixeira.",
+      "cancel": "Descartar as alterações da lixeira?"
     },
     "settings": {
       "cancel": "Descartar as alterações nas configurações?",
@@ -268,7 +270,24 @@
     "restoreAll": "Restaurar tudo",
     "deleteAll": "Excluir tudo",
     "restoreSelected": "Restaurar selecionados",
-    "deleteSelected": "Excluir selecionados"
+    "deleteSelected": "Excluir selecionados",
+    "editor": {
+      "title": "Personalizar lixeira",
+      "appearance": "Aparência",
+      "customBackground": "Usar fundo personalizado",
+      "backgroundColor": "Cor de fundo:",
+      "iconColor": "Cor do ícone:",
+      "customText": "Usar cor de texto personalizada",
+      "textColor": "Cor do texto:",
+      "elements": "Elementos visíveis",
+      "showIcon": "Mostrar ícone",
+      "showName": "Mostrar nome",
+      "showCount": "Mostrar quantidade de itens",
+      "visible": "Mostrar a lixeira na grade Principal",
+      "preview": "Pré-visualização",
+      "actions": "Ações da lixeira",
+      "edit": "Personalizar lixeira"
+    }
   },
   "validation": {
     "preset": {

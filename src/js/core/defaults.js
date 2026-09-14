@@ -3,13 +3,24 @@ import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
 import { DEFAULT_KEYBOARD_SHORTCUTS } from './keyboardShortcuts.js';
 
-export const DATA_SCHEMA_VERSION = 14;
+export const DATA_SCHEMA_VERSION = 15;
 
 export const RECYCLE_BIN_ID = 'spacetab-recycle-bin';
+
+/** Default appearance for the recycle bin card. */
+export const DEFAULT_RECYCLE_BIN_STYLE = Object.freeze({
+  backgroundColor: null,
+  iconColor: '#475569',
+  textColor: null,
+  showIcon: true,
+  showName: true,
+  showCount: true
+});
 
 /** The recycle bin is a first-class grid item, but only in Main. */
 export const DEFAULT_RECYCLE_BIN = Object.freeze({
   id: RECYCLE_BIN_ID,
+  ...DEFAULT_RECYCLE_BIN_STYLE,
   gx: 0,
   gy: 0,
   w: 1,

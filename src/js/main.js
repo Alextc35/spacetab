@@ -31,7 +31,8 @@ import {
 } from './core/recycleBin.js';
 import { initBookmarkModal,
   initAlertModal, initFolderEditorModal, initFolderModal,
-  initRecycleBinModal, initSearchModal, initSettingsModal } from './ui/modals/index.js';
+  initRecycleBinEditorModal, initRecycleBinModal,
+  initSearchModal, initSettingsModal } from './ui/modals/index.js';
 
 /* ======================= DOM References ======================= */
 
@@ -133,6 +134,7 @@ function initModals() {
   initFolderModal();
   initFolderEditorModal();
   initRecycleBinModal();
+  initRecycleBinEditorModal();
   initSettingsModal();
   initBookmarkModal();
 }
