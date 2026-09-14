@@ -403,11 +403,9 @@ function createBookmarkContent(div, bookmark, isEditing, faviconUrl = null) {
 
   if (bookmark.backgroundFavicon) {
     appendMainIcon(linkEl, bookmark, faviconUrl);
-    if (bookmark.showText) {
-      linkEl.appendChild(createTextSpan(bookmark));
-      div.appendChild(linkEl);
-      return;
-    }
+    if (bookmark.showText) linkEl.appendChild(createTextSpan(bookmark));
+    div.appendChild(linkEl);
+    return;
   }
 
   const infoBox = document.createElement('div');

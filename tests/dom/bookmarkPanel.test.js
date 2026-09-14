@@ -4,6 +4,7 @@ import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
 let createBookmarkEditorPanel;
 let createFavicon;
+let createBookmarkElement;
 const newTabHtml = readFileSync(join(process.cwd(), 'src/newtab.html'), 'utf8');
 
 beforeAll(async () => {
@@ -16,6 +17,7 @@ beforeAll(async () => {
 
   ({ createBookmarkEditorPanel } = await import('../../src/js/ui/bookmark/panel.js'));
   ({ createFavicon } = await import('../../src/js/ui/bookmark/favicon.js'));
+  ({ createBookmarkElement } = await import('../../src/js/ui/bookmark/renderer.js'));
 });
 
 beforeEach(() => {
@@ -165,6 +167,27 @@ describe('BookmarkEditorPanel', () => {
       expect(favicon.onerror).toBeNull();
     }
   );
+});
+
+describe('bookmark renderer', () => {
+  test('does not add a small duplicate favicon when background favicon text is hidden', () => {
+    const bookmark = createBookmarkElement({
+      name: 'Twitch',
+      url: 'https://twitch.tv',
+      backgroundFavicon: true,
+      noBackground: false,
+      backgroundColor: '#9146ff',
+      showText: false,
+      showFavicon: true,
+      textColor: '#ffffff'
+    });
+
+    expect(bookmark.classList.contains('is-favicon-bg')).toBe(true);
+    expect(bookmark.style.getPropertyValue('--color-bg-bookmark')).toBe('#9146ff');
+    expect(bookmark.querySelectorAll('.bookmark-favicon')).toHaveLength(1);
+    expect(bookmark.querySelector('.bookmark-info')).toBeNull();
+    expect(bookmark.querySelector('.bookmark-title')).toBeNull();
+  });
 });
 
 function createChromeMock() {
