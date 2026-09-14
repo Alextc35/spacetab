@@ -1,9 +1,15 @@
+import { resolveBackgroundImage } from '../core/localImages.js';
+
 /** Applies persisted recycle bin colors and element visibility. */
 export function applyRecycleBinAppearance(element, recycleBin = {}) {
+  const noBackground = recycleBin.noBackground === true;
   const backgroundColor = recycleBin.backgroundColor || null;
+  const backgroundImage = resolveBackgroundImage(recycleBin);
   const textColor = recycleBin.textColor || null;
 
   element.classList.toggle('has-recycle-bin-background', Boolean(backgroundColor));
+  element.classList.toggle('is-recycle-bin-transparent', noBackground);
+  element.classList.toggle('has-recycle-bin-bg-image', Boolean(backgroundImage));
   element.classList.toggle('is-recycle-bin-icon-hidden', recycleBin.showIcon === false);
   element.classList.toggle('is-recycle-bin-name-hidden', recycleBin.showName === false);
   element.classList.toggle('is-recycle-bin-count-hidden', recycleBin.showCount === false);
@@ -12,6 +18,11 @@ export function applyRecycleBinAppearance(element, recycleBin = {}) {
     element.style.setProperty('--recycle-bin-background', backgroundColor);
   } else {
     element.style.removeProperty('--recycle-bin-background');
+  }
+  if (backgroundImage) {
+    element.style.setProperty('--recycle-bin-bg-image', `url("${backgroundImage}")`);
+  } else {
+    element.style.removeProperty('--recycle-bin-bg-image');
   }
   element.style.setProperty('--recycle-bin-icon-color', recycleBin.iconColor || '#475569');
   if (textColor) {

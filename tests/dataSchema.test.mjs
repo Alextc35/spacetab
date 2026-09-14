@@ -306,7 +306,11 @@ test('round-trips recycle bin geometry and deleted folder contents', () => {
       gy: 2,
       w: 3,
       h: 2,
+      noBackground: true,
       backgroundColor: '#663399',
+      backgroundImageUrl: 'https://images.test/bin.png',
+      backgroundImageSource: 'url',
+      backgroundImageUrlLocked: true,
       iconColor: '#FFAA00',
       textColor: '#FFFFFF',
       showIcon: false,
@@ -328,11 +332,21 @@ test('round-trips recycle bin geometry and deleted folder contents', () => {
     { gx: 8, gy: 2, w: 3, h: 2 }
   );
   assert.deepEqual(
-    (({ backgroundColor, iconColor, textColor, showIcon, showName, showCount }) => (
-      { backgroundColor, iconColor, textColor, showIcon, showName, showCount }
+    (({
+      noBackground, backgroundColor, backgroundImageUrl, backgroundImageSource,
+      backgroundImageUrlLocked, iconColor, textColor, showIcon, showName, showCount
+    }) => (
+      {
+        noBackground, backgroundColor, backgroundImageUrl, backgroundImageSource,
+        backgroundImageUrlLocked, iconColor, textColor, showIcon, showName, showCount
+      }
     ))(migrated.recycleBin),
     {
+      noBackground: true,
       backgroundColor: '#663399',
+      backgroundImageUrl: 'https://images.test/bin.png',
+      backgroundImageSource: 'url',
+      backgroundImageUrlLocked: true,
       iconColor: '#ffaa00',
       textColor: '#ffffff',
       showIcon: false,

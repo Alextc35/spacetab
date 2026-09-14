@@ -62,7 +62,7 @@ export function enableRecycleBinEditing(container, element, recycleBin) {
 }
 
 function addRecycleBinActions(container, recycleBin) {
-  const themeClass = recycleBin.backgroundColor
+  const themeClass = recycleBin.backgroundColor && !recycleBin.noBackground
     ? (isVisuallyDark(recycleBin) ? 'is-dark' : 'is-light')
     : defaultActionTheme();
   const actions = document.createElement('div');

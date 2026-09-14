@@ -7,6 +7,7 @@ function imageSlots(data) {
   return [
     ['theme', data.settings?.theme],
     ['bookmarkDefault', data.settings?.bookmarkDefault],
+    ['recycleBin', data.recycleBin],
     ...(data.bookmarks ?? []).map(item => [`bookmark:${item.id}`, item]),
     ...(data.folders ?? []).map(item => [`folder:${item.id}`, item]),
     ...(data.trash ?? []).flatMap(entry => entry.type === 'folder'

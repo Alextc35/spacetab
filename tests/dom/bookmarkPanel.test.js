@@ -25,6 +25,17 @@ beforeEach(() => {
 });
 
 describe('BookmarkEditorPanel', () => {
+  test('groups favicon controls in the icon tab', () => {
+    const template = document.getElementById('bookmark-form-template').content;
+    const iconPanel = template.querySelector('[data-tab-panel="icon"]');
+    const stylePanel = template.querySelector('[data-tab-panel="style"]');
+
+    expect(iconPanel.querySelector('[data-field="backgroundFavicon"]')).not.toBeNull();
+    expect(iconPanel.querySelector('[data-field="showFavicon"]')).not.toBeNull();
+    expect(stylePanel.querySelector('[data-field="backgroundFavicon"]')).toBeNull();
+    expect(stylePanel.querySelector('[data-field="showFavicon"]')).toBeNull();
+  });
+
   test('uses one panel contract for create and preset modes', () => {
     const createPanel = createBookmarkEditorPanel({
       host: document.getElementById('bookmark-modal-form-host'),

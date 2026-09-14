@@ -272,12 +272,15 @@
     "restoreSelected": "Restaurar selecionados",
     "deleteSelected": "Excluir selecionados",
     "editor": {
-      "title": "Personalizar lixeira",
+      "title": "Editar lixeira",
       "appearance": "Aparência",
-      "customBackground": "Usar fundo personalizado",
       "backgroundColor": "Cor de fundo:",
+      "backgroundImage": "Imagem de fundo (URL):",
+      "lockImage": "Bloquear ou desbloquear a URL da imagem",
+      "copyImage": "Copiar URL da imagem",
+      "clearImage": "Limpar URL da imagem",
+      "noBackground": "Sem fundo",
       "iconColor": "Cor do ícone:",
-      "customText": "Usar cor de texto personalizada",
       "textColor": "Cor do texto:",
       "elements": "Elementos visíveis",
       "showIcon": "Mostrar ícone",
@@ -286,7 +289,14 @@
       "visible": "Mostrar a lixeira na grade Principal",
       "preview": "Pré-visualização",
       "actions": "Ações da lixeira",
-      "edit": "Personalizar lixeira"
+      "edit": "Editar lixeira",
+      "reset": "Restaurar padrões",
+      "sections": {
+        "general": "Geral",
+        "style": "Estilo",
+        "text": "Texto",
+        "icon": "Ícone"
+      }
     }
   },
   "validation": {
@@ -313,13 +323,13 @@
     "name": "Nome:",
     "url": "URL:",
     "backgroundImage": "Imagem de fundo (URL):",
-    "backgroundFavicon": "Usar favicon como fundo",
+    "backgroundFavicon": "Usar ícone como fundo",
     "invertColorBg": "Inverter cores",
     "noBackground": "Sem fundo",
     "backgroundColor": "Cor do favorito:",
     "showText": "Mostrar texto",
     "textColor": "Cor do texto:",
-    "showFavicon": "Mostrar favicon",
+    "showFavicon": "Mostrar ícone",
     "invertColorIcon": "Inverter cores",
     "sections": {
       "general": "Geral",

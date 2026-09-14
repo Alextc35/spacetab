@@ -204,7 +204,11 @@ test('updates recycle bin appearance and visibility together', async () => {
   await resetData();
 
   await updateRecycleBinAppearance({
+    noBackground: true,
     backgroundColor: '#663399',
+    backgroundImageUrl: 'https://images.test/bin.png',
+    backgroundImageSource: 'url',
+    backgroundImageUrlLocked: true,
     iconColor: '#FFAA00',
     textColor: '#FFFFFF',
     showIcon: false,
@@ -215,11 +219,21 @@ test('updates recycle bin appearance and visibility together', async () => {
 
   const { recycleBin, settings } = getState().data;
   assert.deepEqual(
-    (({ backgroundColor, iconColor, textColor, showIcon, showName, showCount }) => (
-      { backgroundColor, iconColor, textColor, showIcon, showName, showCount }
+    (({
+      noBackground, backgroundColor, backgroundImageUrl, backgroundImageSource,
+      backgroundImageUrlLocked, iconColor, textColor, showIcon, showName, showCount
+    }) => (
+      {
+        noBackground, backgroundColor, backgroundImageUrl, backgroundImageSource,
+        backgroundImageUrlLocked, iconColor, textColor, showIcon, showName, showCount
+      }
     ))(recycleBin),
     {
+      noBackground: true,
       backgroundColor: '#663399',
+      backgroundImageUrl: 'https://images.test/bin.png',
+      backgroundImageSource: 'url',
+      backgroundImageUrlLocked: true,
       iconColor: '#ffaa00',
       textColor: '#ffffff',
       showIcon: false,

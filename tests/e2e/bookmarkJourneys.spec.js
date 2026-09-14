@@ -701,17 +701,30 @@ test('opens the recycle bin or its editor from Tab navigation according to edit 
 test('customizes and hides the recycle bin from its edit action', async ({ page }) => {
   await enableEditMode(page);
   let recycleBin = page.locator('#bookmark-container .recycle-bin');
-  const edit = recycleBin.getByRole('button', { name: 'Customize recycle bin' });
+  const edit = recycleBin.getByRole('button', { name: 'Edit recycle bin' });
   await expect(edit).toBeVisible();
   await edit.click();
 
   const editor = page.locator('#edit-recycle-bin-modal');
   await expect(editor).toBeVisible();
-  await page.locator('#recycle-bin-editor-custom-background').check();
+  await expect(editor.getByRole('tab')).toHaveCount(4);
+  await expect(editor.getByRole('tab', { name: 'General' })).toHaveClass(/active/);
+
+  await editor.getByRole('tab', { name: 'Style' }).click();
+  await page.locator('#recycle-bin-editor-no-background').check();
+  await expect(page.locator('#recycle-bin-editor-background-color')).toBeDisabled();
+  await expect(page.locator('.recycle-bin-editor-preview-card'))
+    .toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await page.locator('#recycle-bin-editor-no-background').uncheck();
   await page.locator('#recycle-bin-editor-background-color').fill('#663399');
+
+  await editor.getByRole('tab', { name: 'Icon' }).click();
   await page.locator('#recycle-bin-editor-icon-color').fill('#ffaa00');
   await page.locator('#recycle-bin-editor-show-icon').uncheck();
+
+  await editor.getByRole('tab', { name: 'Text' }).click();
   await page.locator('#recycle-bin-editor-show-name').uncheck();
+  await page.locator('#recycle-bin-editor-text-color').fill('#00ff00');
   await page.locator('#edit-recycle-bin-modal-save').click();
   await expect(editor).toBeHidden();
 
@@ -721,13 +734,62 @@ test('customizes and hides the recycle bin from its edit action', async ({ page 
   await expect(recycleBin).toHaveClass(/is-recycle-bin-name-hidden/);
   await expect(recycleBin).toHaveCSS('background-color', 'rgb(102, 51, 153)');
 
-  await recycleBin.getByRole('button', { name: 'Customize recycle bin' }).click();
+  await recycleBin.getByRole('button', { name: 'Edit recycle bin' }).click();
+  await expect(editor.getByRole('tab', { name: 'General' })).toHaveClass(/active/);
   await page.locator('#recycle-bin-editor-visible').uncheck();
   await page.locator('#edit-recycle-bin-modal-save').click();
   await expect(page.locator('#bookmark-container .recycle-bin')).toHaveCount(0);
   await expect.poll(() => page.evaluate(async () => (
     await import('/src/js/core/store.js')
   ).getState().data.settings.showRecycleBin)).toBe(false);
+});
+
+test('removes and persists the recycle bin background from the style tab', async ({ page }) => {
+  await enableEditMode(page);
+  await page.locator('#bookmark-container .recycle-bin')
+    .getByRole('button', { name: 'Edit recycle bin' })
+    .click();
+
+  const editor = page.locator('#edit-recycle-bin-modal');
+  await editor.getByRole('tab', { name: 'Style' }).click();
+  await page.locator('#recycle-bin-editor-no-background').check();
+  await page.locator('#edit-recycle-bin-modal-save').click();
+
+  let recycleBin = page.locator('#bookmark-container .recycle-bin');
+  await expect(recycleBin).toHaveClass(/is-recycle-bin-transparent/);
+  await expect(recycleBin).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(recycleBin).toHaveCSS('box-shadow', 'none');
+
+  await reloadSavedPage(page);
+  recycleBin = page.locator('#bookmark-container .recycle-bin');
+  await expect(recycleBin).toHaveClass(/is-recycle-bin-transparent/);
+  await expect(recycleBin).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+});
+
+test('restores the recycle bin defaults from the general tab', async ({ page }) => {
+  await enableEditMode(page);
+  let recycleBin = page.locator('#bookmark-container .recycle-bin');
+  await recycleBin.getByRole('button', { name: 'Edit recycle bin' }).click();
+
+  const editor = page.locator('#edit-recycle-bin-modal');
+  await editor.getByRole('tab', { name: 'Style' }).click();
+  await page.locator('#recycle-bin-editor-background-color').fill('#663399');
+  await editor.getByRole('tab', { name: 'Text' }).click();
+  await page.locator('#recycle-bin-editor-show-name').uncheck();
+  await page.locator('#edit-recycle-bin-modal-save').click();
+  await expect(recycleBin).toHaveClass(/is-recycle-bin-name-hidden/);
+
+  await recycleBin.getByRole('button', { name: 'Edit recycle bin' }).click();
+  await expect(editor.getByRole('tab', { name: 'General' })).toHaveClass(/active/);
+  await page.locator('#recycle-bin-editor-reset').click();
+  await expect(page.locator('#recycle-bin-editor-background-color')).toHaveValue(/#[\da-f]{6}/i);
+  await expect(page.locator('#recycle-bin-editor-no-background')).not.toBeChecked();
+  await expect(page.locator('#recycle-bin-editor-show-name')).toBeChecked();
+  await page.locator('#edit-recycle-bin-modal-save').click();
+
+  recycleBin = page.locator('#bookmark-container .recycle-bin');
+  await expect(recycleBin).not.toHaveClass(/is-recycle-bin-name-hidden/);
+  await expect(recycleBin).not.toHaveClass(/has-recycle-bin-background/);
 });
 
 test('marks the keyboard-focused bookmark with S while editing', async ({ page }) => {

@@ -9,7 +9,10 @@ describe('recycle bin appearance', () => {
     const card = document.createElement('div');
     card.append(createRecycleBinGlyph());
     applyRecycleBinAppearance(card, {
+      noBackground: true,
       backgroundColor: '#6d28d9',
+      backgroundImageUrl: 'https://images.test/bin.png',
+      backgroundImageSource: 'url',
       iconColor: '#f59e0b',
       textColor: '#ffffff',
       showIcon: false,
@@ -18,10 +21,15 @@ describe('recycle bin appearance', () => {
     });
 
     expect(card.classList.contains('has-recycle-bin-background')).toBe(true);
+    expect(card.classList.contains('has-recycle-bin-bg-image')).toBe(true);
+    expect(card.classList.contains('is-recycle-bin-transparent')).toBe(true);
     expect(card.classList.contains('is-recycle-bin-icon-hidden')).toBe(true);
     expect(card.classList.contains('is-recycle-bin-name-hidden')).toBe(true);
     expect(card.classList.contains('is-recycle-bin-count-hidden')).toBe(false);
     expect(card.style.getPropertyValue('--recycle-bin-background')).toBe('#6d28d9');
+    expect(card.style.getPropertyValue('--recycle-bin-bg-image')).toContain(
+      'https://images.test/bin.png'
+    );
     expect(card.style.getPropertyValue('--recycle-bin-icon-color')).toBe('#f59e0b');
     expect(card.style.getPropertyValue('--recycle-bin-text-color')).toBe('#ffffff');
     expect(card.querySelector('.recycle-bin-lid')).not.toBeNull();

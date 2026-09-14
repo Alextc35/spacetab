@@ -3,13 +3,18 @@ import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
 import { DEFAULT_KEYBOARD_SHORTCUTS } from './keyboardShortcuts.js';
 
-export const DATA_SCHEMA_VERSION = 15;
+export const DATA_SCHEMA_VERSION = 16;
 
 export const RECYCLE_BIN_ID = 'spacetab-recycle-bin';
 
 /** Default appearance for the recycle bin card. */
 export const DEFAULT_RECYCLE_BIN_STYLE = Object.freeze({
+  noBackground: false,
   backgroundColor: null,
+  backgroundImageUrl: null,
+  backgroundImageLocal: null,
+  backgroundImageSource: 'url',
+  backgroundImageUrlLocked: false,
   iconColor: '#475569',
   textColor: null,
   showIcon: true,

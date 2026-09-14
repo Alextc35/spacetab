@@ -272,12 +272,15 @@
     "restoreSelected": "Restore selected",
     "deleteSelected": "Delete selected",
     "editor": {
-      "title": "Customize recycle bin",
+      "title": "Edit recycle bin",
       "appearance": "Appearance",
-      "customBackground": "Use custom background",
       "backgroundColor": "Background color:",
+      "backgroundImage": "Background image (URL):",
+      "lockImage": "Lock or unlock image URL",
+      "copyImage": "Copy image URL",
+      "clearImage": "Clear image URL",
+      "noBackground": "No background",
       "iconColor": "Icon color:",
-      "customText": "Use custom text color",
       "textColor": "Text color:",
       "elements": "Visible elements",
       "showIcon": "Show icon",
@@ -286,7 +289,14 @@
       "visible": "Show recycle bin on the main grid",
       "preview": "Preview",
       "actions": "Recycle bin actions",
-      "edit": "Customize recycle bin"
+      "edit": "Edit recycle bin",
+      "reset": "Restore defaults",
+      "sections": {
+        "general": "General",
+        "style": "Style",
+        "text": "Text",
+        "icon": "Icon"
+      }
     }
   },
   "validation": {
@@ -313,13 +323,13 @@
     "name": "Name:",
     "url": "URL:",
     "backgroundImage": "Background image (URL):",
-    "backgroundFavicon": "Use favicon as background",
+    "backgroundFavicon": "Use icon as background",
     "invertColorBg": "Invert colors",
     "noBackground": "No background",
     "backgroundColor": "Bookmark color:",
     "showText": "Show text",
     "textColor": "Text color:",
-    "showFavicon": "Show favicon",
+    "showFavicon": "Show icon",
     "invertColorIcon": "Invert icon colors",
     "sections": {
       "general": "General",

@@ -31,6 +31,7 @@ function dataWithImage(reference) {
   return migratePersistedData({
     bookmarks: [{ id: 'bookmark', name: 'Bookmark', ...style }],
     folders: [{ id: 'folder', name: 'Folder', ...style }],
+    recycleBin: style,
     settings: {
       theme: style,
       bookmarkDefault: style,
@@ -41,7 +42,7 @@ function dataWithImage(reference) {
 
 function styles(data) {
   return [data.settings.theme, data.settings.bookmarkDefault, data.settings.bookmarkPresets[0].style,
-    data.bookmarks[0], data.folders[0]];
+    data.bookmarks[0], data.folders[0], data.recycleBin];
 }
 
 test('migrates only available legacy files and keeps every image slot local through remote updates', async () => {
@@ -50,7 +51,7 @@ test('migrates only available legacy files and keeps every image slot local thro
   const restored = await restoreDeviceImageSelections(legacy);
   assert.equal(restored.settings.theme.backgroundImageLocal, owned);
   assert.equal(restored.folders[0].backgroundImageLocal, null);
-  assert.equal(Object.keys(local[DEVICE_IMAGE_SELECTIONS_KEY]).length, 5);
+  assert.equal(Object.keys(local[DEVICE_IMAGE_SELECTIONS_KEY]).length, 6);
   local[DEVICE_IMAGE_SELECTIONS_KEY]['bookmark:removed'] = {
     reference: owned,
     source: 'local'

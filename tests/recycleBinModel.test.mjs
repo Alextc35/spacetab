@@ -2,18 +2,30 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { DEFAULT_RECYCLE_BIN_STYLE } from '../src/js/core/defaults.js';
-import { normalizeRecycleBinStyle } from '../src/js/core/recycleBinModel.js';
+import {
+  normalizeRecycleBinStyle,
+  validateRecycleBinStyle
+} from '../src/js/core/recycleBinModel.js';
 
 test('normalizes recycle bin colors and independently hidden elements', () => {
   assert.deepEqual(normalizeRecycleBinStyle({
+    noBackground: true,
     backgroundColor: '#AA11CC',
+    backgroundImageUrl: 'https://images.test/bin.png',
+    backgroundImageSource: 'url',
+    backgroundImageUrlLocked: true,
     iconColor: '#12AB34',
     textColor: '#F8FAFC',
     showIcon: false,
     showName: false,
     showCount: false
   }), {
+    noBackground: true,
     backgroundColor: '#aa11cc',
+    backgroundImageUrl: 'https://images.test/bin.png',
+    backgroundImageLocal: null,
+    backgroundImageSource: 'url',
+    backgroundImageUrlLocked: true,
     iconColor: '#12ab34',
     textColor: '#f8fafc',
     showIcon: false,
@@ -28,4 +40,15 @@ test('invalid recycle bin appearance falls back without hiding content', () => {
     iconColor: null,
     textColor: '#123'
   }), DEFAULT_RECYCLE_BIN_STYLE);
+});
+
+test('validates recycle bin background image URLs', () => {
+  const invalid = validateRecycleBinStyle({ backgroundImageUrl: 'javascript:alert(1)' });
+  assert.equal(invalid.isValid, false);
+  assert.equal(invalid.errors.backgroundImageUrl, 'unsupportedProtocol');
+
+  const valid = validateRecycleBinStyle({
+    backgroundImageUrl: 'data:image/png;base64,iVBORw0KGgo='
+  });
+  assert.equal(valid.isValid, true);
 });

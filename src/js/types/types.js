@@ -101,7 +101,12 @@
  * @property {number} gy
  * @property {number} w
  * @property {number} h
+ * @property {boolean} noBackground
  * @property {string|null} backgroundColor
+ * @property {string|null} backgroundImageUrl
+ * @property {string|null} backgroundImageLocal
+ * @property {'local'|'url'} backgroundImageSource
+ * @property {boolean} backgroundImageUrlLocked
  * @property {string} iconColor
  * @property {string|null} textColor
  * @property {boolean} showIcon

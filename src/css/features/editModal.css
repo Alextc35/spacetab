@@ -29,6 +29,17 @@
   min-height: 0;
 }
 
+:is(.modal-folder-editor, .modal-recycle-bin-editor) {
+  height: min(500px, 90vh);
+}
+
+.edit-item-modal-form {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
 .edit-bookmark-modal-tabs {
   display: flex;
   flex: 0 0 auto;
@@ -117,6 +128,24 @@
     opacity: .6;
     margin: 0;
   }
+}
+
+.edit-item-modal-preview {
+  display: grid;
+  width: 240px;
+  min-height: 250px;
+  padding: 14px;
+  place-items: center;
+  border-radius: 14px;
+  background-color: var(--ui-preview-base);
+  background-image:
+    linear-gradient(45deg, var(--ui-preview-square) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--ui-preview-square) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--ui-preview-square) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--ui-preview-square) 75%);
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-size: 16px 16px;
+  box-sizing: border-box;
 }
 
 .modal-card.modal-xl .modal-actions {
