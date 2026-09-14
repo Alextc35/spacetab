@@ -5,6 +5,7 @@ import { openFolderModal } from '../modals/folderModal.js';
 import { isGridKeyboardActive } from '../bookmark/gridKeyboardNavigation.js';
 import { addFolderActions } from './actions.js';
 import { applyFolderAppearance, createFolderVisual } from './visual.js';
+import { isGridItemSelected } from '../bookmark/selection.js';
 
 /** Creates a resizable folder card for the bookmark grid. */
 export function createFolderElement({ container, folder, bookmarks, isEditing }) {
@@ -13,6 +14,7 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
   element.dataset.folderId = folder.id;
   element.classList.toggle('is-single-cell', folder.w === 1 && folder.h === 1);
   element.classList.toggle('is-editing', isEditing);
+  element.classList.toggle('is-selected', isGridItemSelected('folder', folder.id));
   element.classList.toggle('is-keyboard-active', isGridKeyboardActive(folder.id));
   applyFolderAppearance(element, folder);
   applyGridItemPosition(container, element, folder);
@@ -46,6 +48,11 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
 
   button.append(visual, caption, dropFeedback);
   button.addEventListener('click', event => {
+    if (element.classList.contains('is-editing')) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     if (element.dataset.suppressFolderOpen === 'true') {
       event.preventDefault();
       return;

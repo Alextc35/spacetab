@@ -73,6 +73,46 @@ export function moveFolderToRecycleBin(folderId) {
   return { deleted: true, bookmarkCount: children.length };
 }
 
+/** Moves a mixed selection of top-level bookmarks and folders in one undo step. */
+export function moveGridItemsToRecycleBin({ bookmarkIds = [], folderIds = [] } = {}) {
+  const requestedBookmarkIds = new Set(bookmarkIds);
+  const requestedFolderIds = new Set(folderIds);
+  if (!requestedBookmarkIds.size && !requestedFolderIds.size) {
+    return { bookmarks: 0, folders: 0 };
+  }
+
+  const { data } = getState();
+  const folders = data.folders.filter(folder => requestedFolderIds.has(folder.id));
+  const existingFolderIds = new Set(folders.map(folder => folder.id));
+  const folderChildren = data.bookmarks.filter(bookmark => existingFolderIds.has(bookmark.folderId));
+  const folderChildIds = new Set(folderChildren.map(bookmark => bookmark.id));
+  const bookmarks = data.bookmarks.filter(bookmark => (
+    requestedBookmarkIds.has(bookmark.id) && !folderChildIds.has(bookmark.id)
+  ));
+  if (!bookmarks.length && !folders.length) return { bookmarks: 0, folders: 0 };
+
+  const deletedAt = Date.now();
+  const entries = folders.map(folder => folderEntry(
+    folder,
+    folderChildren.filter(bookmark => bookmark.folderId === folder.id),
+    deletedAt
+  ));
+  entries.push(...bookmarks.map(bookmark => bookmarkEntry(bookmark, deletedAt)));
+  const deletedBookmarkIds = new Set([
+    ...folderChildIds,
+    ...bookmarks.map(bookmark => bookmark.id)
+  ]);
+
+  setState({
+    data: {
+      bookmarks: data.bookmarks.filter(bookmark => !deletedBookmarkIds.has(bookmark.id)),
+      folders: data.folders.filter(folder => !existingFolderIds.has(folder.id)),
+      trash: [...data.trash, ...entries]
+    }
+  });
+  return { bookmarks: bookmarks.length, folders: folders.length };
+}
+
 /** Moves all requested grid data to the recycle bin. */
 export function moveAllToRecycleBin({ includeFolders = false } = {}) {
   const { data } = getState();

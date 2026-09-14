@@ -52,9 +52,9 @@
       "imported": "Favoritos importados",
       "importError": "Erro ao importar os favoritos",
       "presetApplied": "Estilo aplicado à seleção",
-      "duplicatedSelected": "Favoritos selecionados duplicados",
-      "deletedSelected": "Favoritos selecionados excluídos",
-      "moved": "Favoritos movidos para o espaço escolhido"
+      "duplicatedSelected": "Itens selecionados duplicados",
+      "deletedSelected": "Itens selecionados excluídos",
+      "moved": "Itens movidos para o espaço escolhido"
     },
     "settings": {
       "saved": "Configurações salvas",
@@ -97,9 +97,9 @@
     "bookmarks": {
       "confirmDeleteAll": "Excluir todos os favoritos?",
       "deleteFolders": "Excluir também todas as pastas",
-      "confirmDeleteSelected": "Excluir {{count}} favoritos selecionados?",
-      "duplicateNoSpace": "{{count}} favoritos não puderam ser duplicados porque não havia espaço.",
-      "moveNoSpace": "{{count}} favoritos não puderam ser movidos porque não havia espaço.",
+      "confirmDeleteSelected": "Excluir {{count}} itens selecionados?",
+      "duplicateNoSpace": "{{count}} itens não puderam ser duplicados porque não havia espaço.",
+      "moveNoSpace": "{{count}} itens não puderam ser movidos porque não havia espaço.",
       "no_space": "Não há espaço disponível para mais favoritos 😅"
     },
     "bookmark": {
@@ -185,7 +185,7 @@
     "inFolder": "Pasta: {{name}}"
   },
   "bulk": {
-    "ariaLabel": "Ações dos favoritos selecionados",
+    "ariaLabel": "Ações dos itens selecionados",
     "selected": "{{count}} selecionados",
     "move": "Mover para o espaço",
     "applyPreset": "Aplicar estilo predefinido",

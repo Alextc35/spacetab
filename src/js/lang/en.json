@@ -52,9 +52,9 @@
       "imported": "Bookmarks imported",
       "importError": "Failed to import bookmarks",
       "presetApplied": "Style applied to the selection",
-      "duplicatedSelected": "Selected bookmarks duplicated",
-      "deletedSelected": "Selected bookmarks deleted",
-      "moved": "Bookmarks moved to the selected workspace"
+      "duplicatedSelected": "Selected items duplicated",
+      "deletedSelected": "Selected items deleted",
+      "moved": "Items moved to the selected workspace"
     },
     "settings": {
       "saved": "Settings saved",
@@ -97,9 +97,9 @@
     "bookmarks": {
       "confirmDeleteAll": "Delete all bookmarks?",
       "deleteFolders": "Also delete all folders",
-      "confirmDeleteSelected": "Delete {{count}} selected bookmarks?",
-      "duplicateNoSpace": "{{count}} bookmarks could not be duplicated because there was not enough space.",
-      "moveNoSpace": "{{count}} bookmarks could not be moved because there was not enough space.",
+      "confirmDeleteSelected": "Delete {{count}} selected items?",
+      "duplicateNoSpace": "{{count}} items could not be duplicated because there was not enough space.",
+      "moveNoSpace": "{{count}} items could not be moved because there was not enough space.",
       "no_space": "No space available for more bookmarks 😅"
     },
     "bookmark": {
@@ -185,7 +185,7 @@
     "inFolder": "Folder: {{name}}"
   },
   "bulk": {
-    "ariaLabel": "Selected bookmark actions",
+    "ariaLabel": "Selected item actions",
     "selected": "{{count}} selected",
     "move": "Move to workspace",
     "applyPreset": "Apply default style",

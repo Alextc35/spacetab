@@ -9,7 +9,7 @@ import {
 import { getState } from '../../core/store.js';
 import { hasOpenModal } from '../modalManager.js';
 import { isGridKeyboardNavigationActive } from './gridKeyboardNavigation.js';
-import { getSelectedBookmarkIds } from './selection.js';
+import { getSelectedGridItems } from './selection.js';
 import { calculateKeyboardMoveLayout } from './smartDragLayout.js';
 
 const ARROW_STEPS = Object.freeze({
@@ -20,9 +20,9 @@ const ARROW_STEPS = Object.freeze({
 });
 
 /**
- * Enables one-cell keyboard movement for a single selected bookmark.
+ * Enables one-cell keyboard movement for a single selected bookmark or folder.
  *
- * Plain arrow keys are deliberately reserved for the bookmark itself. Form
+ * Plain arrow keys are deliberately reserved for the selected grid item. Form
  * controls, modal dialogs and modified arrow shortcuts retain their native
  * behavior.
  */
@@ -44,42 +44,49 @@ function handleBookmarkArrowKey(event) {
     || isEditingTextOrControl(document.activeElement)
   ) return;
 
-  const selectedIds = getSelectedBookmarkIds();
-  if (selectedIds.length !== 1) return;
+  const selectedItems = getSelectedGridItems();
+  if (selectedItems.length !== 1) return;
 
   const state = getState();
   if (!state.ui.isEditing) return;
 
-  const bookmark = state.data.bookmarks.find(item => (
-    item.id === selectedIds[0]
-    && !item.folderId
-    && (item.groupId ?? null) === (
-      state.data.settings.activeBookmarkGroupId ?? null
-    )
-  ));
-  if (!bookmark) return;
+  const selected = selectedItems[0];
+  const item = (selected.kind === 'folder' ? state.data.folders : state.data.bookmarks)
+    .find(candidate => (
+      candidate.id === selected.id
+      && !candidate.folderId
+      && (candidate.groupId ?? null) === (
+        state.data.settings.activeBookmarkGroupId ?? null
+      )
+    ));
+  if (!item) return;
 
   event.preventDefault();
 
-  const items = getGridItemsInGroup(state.data, bookmark.groupId);
+  const items = getGridItemsInGroup(state.data, item.groupId);
   const topLevelBookmarkIds = new Set(state.data.bookmarks
-    .filter(item => (
-      !item.folderId
-      && (item.groupId ?? null) === (bookmark.groupId ?? null)
+    .filter(candidate => (
+      !candidate.folderId
+      && (candidate.groupId ?? null) === (item.groupId ?? null)
     ))
-    .map(item => item.id));
+    .map(candidate => candidate.id));
+  const movableIds = selected.kind === 'folder'
+    ? items
+      .filter(candidate => candidate.id !== state.data.recycleBin?.id)
+      .map(candidate => candidate.id)
+    : topLevelBookmarkIds;
   const layout = calculateKeyboardMoveLayout({
     items,
-    draggedId: bookmark.id,
+    draggedId: item.id,
     step,
-    movableIds: topLevelBookmarkIds,
+    movableIds,
     mode: state.data.settings.bookmarkDragMode,
     columns: GRID_COLS,
     rows: GRID_ROWS
   });
   if (!layout.isValid) return;
 
-  const currentById = new Map(items.map(item => [item.id, item]));
+  const currentById = new Map(items.map(candidate => [candidate.id, candidate]));
   const updates = new Map();
   for (const position of layout.positions) {
     const current = currentById.get(position.id);

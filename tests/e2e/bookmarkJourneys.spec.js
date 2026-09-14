@@ -767,8 +767,8 @@ test('navigates folders and opens them according to the current edit mode', asyn
   await expect(folder).toHaveClass(/is-keyboard-active/);
 
   await page.keyboard.press('s');
-  await expect(folder).toHaveClass(/is-keyboard-selection-blocked/);
-  await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
+  await expect(folder).toHaveClass(/is-selected/);
+  await expect(page.locator('.bookmark.is-selected')).toHaveCount(1);
   await page.keyboard.press('Enter');
   await expect(page.locator('#edit-folder-modal')).toBeVisible();
   await page.keyboard.press('Escape');
@@ -881,7 +881,7 @@ test('keeps the current row before a nearer diagonal card', async ({ page }) => 
   await page.keyboard.press('Tab');
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowRight');
-  await expect(page.locator('.bookmark', { hasText: 'banana' }))
+  await expect(page.getByRole('link', { name: 'banana', exact: true }).locator('..'))
     .toHaveClass(/is-keyboard-active/);
 });
 
@@ -2023,7 +2023,7 @@ test('shows selected storage and local storage availability when sync is selecte
   await expect(summary).toContainText('of 100 KB');
   await expect(summary).toContainText('%');
   await expect(usage.locator('#storage-usage-progress')).toHaveAttribute('value', /.+/);
-  await expect(legend).not.toContainText('Recycle bin data');
+  await expect(legend.getByText('Recycle bin data', { exact: true })).toBeHidden();
   await expect(usage.locator('[data-storage-segment="trash"]')).toBeHidden();
   await expect(page.locator('#storage-usage-trash')).toBeHidden();
 
@@ -2038,7 +2038,7 @@ test('shows selected storage and local storage availability when sync is selecte
   await expect(localUsage.locator('#storage-usage-local-progress [data-storage-segment="synced"]'))
     .not.toHaveAttribute('style', /width: 0%/);
   await expect(localUsage.locator('#storage-usage-local-progress [data-storage-segment="trash"]'))
-    .toBeVisible();
+    .not.toHaveAttribute('hidden', '');
   await expect(localUsage.locator('[role="progressbar"]')).toHaveCount(1);
   await expect(localUsage.locator('.storage-usage-legend')).toContainText('System options');
   await expect(localUsage.locator('.storage-usage-legend')).toContainText('Synced');
@@ -2219,7 +2219,7 @@ test('duplicates from the bulk toolbar and clears selection when edit mode close
 
   const duplicatedBookmark = page.locator('.bookmark[data-bookmark-id]').last();
   await duplicatedBookmark.click();
-  const bulkActions = page.getByRole('toolbar', { name: 'Selected bookmark actions' });
+  const bulkActions = page.getByRole('toolbar', { name: 'Selected item actions' });
   const workspaceDock = page.getByRole('navigation', { name: 'Workspace controls' });
   await expect(bulkActions).toBeVisible();
   await expect(page.getByText('1 selected')).toBeVisible();
@@ -2237,10 +2237,130 @@ test('duplicates from the bulk toolbar and clears selection when edit mode close
   await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
 });
 
+test('runs every bulk action on a mixed bookmark and folder selection', async ({ page }) => {
+  await page.evaluate(async () => {
+    const { DEFAULT_BOOKMARK, DEFAULT_FOLDER_STYLE } = await import('/src/js/core/defaults.js');
+    const { getState, setState } = await import('/src/js/core/store.js');
+    await setState({
+      data: {
+        bookmarks: [
+          {
+            ...DEFAULT_BOOKMARK,
+            id: 'mixed-bookmark',
+            name: 'Mixed bookmark',
+            url: 'https://mixed.test',
+            gx: 0,
+            gy: 0,
+            noBackground: false,
+            backgroundColor: '#123456'
+          },
+          {
+            ...DEFAULT_BOOKMARK,
+            id: 'folder-child',
+            name: 'Folder child',
+            url: 'https://child.test',
+            folderId: 'mixed-folder',
+            gx: 0,
+            gy: 0
+          }
+        ],
+        folders: [{
+          ...DEFAULT_FOLDER_STYLE,
+          id: 'mixed-folder',
+          name: 'Mixed folder',
+          gx: 1,
+          gy: 0,
+          w: 1,
+          h: 1,
+          groupId: null,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          backgroundColor: '#654321',
+          showFolder: false,
+          showPreviews: false
+        }],
+        settings: {
+          ...getState().data.settings,
+          showRecycleBin: false,
+          bookmarkGroups: [{ id: 'work', name: 'Work' }],
+          bookmarkDefault: {
+            ...getState().data.settings.bookmarkDefault,
+            noBackground: false,
+            backgroundColor: '#abcdef'
+          }
+        }
+      }
+    });
+  });
+  await expect(page.locator('[data-folder-id="mixed-folder"]')).toBeVisible();
+  await enableEditMode(page);
+
+  const bookmark = page.locator('[data-bookmark-id="mixed-bookmark"]');
+  const folder = page.locator('[data-folder-id="mixed-folder"]');
+  await expect(folder.getByRole('button', { name: 'Delete folder' })).toHaveCount(0);
+  await bookmark.click();
+  await folder.click();
+
+  await expect(bookmark).toHaveClass(/is-selected/);
+  await expect(folder).toHaveClass(/is-selected/);
+  await expect(page.locator('#folder-modal')).toBeHidden();
+  const bulkActions = page.getByRole('toolbar', { name: 'Selected item actions' });
+  await expect(bulkActions).toContainText('2 selected');
+  await bulkActions.getByRole('button', { name: 'Duplicate selection' }).click();
+
+  await expect(page.locator('.bookmark-folder')).toHaveCount(2);
+  await expect(page.getByText('Mixed folder (copy)', { exact: true })).toBeVisible();
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    const copy = getState().data.folders.find(item => item.name === 'Mixed folder (copy)');
+    return copy
+      ? getState().data.bookmarks.filter(item => item.folderId === copy.id).length
+      : 0;
+  })).toBe(1);
+
+  await bookmark.click();
+  await folder.click();
+  await bulkActions.getByRole('button', { name: 'Apply default style' }).click();
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    const data = getState().data;
+    const bookmark = data.bookmarks.find(item => item.id === 'mixed-bookmark');
+    const folder = data.folders.find(item => item.id === 'mixed-folder');
+    return `${bookmark.backgroundColor}:${folder.backgroundColor}:${folder.showFolder}`;
+  })).toBe('#abcdef:#38bdf8:true');
+
+  await bookmark.click();
+  await folder.click();
+  await page.locator('#bulk-workspace-select').selectOption('work');
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    const data = getState().data;
+    return [
+      data.bookmarks.find(item => item.id === 'mixed-bookmark')?.groupId,
+      data.bookmarks.find(item => item.id === 'folder-child')?.groupId,
+      data.folders.find(item => item.id === 'mixed-folder')?.groupId
+    ].join(':');
+  })).toBe('work:work:work');
+
+  await page.locator('#workspace-select').selectOption('work');
+  await expect(bookmark).toBeVisible();
+  await bookmark.click();
+  await folder.click();
+  await bulkActions.getByRole('button', { name: 'Delete', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Delete 2 selected items?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await expect(bookmark).toHaveCount(0);
+  await expect(folder).toHaveCount(0);
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return getState().data.trash.length;
+  })).toBe(2);
+});
+
 test('opens the bookmark editor with middle click without opening a tab', async ({ page }) => {
   await enableEditMode(page);
   const bookmark = page.locator('#bookmark-container > .bookmark[data-bookmark-id]').first();
-  const bulkActions = page.getByRole('toolbar', { name: 'Selected bookmark actions' });
+  const bulkActions = page.getByRole('toolbar', { name: 'Selected item actions' });
 
   await bookmark.click({ button: 'middle' });
 
@@ -2294,7 +2414,7 @@ test('names a single bookmark before deletion and counts multiple selections', a
 
   await bookmarks.nth(1).click();
   await deleteSelection.click();
-  await expect(page.getByRole('heading', { name: 'Delete 2 selected bookmarks?' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Delete 2 selected items?' })).toBeVisible();
   await page.getByRole('button', { name: 'Cancel' }).click();
 });
 
@@ -2310,7 +2430,7 @@ test('duplicates several selected bookmarks without overlaps', async ({ page }) 
 
   await expect(bookmarks).toHaveCount(4);
   await expect(page.getByRole('link', { name: /DEVELOPED BY \(copy\)/ })).toBeVisible();
-  await expect(page.getByRole('toolbar', { name: 'Selected bookmark actions' })).toBeHidden();
+  await expect(page.getByRole('toolbar', { name: 'Selected item actions' })).toBeHidden();
 
   const boxes = await bookmarks.evaluateAll(elements => elements.map(element => {
     const rect = element.getBoundingClientRect();
@@ -2342,7 +2462,7 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
   await enableEditMode(page);
   await expect(folder.getByRole('group', { name: 'Folder controls' })).toBeVisible();
   await expect(folder.getByRole('button', { name: 'Customize folder' })).toBeVisible();
-  await expect(folder.getByRole('button', { name: 'Delete folder' })).toBeVisible();
+  await expect(folder.getByRole('button', { name: 'Delete folder' })).toHaveCount(0);
   await expect(folder.locator('.bookmark-action-menu, .bookmark-actions')).toHaveCount(0);
   await expect(folder.locator('.resizer')).toHaveCount(8);
   const bookmark = page.locator('.bookmark[data-bookmark-id]').first();
@@ -3101,7 +3221,7 @@ test('renames an open folder by double-clicking its title', async ({ page }) => 
   await expect(title).toHaveText(expectedName);
 });
 
-test('edits and deletes a folder from its direct controls', async ({ page }) => {
+test('edits a folder directly and deletes it through bulk selection', async ({ page }) => {
   await revealSideDock(page);
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
@@ -3116,7 +3236,8 @@ test('edits and deletes a folder from its direct controls', async ({ page }) => 
 
   folder = page.locator('.bookmark-folder', { hasText: 'Renamed' });
   await expect(folder).toBeVisible();
-  await folder.getByRole('button', { name: 'Delete folder' }).click();
+  await folder.click();
+  await page.getByRole('button', { name: 'Delete', exact: true }).click();
   await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
   await expect(folder).toHaveCount(0);
 });

@@ -52,9 +52,9 @@
       "imported": "Marcadores importados",
       "importError": "Error al importar los marcadores",
       "presetApplied": "Estilo aplicado a la selección",
-      "duplicatedSelected": "Marcadores seleccionados duplicados",
-      "deletedSelected": "Marcadores seleccionados eliminados",
-      "moved": "Marcadores movidos al espacio seleccionado"
+      "duplicatedSelected": "Elementos seleccionados duplicados",
+      "deletedSelected": "Elementos seleccionados eliminados",
+      "moved": "Elementos movidos al espacio seleccionado"
     },
     "settings": {
       "saved": "Configuración guardada",
@@ -97,9 +97,9 @@
     "bookmarks": {
       "confirmDeleteAll": "¿Eliminar todos los marcadores?",
       "deleteFolders": "Eliminar también todas las carpetas",
-      "confirmDeleteSelected": "¿Eliminar {{count}} marcadores seleccionados?",
-      "duplicateNoSpace": "{{count}} marcadores no se pudieron duplicar porque no había espacio.",
-      "moveNoSpace": "{{count}} marcadores no se pudieron mover porque no había espacio.",
+      "confirmDeleteSelected": "¿Eliminar {{count}} elementos seleccionados?",
+      "duplicateNoSpace": "{{count}} elementos no se pudieron duplicar porque no había espacio.",
+      "moveNoSpace": "{{count}} elementos no se pudieron mover porque no había espacio.",
       "no_space": "No hay espacio disponible para más marcadores 😅"
     },
     "bookmark": {
@@ -185,7 +185,7 @@
     "inFolder": "Carpeta: {{name}}"
   },
   "bulk": {
-    "ariaLabel": "Acciones de los marcadores seleccionados",
+    "ariaLabel": "Acciones de los elementos seleccionados",
     "selected": "{{count}} seleccionados",
     "move": "Mover al espacio",
     "applyPreset": "Aplicar estilo predeterminado",

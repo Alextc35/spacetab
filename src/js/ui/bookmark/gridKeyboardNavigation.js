@@ -6,8 +6,8 @@ import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { openFolderEditor } from '../modals/folderEditorModal.js';
 import { openRecycleBinModal } from '../modals/recycleBinModal.js';
 import {
-  getSelectedBookmarkIds,
-  toggleBookmarkSelection
+  getSelectedGridItems,
+  toggleGridItemSelection
 } from './selection.js';
 
 const ARROW_DIRECTIONS = new Set([
@@ -45,8 +45,8 @@ let navigationHistory = [];
  * Adds keyboard navigation for the visible top-level grid items.
  *
  * Tab toggles the mode, arrow keys move to the closest item in a direction,
- * and Enter opens the focused item. In edit mode, S only toggles the bulk
- * selection of bookmarks; folders remain navigation-only.
+ * and Enter opens the focused item. In edit mode, S toggles the bulk
+ * selection of bookmarks and folders.
  *
  * @param {HTMLElement|null} container
  */
@@ -168,13 +168,10 @@ function handleGridKeyboardNavigation(event) {
     && !event.repeat
     && getState().ui.isEditing
     && item
+    && item.kind !== 'recycle-bin'
   ) {
     event.preventDefault();
-    if (item.kind === 'bookmark') {
-      toggleBookmarkSelection(item.id);
-    } else {
-      flashFolderSelectionUnavailable(item.id);
-    }
+    toggleGridItemSelection(item.kind, item.id);
   }
 }
 
@@ -371,9 +368,11 @@ function openGridItem(item) {
 }
 
 function canOpenFocusedItemEditor(item) {
-  const selectedIds = getSelectedBookmarkIds();
-  if (selectedIds.length > 1) return false;
-  return selectedIds.length === 0 || selectedIds[0] === item.id;
+  const selectedItems = getSelectedGridItems();
+  if (selectedItems.length > 1) return false;
+  return selectedItems.length === 0 || (
+    selectedItems[0].id === item.id && selectedItems[0].kind === item.kind
+  );
 }
 
 function setActiveItem(itemId) {
@@ -410,16 +409,4 @@ function getGridItemElement(itemId) {
     || element.dataset.folderId === itemId
     || element.dataset.recycleBinId === itemId
   )) ?? null;
-}
-
-function flashFolderSelectionUnavailable(folderId) {
-  const element = getGridItemElement(folderId);
-  if (!element) return;
-
-  element.classList.remove('is-keyboard-selection-blocked');
-  void element.offsetWidth;
-  element.classList.add('is-keyboard-selection-blocked');
-  element.addEventListener('animationend', () => {
-    element.classList.remove('is-keyboard-selection-blocked');
-  }, { once: true });
 }

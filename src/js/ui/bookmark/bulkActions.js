@@ -1,19 +1,19 @@
 import {
-  applyPresetToBookmarks,
-  deleteBookmarksByIds,
-  duplicateBookmarksByIds
-} from '../../core/bookmark.js';
-import { moveBookmarksToGroup } from '../../core/bookmarkGroups.js';
+  applyDefaultStylesToGridItems,
+  duplicateGridItems,
+  moveGridItemsToGroup
+} from '../../core/gridItemActions.js';
+import { moveGridItemsToRecycleBin } from '../../core/recycleBin.js';
 import { subscribe } from '../../core/store.js';
 import { t } from '../../core/i18n.js';
 import { showAlert } from '../modals/alert.js';
 import { flashSuccess } from '../flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import {
-  clearBookmarkSelection,
-  getSelectedBookmarkIds,
-  pruneBookmarkSelection,
-  subscribeToBookmarkSelection
+  clearGridItemSelection,
+  getSelectedGridItems,
+  pruneGridItemSelection,
+  subscribeToGridItemSelection
 } from './selection.js';
 
 export function initBulkBookmarkActions() {
@@ -22,24 +22,24 @@ export function initBulkBookmarkActions() {
   const groupSelect = document.getElementById('bulk-workspace-select');
   let currentState = null;
 
-  document.getElementById('bulk-clear').addEventListener('click', clearBookmarkSelection);
+  document.getElementById('bulk-clear').addEventListener('click', clearGridItemSelection);
   document.getElementById('bulk-apply-preset').addEventListener('click', () => {
-    const ids = getSelectedBookmarkIds();
-    if (!ids.length) return;
-    applyPresetToBookmarks(ids, currentState.data.settings.bookmarkDefault);
-    clearBookmarkSelection();
+    const items = getSelectedGridItems();
+    if (!items.length) return;
+    applyDefaultStylesToGridItems(items, currentState.data.settings.bookmarkDefault);
+    clearGridItemSelection();
     flashSuccess('flash.bookmarks.presetApplied');
   });
   document.getElementById('bulk-duplicate').addEventListener('click', async () => {
-    const ids = getSelectedBookmarkIds();
-    if (!ids.length) return;
+    const items = getSelectedGridItems();
+    if (!items.length) return;
 
-    const result = duplicateBookmarksByIds(ids, {
+    const result = duplicateGridItems(items, {
       columns: getMaxVisibleCols(),
       rows: getMaxVisibleRows(),
       nameSuffix: t('bookmarkActions.copySuffix')
     });
-    clearBookmarkSelection();
+    clearGridItemSelection();
 
     if (result.duplicates.length) flashSuccess('flash.bookmarks.duplicatedSelected');
     if (result.skipped) {
@@ -49,25 +49,25 @@ export function initBulkBookmarkActions() {
     }
   });
   document.getElementById('bulk-delete').addEventListener('click', async () => {
-    const ids = getSelectedBookmarkIds();
-    if (!ids.length) return;
+    const items = getSelectedGridItems();
+    if (!items.length) return;
     const confirmed = await showAlert(
-      getDeleteConfirmation(ids, currentState.data.bookmarks),
+      getDeleteConfirmation(items, currentState.data),
       { type: 'confirm', requiresWideViewport: true }
     );
     if (!confirmed) return;
-    deleteBookmarksByIds(ids);
-    clearBookmarkSelection();
+    moveGridItemsToRecycleBin(getSelectionIds(items));
+    clearGridItemSelection();
     flashSuccess('flash.bookmarks.deletedSelected');
   });
   groupSelect.addEventListener('change', async () => {
-    const ids = getSelectedBookmarkIds();
-    if (!ids.length) return;
-    const result = moveBookmarksToGroup(ids, groupSelect.value || null, {
+    const items = getSelectedGridItems();
+    if (!items.length) return;
+    const result = moveGridItemsToGroup(items, groupSelect.value || null, {
       columns: getMaxVisibleCols(),
       rows: getMaxVisibleRows()
     });
-    clearBookmarkSelection();
+    clearGridItemSelection();
     if (result.moved) flashSuccess('flash.bookmarks.moved');
     if (result.skipped) {
       await showAlert(t('alert.bookmarks.moveNoSpace', { count: result.skipped }), {
@@ -78,7 +78,10 @@ export function initBulkBookmarkActions() {
 
   subscribe(state => {
     currentState = state;
-    pruneBookmarkSelection(state.data.bookmarks.map(bookmark => bookmark.id));
+    pruneGridItemSelection({
+      bookmarkIds: state.data.bookmarks.map(bookmark => bookmark.id),
+      folderIds: state.data.folders.map(folder => folder.id)
+    });
     groupSelect.replaceChildren(new Option(t('workspace.main'), ''));
     for (const group of state.data.settings.bookmarkGroups) {
       groupSelect.add(new Option(group.name, group.id));
@@ -86,24 +89,45 @@ export function initBulkBookmarkActions() {
     groupSelect.value = state.data.settings.activeBookmarkGroupId ?? '';
   });
 
-  subscribeToBookmarkSelection(ids => {
-    const selected = new Set(ids);
+  subscribeToGridItemSelection(items => {
+    const selected = new Set(items.map(item => `${item.kind}:${item.id}`));
     document.querySelectorAll('.bookmark[data-bookmark-id]').forEach(element => {
-      const isSelected = selected.has(element.dataset.bookmarkId);
+      const isSelected = selected.has(`bookmark:${element.dataset.bookmarkId}`);
       element.classList.toggle('is-selected', isSelected);
     });
-    toolbar.classList.toggle('is-hidden', ids.length === 0);
-    count.textContent = t('bulk.selected', { count: ids.length });
+    document.querySelectorAll('.bookmark-folder[data-folder-id]').forEach(element => {
+      const isSelected = selected.has(`folder:${element.dataset.folderId}`);
+      element.classList.toggle('is-selected', isSelected);
+    });
+    toolbar.classList.toggle('is-hidden', items.length === 0);
+    count.textContent = t('bulk.selected', { count: items.length });
   });
 }
 
-function getDeleteConfirmation(ids, bookmarks) {
-  if (ids.length === 1) {
-    const bookmark = bookmarks.find(item => item.id === ids[0]);
+function getDeleteConfirmation(items, data) {
+  if (items.length === 1) {
+    const selected = items[0];
+    const bookmark = selected.kind === 'bookmark'
+      ? data.bookmarks.find(item => item.id === selected.id)
+      : null;
     if (bookmark) {
       return t('alert.bookmark.confirmDelete', { name: bookmark.name });
     }
+    const folder = selected.kind === 'folder'
+      ? data.folders.find(item => item.id === selected.id)
+      : null;
+    if (folder) {
+      const count = data.bookmarks.filter(bookmark => bookmark.folderId === folder.id).length;
+      return t('folder.confirmDelete', { name: folder.name, count });
+    }
   }
 
-  return t('alert.bookmarks.confirmDeleteSelected', { count: ids.length });
+  return t('alert.bookmarks.confirmDeleteSelected', { count: items.length });
+}
+
+function getSelectionIds(items) {
+  return {
+    bookmarkIds: items.filter(item => item.kind === 'bookmark').map(item => item.id),
+    folderIds: items.filter(item => item.kind === 'folder').map(item => item.id)
+  };
 }
