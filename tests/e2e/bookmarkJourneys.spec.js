@@ -2546,6 +2546,23 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
     { steps: 8 }
   );
   await expect(folder).toHaveClass(/is-drop-target/);
+  await expect(bookmark).toHaveClass(/is-drop-landing/);
+  await expect(folder.locator('.folder-drop-feedback', { hasText: 'Drop to add' })).toBeVisible();
+  await expect.poll(async () => {
+    const source = await bookmark.boundingBox();
+    const target = await folder.boundingBox();
+    if (!source || !target) return false;
+    const center = {
+      x: source.x + source.width / 2,
+      y: source.y + source.height / 2
+    };
+    return center.x > target.x
+      && center.x < target.x + target.width
+      && center.y > target.y
+      && center.y < target.y + target.height
+      && source.width < target.width * .8
+      && source.height < target.height * .8;
+  }).toBe(true);
   await expect.poll(() => folder.evaluate(element => element.offsetLeft))
     .toBe(folderGridPosition.left);
   await expect.poll(() => folder.evaluate(element => element.offsetTop))

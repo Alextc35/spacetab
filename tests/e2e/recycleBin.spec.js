@@ -24,14 +24,36 @@ async function toggleEditMode(page) {
   await page.locator('#edit-toggle-mode').click();
 }
 
-async function dragCenterTo(page, source, target) {
+async function hoverCenterTo(page, source, target) {
   const from = await source.boundingBox();
   const to = await target.boundingBox();
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
   await page.mouse.down();
   await page.mouse.move(from.x + from.width / 2 - 7, from.y + from.height / 2 - 7);
   await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 12 });
-  await page.mouse.up();
+}
+
+async function expectStackedDropPreview(source, target, feedback) {
+  await expect(source).toHaveClass(/is-drop-landing/);
+  await expect(target).toHaveClass(/is-drop-target/);
+  await expect(feedback).toBeVisible();
+  await expect.poll(async () => {
+    const sourceBox = await source.boundingBox();
+    const targetBox = await target.boundingBox();
+    if (!sourceBox || !targetBox) return false;
+    const center = {
+      x: sourceBox.x + sourceBox.width / 2,
+      y: sourceBox.y + sourceBox.height / 2
+    };
+    return center.x > targetBox.x
+      && center.x < targetBox.x + targetBox.width
+      && center.y > targetBox.y
+      && center.y < targetBox.y + targetBox.height
+      && sourceBox.width < targetBox.width * .8
+      && sourceBox.height < targetBox.height * .8;
+  }).toBe(true);
+  await expect.poll(() => source.evaluate(element => getComputedStyle(element).transform))
+    .not.toBe('none');
 }
 
 test('moves, resizes, hides and shows the recycle bin', async ({ page }) => {
@@ -103,7 +125,13 @@ test('drops a bookmark into the bin and restores the selected item', async ({ pa
   const bookmark = page.locator('.bookmark[data-bookmark-id]').first();
   const bookmarkId = await bookmark.getAttribute('data-bookmark-id');
   const bin = page.locator('.recycle-bin');
-  await dragCenterTo(page, bookmark, bin);
+  await hoverCenterTo(page, bookmark, bin);
+  await expectStackedDropPreview(
+    bookmark,
+    bin,
+    bin.locator('.recycle-bin-drop-feedback', { hasText: 'Drop to delete' })
+  );
+  await page.mouse.up();
   await expect(page.locator(`.bookmark[data-bookmark-id="${bookmarkId}"]`)).toHaveCount(0);
   await expect(bin.locator('.recycle-bin-caption small')).toHaveText('1 item');
   await waitForSaved(page);
@@ -141,7 +169,13 @@ test('asks before dropping a folder with contents and supports permanent deletio
   await toggleEditMode(page);
   const folder = page.locator('.bookmark-folder[data-folder-id="trash-folder"]');
   const bin = page.locator('.recycle-bin');
-  await dragCenterTo(page, folder, bin);
+  await hoverCenterTo(page, folder, bin);
+  await expectStackedDropPreview(
+    folder,
+    bin,
+    bin.locator('.recycle-bin-drop-feedback', { hasText: 'Drop to delete' })
+  );
+  await page.mouse.up();
   await expect(page.locator('#alert-modal')).toBeVisible();
   await expect(page.locator('#alert-modal-title')).toContainText('Archive');
   await page.getByRole('button', { name: 'Accept', exact: true }).click();

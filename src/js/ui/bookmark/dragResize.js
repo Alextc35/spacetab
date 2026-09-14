@@ -278,6 +278,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     folderTarget = nextTarget;
     folderTarget?.classList.add('is-drop-target');
     div.classList.toggle('is-over-folder', Boolean(folderTarget));
+    syncDropLandingPreview();
   }
 
   function setRecycleBinTarget(nextTarget) {
@@ -286,6 +287,23 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
     recycleBinTarget = nextTarget;
     recycleBinTarget?.classList.add('is-drop-target');
     div.classList.toggle('is-over-recycle-bin', Boolean(recycleBinTarget));
+    syncDropLandingPreview();
+  }
+
+  function syncDropLandingPreview() {
+    const target = recycleBinTarget ?? folderTarget;
+    div.classList.toggle('is-drop-landing', Boolean(target));
+    if (!target || !dragSession) {
+      clearDropLandingGeometry(div);
+      return;
+    }
+
+    const targetEntry = [
+      ...dragSession.folderTargets,
+      ...dragSession.recycleBinTargets
+    ].find(entry => entry.element === target);
+    const targetRect = targetEntry?.rect ?? target.getBoundingClientRect();
+    applyDropLandingGeometry(container, div, targetRect);
   }
 
   function startDragFeedback() {
@@ -742,6 +760,34 @@ function findRectangleTarget(clientX, clientY, targets) {
         && clientY >= rect.top
         && clientY <= rect.bottom;
     })?.element ?? null;
+}
+
+/** Moves the dragged card into a compact, stacked pose over its drop target. */
+function applyDropLandingGeometry(container, element, targetRect) {
+  const containerRect = container.getBoundingClientRect();
+  const sourceWidth = element.offsetWidth;
+  const sourceHeight = element.offsetHeight;
+  const sourceCenterX = containerRect.left + element.offsetLeft + sourceWidth / 2;
+  const sourceCenterY = containerRect.top + element.offsetTop + sourceHeight / 2;
+  const horizontalRest = Math.min(14, targetRect.width * .08);
+  const verticalLift = Math.min(18, targetRect.height * .12);
+  const targetCenterX = targetRect.left + targetRect.width / 2 + horizontalRest;
+  const targetCenterY = targetRect.top + targetRect.height / 2 - verticalLift;
+  const scale = Math.max(.28, Math.min(
+    .66,
+    targetRect.width / sourceWidth * .72,
+    targetRect.height / sourceHeight * .72
+  ));
+
+  element.style.setProperty('--drop-landing-x', `${targetCenterX - sourceCenterX}px`);
+  element.style.setProperty('--drop-landing-y', `${targetCenterY - sourceCenterY}px`);
+  element.style.setProperty('--drop-landing-scale', scale.toFixed(3));
+}
+
+function clearDropLandingGeometry(element) {
+  element.style.removeProperty('--drop-landing-x');
+  element.style.removeProperty('--drop-landing-y');
+  element.style.removeProperty('--drop-landing-scale');
 }
 
 async function confirmFolderRecycle(folder) {
