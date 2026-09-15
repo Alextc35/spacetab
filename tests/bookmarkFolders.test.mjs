@@ -132,6 +132,23 @@ test('creates legacy-safe folder styles and updates their appearance', async () 
   assert.equal(updated.textColor, '#ffeeaa');
 });
 
+test('creates a folder with a normalized custom appearance', async () => {
+  await setState({ data: { bookmarks: [], folders: [] } });
+  const created = createBookmarkFolder('Styled', { columns: 1, rows: 1 }, {
+    backgroundColor: '#EF4444',
+    outerBackgroundColor: '#111827',
+    textColor: '#FEF3C7',
+    showPreviews: false,
+    showCount: false
+  });
+
+  assert.equal(created.backgroundColor, '#ef4444');
+  assert.equal(created.outerBackgroundColor, '#111827');
+  assert.equal(created.textColor, '#fef3c7');
+  assert.equal(created.showPreviews, false);
+  assert.equal(created.showCount, false);
+});
+
 test('updates bookmark and folder rectangles atomically', async () => {
   await setState({
     data: {

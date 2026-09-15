@@ -50,9 +50,10 @@ export function getGridItemsInGroup(data, groupId) {
  *
  * @param {string} name
  * @param {{columns: number, rows: number}} bounds
+ * @param {Partial<BookmarkFolder>} appearance
  * @returns {BookmarkFolder|null}
  */
-export function createBookmarkFolder(name, { columns, rows } = {}) {
+export function createBookmarkFolder(name, { columns, rows } = {}, appearance = {}) {
   const normalizedName = normalizeBookmarkFolderName(name);
   if (!normalizedName) return null;
 
@@ -68,7 +69,7 @@ export function createBookmarkFolder(name, { columns, rows } = {}) {
   const folder = {
     id: crypto.randomUUID(),
     name: normalizedName,
-    ...normalizeFolderStyle(),
+    ...normalizeFolderStyle(appearance),
     ...position,
     w: 1,
     h: 1,

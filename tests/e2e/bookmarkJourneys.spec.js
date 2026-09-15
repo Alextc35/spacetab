@@ -894,7 +894,7 @@ test('navigates folders and opens them according to the current edit mode', asyn
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Keyboard folder');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
   await expect(page.locator('#add-toggle')).toBeFocused();
 
   const grid = page.locator('#bookmark-container');
@@ -935,7 +935,7 @@ test('prefers the item aligned with the active grid column', async ({ page }) =>
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Column folder');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
   await createBookmark(page, 'Directly below', 'below.test');
   await createBookmark(page, 'Left below', 'left-below.test');
 
@@ -1054,7 +1054,7 @@ test('confirms Delete and Backspace on an unselected keyboard-focused folder', a
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Delete with keyboard');
-  await page.getByRole('button', { name: 'Accept', exact: true }).click();
+  await page.getByRole('button', { name: 'Add', exact: true }).click();
   await waitForSaved(page);
 
   await page.evaluate(() => {
@@ -1234,12 +1234,12 @@ test('follows adjacent folders through remembered entry rows and columns', async
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('PokeMMO');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Add', exact: true }).click();
   await waitForSaved(page);
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('test');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Add', exact: true }).click();
   await waitForSaved(page);
   await createBookmark(page, 'Wayback Machine', 'https://web.archive.org');
   await createBookmark(page, 'Gmail', 'https://mail.google.com');
@@ -1578,7 +1578,7 @@ test('restores the source after a swap and inserts through the released cell', a
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Barrier');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
   await createBookmark(page, 'Dragged', 'dragged.test');
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -1685,7 +1685,7 @@ test('keeps a wide folder collision-free across consecutive sequence steps', asy
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Wide folder');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
   await createBookmark(page, 'Test', 'test.example');
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -1741,7 +1741,7 @@ test('keeps a relocated bookmark still while a wide folder continues moving', as
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Relocating folder');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
   await createBookmark(page, 'Test', 'test.example');
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -2098,6 +2098,51 @@ test('expands and collapses compact bookmark creation without losing the draft',
   await expect(page.locator('#bookmark-modal-form-url')).toHaveValue('animated.example');
 });
 
+test('expands compact folder creation and persists its advanced appearance', async ({ page }) => {
+  await revealSideDock(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
+
+  const modal = page.locator('#edit-folder-modal');
+  const card = modal.locator('.modal-card');
+  const tabs = modal.locator('.edit-bookmark-modal-tabs');
+  const preview = modal.locator('.edit-bookmark-modal-preview-panel');
+  const name = page.locator('#folder-editor-name');
+  const add = modal.getByRole('button', { name: 'Add', exact: true });
+
+  await expect(modal.getByRole('heading')).toHaveText('➕ Add new folder');
+  await expect(modal).toHaveClass(/is-add-compact/);
+  await expect(name).toBeFocused();
+  await expect(add).toBeDisabled();
+  await expect(card).toHaveCSS('width', '420px');
+  await expect(card).toHaveCSS('height', '270px');
+  await expect(tabs).toHaveAttribute('aria-hidden', 'true');
+  await expect(preview).toHaveAttribute('aria-hidden', 'true');
+
+  await name.fill('Styled folder');
+  await expect(add).toBeEnabled();
+  await modal.getByRole('button', { name: '⚙ Advanced options' }).click();
+  await expect(modal).not.toHaveClass(/is-add-compact/);
+  await expect(tabs).not.toHaveAttribute('aria-hidden');
+  await expect(preview).not.toHaveAttribute('aria-hidden');
+
+  await modal.getByRole('tab', { name: 'Style' }).click();
+  await page.locator('#folder-editor-color').fill('#ef4444');
+  await expect(page.locator('.folder-editor-preview-card'))
+    .toHaveCSS('--folder-color', '#ef4444');
+  await modal.getByRole('button', { name: '▴ Compact view' }).click();
+  await expect(modal).toHaveClass(/is-add-compact/);
+  await expect(name).toHaveValue('Styled folder');
+  await add.click();
+
+  await expect(modal).toBeHidden();
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    const folder = getState().data.folders.find(item => item.name === 'Styled folder');
+    return folder?.backgroundColor;
+  })).toBe('#ef4444');
+});
+
 test('closes an untouched bookmark draft without confirmation', async ({ page }) => {
   await revealSideDock(page);
   await page.locator('#add-toggle').click();
@@ -2217,7 +2262,7 @@ test('optionally deletes folders when deleting all bookmarks', async ({ page }) 
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Keep until selected');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Add', exact: true }).click();
   await waitForSaved(page);
 
   await revealSideDock(page);
@@ -2803,7 +2848,7 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Reading');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   const folder = page.locator('.bookmark-folder', { hasText: 'Reading' });
   await expect(folder).toBeVisible();
@@ -2923,7 +2968,7 @@ test('customizes a folder from its miniature and persists the appearance', async
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('PokeMMO');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   let folder = page.locator('.bookmark-folder', { hasText: 'PokeMMO' });
   await folder.getByRole('button', { name: /Open PokeMMO/ }).click();
@@ -3029,7 +3074,7 @@ test('scales folder previews and applies one centered tray style', async ({ page
     await page.locator('#add-toggle').click();
     await page.locator('#add-folder').click();
     await page.getByPlaceholder('Tools, inspiration…').fill(name);
-    await page.getByRole('button', { name: 'Accept' }).click();    await waitForSaved(page);
+    await page.getByRole('button', { name: 'Add', exact: true }).click();    await waitForSaved(page);
   }
 
   await page.evaluate(() => new Promise(resolve => {
@@ -3142,7 +3187,7 @@ test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ p
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Visual grid');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -3249,7 +3294,7 @@ test('moves a bookmark back to the workspace when dragged outside its folder', a
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Drag out');
-  await page.getByRole('button', { name: 'Accept' }).click();
+  await page.getByRole('button', { name: 'Add', exact: true }).click();
   await waitForSaved(page);
 
   const bookmarkId = await page.evaluate(() => {
@@ -3366,7 +3411,7 @@ test('honors None and Sequence inside a folder', async ({ page }) => {
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Drag modes');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -3462,7 +3507,7 @@ test('returns to the open folder after escaping, cancelling or saving bookmark e
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Edit return');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -3511,7 +3556,7 @@ test('deletes a bookmark permanently from an open folder after confirmation', as
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Delete inside');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
@@ -3550,7 +3595,7 @@ test('renames an open folder by double-clicking its title', async ({ page }) => 
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('PokeMMO');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   await page.locator('.bookmark-folder', { hasText: 'PokeMMO' })
     .getByRole('button', { name: /Open PokeMMO/ })
@@ -3593,7 +3638,7 @@ test('edits a folder directly and deletes it through bulk selection', async ({ p
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
   await page.getByPlaceholder('Tools, inspiration…').fill('Temporary');
-  await page.getByRole('button', { name: 'Accept' }).click();  await waitForSaved(page);
+  await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   await enableEditMode(page);
   let folder = page.locator('.bookmark-folder', { hasText: 'Temporary' });

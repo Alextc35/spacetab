@@ -163,7 +163,7 @@
   gap: 6px;
 }
 
-#edit-bookmark-modal.is-add-compact {
+:is(#edit-bookmark-modal, #edit-folder-modal).is-add-compact {
   & .modal-card.modal-xl {
     width: 420px;
     height: 330px;
@@ -215,6 +215,10 @@
   & .modal-actions {
     padding: 14px 22px;
   }
+}
+
+#edit-folder-modal.is-add-compact .modal-card.modal-xl {
+  height: 270px;
 }
 
 @media (prefers-reduced-motion: reduce) {

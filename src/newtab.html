@@ -149,7 +149,7 @@
       <header class="edit-bookmark-modal-header">
         <h2 data-i18n="folder.editor.title">Edit folder</h2>
       </header>
-      <div class="edit-item-modal-form folder-editor-form">
+      <div id="folder-editor-form" class="edit-item-modal-form folder-editor-form">
         <div class="edit-bookmark-modal-tabs" role="tablist">
           <button class="edit-bookmark-modal-tab-btn active" type="button"
             data-tab="folder-editor-panel-general" role="tab"
@@ -170,7 +170,8 @@
               class="modal-field edit-bookmark-modal-tab-content custom-scrollbar"
               role="tabpanel">
               <label for="folder-editor-name" data-i18n="folder.editor.name">Name:</label>
-              <input id="folder-editor-name" type="text" maxlength="60">
+              <input id="folder-editor-name" type="text" maxlength="60"
+                placeholder="Tools, inspiration…" data-i18n="folder.namePlaceholder">
               <p id="folder-editor-name-error" class="field-error is-hidden" role="alert"></p>
             </div>
             <div id="folder-editor-panel-style"
@@ -286,6 +287,10 @@
         </div>
       </div>
       <footer class="modal-actions">
+        <button id="folder-modal-density-toggle"
+          class="btn btn-secondary bookmark-modal-density-toggle is-hidden"
+          type="button" aria-expanded="false" aria-controls="folder-editor-form"
+          data-i18n="addModal.advancedOptions">⚙ Advanced options</button>
         <button id="edit-folder-modal-cancel" class="btn btn-ghost" type="button"
           data-i18n="buttons.cancel">Cancel</button>
         <button id="edit-folder-modal-save" class="btn btn-primary" type="button"

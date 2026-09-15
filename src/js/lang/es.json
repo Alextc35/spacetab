@@ -112,6 +112,7 @@
       "cancel": "¿Descartar los cambios en la edición?"
     },
     "folder": {
+      "createCancel": "¿Descartar la nueva carpeta?",
       "cancel": "¿Descartar los cambios de la carpeta?"
     },
     "recycleBin": {
@@ -231,6 +232,7 @@
       "cancelRename": "Cancelar el cambio de nombre"
     },
     "editor": {
+      "createTitle": "➕ Añadir nueva carpeta",
       "title": "Editar carpeta",
       "name": "Nombre:",
       "showFolder": "Mostrar icono de carpeta",

@@ -112,6 +112,7 @@
       "cancel": "Descartar as alterações da edição?"
     },
     "folder": {
+      "createCancel": "Descartar a nova pasta?",
       "cancel": "Descartar as alterações da pasta?"
     },
     "recycleBin": {
@@ -231,6 +232,7 @@
       "cancelRename": "Cancelar alteração do nome"
     },
     "editor": {
+      "createTitle": "➕ Adicionar nova pasta",
       "title": "Editar pasta",
       "name": "Nome:",
       "showFolder": "Mostrar ícone de pasta",

@@ -112,6 +112,7 @@
       "cancel": "Discard changes?"
     },
     "folder": {
+      "createCancel": "Discard new folder?",
       "cancel": "Discard folder changes?"
     },
     "recycleBin": {
@@ -231,6 +232,7 @@
       "cancelRename": "Cancel folder rename"
     },
     "editor": {
+      "createTitle": "➕ Add new folder",
       "title": "Edit folder",
       "name": "Name:",
       "showFolder": "Show folder icon",

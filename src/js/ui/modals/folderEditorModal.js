@@ -1,5 +1,6 @@
 import {
   BOOKMARK_FOLDER_NAME_MAX_LENGTH,
+  createBookmarkFolder,
   updateBookmarkFolder
 } from '../../core/bookmarkFolders.js';
 import { validateFolderDraft } from '../../core/folderModel.js';
@@ -18,11 +19,15 @@ import {
 import { showAlert } from './alert.js';
 import { createLockableInputController } from './helper/stateLocked.js';
 import { ensurePanelFits } from '../viewportMode.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 
 let initialized = false;
+/** @type {'create'|'edit'|null} */
+let mode = null;
 let activeFolderId = null;
 let initialValue = null;
 let modal;
+let modalTitle;
 let nameInput;
 let noBackgroundInput;
 let colorInput;
@@ -46,15 +51,18 @@ let imageUploadNotice;
 let textColorInput;
 let preview;
 let saveButton;
+let densityToggle;
 let nameError;
 let imageError;
 let imageController;
+let submitting = false;
 
 export function initFolderEditorModal() {
   if (initialized) return;
   initialized = true;
 
   modal = document.getElementById('edit-folder-modal');
+  modalTitle = modal.querySelector('h2');
   nameInput = document.getElementById('folder-editor-name');
   noBackgroundInput = document.getElementById('folder-editor-no-background');
   colorInput = document.getElementById('folder-editor-color');
@@ -77,6 +85,7 @@ export function initFolderEditorModal() {
   textColorInput = document.getElementById('folder-editor-text-color');
   preview = document.getElementById('folder-editor-preview');
   saveButton = document.getElementById('edit-folder-modal-save');
+  densityToggle = document.getElementById('folder-modal-density-toggle');
   nameError = document.getElementById('folder-editor-name-error');
   imageError = document.getElementById('folder-editor-image-error');
 
@@ -132,6 +141,10 @@ export function initFolderEditorModal() {
   document.getElementById('edit-folder-modal-cancel')
     .addEventListener('click', handleCancel);
   saveButton.addEventListener('click', handleSave);
+  densityToggle.addEventListener('click', () => {
+    setCreateCompactMode(!modal.classList.contains('is-add-compact'));
+    requestAnimationFrame(() => nameInput.focus());
+  });
 
   registerModal({
     id: 'folder-editor',
@@ -143,41 +156,73 @@ export function initFolderEditorModal() {
   });
 }
 
-export function openFolderEditor(folderId) {
+/** Opens a compact new-folder draft that can expand into the full editor. */
+export function openCreateFolder() {
   if (!ensurePanelFits()) return;
-  const folder = getState().data.folders.find(item => item.id === folderId);
-  if (!folder) return;
 
-  activeFolderId = folderId;
-  initialValue = editableFolderValue(folder);
-  nameInput.maxLength = BOOKMARK_FOLDER_NAME_MAX_LENGTH;
-  nameInput.value = initialValue.name;
-  noBackgroundInput.checked = initialValue.noBackground;
-  colorInput.value = initialValue.backgroundColor;
-  localColorInput.value = initialValue.backgroundColor;
-  outerBackgroundColor = initialValue.outerBackgroundColor;
-  outerColorInput.value = outerBackgroundColor || '#0f172a';
-  showFolderInput.checked = initialValue.showFolder;
-  showPreviewsInput.checked = initialValue.showPreviews;
-  showNameInput.checked = initialValue.showName;
-  showCountInput.checked = initialValue.showCount;
-  imageSourceSelect.value = initialValue.backgroundImageSource;
-  setImageInputValue(imageInput, initialValue.backgroundImageUrl);
-  setImageInputValue(localImageInput, initialValue.backgroundImageLocal);
-  textColorInput.value = initialValue.textColor;
-  imageController.setLocked(initialValue.backgroundImageUrlLocked);
-  setLocalImageSyncNoticeVisibility(imageUploadNotice, getStorageMode());
-  clearErrors();
-  syncStyleControls();
-  activateGeneralTab();
-  renderPreview();
-  syncSaveButton();
+  mode = 'create';
+  activeFolderId = null;
+  initialValue = editableFolderValue({ name: '' });
+  populateForm(initialValue);
+  modalTitle.textContent = t('folder.editor.createTitle');
+  saveButton.textContent = t('buttons.add');
+  setCreateCompactMode(true);
+  prepareEditor();
 
   openModal('folder-editor', {
     onAccept: handleSave,
     onCancel: handleCancel,
     initialFocus: nameInput
   });
+}
+
+export function openFolderEditor(folderId) {
+  if (!ensurePanelFits()) return;
+  const folder = getState().data.folders.find(item => item.id === folderId);
+  if (!folder) return;
+
+  mode = 'edit';
+  activeFolderId = folderId;
+  initialValue = editableFolderValue(folder);
+  populateForm(initialValue);
+  modalTitle.textContent = t('folder.editor.title');
+  saveButton.textContent = t('buttons.save');
+  setCreateCompactMode(false);
+  prepareEditor();
+
+  openModal('folder-editor', {
+    onAccept: handleSave,
+    onCancel: handleCancel,
+    initialFocus: nameInput
+  });
+}
+
+function populateForm(value) {
+  nameInput.maxLength = BOOKMARK_FOLDER_NAME_MAX_LENGTH;
+  nameInput.value = value.name;
+  noBackgroundInput.checked = value.noBackground;
+  colorInput.value = value.backgroundColor;
+  localColorInput.value = value.backgroundColor;
+  outerBackgroundColor = value.outerBackgroundColor;
+  outerColorInput.value = outerBackgroundColor || '#0f172a';
+  showFolderInput.checked = value.showFolder;
+  showPreviewsInput.checked = value.showPreviews;
+  showNameInput.checked = value.showName;
+  showCountInput.checked = value.showCount;
+  imageSourceSelect.value = value.backgroundImageSource;
+  setImageInputValue(imageInput, value.backgroundImageUrl);
+  setImageInputValue(localImageInput, value.backgroundImageLocal);
+  textColorInput.value = value.textColor;
+  imageController.setLocked(value.backgroundImageUrlLocked);
+}
+
+function prepareEditor() {
+  setLocalImageSyncNoticeVisibility(imageUploadNotice, getStorageMode());
+  clearErrors();
+  syncStyleControls();
+  activateGeneralTab();
+  renderPreview();
+  syncSaveButton();
 }
 
 function handleInput() {
@@ -245,16 +290,25 @@ function syncStyleControls() {
 }
 
 function syncSaveButton() {
+  if (mode === 'create') {
+    const hasName = currentValue().name.trim().length > 0;
+    saveButton.disabled = !hasName;
+    saveButton.classList.toggle('is-disabled', !hasName);
+    saveButton.classList.remove('is-hidden');
+    return;
+  }
+
   const changed = isDirty();
   saveButton.disabled = !changed;
   saveButton.classList.toggle('is-hidden', !changed);
+  saveButton.classList.remove('is-disabled');
 }
 
 function renderPreview() {
   const folder = currentValue();
-  const bookmarks = getState().data.bookmarks.filter(
-    bookmark => bookmark.folderId === activeFolderId
-  );
+  const bookmarks = activeFolderId
+    ? getState().data.bookmarks.filter(bookmark => bookmark.folderId === activeFolderId)
+    : [];
   const count = bookmarks.length;
   const name = folder.name.trim() || t('folder.editor.previewName');
   const card = document.createElement('div');
@@ -278,6 +332,11 @@ function renderPreview() {
 }
 
 async function handleSave() {
+  if (submitting) return;
+  if (mode === 'create') {
+    await handleCreate();
+    return;
+  }
   if (!activeFolderId || !isDirty()) return;
   const result = validateFolderDraft(currentValue());
   if (!result.isValid) {
@@ -293,9 +352,40 @@ async function handleSave() {
   closeFolderEditor();
 }
 
+async function handleCreate() {
+  const result = validateFolderDraft(currentValue());
+  if (!result.isValid) {
+    renderErrors(result.errors);
+    return;
+  }
+
+  submitting = true;
+  try {
+    const created = createBookmarkFolder(result.value.name, {
+      columns: getMaxVisibleCols(),
+      rows: getMaxVisibleRows()
+    }, result.value);
+    if (!created) {
+      closeFolderEditor();
+      await new Promise(requestAnimationFrame);
+      await showAlert(t('folder.noSpace'), { type: 'info' });
+      return;
+    }
+
+    await waitForPersistence();
+    flashSuccess('flash.folder.created');
+    closeFolderEditor();
+  } finally {
+    submitting = false;
+    imageUploadInput.value = '';
+  }
+}
+
 async function handleCancel() {
   if (isDirty()) {
-    const confirmed = await showAlert(t('alert.folder.cancel'), { type: 'confirm' });
+    const confirmed = await showAlert(t(
+      mode === 'create' ? 'alert.folder.createCancel' : 'alert.folder.cancel'
+    ), { type: 'confirm' });
     if (!confirmed) return false;
   }
   closeFolderEditor();
@@ -339,7 +429,31 @@ function activateGeneralTab() {
   }
 }
 
+function setCreateCompactMode(compact) {
+  const isCreateMode = mode === 'create';
+  const nextCompact = isCreateMode && compact;
+  if (nextCompact) activateGeneralTab();
+
+  modal.classList.toggle('is-add-compact', nextCompact);
+  densityToggle.classList.toggle('is-hidden', !isCreateMode);
+  densityToggle.setAttribute('aria-expanded', String(isCreateMode && !nextCompact));
+  densityToggle.textContent = t(
+    nextCompact ? 'addModal.advancedOptions' : 'addModal.compactView'
+  );
+
+  for (const element of modal.querySelectorAll(
+    '.edit-bookmark-modal-tabs, .edit-bookmark-modal-preview-panel'
+  )) {
+    element.inert = nextCompact;
+    if (nextCompact) element.setAttribute('aria-hidden', 'true');
+    else element.removeAttribute('aria-hidden');
+  }
+}
+
 function closeFolderEditor() {
+  modal.classList.remove('is-add-compact');
+  densityToggle.classList.add('is-hidden');
+  mode = null;
   activeFolderId = null;
   initialValue = null;
   closeModal('folder-editor');

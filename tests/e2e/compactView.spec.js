@@ -586,7 +586,7 @@ test('compact view hides unavailable tools and blocks shortcuts until exactly 60
   await expect(page.locator('#edit-bookmark-modal')).toBeHidden();
   await page.setViewportSize({ width: 600, height: 720 });
   await expect(page.locator('#floating-menu')).toBeVisible();
-  for (const [id, modal] of [['settings', '#settings-modal'], ['add-bookmark', '#edit-bookmark-modal'], ['add-folder', '#alert-modal']]) {
+  for (const [id, modal] of [['settings', '#settings-modal'], ['add-bookmark', '#edit-bookmark-modal'], ['add-folder', '#edit-folder-modal']]) {
     await sideAction(page, id);
     await expect(page.locator(modal)).toBeVisible();
     await page.keyboard.press('Escape');
@@ -714,23 +714,21 @@ test('preserves nested folder edits and confirmations while the readable folder 
   await expect.poll(async () => (await data(page)).folders[0].name).toBe('Draft folder name');
 });
 
-test('preserves a folder creation prompt without another prompt overwriting it', async ({ page }) => {
+test('preserves a new folder draft while the full editor is unavailable', async ({ page }) => {
   await start(page);
   const original = await data(page);
   await sideAction(page, 'add-folder');
-  await page.locator('#alert-modal-input').fill('Unfinished folder');
+  const name = page.locator('#folder-editor-name');
+  await name.fill('Unfinished folder');
   await page.setViewportSize({ width: 430, height: 720 });
-  await expect(page.locator('#alert-modal')).toBeHidden();
+  await expect(page.locator('#edit-folder-modal')).toBeHidden();
   await page.keyboard.press('Enter');
-  await page.mouse.move(215, 715);
-  await page.locator('#workspace-add').click();
-  await expect(page.locator('#alert-modal')).toBeHidden();
   expect(await data(page)).toEqual(original);
   await page.setViewportSize({ width: 600, height: 720 });
-  await expect(page.locator('#alert-modal-input')).toBeVisible();
-  await expect(page.locator('#alert-modal-input')).toHaveValue('Unfinished folder');
-  await page.locator('#alert-modal-accept').click();
-  await expect(page.locator('#alert-modal')).toBeHidden();
+  await expect(name).toBeVisible();
+  await expect(name).toHaveValue('Unfinished folder');
+  await page.locator('#edit-folder-modal-save').click();
+  await expect(page.locator('#edit-folder-modal')).toBeHidden();
   await expect.poll(async () => (await data(page)).folders.some(folder => folder.name === 'Unfinished folder')).toBe(true);
 });
 
