@@ -565,11 +565,20 @@
             </section>
             <section class="settings-recycle-bin" aria-labelledby="settings-recycle-bin-title">
               <h3 id="settings-recycle-bin-title" data-i18n="settingsModal.general.recycleBin.title">Papelera de reciclaje</h3>
-              <div class="checkbox-wrapper">
-                <input id="settings-show-recycle-bin" type="checkbox">
-                <label for="settings-show-recycle-bin" data-i18n="settingsModal.general.recycleBin.show">Mostrar la papelera en la grilla principal</label>
-              </div>
-              <p class="settings-section-description" data-i18n="settingsModal.general.recycleBin.hint">Los elementos eliminados se conservan durante 28 días.</p>
+              <label class="settings-recycle-bin-option" for="settings-show-recycle-bin">
+                <span class="settings-recycle-bin-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" />
+                  </svg>
+                </span>
+                <span class="settings-recycle-bin-copy">
+                  <strong data-i18n="settingsModal.general.recycleBin.show">Mostrar la papelera en la grilla principal</strong>
+                  <small id="settings-recycle-bin-hint" data-i18n="settingsModal.general.recycleBin.hint">Los elementos eliminados se conservan durante 28 días.</small>
+                </span>
+                <span class="checkbox-wrapper settings-recycle-bin-switch">
+                  <input id="settings-show-recycle-bin" type="checkbox" aria-describedby="settings-recycle-bin-hint">
+                </span>
+              </label>
             </section>
             <h3 data-i18n="settingsModal.general.subtitle">Ajustes</h3>
             <div id="settings-modal-background-settings" class="modal-field">

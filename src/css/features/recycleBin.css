@@ -195,8 +195,104 @@
 .recycle-bin-modal-footer { display: flex; min-height: 66px; padding: 12px 22px; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid var(--ui-divider); }
 .recycle-bin-modal-footer > span { color: var(--ui-muted); font-size: .78rem; }
 .recycle-bin-selection-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
-.settings-recycle-bin { padding: 14px 0; border-bottom: 1px solid var(--ui-divider); }
-.settings-recycle-bin h3 { margin-top: 0; }
+.settings-recycle-bin {
+  padding: 14px 0 18px;
+  border-bottom: 1px solid var(--ui-divider);
+}
+
+.settings-recycle-bin h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+.settings-recycle-bin-option {
+  display: grid;
+  min-width: 0;
+  padding: 14px;
+  align-items: center;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: light-dark(#fff, var(--ui-card));
+  cursor: pointer;
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+
+.settings-recycle-bin-option:hover {
+  border-color: color-mix(in srgb, var(--ui-accent) 55%, var(--ui-border));
+  background: var(--ui-hover);
+}
+
+.settings-recycle-bin-option:has(:checked) {
+  border-color: color-mix(in srgb, var(--ui-accent) 70%, var(--ui-border));
+  background: var(--ui-selected);
+}
+
+.settings-recycle-bin-option:has(:focus-visible) {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--ui-focus-ring);
+}
+
+.settings-recycle-bin-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--ui-accent) 28%, var(--ui-border));
+  border-radius: 11px;
+  background: var(--ui-info-bg);
+  color: var(--ui-info-text);
+}
+
+.settings-recycle-bin-icon svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.settings-recycle-bin-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.settings-recycle-bin-copy strong {
+  color: var(--ui-text);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.settings-recycle-bin-copy small {
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.settings-recycle-bin-switch {
+  justify-self: end;
+}
+
+.settings-recycle-bin-switch input[type="checkbox"] {
+  width: 44px;
+  height: 24px;
+  flex: 0 0 44px;
+  margin: 0;
+}
+
+.settings-recycle-bin-switch input[type="checkbox"]::before {
+  width: 18px;
+  height: 18px;
+}
+
+.settings-recycle-bin-switch input[type="checkbox"]:checked::before {
+  transform: translateX(20px);
+}
 
 .recycle-bin-editor-preview-card {
   position: relative;
