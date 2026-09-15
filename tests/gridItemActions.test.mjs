@@ -35,7 +35,8 @@ globalThis.chrome = {
 const {
   applyDefaultStylesToGridItems,
   duplicateGridItems,
-  moveGridItemsToGroup
+  moveGridItemsToGroup,
+  permanentlyDeleteGridItem
 } = await import('../src/js/core/gridItemActions.js');
 const { moveGridItemsToRecycleBin } = await import('../src/js/core/recycleBin.js');
 const {
@@ -180,4 +181,25 @@ test('moves a mixed selection with folder contents and deletes it atomically', a
   assert.deepEqual(getState().data.bookmarks.map(item => item.id).sort(), ['child', 'top']);
   assert.deepEqual(getState().data.folders.map(item => item.id), ['folder']);
   assert.deepEqual(getState().data.trash, []);
+});
+
+test('permanently deletes live bookmarks and complete folders without undo history', async () => {
+  await seed();
+  assert.deepEqual(permanentlyDeleteGridItem('bookmark', 'top'), {
+    deleted: true,
+    bookmarkCount: 1
+  });
+  assert.equal(getState().data.bookmarks.some(item => item.id === 'top'), false);
+  assert.deepEqual(getState().data.trash, []);
+  assert.equal(await undoBookmarks(), false);
+
+  await seed();
+  assert.deepEqual(permanentlyDeleteGridItem('folder', 'folder'), {
+    deleted: true,
+    bookmarkCount: 1
+  });
+  assert.deepEqual(getState().data.folders, []);
+  assert.equal(getState().data.bookmarks.some(item => item.id === 'child'), false);
+  assert.deepEqual(getState().data.trash, []);
+  assert.equal(await undoBookmarks(), false);
 });

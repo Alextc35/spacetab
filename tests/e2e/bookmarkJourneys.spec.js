@@ -605,6 +605,7 @@ test('keeps long bookmark titles centered and truncated inside their card', asyn
 test('selects on a short click and exposes only the direct edit control', async ({ page }) => {
   await enableEditMode(page);
   const bookmark = page.locator('#bookmark-container > .bookmark').first();
+  const secondBookmark = page.locator('#bookmark-container > .bookmark').nth(1);
   const controls = bookmark.getByRole('group', { name: 'Bookmark controls' });
   const edit = bookmark.getByRole('button', { name: 'Edit bookmark' });
 
@@ -623,9 +624,12 @@ test('selects on a short click and exposes only the direct edit control', async 
 
   await bookmark.click();
   await expect(bookmark).toHaveClass(/is-selected/);
-
-  await bookmark.click();
+  await secondBookmark.click();
+  await expect(page.locator('#bookmark-container > .bookmark.is-selected')).toHaveCount(2);
+  await page.keyboard.press('Escape');
   await expect(bookmark).not.toHaveClass(/is-selected/);
+  await expect(secondBookmark).not.toHaveClass(/is-selected/);
+  await expect(page.locator('#bulk-actions')).toHaveClass(/is-hidden/);
 
   await page.mouse.move(
     bookmarkBox.x + bookmarkBox.width / 2,
@@ -648,12 +652,14 @@ test('selects on a short click and exposes only the direct edit control', async 
 });
 
 test('navigates the grid with Tab and opens the keyboard-focused bookmark', async ({ page }) => {
+  const grid = page.locator('#bookmark-container');
   const bookmarks = page.locator('#bookmark-container > .bookmark[data-bookmark-id]');
   const first = bookmarks.nth(0);
   const second = bookmarks.nth(1);
   const recycleBin = page.locator('#bookmark-container .recycle-bin');
 
   await page.keyboard.press('Tab');
+  await expect(grid).toHaveCSS('outline-style', 'none');
   await expect(recycleBin).toHaveClass(/is-keyboard-active/);
   await page.keyboard.press('ArrowDown');
   await expect(first).toHaveClass(/is-keyboard-active/);
@@ -801,9 +807,46 @@ test('marks the keyboard-focused bookmark with S while editing', async ({ page }
 
   await expect(grid).toBeFocused();
   await page.keyboard.press('Tab');
+  const recycleBin = page.locator('#bookmark-container .recycle-bin');
+  await expect(recycleBin).toHaveClass(/is-keyboard-active/);
+
+  await page.keyboard.press('s');
+  await expect(grid).toHaveClass(/is-grid-keyboard-rejected/);
+  await expect(page.locator('#bookmark-container .is-selected')).toHaveCount(0);
+  await expect.poll(() => grid.evaluate(element => (
+    getComputedStyle(element, '::after').borderTopColor
+  ))).toBe('rgba(239, 68, 68, 0.98)');
+
+  await page.keyboard.press('Backspace');
+  await expect(grid).toHaveClass(/is-grid-keyboard-rejected/);
+  await expect(page.locator('#alert-modal')).toBeHidden();
+
   await page.keyboard.press('ArrowDown');
   await expect(first).toHaveClass(/is-keyboard-active/);
+  await expect(grid).not.toHaveClass(/is-grid-keyboard-rejected/);
 
+  await page.keyboard.press('s');
+  await expect(first).toHaveClass(/is-selected/);
+
+  await page.keyboard.press('Escape');
+  await expect(first).not.toHaveClass(/is-selected/);
+  await expect(first).toHaveClass(/is-keyboard-active/);
+
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#bookmark-container .is-keyboard-active')).toHaveCount(0);
+
+  await page.keyboard.press('Escape');
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return getState().ui.isEditing;
+  })).toBe(false);
+
+  await enableEditMode(page);
+
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowDown');
+  await expect(first).toHaveClass(/is-keyboard-active/);
   await page.keyboard.press('s');
   await expect(first).toHaveClass(/is-selected/);
 
@@ -856,6 +899,11 @@ test('navigates folders and opens them according to the current edit mode', asyn
 
   const grid = page.locator('#bookmark-container');
   const folder = page.locator('.bookmark-folder', { hasText: 'Keyboard folder' });
+  const folderVisual = folder.locator('.folder-visual');
+  const restingFilter = await folderVisual.evaluate(element => getComputedStyle(element).filter);
+  await folder.locator('.folder-open').hover();
+  await expect(folderVisual).toHaveCSS('transform', 'none');
+  await expect(folderVisual).toHaveCSS('filter', restingFilter);
   await grid.focus();
   await page.keyboard.press('Tab');
   await page.keyboard.press('ArrowDown');
@@ -946,7 +994,198 @@ test('keeps horizontal navigation on the current row across a gap', async ({ pag
   await expect(left).toHaveClass(/is-keyboard-active/);
 });
 
-test('keeps the current row before a nearer diagonal card', async ({ page }) => {
+test('confirms Backspace and Delete on the keyboard-focused bookmark while editing', async ({ page }) => {
+  await enableEditMode(page);
+  const grid = page.locator('#bookmark-container');
+  const first = page.locator('#bookmark-container > .bookmark[data-bookmark-id]').first();
+  const bookmarkId = await first.getAttribute('data-bookmark-id');
+  const secondBookmarkId = await page
+    .locator('#bookmark-container > .bookmark[data-bookmark-id]')
+    .nth(1)
+    .getAttribute('data-bookmark-id');
+  const second = page.locator(`[data-bookmark-id="${secondBookmarkId}"]`);
+  const trashCount = await page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return getState().data.trash.length;
+  });
+
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowDown');
+  await expect(first).toHaveClass(/is-keyboard-active/);
+  await expect(first).not.toHaveClass(/is-selected/);
+
+  await page.keyboard.press('Backspace');
+  await expect(page.locator('#alert-modal-title')).toHaveText('Delete “DEVELOPED BY”?');
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(first).toBeVisible();
+  await expect(first).toHaveClass(/is-keyboard-active/);
+  await expect(grid).toBeFocused();
+
+  await page.keyboard.press('Shift+Delete');
+  await expect(page.locator('#alert-modal-title'))
+    .toHaveText('Permanently delete “DEVELOPED BY”? This cannot be undone.');
+  await page.getByRole('button', { name: 'Accept', exact: true }).click();
+  await expect(page.locator(`[data-bookmark-id="${bookmarkId}"]`)).toHaveCount(0);
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return getState().data.trash.length;
+  })).toBe(trashCount);
+  await page.keyboard.press('Control+KeyZ');
+  await expect(page.locator(`[data-bookmark-id="${bookmarkId}"]`)).toHaveCount(0);
+  await expect(second).toHaveClass(/is-keyboard-active/);
+  await expect(grid).toBeFocused();
+
+  await page.keyboard.press('Delete');
+  await expect(page.locator('#alert-modal-title')).toHaveText('Delete “banana”?');
+  await page.getByRole('button', { name: 'Accept', exact: true }).click();
+  await expect(page.locator(`[data-bookmark-id="${secondBookmarkId}"]`)).toHaveCount(0);
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return getState().data.trash.length;
+  })).toBe(trashCount + 1);
+  await expect(page.locator('#bookmark-container .is-keyboard-active')).toHaveCount(1);
+  await expect(grid).toBeFocused();
+  await expect(grid).toHaveClass(/has-grid-keyboard-cursor/);
+});
+
+test('confirms Delete and Backspace on an unselected keyboard-focused folder', async ({ page }) => {
+  await revealSideDock(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('Delete with keyboard');
+  await page.getByRole('button', { name: 'Accept', exact: true }).click();
+  await waitForSaved(page);
+
+  await page.evaluate(() => {
+    const storageKey = 'spacetab-test-local';
+    const stored = JSON.parse(sessionStorage.getItem(storageKey));
+    Object.assign(stored.recycleBin, { gx: 0, gy: 0, w: 1, h: 1 });
+    const folder = stored.folders.find(item => item.name === 'Delete with keyboard');
+    Object.assign(folder, { gx: 0, gy: 1, w: 1, h: 1 });
+    stored.bookmarks.forEach((bookmark, index) => {
+      Object.assign(bookmark, { gx: 4 + index, gy: 4 });
+    });
+    sessionStorage.setItem(storageKey, JSON.stringify(stored));
+  });
+  await reloadSavedPage(page);
+  await enableEditMode(page);
+
+  const grid = page.locator('#bookmark-container');
+  const folder = page.locator('.bookmark-folder', { hasText: 'Delete with keyboard' });
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('ArrowDown');
+  await expect(folder).toHaveClass(/is-keyboard-active/);
+  await expect(folder).not.toHaveClass(/is-selected/);
+
+  await page.keyboard.press('Delete');
+  await expect(page.locator('#alert-modal-title'))
+    .toHaveText('Move “Delete with keyboard” and its 0 bookmarks to the recycle bin?');
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(grid).toBeFocused();
+  await expect(folder).toBeVisible();
+
+  await page.keyboard.press('Shift+Backspace');
+  await expect(page.locator('#alert-modal-title')).toHaveText(
+    'Permanently delete “Delete with keyboard” and its 0 bookmarks? This cannot be undone.'
+  );
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(folder).toHaveClass(/is-keyboard-active/);
+
+  await page.keyboard.press('Backspace');
+  await page.getByRole('button', { name: 'Accept', exact: true }).click();
+  await expect(folder).toHaveCount(0);
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return getState().data.trash.some(entry => (
+      entry.type === 'folder' && entry.folder.name === 'Delete with keyboard'
+    ));
+  })).toBe(true);
+  await expect(page.locator('#bookmark-container .is-keyboard-active')).toHaveCount(1);
+  await expect(grid).toBeFocused();
+  await expect(grid).toHaveClass(/has-grid-keyboard-cursor/);
+});
+
+test('continues Tab navigation on the next occupied row after the row edge', async ({ page }) => {
+  await page.evaluate(() => {
+    const storageKey = 'spacetab-test-local';
+    const stored = JSON.parse(sessionStorage.getItem(storageKey));
+
+    Object.assign(stored.recycleBin, { gx: 0, gy: 0, w: 1, h: 1 });
+    Object.assign(stored.bookmarks[0], { gx: 10, gy: 0, w: 1, h: 1 });
+    Object.assign(stored.bookmarks[1], { gx: 3, gy: 4, w: 3, h: 2 });
+    sessionStorage.setItem(storageKey, JSON.stringify(stored));
+  });
+  await reloadSavedPage(page);
+
+  const grid = page.locator('#bookmark-container');
+  const rowEnd = page.locator('#bookmark-container > .bookmark').nth(0);
+  const nextRow = page.locator('#bookmark-container > .bookmark').nth(1);
+
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await expect(grid).toHaveClass(/has-grid-keyboard-cursor/);
+  const entranceGeometryAnimations = await grid.evaluate(element => (
+    element.getAnimations({ subtree: true })
+      .filter(animation => ['left', 'top', 'width', 'height'].includes(animation.transitionProperty))
+      .length
+  ));
+  expect(entranceGeometryAnimations).toBe(0);
+  const initialCursorX = await grid.evaluate(element => (
+    element.style.getPropertyValue('--grid-keyboard-cursor-x')
+  ));
+
+  await page.keyboard.press('ArrowRight');
+  await expect(rowEnd).toHaveClass(/is-keyboard-active/);
+  await expect(rowEnd).toHaveCSS('outline-style', 'none');
+  await expect.poll(() => grid.evaluate(element => (
+    element.style.getPropertyValue('--grid-keyboard-cursor-x')
+  ))).not.toBe(initialCursorX);
+
+  await page.keyboard.press('ArrowRight');
+  await expect(nextRow).toHaveClass(/is-keyboard-active/);
+
+  await page.keyboard.press('ArrowLeft');
+  await expect(rowEnd).toHaveClass(/is-keyboard-active/);
+});
+
+test('limits rapid Tab navigation to one pending arrow move', async ({ page }) => {
+  await page.evaluate(() => {
+    const storageKey = 'spacetab-test-local';
+    const stored = JSON.parse(sessionStorage.getItem(storageKey));
+
+    Object.assign(stored.recycleBin, { gx: 0, gy: 0, w: 1, h: 1 });
+    Object.assign(stored.bookmarks[0], { gx: 10, gy: 0, w: 1, h: 1 });
+    Object.assign(stored.bookmarks[1], { gx: 3, gy: 4, w: 3, h: 2 });
+    sessionStorage.setItem(storageKey, JSON.stringify(stored));
+  });
+  await reloadSavedPage(page);
+
+  const grid = page.locator('#bookmark-container');
+  const rowEnd = page.locator('#bookmark-container > .bookmark').nth(0);
+  const nextRow = page.locator('#bookmark-container > .bookmark').nth(1);
+
+  await grid.focus();
+  await page.keyboard.press('Tab');
+  await page.evaluate(() => {
+    for (let index = 0; index < 3; index++) {
+      document.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'ArrowRight',
+        bubbles: true,
+        cancelable: true
+      }));
+    }
+  });
+
+  await expect(rowEnd).toHaveClass(/is-keyboard-active/);
+  await page.waitForTimeout(150);
+  await expect(nextRow).toHaveClass(/is-keyboard-active/);
+  await page.waitForTimeout(150);
+  await expect(nextRow).toHaveClass(/is-keyboard-active/);
+});
+
+test('keeps the current row even when its next card is far away', async ({ page }) => {
   await createBookmark(page, 'Same row target', 'same-row.test');
 
   await page.evaluate(() => {
@@ -973,7 +1212,7 @@ test('keeps the current row before a nearer diagonal card', async ({ page }) => 
   await page.keyboard.press('ArrowRight');
   await expect(target).toHaveClass(/is-keyboard-active/);
 
-  // With two empty cells, the nearby diagonal route is allowed to win.
+  // Empty cells do not make a diagonal card steal horizontal navigation.
   await page.evaluate(() => {
     const storageKey = 'spacetab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
@@ -986,7 +1225,7 @@ test('keeps the current row before a nearer diagonal card', async ({ page }) => 
   await page.keyboard.press('Tab');
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowRight');
-  await expect(page.getByRole('link', { name: 'banana', exact: true }).locator('..'))
+  await expect(target)
     .toHaveClass(/is-keyboard-active/);
 });
 
@@ -1050,7 +1289,7 @@ test('follows adjacent folders through remembered entry rows and columns', async
   await expect(page.locator('.bookmark-folder', { hasText: 'PokeMMO' }))
     .toHaveClass(/is-keyboard-active/);
   await page.keyboard.press('ArrowDown');
-  await expect(page.locator('.bookmark-folder', { hasText: 'PokeMMO' }))
+  await expect(page.locator('.bookmark', { hasText: 'DEVELOPED BY' }))
     .toHaveClass(/is-keyboard-active/);
 });
 
@@ -2472,18 +2711,14 @@ test('runs every bulk action on a mixed bookmark and folder selection', async ({
   })).toBe(2);
 });
 
-test('opens the bookmark editor with middle click without opening a tab', async ({ page }) => {
+test('does not use middle click as an editing shortcut', async ({ page }) => {
   await enableEditMode(page);
   const bookmark = page.locator('#bookmark-container > .bookmark[data-bookmark-id]').first();
-  const bulkActions = page.getByRole('toolbar', { name: 'Selected item actions' });
 
-  await bookmark.click({ button: 'middle' });
+  await bookmark.dispatchEvent('pointerdown', { button: 1, bubbles: true });
 
-  await expect(page.locator('#edit-bookmark-modal')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Edit bookmark' })).toBeVisible();
-  await expect(page.locator('#bookmark-modal-form-name')).toHaveValue('DEVELOPED BY');
+  await expect(page.locator('#edit-bookmark-modal')).toBeHidden();
   await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
-  await expect(bulkActions).toBeHidden();
   await expect.poll(() => page.context().pages().length).toBe(1);
 });
 
@@ -2491,7 +2726,7 @@ test('locks the bookmark image base color together with its image URL', async ({
   await enableEditMode(page);
   const bookmark = page.locator('#bookmark-container > .bookmark[data-bookmark-id]').nth(1);
 
-  await bookmark.click({ button: 'middle' });
+  await bookmark.getByRole('button', { name: 'Edit bookmark' }).click();
 
   const editor = page.locator('#edit-bookmark-modal');
   await editor.getByRole('tab', { name: 'Style' }).click();
@@ -2511,7 +2746,7 @@ test('locks the bookmark image base color together with its image URL', async ({
   await editor.getByRole('button', { name: 'Save' }).click();
 
   await expect(bookmark).toHaveCSS('--color-bg-bookmark', '#dc2626');
-  await bookmark.click({ button: 'middle' });
+  await bookmark.getByRole('button', { name: 'Edit bookmark' }).click();
   await editor.getByRole('tab', { name: 'Style' }).click();
   await expect(editor.locator('[data-field="backgroundColor"]')).toHaveValue('#dc2626');
   await expect(editor.locator('[data-field="backgroundColor"]')).toBeDisabled();

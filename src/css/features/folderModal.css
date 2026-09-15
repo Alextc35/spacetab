@@ -122,13 +122,6 @@
   border-radius: calc(var(--radius-md) - 3px);
 }
 
-.bookmark-folder:not(.is-editing) .folder-open:hover .folder-visual {
-  filter:
-    drop-shadow(0 14px 14px rgba(2, 8, 23, .42))
-    drop-shadow(0 0 10px color-mix(in srgb, var(--folder-color) 18%, transparent));
-  transform: translateY(-2px);
-}
-
 .folder-visual {
   position: relative;
   display: block;
@@ -140,8 +133,6 @@
   filter:
     drop-shadow(0 12px 13px rgba(2, 8, 23, .38))
     drop-shadow(0 0 1px color-mix(in srgb, var(--folder-color) 48%, transparent));
-  transform: translateY(0);
-  transition: filter .2s ease, transform .2s ease;
 }
 
 .folder-tab {

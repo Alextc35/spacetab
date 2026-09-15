@@ -3,7 +3,7 @@ import { applyBookmarkPreset, normalizeBookmark } from './bookmarkModel.js';
 import { getGridItemsInGroup } from './bookmarkFolders.js';
 import { DEFAULT_FOLDER_STYLE } from './defaults.js';
 import { findFirstFreeSlot } from './grid.js';
-import { getState, setState } from './store.js';
+import { clearBookmarkHistory, getState, setState } from './store.js';
 
 /** Applies the appropriate default appearance to bookmarks and folders atomically. */
 export function applyDefaultStylesToGridItems(selectedItems, bookmarkPreset) {
@@ -185,6 +185,34 @@ export function moveGridItemsToGroup(selectedItems, groupId, { columns, rows } =
     setState({ data: { bookmarks, folders } });
   }
   return { moved, skipped };
+}
+
+/** Permanently deletes one live bookmark or complete folder without creating undo history. */
+export function permanentlyDeleteGridItem(kind, itemId) {
+  const { data } = getState();
+  if (kind === 'bookmark') {
+    const bookmarks = data.bookmarks.filter(bookmark => bookmark.id !== itemId);
+    if (bookmarks.length === data.bookmarks.length) {
+      return { deleted: false, bookmarkCount: 0 };
+    }
+    setState({ data: { bookmarks } }, { recordHistory: false });
+    clearBookmarkHistory();
+    return { deleted: true, bookmarkCount: 1 };
+  }
+
+  if (kind !== 'folder' || !data.folders.some(folder => folder.id === itemId)) {
+    return { deleted: false, bookmarkCount: 0 };
+  }
+
+  const bookmarkCount = data.bookmarks.filter(bookmark => bookmark.folderId === itemId).length;
+  setState({
+    data: {
+      bookmarks: data.bookmarks.filter(bookmark => bookmark.folderId !== itemId),
+      folders: data.folders.filter(folder => folder.id !== itemId)
+    }
+  }, { recordHistory: false });
+  clearBookmarkHistory();
+  return { deleted: true, bookmarkCount };
 }
 
 function selectedSets(selectedItems) {

@@ -108,6 +108,7 @@
         "cancel": "¿Descartar el nuevo marcador?"
       },
       "confirmDelete": "¿Eliminar «{{name}}»?",
+      "confirmPermanentDelete": "¿Eliminar «{{name}}» definitivamente? Esta acción no se puede deshacer.",
       "cancel": "¿Descartar los cambios de la edición?"
     },
     "folder": {
@@ -217,6 +218,7 @@
     "noSpace": "No queda ninguna celda libre para crear una carpeta.",
     "removeNoSpace": "No hay espacio suficiente en la cuadrícula para sacar este marcador de la carpeta.",
     "confirmDelete": "¿Mover «{{name}}» y sus {{count}} marcadores a la papelera?",
+    "confirmPermanentDelete": "¿Eliminar definitivamente «{{name}}» y sus {{count}} marcadores? Esta acción no se puede deshacer.",
     "actions": {
       "ariaLabel": "Controles de la carpeta",
       "customize": "Personalizar carpeta",

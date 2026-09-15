@@ -108,6 +108,7 @@
         "cancel": "Descartar o novo favorito?"
       },
       "confirmDelete": "Excluir «{{name}}»?",
+      "confirmPermanentDelete": "Excluir «{{name}}» permanentemente? Esta ação não pode ser desfeita.",
       "cancel": "Descartar as alterações da edição?"
     },
     "folder": {
@@ -217,6 +218,7 @@
     "noSpace": "Não há nenhuma célula livre para criar uma pasta.",
     "removeNoSpace": "Não há espaço suficiente na grade para retirar este favorito da pasta.",
     "confirmDelete": "Mover «{{name}}» e seus {{count}} favoritos para a lixeira?",
+    "confirmPermanentDelete": "Excluir permanentemente «{{name}}» e seus {{count}} favoritos? Esta ação não pode ser desfeita.",
     "actions": {
       "ariaLabel": "Controles da pasta",
       "customize": "Personalizar pasta",

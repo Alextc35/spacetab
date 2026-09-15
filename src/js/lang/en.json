@@ -108,6 +108,7 @@
         "cancel": "Discard new bookmark?"
       },
       "confirmDelete": "Delete “{{name}}”?",
+      "confirmPermanentDelete": "Permanently delete “{{name}}”? This cannot be undone.",
       "cancel": "Discard changes?"
     },
     "folder": {
@@ -217,6 +218,7 @@
     "noSpace": "There is no free grid cell for a new folder.",
     "removeNoSpace": "There is not enough grid space to remove this bookmark from the folder.",
     "confirmDelete": "Move “{{name}}” and its {{count}} bookmarks to the recycle bin?",
+    "confirmPermanentDelete": "Permanently delete “{{name}}” and its {{count}} bookmarks? This cannot be undone.",
     "actions": {
       "ariaLabel": "Folder controls",
       "customize": "Customize folder",

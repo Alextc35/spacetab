@@ -13,7 +13,6 @@ import {
   normalizeBookmarkResizeMode
 } from '../../core/bookmarkResizeModes.js';
 import { flashError, flashSuccess } from '../flash.js';
-import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { toggleGridItemSelection } from './selection.js';
 import {
   calculateResizeGeometry,
@@ -46,7 +45,7 @@ export function cancelGridGesture() {
  * Handles:
  * - Reversible smart dragging with automatic bookmark displacement.
  * - Continuous or one-click resizing from all four sides and corners.
- * - Short-click selection for bookmarks and folders, plus middle-click bookmark editing.
+ * - Short-click selection for bookmarks and folders.
  * - State persistence via store updates.
  *
  * @param {HTMLElement} container - Grid container element.
@@ -72,22 +71,8 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
   const viewport = container.closest('#bookmark-viewport');
   let startScrollX = 0, startScrollY = 0;
 
-  div.addEventListener('auxclick', e => {
-    if (kind !== 'bookmark' || e.button !== 1) return;
-    e.preventDefault();
-    e.stopPropagation();
-  });
-
   div.addEventListener('pointerdown', e => {
     if (resizing || dragging) return;
-
-    // Middle click mirrors the pencil shortcut without opening the bookmark.
-    if (kind === 'bookmark' && e.button === 1) {
-      e.preventDefault();
-      e.stopPropagation();
-      openEditBookmark(item.id);
-      return;
-    }
 
     if (e.target.closest('.item-actions, .resizer')) return;
 
