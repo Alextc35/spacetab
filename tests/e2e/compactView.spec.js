@@ -55,16 +55,36 @@ async function sideAction(page, id) {
   await page.locator(`#${id}`).click();
 }
 
-test('puts the enabled recycle bin first in list view without changing its grid position', async ({ page }) => {
+test('puts the styled recycle bin first in list view without changing its grid position', async ({ page }) => {
   await start(page);
   const before = await data(page);
   const recycleBinId = before.recycleBin.id;
   await page.evaluate(async () => {
     const { getState, setState } = await import('/src/js/core/store.js');
     const { data } = getState();
+    const [folder] = data.folders;
     await setState({ data: {
       ...data,
-      recycleBin: { ...data.recycleBin, gx: 11, gy: 5 },
+      recycleBin: {
+        ...data.recycleBin,
+        gx: 11,
+        gy: 5,
+        noBackground: true,
+        iconColor: '#ffaa00',
+        textColor: '#00ff00',
+        showName: false,
+        showCount: true
+      },
+      folders: [
+        { ...folder, gx: 8, gy: 4 },
+        {
+          ...folder,
+          id: 'compact-folder-2',
+          name: 'Earlier list folder',
+          gx: 4,
+          gy: 4
+        }
+      ],
       settings: { ...data.settings, showRecycleBin: true }
     } });
   });
@@ -72,12 +92,32 @@ test('puts the enabled recycle bin first in list view without changing its grid 
   await page.setViewportSize({ width: 430, height: 720 });
   const list = page.locator('#bookmark-container');
   await expect(list).toHaveClass(/is-list-view/);
-  await expect(list.locator('.bookmark-list-item').first())
-    .toHaveAttribute('data-recycle-bin-id', recycleBinId);
+  const recycleBinRow = list.locator('.bookmark-list-item').first();
+  await expect(recycleBinRow).toHaveAttribute('data-recycle-bin-id', recycleBinId);
+  await expect(recycleBinRow).toHaveClass(/is-recycle-bin-transparent/);
+  await expect(recycleBinRow).toHaveClass(/is-recycle-bin-name-hidden/);
+  await expect(recycleBinRow).toHaveCSS('color', 'rgb(0, 255, 0)');
+  await expect(recycleBinRow.locator('.bookmark-list-name')).toBeHidden();
+  await expect(recycleBinRow.locator('.bookmark-list-detail')).toBeVisible();
+  await expect(recycleBinRow.locator('.recycle-bin-list-icon'))
+    .toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(recycleBinRow.locator('.recycle-bin-list-icon')).toHaveCSS('box-shadow', 'none');
+  expect(await recycleBinRow.evaluate(element => (
+    element.style.getPropertyValue('--recycle-bin-icon-color')
+  ))).toBe('#ffaa00');
+  await expect(list.locator('.bookmark-list-item').nth(1))
+    .toHaveAttribute('data-folder-id', 'compact-folder-2');
+  await expect(list.locator('.bookmark-list-item').nth(2))
+    .toHaveAttribute('data-folder-id', 'compact-folder');
+  await expect(list.locator('.bookmark-list-item').nth(3))
+    .toHaveAttribute('data-bookmark-id', 'compact-0');
 
   await page.setViewportSize({ width: 1280, height: 720 });
   await expect(list).not.toHaveClass(/is-list-view/);
-  await expect(list.locator(`.recycle-bin[data-recycle-bin-id="${recycleBinId}"]`)).toBeVisible();
+  const recycleBin = list.locator(`.recycle-bin[data-recycle-bin-id="${recycleBinId}"]`);
+  await expect(recycleBin).toBeVisible();
+  await expect(recycleBin).toHaveClass(/is-recycle-bin-transparent/);
+  await expect(recycleBin).toHaveClass(/is-recycle-bin-name-hidden/);
   expect((await data(page)).recycleBin).toMatchObject({ gx: 11, gy: 5 });
 });
 
@@ -463,7 +503,10 @@ test('list navigation follows rows, scrolls and opens the selected bookmark', as
   await start(page, 430);
   await page.keyboard.press('Tab');
   await expect(page.locator('[data-folder-id="compact-folder"]')).toHaveClass(/is-keyboard-active/);
-  for (let index = 0; index < 14; index++) await page.keyboard.press('ArrowDown');
+  for (let index = 0; index < 14; index++) {
+    await page.keyboard.press('ArrowDown');
+    await page.waitForTimeout(125);
+  }
   await expect(page.locator('#bookmark-container .is-keyboard-active')).toBeInViewport();
   expect(await page.locator('#bookmark-viewport').evaluate(element => element.scrollTop)).toBeGreaterThan(100);
   await page.keyboard.press('Tab');

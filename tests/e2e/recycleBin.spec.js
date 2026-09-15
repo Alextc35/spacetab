@@ -7,6 +7,22 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('.recycle-bin')).toBeVisible();
 });
 
+test('switches the recycle bin modal to its list layout below 600px', async ({ page }) => {
+  await page.setViewportSize({ width: 600, height: 720 });
+  await page.locator('.recycle-bin-open').click();
+  const card = page.locator('#recycle-bin-modal .modal-recycle-bin');
+  const footer = page.locator('.recycle-bin-modal-footer');
+  await expect(card).toBeVisible();
+  await expect(footer).toHaveCSS('flex-direction', 'row');
+
+  await page.setViewportSize({ width: 599, height: 720 });
+  await expect(footer).toHaveCSS('flex-direction', 'column');
+  await expect(card).toHaveCSS('width', '583px');
+
+  await page.setViewportSize({ width: 600, height: 720 });
+  await expect(footer).toHaveCSS('flex-direction', 'row');
+});
+
 async function waitForSaved(page) {
   await expect.poll(() => page.evaluate(async () => {
     const { getState } = await import('/src/js/core/store.js');

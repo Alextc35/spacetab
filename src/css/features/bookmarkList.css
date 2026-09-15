@@ -209,6 +209,29 @@
   box-shadow: inset 0 1px rgba(255, 255, 255, .24), 0 4px 8px rgba(2, 8, 23, .24);
 }
 
+.recycle-bin-list-item.has-recycle-bin-background .recycle-bin-list-icon {
+  background: var(--recycle-bin-background);
+}
+
+.recycle-bin-list-item.has-recycle-bin-bg-image .recycle-bin-list-icon {
+  background-color: var(--recycle-bin-background, transparent);
+  background-image:
+    linear-gradient(rgba(15, 23, 42, .08), rgba(15, 23, 42, .3)),
+    var(--recycle-bin-bg-image);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.recycle-bin-list-item.is-recycle-bin-transparent .recycle-bin-list-icon {
+  box-shadow: none;
+}
+
+.recycle-bin-list-item.is-recycle-bin-transparent:not(.has-recycle-bin-bg-image)
+  .recycle-bin-list-icon {
+  background: transparent;
+}
+
 .bookmark-list-icon .bookmark-list-recycle-glyph {
   width: 30px;
   height: 34px;
@@ -252,6 +275,25 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.recycle-bin-list-item.bookmark {
+  color: var(--recycle-bin-text-color, var(--ui-text));
+}
+
+.recycle-bin-list-item .bookmark-list-detail {
+  color: color-mix(
+    in srgb,
+    var(--recycle-bin-text-color, var(--ui-text)) 68%,
+    transparent
+  );
+}
+
+.recycle-bin-list-item.is-recycle-bin-name-hidden .bookmark-list-name,
+.recycle-bin-list-item.is-recycle-bin-count-hidden .bookmark-list-detail,
+.recycle-bin-list-item.is-recycle-bin-name-hidden.is-recycle-bin-count-hidden
+  .bookmark-list-copy {
+  display: none;
 }
 
 .bookmark-list-arrow {

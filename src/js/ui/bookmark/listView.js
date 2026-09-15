@@ -2,6 +2,10 @@ import { t } from '../../core/i18n.js';
 import { resolveBackgroundImage } from '../../core/localImages.js';
 import { createFavicon } from './favicon.js';
 import { applyFolderAppearance, createFolderVisual } from '../folder/visual.js';
+import {
+  applyRecycleBinAppearance,
+  createRecycleBinGlyph
+} from '../recycleBinAppearance.js';
 
 /** A read-only launcher row. Display preferences never overwrite saved styles. */
 export function createListItem(item, { folder = false, count = 0, active = false, onOpen } = {}) {
@@ -70,6 +74,7 @@ export function createRecycleBinListItem({ recycleBin, count = 0, active = false
   row.dataset.recycleBinId = recycleBin.id;
   row.dataset.listSearchStatic = 'true';
   row.classList.toggle('is-keyboard-active', active);
+  applyRecycleBinAppearance(row, recycleBin);
 
   const link = document.createElement('button');
   link.className = 'bookmark-list-link recycle-bin-list-link';
@@ -81,12 +86,8 @@ export function createRecycleBinListItem({ recycleBin, count = 0, active = false
   const icon = document.createElement('span');
   icon.className = 'bookmark-list-icon recycle-bin-list-icon';
   icon.setAttribute('aria-hidden', 'true');
-  const glyph = document.createElement('span');
-  glyph.className = 'recycle-bin-glyph bookmark-list-recycle-glyph';
-  glyph.append(
-    Object.assign(document.createElement('span'), { className: 'recycle-bin-lid' }),
-    Object.assign(document.createElement('span'), { className: 'recycle-bin-can' })
-  );
+  const glyph = createRecycleBinGlyph();
+  glyph.classList.add('bookmark-list-recycle-glyph');
   icon.append(glyph);
 
   const copy = document.createElement('span');

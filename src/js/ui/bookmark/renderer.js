@@ -75,17 +75,16 @@ export function renderBookmarks(container) {
     header.append(heading, caption);
     const list = document.createElement('ul');
     list.className = 'bookmark-list-items';
+    const byGridPosition = (a, b) => (
+      a.gy - b.gy || a.gx - b.gx || a.id.localeCompare(b.id)
+    );
     const rows = [
       ...(settings.showRecycleBin && settings.activeBookmarkGroupId === null
         ? [{ item: recycleBin, recycleBin: true }]
         : []),
-      ...visibleBookmarks.map(item => ({ item, folder: false })),
-      ...visibleFolders.map(item => ({ item, folder: true }))
-    ].sort((a, b) => {
-      if (a.recycleBin) return -1;
-      if (b.recycleBin) return 1;
-      return a.item.gy - b.item.gy || a.item.gx - b.item.gx || a.item.id.localeCompare(b.item.id);
-    });
+      ...visibleFolders.sort(byGridPosition).map(item => ({ item, folder: true })),
+      ...visibleBookmarks.sort(byGridPosition).map(item => ({ item, folder: false }))
+    ];
     for (const { item, folder, recycleBin: isRecycleBin } of rows) {
       if (isRecycleBin) {
         list.append(createRecycleBinListItem({
