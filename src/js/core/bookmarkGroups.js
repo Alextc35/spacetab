@@ -1,7 +1,7 @@
 import { clearBookmarkHistory, getState, setState } from './store.js';
 import { findFirstFreeSlot } from './grid.js';
 import { getGridItemsInGroup } from './bookmarkFolders.js';
-import { moveWorkspaceToRecycleBin } from './recycleBin.js';
+import { moveWorkspaceToRecycleBin } from '../features/recycle-bin/recycleBinActions.js';
 
 export function createBookmarkGroup(name) {
   const normalizedName = typeof name === 'string' ? name.trim() : '';

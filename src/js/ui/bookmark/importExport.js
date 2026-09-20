@@ -9,7 +9,7 @@ import { downloadJson } from '../backup.js';
 import {
   ensureRecycleBinPosition,
   replaceGridDataThroughRecycleBin
-} from '../../core/recycleBin.js';
+} from '../../features/recycle-bin/recycleBinActions.js';
 
 /**
  * Exports all current bookmarks as a JSON file.

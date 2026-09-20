@@ -1,7 +1,7 @@
 import '../types/types.js'; // typedefs
 import { storage } from './storage.js';
 import { getState, setState } from './store.js';
-import { ensureRecycleBinPosition } from './recycleBin.js';
+import { ensureRecycleBinPosition } from '../features/recycle-bin/recycleBinActions.js';
 
 /**
  * Loads persisted settings from storage, merges them with the provided

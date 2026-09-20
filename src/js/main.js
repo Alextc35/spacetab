@@ -29,7 +29,7 @@ import { flashInfo } from './ui/flash.js';
 import {
   ensureRecycleBinPosition,
   purgeExpiredRecycleBinEntries
-} from './core/recycleBin.js';
+} from './features/recycle-bin/recycleBinActions.js';
 import { initBookmarkModal,
   initAlertModal, initFolderEditorModal, initFolderModal,
   initRecycleBinEditorModal, initRecycleBinModal,

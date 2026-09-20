@@ -4,7 +4,7 @@ import {
   getGridItemsInGroup,
   updateGridItemsByIds
 } from '../../core/bookmarkFolders.js';
-import { GRID_COLS, GRID_ROWS, PADDING } from '../../core/config.js';
+import { GRID_COLS, GRID_ROWS, PADDING } from '../../shared/grid/gridGeometry.js';
 import { FOLDER_GRID_CAPACITY } from '../../core/folderGrid.js';
 import { isAreaFree } from '../../core/grid.js';
 import { getState } from '../../core/store.js';
@@ -23,7 +23,7 @@ import { calculateSmartDragLayout } from './smartDragLayout.js';
 import {
   moveBookmarksToRecycleBin,
   moveFolderToRecycleBin
-} from '../../core/recycleBin.js';
+} from '../../features/recycle-bin/recycleBinActions.js';
 import { showAlert } from '../modals/alert.js';
 import { t } from '../../core/i18n.js';
 

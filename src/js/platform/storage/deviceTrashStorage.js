@@ -1,3 +1,4 @@
+/** Chrome-local persistence for recycle-bin contents that must never sync. */
 export const DEVICE_TRASH_KEY = 'spacetabLocalTrash';
 
 /** Removes deleted entries from the payload shared through Sync. */

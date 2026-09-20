@@ -17,7 +17,9 @@ async function useSync(page) {
 
 async function deleteBookmark(page, bookmarkId) {
   await page.evaluate(async id => {
-    const { moveBookmarksToRecycleBin } = await import('/src/js/core/recycleBin.js');
+    const { moveBookmarksToRecycleBin } = await import(
+      '/src/js/features/recycle-bin/recycleBinActions.js'
+    );
     const { waitForPersistence } = await import('/src/js/core/store.js');
     moveBookmarksToRecycleBin([id]);
     await waitForPersistence();

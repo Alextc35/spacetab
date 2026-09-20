@@ -1,4 +1,4 @@
-import { PADDING } from '../core/config.js';
+import { PADDING } from '../shared/grid/gridGeometry.js';
 import { getRowHeight, getRowWidth } from './gridLayout.js';
 
 /** Applies one grid item's persisted cell rectangle to a DOM element. */

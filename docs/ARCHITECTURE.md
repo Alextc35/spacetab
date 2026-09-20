@@ -42,12 +42,15 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phase 1 introduces the first real seam:
+Phases 1 and 2 introduce the first feature seams:
 
 ```text
 src/js/
 ├── app/
 │   └── registerGridItemTypes.js
+├── domain/
+│   └── recycle-bin/
+│       └── recycleBinEntries.js
 ├── features/
 │   ├── bookmarks/
 │   │   ├── bookmarkCard.js
@@ -57,19 +60,34 @@ src/js/
 │   ├── grid/
 │   │   └── gridRenderer.js
 │   └── recycle-bin/
+│       ├── recycleBinActions.js
 │       ├── recycleBinAppearance.js
-│       └── recycleBinGridItem.js
+│       ├── recycleBinEditorModal.js
+│       ├── recycleBinGridItem.js
+│       └── recycleBinModal.js
+├── platform/
+│   └── storage/
+│       └── deviceTrashStorage.js
 └── shared/
     └── grid/
+        ├── gridGeometry.js
         └── gridItemRegistry.js
 ```
 
-The recycle-bin model, commands and modals intentionally remain in their
-legacy locations for now. Moving them without first separating state commands,
-storage and modal composition would only replace old paths with new paths.
-Recycle-bin card rendering and appearance moved because the registry provides
-a genuine feature boundary for them. CSS remains under `css/features/` until a
-complete feature owns its lifecycle and bundling.
+The recycle-bin slice now has an explicit split. Pure entry creation,
+expiration, restoration and collision rules live in `domain/recycle-bin`.
+Store-backed use cases live in `features/recycle-bin`, alongside the card and
+modal UI. Device-only trash persistence lives under `platform/storage`.
+Time and id generation remain in the feature action layer and are injected
+into the pure domain operations, keeping their tests deterministic.
+
+`core/recycleBinModel.js` remains a temporary schema-adjacent model because its
+visual normalization shares the background-image contract used by bookmarks,
+folders and `dataSchema.js`. It should move only after that shared value model
+has a stable home. The legacy bookmark, folder, workspace and settings commands
+also call recycle-bin feature actions during this transition; those dependency
+edges disappear as each caller is migrated in its own phase. CSS remains under
+`css/features/` because its loading lifecycle has not changed.
 
 ## GridItem and the item-type registry
 
@@ -99,6 +117,26 @@ to pass through `ui/bookmark/renderer.js`. Bookmark visuals now live in
 `features/bookmarks/bookmarkCard.js`, so previews and folder contents reuse the
 card without importing the grid orchestrator.
 
+## Recycle-bin flow
+
+```text
+recycle-bin UI / grid adapter
+             ↓
+features/recycle-bin/recycleBinActions.js → core/store.js
+             ↓
+domain/recycle-bin/recycleBinEntries.js
+
+core/store.js / core/storage.js
+             ↓
+platform/storage/deviceTrashStorage.js → chrome.storage.local
+```
+
+The domain module receives plain data and returns new data. It does not read
+the store, DOM, clock, random ids or Chrome APIs. Feature actions decide when a
+command happens, create ids and timestamps, and commit one store transition so
+undo behavior remains unchanged. The platform adapter owns the device-local
+record used to recover data that was permanently removed from the application.
+
 ## Workspace as a domain entity
 
 Persisted workspaces are still represented by `settings.bookmarkGroups` and
@@ -119,7 +157,13 @@ core/store.js (live state, subscriptions, history, persistence queue)
         ↓
 core/storage.js (local/sync transport, chunking, compatibility)
         ↓
-Chrome Storage + device-only image/trash records
+Chrome Storage + device-only image records
+
+core/store.js / core/storage.js
+        ↓
+platform/storage/deviceTrashStorage.js
+        ↓
+Chrome local device-trash record
 ```
 
 Future phases should extract a platform storage adapter and schema/migration
@@ -149,15 +193,17 @@ Remote executable plugins are out of scope.
 
 ## Incremental roadmap
 
-1. Complete the recycle-bin slice: separate pure domain restoration/retention
-   rules, feature actions and modal UI; move device trash to platform storage.
-2. Move bookmark and folder models/actions behind feature boundaries while
+1. ✅ Establish the GridItem registry and feature-owned rendering.
+2. ✅ Complete the recycle-bin slice: separate pure domain
+   restoration/retention rules, feature actions and modal UI; move device
+   trash to platform storage.
+3. Move bookmark and folder models/actions behind feature boundaries while
    retaining the tested store commands.
-3. Introduce the explicit workspace domain entity without changing persisted
+4. Introduce the explicit workspace domain entity without changing persisted
    `bookmarkGroups` data in the same step.
-4. Split store state/history from Chrome persistence, sync transport and schema
+5. Split store state/history from Chrome persistence, sync transport and schema
    migration.
-5. Add a minimal bundled-widget API only when the first real widget supplies
+6. Add a minimal bundled-widget API only when the first real widget supplies
    concrete requirements beyond the GridItem definition.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
@@ -338,8 +384,10 @@ Legacy raw bookmark arrays remain importable without folders.
 
 ## UI coordination
 
-Modal controllers translate user actions into core commands. The modal manager
-owns stacking, focus trapping, background isolation and focus restoration.
+Modal controllers translate user actions into feature or transitional core
+commands. Recycle-bin modals now call their colocated feature actions. The
+modal manager owns stacking, focus trapping, background isolation and focus
+restoration.
 
 The renderer displays top-level bookmarks and folders in the active workspace.
 `src/js/ui/folder/renderer.js` owns the folder card and previews, while

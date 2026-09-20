@@ -38,7 +38,9 @@ const {
   moveGridItemsToGroup,
   permanentlyDeleteGridItem
 } = await import('../src/js/core/gridItemActions.js');
-const { moveGridItemsToRecycleBin } = await import('../src/js/core/recycleBin.js');
+const { moveGridItemsToRecycleBin } = await import(
+  '../src/js/features/recycle-bin/recycleBinActions.js'
+);
 const {
   DEFAULT_BOOKMARK,
   DEFAULT_FOLDER_STYLE

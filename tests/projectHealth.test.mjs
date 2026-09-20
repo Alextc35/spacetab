@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { dirname, relative, resolve } from 'node:path';
 import test from 'node:test';
 
 const manifest = JSON.parse(readFileSync('manifest.json', 'utf8'));
@@ -38,3 +39,52 @@ test('all interface languages expose the same translation contract', () => {
     assert.deepEqual(contract, contracts[0]);
   }
 });
+
+test('source modules do not contain static import cycles', () => {
+  const sourceRoot = resolve('src/js');
+  const files = listJavaScriptFiles(sourceRoot);
+  const knownFiles = new Set(files);
+  const graph = new Map(files.map(file => [file, readStaticDependencies(file)
+    .filter(dependency => knownFiles.has(dependency))]));
+  const visited = new Set();
+  const active = new Set();
+  const stack = [];
+
+  const visit = file => {
+    if (visited.has(file)) return;
+    active.add(file);
+    stack.push(file);
+
+    for (const dependency of graph.get(file)) {
+      if (active.has(dependency)) {
+        const start = stack.indexOf(dependency);
+        const cycle = [...stack.slice(start), dependency]
+          .map(item => relative(sourceRoot, item).replaceAll('\\', '/'));
+        assert.fail(`Static module cycle: ${cycle.join(' -> ')}`);
+      }
+      visit(dependency);
+    }
+
+    stack.pop();
+    active.delete(file);
+    visited.add(file);
+  };
+
+  for (const file of files) visit(file);
+});
+
+function listJavaScriptFiles(directory) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const path = resolve(directory, entry.name);
+    if (entry.isDirectory()) return listJavaScriptFiles(path);
+    return entry.isFile() && entry.name.endsWith('.js') ? [path] : [];
+  });
+}
+
+function readStaticDependencies(file) {
+  const source = readFileSync(file, 'utf8');
+  const staticImport = /(?:import|export)\s+(?:[^'"]*?\s+from\s+)?['"]([^'"]+)['"]/g;
+  return Array.from(source.matchAll(staticImport), match => match[1])
+    .filter(specifier => specifier.startsWith('.'))
+    .map(specifier => resolve(dirname(file), specifier));
+}

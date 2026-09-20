@@ -2,7 +2,7 @@ import '../types/types.js'; // typedefs
 import { migratePersistedData } from './dataSchema.js';
 import { mergeChanges } from './mergeChanges.js';
 import { findFirstFreeSlot, isAreaFree } from './grid.js';
-import { GRID_COLS, GRID_ROWS } from './config.js';
+import { GRID_COLS, GRID_ROWS } from '../shared/grid/gridGeometry.js';
 import { DATA_SCHEMA_VERSION } from './defaults.js';
 import {
   DEVICE_IMAGE_SELECTIONS_KEY,
@@ -16,7 +16,7 @@ import {
   restoreDeviceTrash,
   saveDeviceTrash,
   withoutDeviceTrash
-} from './deviceTrash.js';
+} from '../platform/storage/deviceTrashStorage.js';
 
 export const STORAGE_MODES = Object.freeze({
   LOCAL: 'local',

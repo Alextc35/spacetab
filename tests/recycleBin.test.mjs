@@ -39,11 +39,13 @@ const {
   moveFolderToRecycleBin,
   permanentlyDeleteTrashEntries,
   purgeExpiredRecycleBinEntries,
-  RECYCLE_BIN_RETENTION_MS,
   ensureRecycleBinPosition,
   restoreTrashEntries,
   updateRecycleBinAppearance
-} = await import('../src/js/core/recycleBin.js');
+} = await import('../src/js/features/recycle-bin/recycleBinActions.js');
+const { RECYCLE_BIN_RETENTION_MS } = await import(
+  '../src/js/domain/recycle-bin/recycleBinEntries.js'
+);
 const {
   clearBookmarkHistory,
   getState,

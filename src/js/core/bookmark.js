@@ -12,7 +12,7 @@ import { getGridItemsInGroup } from './bookmarkFolders.js';
 import {
   moveAllToRecycleBin,
   moveBookmarksToRecycleBin
-} from './recycleBin.js';
+} from '../features/recycle-bin/recycleBinActions.js';
 
 /**
  * Adds a new bookmark to the application state.

@@ -4,8 +4,8 @@ import { addDragAndResize } from '../../ui/bookmark/dragResize.js';
 import { isGridKeyboardActive } from '../../ui/bookmark/gridKeyboardNavigation.js';
 import { isVisuallyDark } from '../../ui/bookmark/utils.js';
 import { applyGridItemPosition } from '../../ui/gridItemLayout.js';
-import { openRecycleBinEditor } from '../../ui/modals/recycleBinEditorModal.js';
-import { openRecycleBinModal } from '../../ui/modals/recycleBinModal.js';
+import { openRecycleBinEditor } from './recycleBinEditorModal.js';
+import { openRecycleBinModal } from './recycleBinModal.js';
 import { applyRecycleBinAppearance, createRecycleBinGlyph } from './recycleBinAppearance.js';
 
 export const recycleBinGridItem = Object.freeze({

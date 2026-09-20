@@ -1,4 +1,4 @@
-import { GRID_COLS, GRID_ROWS } from '../core/config.js';
+import { GRID_COLS, GRID_ROWS } from '../shared/grid/gridGeometry.js';
 import { isListView } from './viewportMode.js';
 
 /**

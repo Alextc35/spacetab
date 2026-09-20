@@ -2,7 +2,7 @@ import { getState, toggleEditing } from '../../core/store.js';
 import {
   moveBookmarksToRecycleBin,
   moveFolderToRecycleBin
-} from '../../core/recycleBin.js';
+} from '../../features/recycle-bin/recycleBinActions.js';
 import { t } from '../../core/i18n.js';
 import {
   findGridKeyboardRoute,
@@ -14,8 +14,8 @@ import { hasOpenModal } from '../modalManager.js';
 import { isListView } from '../viewportMode.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';
 import { openFolderEditor } from '../modals/folderEditorModal.js';
-import { openRecycleBinModal } from '../modals/recycleBinModal.js';
-import { openRecycleBinEditor } from '../modals/recycleBinEditorModal.js';
+import { openRecycleBinModal } from '../../features/recycle-bin/recycleBinModal.js';
+import { openRecycleBinEditor } from '../../features/recycle-bin/recycleBinEditorModal.js';
 import { showAlert } from '../modals/alert.js';
 import {
   clearGridItemSelection,

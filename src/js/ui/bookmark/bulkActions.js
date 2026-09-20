@@ -3,7 +3,7 @@ import {
   duplicateGridItems,
   moveGridItemsToGroup
 } from '../../core/gridItemActions.js';
-import { moveGridItemsToRecycleBin } from '../../core/recycleBin.js';
+import { moveGridItemsToRecycleBin } from '../../features/recycle-bin/recycleBinActions.js';
 import { subscribe } from '../../core/store.js';
 import { t } from '../../core/i18n.js';
 import { showAlert } from '../modals/alert.js';

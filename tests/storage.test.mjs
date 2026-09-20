@@ -81,7 +81,9 @@ globalThis.chrome = {
 
 const { storage, STORAGE_MODES } = await import('../src/js/core/storage.js');
 const { DATA_SCHEMA_VERSION } = await import('../src/js/core/defaults.js');
-const { DEVICE_TRASH_KEY } = await import('../src/js/core/deviceTrash.js');
+const { DEVICE_TRASH_KEY } = await import(
+  '../src/js/platform/storage/deviceTrashStorage.js'
+);
 const { DEVICE_IMAGE_SELECTIONS_KEY } = await import('../src/js/core/deviceImages.js');
 
 const SETTINGS = {

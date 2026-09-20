@@ -4,24 +4,26 @@ import {
   emptyRecycleBin,
   permanentlyDeleteTrashEntries,
   purgeExpiredRecycleBinEntries,
-  RECYCLE_BIN_RETENTION_DAYS,
-  RECYCLE_BIN_RETENTION_MS,
   restoreAllTrashEntries,
   restoreTrashEntries
-} from '../../core/recycleBin.js';
-import { flashSuccess } from '../flash.js';
+} from './recycleBinActions.js';
+import {
+  RECYCLE_BIN_RETENTION_DAYS,
+  RECYCLE_BIN_RETENTION_MS
+} from '../../domain/recycle-bin/recycleBinEntries.js';
+import { flashSuccess } from '../../ui/flash.js';
 import {
   closeModal,
   isModalActive,
   openModal,
   registerModal
-} from '../modalManager.js';
-import { showAlert } from './alert.js';
+} from '../../ui/modalManager.js';
+import { showAlert } from '../../ui/modals/alert.js';
 import {
   createEditIndicatorSvg,
   createRecycleBinSvg,
   createThemedAssetIcon
-} from '../svgIcons.js';
+} from '../../ui/svgIcons.js';
 import { openRecycleBinEditor } from './recycleBinEditorModal.js';
 
 const selectedIds = new Set();

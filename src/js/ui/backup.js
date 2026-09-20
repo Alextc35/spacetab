@@ -4,7 +4,7 @@ import {
 } from '../core/dataSchema.js';
 import { getState, setState } from '../core/store.js';
 import { flashError, flashSuccess } from './flash.js';
-import { ensureRecycleBinPosition } from '../core/recycleBin.js';
+import { ensureRecycleBinPosition } from '../features/recycle-bin/recycleBinActions.js';
 
 export function exportBackup() {
   try {

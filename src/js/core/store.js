@@ -5,7 +5,7 @@ import { storage, STORAGE_MODES } from './storage.js';
 import { mergeChanges } from './mergeChanges.js';
 import { clearLocalImages } from './localImages.js';
 import { clearDeviceImageSelections } from './deviceImages.js';
-import { clearDeviceTrash } from './deviceTrash.js';
+import { clearDeviceTrash } from '../platform/storage/deviceTrashStorage.js';
 
 /**
  * Global application state.

@@ -13,7 +13,7 @@ import {
   getStorageMode
 } from '../../../core/store.js';
 import { updateSettings } from '../../../core/settings.js';
-import { ensureRecycleBinPosition } from '../../../core/recycleBin.js';
+import { ensureRecycleBinPosition } from '../../../features/recycle-bin/recycleBinActions.js';
 
 import { showAlert } from '../alert.js';
 import { createSettingsSectionSvg } from '../../svgIcons.js';

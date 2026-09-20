@@ -5,7 +5,7 @@ import {
 import {
   GRID_COLS,
   GRID_ROWS
-} from '../../core/config.js';
+} from '../../shared/grid/gridGeometry.js';
 import { getState } from '../../core/store.js';
 import { hasOpenModal } from '../modalManager.js';
 import { isGridKeyboardNavigationActive } from './gridKeyboardNavigation.js';

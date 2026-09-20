@@ -9,7 +9,7 @@ import {
 } from './folderGrid.js';
 import { getState, setState } from './store.js';
 import { normalizeFolderStyle, validateFolderDraft } from './folderModel.js';
-import { moveFolderToRecycleBin } from './recycleBin.js';
+import { moveFolderToRecycleBin } from '../features/recycle-bin/recycleBinActions.js';
 
 export const BOOKMARK_FOLDER_NAME_MAX_LENGTH = 60;
 
