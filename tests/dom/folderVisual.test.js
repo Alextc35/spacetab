@@ -7,6 +7,17 @@ beforeEach(() => {
 });
 
 describe('folder visual', () => {
+  test('uses one fixed-ratio SVG silhouette on every folder surface', () => {
+    const visual = createFolderVisual({});
+    const svg = visual.querySelector('.folder-svg');
+
+    expect(svg).not.toBeNull();
+    expect(svg.getAttribute('viewBox')).toBe('0 0 136 100');
+    expect(svg.getAttribute('preserveAspectRatio')).toBe('xMidYMid meet');
+    expect(svg.querySelector('.folder-tab')).not.toBeNull();
+    expect(svg.querySelector('.folder-svg-body')).not.toBeNull();
+  });
+
   test.each([
     { name: 'without a cover', backgroundImageUrl: null },
     { name: 'with a cover', backgroundImageUrl: 'https://images.test/cover.png' }

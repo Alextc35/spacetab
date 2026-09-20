@@ -189,7 +189,7 @@ test('list search survives resizing and updates, follows the theme and language,
   await expect(search).toHaveAttribute('placeholder', 'Buscar favoritos y carpetas');
   await expect(search).toHaveAccessibleName('Buscar favoritos y carpetas');
   await expect(page.locator('html')).toHaveAttribute('data-interface-theme', 'light');
-  for (const width of [599, 320]) {
+  for (const width of [600, 320]) {
     await page.setViewportSize({ width, height: 720 });
     await expect(results).toHaveCount(1);
     await expect(search).toHaveValue('Bookmark 20');
@@ -217,13 +217,13 @@ test('keeps saved grid cells and styles immutable through grid, list and grid tr
   await start(page);
   const original = await data(page);
   const originalBounds = await page.locator('[data-bookmark-id="compact-1"]').boundingBox();
-  for (const width of [940, 600]) {
+  for (const width of [940, 601]) {
     await page.setViewportSize({ width, height: 720 });
     await expect(page.locator('#bookmark-container')).not.toHaveClass(/is-list-view/);
     await expect.poll(async () => (await page.locator('#bookmark-container').boundingBox()).width).toBe(width);
     expect((await page.locator('[data-bookmark-id="compact-1"]').boundingBox()).x).toBeCloseTo(width / 12 + 5, 1);
   }
-  for (const width of [599, 320]) {
+  for (const width of [600, 320]) {
     await page.setViewportSize({ width, height: 720 });
     const list = page.locator('#bookmark-container');
     await expect(list).toHaveClass(/is-list-view/);
@@ -256,7 +256,7 @@ test('uses the full viewport and keeps edit controls inside the last column whil
   await expect(folder.locator('.resizer')).toHaveCount(8);
   const original = await data(page);
   const retainedCard = await folder.elementHandle();
-  for (const [width, height] of [[1920, 1080], [1545, 916], [940, 720], [777, 601], [600, 480], [1280, 720]]) {
+  for (const [width, height] of [[1920, 1080], [1545, 916], [940, 720], [777, 601], [601, 480], [1280, 720]]) {
     await page.setViewportSize({ width, height });
     await expect.poll(() => page.locator('#bookmark-container').evaluate(element => ({
       width: element.clientWidth, height: element.clientHeight
@@ -291,13 +291,13 @@ test('uses the full viewport and keeps edit controls inside the last column whil
   expect(await data(page)).toEqual(original);
 });
 
-test('dragging and resizing use the new cell size after shrinking to 600px', async ({ page }) => {
+test('dragging and resizing use the new cell size after shrinking to 601px', async ({ page }) => {
   await start(page);
   await page.keyboard.press('Control+KeyE');
   const item = page.locator('[data-bookmark-id="compact-19"]');
   await expect(item.locator('.resizer')).toHaveCount(8);
-  await page.setViewportSize({ width: 600, height: 720 });
-  await expect.poll(async () => (await item.boundingBox()).width).toBe(40);
+  await page.setViewportSize({ width: 601, height: 720 });
+  await expect.poll(async () => (await item.boundingBox()).width).toBeCloseTo(601 / 12 - 10, 1);
   const bounds = await item.boundingBox();
   await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
   await page.mouse.down();
@@ -318,7 +318,7 @@ test('dragging and resizing use the new cell size after shrinking to 600px', asy
     return { gx, gy, w, h };
   }).toEqual({ gx: 10, gy: 5, w: 2, h: 1 });
   const resized = await item.boundingBox();
-  expect(resized.x + resized.width).toBe(595);
+  expect(resized.x + resized.width).toBeCloseTo(596, 1);
   await item.locator('.item-action-button.edit').click();
   await expect(page.locator('#edit-bookmark-modal')).toBeVisible();
 });
@@ -349,7 +349,7 @@ test('toggling editing preserves grid, card and content geometry at every respon
       }))
     };
   });
-  for (const [width, height] of [[1280, 720], [940, 920], [600, 720], [600, 480]]) {
+  for (const [width, height] of [[1280, 720], [940, 920], [601, 720], [601, 480]]) {
     await page.setViewportSize({ width, height });
     await expect.poll(async () => (await geometry()).grid).toEqual({ x: 0, y: 0, width, height });
     const before = await geometry();
@@ -403,7 +403,7 @@ test('folder artwork scales continuously without typography or thumbnail shape j
   }));
   let previous = null;
   // Sample the entire resize path, including both sides of the old breakpoints.
-  for (let width = 1920; width >= 600; width -= 10) {
+  for (let width = 1920; width >= 601; width -= 10) {
     await page.setViewportSize({ width, height: 920 });
     await expect.poll(() => page.locator('#bookmark-container').evaluate(element => element.clientWidth)).toBe(width);
     const current = await measure();
@@ -486,8 +486,8 @@ test('resizing the viewport cancels an active resize without leaving stale card 
   await page.mouse.down();
   await page.mouse.move(bounds.x + bounds.width / 2 + 100, bounds.y + bounds.height / 2, { steps: 8 });
   await expect(item).toHaveClass(/is-resizing/);
-  await page.setViewportSize({ width: 600, height: 480 });
-  await expect.poll(async () => (await item.boundingBox()).width).toBe(40);
+  await page.setViewportSize({ width: 601, height: 480 });
+  await expect.poll(async () => (await item.boundingBox()).width).toBeCloseTo(601 / 12 - 10, 1);
   await page.mouse.up();
   await expect(item).not.toHaveClass(/is-resizing/);
   await expect(item).toHaveClass(/is-editing/);
@@ -496,7 +496,7 @@ test('resizing the viewport cancels an active resize without leaving stale card 
 
   // A subsequent click must still resize by exactly one of the new cells.
   await item.locator('.resizer.right').click();
-  await expect.poll(async () => (await item.boundingBox()).width).toBe(90);
+  await expect.poll(async () => (await item.boundingBox()).width).toBeCloseTo(601 / 6 - 10, 1);
 });
 
 test('list navigation follows rows, scrolls and opens the selected bookmark', async ({ page }) => {
@@ -527,7 +527,7 @@ test('open folder icons shrink continuously through 720px until switching to a l
   for (const editing of [false, true]) {
     if (editing) await page.locator('#folder-modal-edit-toggle').click();
     let previous = null;
-    for (const width of [900, 800, 722, 721, 720, 719, 700, 650, 601, 600]) {
+    for (const width of [900, 800, 722, 721, 720, 719, 700, 650, 601]) {
       await page.setViewportSize({ width, height: 720 });
       await expect(grid).not.toHaveClass(/is-list-view/);
       const size = await grid.evaluate(element => {
@@ -547,7 +547,7 @@ test('open folder icons shrink continuously through 720px until switching to a l
     expect(previous.size.width).toBeLessThan(58);
   }
   await page.locator('#folder-modal-edit-toggle').click();
-  await page.setViewportSize({ width: 599, height: 720 });
+  await page.setViewportSize({ width: 600, height: 720 });
   await expect(grid).toHaveClass(/is-list-view/);
   await expect(grid.locator('.bookmark-list-item')).toHaveCount(3);
   expect(await data(page)).toEqual(original);
@@ -570,8 +570,8 @@ test('folders also use readable lists and cannot enter editing in compact view',
   expect(await data(page)).toEqual(original);
 });
 
-test('compact view hides unavailable tools and blocks shortcuts until exactly 600px', async ({ page }) => {
-  await start(page, 599);
+test('compact view hides unavailable tools and blocks shortcuts through 600px', async ({ page }) => {
+  await start(page, 600);
   await page.mouse.move(5, 360);
   await expect(page.locator('#floating-menu')).toBeHidden();
   for (const key of ['Control+KeyS', 'Control+KeyB', 'Control+KeyF']) {
@@ -584,7 +584,7 @@ test('compact view hides unavailable tools and blocks shortcuts until exactly 60
   expect(await page.evaluate(async () => (await import('/src/js/core/store.js')).getState().ui.isEditing)).toBe(false);
   await page.evaluate(async () => (await import('/src/js/ui/modals/bookmarkModal.js')).openEditBookmark('compact-1'));
   await expect(page.locator('#edit-bookmark-modal')).toBeHidden();
-  await page.setViewportSize({ width: 600, height: 720 });
+  await page.setViewportSize({ width: 601, height: 720 });
   await expect(page.locator('#floating-menu')).toBeVisible();
   for (const [id, modal] of [['settings', '#settings-modal'], ['add-bookmark', '#edit-bookmark-modal'], ['add-folder', '#edit-folder-modal']]) {
     await sideAction(page, id);
@@ -627,9 +627,9 @@ test('suspends settings drafts and restores their tab, scroll and appearance', a
   await panel.evaluate(element => { element.scrollTop = 120; });
   const scroll = await panel.evaluate(element => element.scrollTop);
 
-  await page.setViewportSize({ width: 600, height: 720 });
+  await page.setViewportSize({ width: 601, height: 720 });
   await expect(page.locator('#settings-modal')).toBeVisible();
-  await page.setViewportSize({ width: 599, height: 720 });
+  await page.setViewportSize({ width: 600, height: 720 });
   await expect(page.locator('#settings-modal')).toBeHidden();
   await expect(page.locator('.flash-info')).toHaveText('Panel hidden. Widen the window to continue.');
   await page.setViewportSize({ width: 430, height: 720 });
@@ -672,7 +672,7 @@ for (const mode of ['add', 'edit']) {
       await page.keyboard.press('Escape');
       await page.keyboard.press('Enter');
       expect(await data(page)).toEqual(original);
-      await page.setViewportSize({ width: 600, height: 720 });
+      await page.setViewportSize({ width: 601, height: 720 });
       await expect(name).toBeVisible();
       await expect(name).toBeFocused();
       await expect(name).toHaveValue('Unfinished bookmark');
@@ -724,7 +724,7 @@ test('preserves a new folder draft while the full editor is unavailable', async 
   await expect(page.locator('#edit-folder-modal')).toBeHidden();
   await page.keyboard.press('Enter');
   expect(await data(page)).toEqual(original);
-  await page.setViewportSize({ width: 600, height: 720 });
+  await page.setViewportSize({ width: 601, height: 720 });
   await expect(name).toBeVisible();
   await expect(name).toHaveValue('Unfinished folder');
   await page.locator('#edit-folder-modal-save').click();

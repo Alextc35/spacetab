@@ -4,7 +4,7 @@ import { syncModalViewport } from './modalManager.js';
 export const COMPACT_VIEW_WIDTH = 600;
 
 export function isListView() {
-  return window.innerWidth < COMPACT_VIEW_WIDTH;
+  return window.innerWidth <= COMPACT_VIEW_WIDTH;
 }
 
 function updateModalViewport() {

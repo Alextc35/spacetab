@@ -126,13 +126,13 @@ async function moveGridItemByCells(page, bookmark, deltaX, deltaY) {
 test('keeps a locally uploaded theme image out of synchronized storage', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await page.getByRole('button', { name: 'Sync' }).click();
   await page.getByRole('radio', { name: /Synced/ }).check();
   await page.locator('#settings-modal-save').click();
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+  await page.getByRole('button', { name: 'Theme' }).click();
 
   const fileInput = page.locator('#settings-theme-bg-upload-input');
   const fallbackUrl = 'https://images.test/fallback.gif';
@@ -192,7 +192,7 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+  await page.getByRole('button', { name: 'Theme' }).click();
   await expect(imageReference).toHaveValue('theme.png');
   await expect(imageUrl).toHaveValue(fallbackUrl);
 
@@ -210,7 +210,7 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
   ))).toContain(fallbackUrl);
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+  await page.getByRole('button', { name: 'Theme' }).click();
   await expect(page.locator('#settings-theme-bg-preview')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
   await expect(imageReference).toBeHidden();
 });
@@ -231,7 +231,7 @@ test('switches to the default wallpaper without losing the custom URL or local i
   const openTheme = async () => {
     await revealSideDock(page);
     await page.getByRole('button', { name: '⚙️' }).click();
-    await page.getByRole('button', { name: '🖼️ Theme' }).click();
+    await page.getByRole('button', { name: 'Theme' }).click();
   };
   await expect(root).toHaveClass(/is-default-bg/);
   const defaultWallpaper = await page.locator('body').evaluate(element => (
@@ -324,7 +324,7 @@ test('keeps solid and image backgrounds separate while preserving both modes', a
   const openTheme = async () => {
     await revealSideDock(page);
     await page.getByRole('button', { name: '⚙️' }).click();
-    await page.getByRole('button', { name: '🖼️ Theme' }).click();
+    await page.getByRole('button', { name: 'Theme' }).click();
   };
 
   await openTheme();
@@ -494,7 +494,7 @@ test('keeps solid and image backgrounds separate while preserving both modes', a
 test('hides local image sync notices in This Device Only mode', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+  await page.getByRole('button', { name: 'Theme' }).click();
 
   await expect(page.locator('#settings-modal .local-image-notice')).toBeHidden();
 
@@ -510,7 +510,7 @@ test('hides local image sync notices in This Device Only mode', async ({ page })
 test('treats a local image as one removable value without copying or changing its URL fallback', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+  await page.getByRole('button', { name: 'Theme' }).click();
 
   const imageUrl = page.locator('#settings-theme-bg-image');
   await page.locator('#settings-theme-bg-image-mode').check();
@@ -2373,20 +2373,20 @@ test('configures the default bookmark through the shared preset editor', async (
 test('persists the synchronized storage choice', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await page.getByRole('button', { name: 'Sync' }).click();
   await page.getByRole('radio', { name: /Synced/ }).check();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await page.getByRole('button', { name: 'Sync' }).click();
   await expect(page.getByRole('radio', { name: /Synced/ })).toBeChecked();
 });
 
 test('shows selected storage and local storage availability when sync is selected', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await page.getByRole('button', { name: 'Sync' }).click();
 
   const usage = page.locator('[data-storage-usage-active]');
   const localUsage = page.locator('[data-storage-usage-local]');
@@ -2447,13 +2447,13 @@ test('shows selected storage and local storage availability when sync is selecte
 test('localizes sync status and confirms synchronized data deletion', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await page.getByRole('button', { name: 'Sync' }).click();
   await page.getByRole('radio', { name: /Synced/ }).check();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await page.getByRole('button', { name: 'Sync' }).click();
 
   const deleteSyncData = page.getByRole('button', { name: 'Delete synced data' });
   const syncOption = page.locator('label[for="storage-mode-sync"]');
@@ -2522,9 +2522,9 @@ test('localizes sync status and confirms synchronized data deletion', async ({ p
     Object.keys(JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}')).length
   ))).toBe(0);
 
-  await page.getByRole('button', { name: '🌐 Languages' }).click();
+  await page.getByRole('button', { name: 'Languages' }).click();
   await page.locator('#language-select').selectOption('es');
-  await page.getByRole('button', { name: '☁️ Sincronización' }).click();
+  await page.getByRole('button', { name: 'Sincronización' }).click();
   await expect(page.locator('#storage-persistence-status'))
     .toHaveText('Los datos están listos.');
   await expect(page.getByText('Data is ready.')).toHaveCount(0);
@@ -2568,7 +2568,7 @@ test('shows local bookmarks and locks sync when cloud data needs a newer version
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await page.getByRole('button', { name: 'Sync' }).click();
 
   await expect(page.getByRole('radio', { name: /This device only/ })).toBeChecked();
   await expect(page.getByRole('radio', { name: /Synced/ })).toBeDisabled();
@@ -2589,7 +2589,7 @@ test('blocks synchronized storage in Brave and explains why', async ({ page }) =
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '☁️ Sync' }).click();
+  await page.getByRole('button', { name: 'Sync' }).click();
 
   await expect(page.getByRole('radio', { name: /This device only/ })).toBeChecked();
   await expect(page.getByRole('radio', { name: /Synced/ })).toBeDisabled();

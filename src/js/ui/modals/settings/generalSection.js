@@ -9,6 +9,7 @@ import {
 import { t } from '../../../core/i18n.js';
 import { exportBackup, importBackup } from '../../backup.js';
 import { showAlert } from '../alert.js';
+import { createRecycleBinSvg } from '../../svgIcons.js';
 
 /** Connects complete backup/restore and destructive reset actions. */
 export function initGeneralSection({
@@ -20,6 +21,8 @@ export function initGeneralSection({
   const themeInputs = document.querySelectorAll('input[name="interface-theme"]');
   const systemNote = document.getElementById('interface-theme-system-note');
   const showRecycleBinInput = document.getElementById('settings-show-recycle-bin');
+  document.querySelector('.settings-recycle-bin-icon')
+    .replaceChildren(createRecycleBinSvg());
 
   function syncUI() {
     const preference = getDraftInterfaceTheme();

@@ -32,6 +32,9 @@ describe('recycle bin appearance', () => {
     );
     expect(card.style.getPropertyValue('--recycle-bin-icon-color')).toBe('#f59e0b');
     expect(card.style.getPropertyValue('--recycle-bin-text-color')).toBe('#ffffff');
+    expect(card.querySelector('.recycle-bin-svg').getAttribute('viewBox')).toBe('0 0 92 108');
+    expect(card.querySelector('.recycle-bin-svg').getAttribute('preserveAspectRatio'))
+      .toBe('xMidYMid meet');
     expect(card.querySelector('.recycle-bin-lid')).not.toBeNull();
     expect(card.querySelector('.recycle-bin-can')).not.toBeNull();
   });

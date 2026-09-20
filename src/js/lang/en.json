@@ -346,13 +346,13 @@
   },
   "settingsModal": {
     "sections": {
-      "general": "⚙️ General",
-      "sync": "☁️ Sync",
-      "theme": "🖼️ Theme",
-      "bookmark": "🔖 Bookmarks",
-      "shortcuts": "⌨️ Shortcuts",
-      "language": "🌐 Languages",
-      "information": "ℹ️ Information"
+      "general": "General",
+      "sync": "Sync",
+      "theme": "Theme",
+      "bookmark": "Bookmarks",
+      "shortcuts": "Shortcuts",
+      "language": "Languages",
+      "information": "Information"
     },
     "general": {
       "title": "General",

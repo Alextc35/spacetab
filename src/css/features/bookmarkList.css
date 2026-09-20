@@ -234,7 +234,8 @@
 
 .bookmark-list-icon .bookmark-list-recycle-glyph {
   width: 30px;
-  height: 34px;
+  height: auto;
+  aspect-ratio: 23 / 27;
   filter: drop-shadow(0 3px 3px rgba(2, 8, 23, .28));
 }
 
@@ -244,13 +245,9 @@
   filter: drop-shadow(0 3px 4px rgba(2, 8, 23, .25));
 }
 
-.bookmark-list-icon .folder-tab {
-  border-radius: 4px 4px 0 0;
-}
-
 .bookmark-list-icon .folder-body {
   padding: 0;
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 .bookmark-list-copy {
@@ -303,7 +300,7 @@
   font-size: 24px;
 }
 
-@media (width < 600px) {
+@media (width <= 600px) {
   #floating-menu,
   #edit-toggle-mode,
   #folder-modal-edit-toggle,

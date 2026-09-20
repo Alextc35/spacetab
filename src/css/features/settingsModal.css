@@ -29,8 +29,11 @@
 }
 
 .settings-modal-tab-btn {
+  display: flex;
   width: 100%;
   padding: 12px;
+  align-items: center;
+  gap: 10px;
   text-align: left;
   border-radius: 8px;
   background: transparent;
@@ -50,6 +53,38 @@
     box-shadow: 0 1px 3px light-dark(rgba(25, 25, 45, .07), transparent),
       0 0 0 1px light-dark(rgba(25, 25, 45, .05), transparent);
   }
+}
+
+.settings-modal-tab-icon {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  place-items: center;
+  border-radius: 6px;
+  color: color-mix(in srgb, currentColor 82%, var(--ui-accent));
+  transition: color .2s ease, transform .2s ease;
+}
+
+.settings-modal-tab-btn:hover .settings-modal-tab-icon,
+.settings-modal-tab-btn.active .settings-modal-tab-icon {
+  color: var(--ui-accent);
+}
+
+.settings-modal-tab-btn.active .settings-modal-tab-icon {
+  transform: translateX(1px);
+}
+
+.settings-section-svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .btn-info {

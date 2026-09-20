@@ -16,6 +16,7 @@ import { updateSettings } from '../../../core/settings.js';
 import { ensureRecycleBinPosition } from '../../../core/recycleBin.js';
 
 import { showAlert } from '../alert.js';
+import { createSettingsSectionSvg } from '../../svgIcons.js';
 
 import { initGeneralSection } from './generalSection.js';
 import { initThemeSection } from './themeSection.js';
@@ -50,6 +51,10 @@ export function initSettingsModal() {
   const settingsModal = document.getElementById('settings-modal');
   const settingsSave = document.getElementById('settings-modal-save');
   const settingsCancel = document.getElementById('settings-modal-cancel');
+
+  for (const icon of settingsModal.querySelectorAll('[data-settings-icon]')) {
+    icon.replaceChildren(createSettingsSectionSvg(icon.dataset.settingsIcon));
+  }
 
   /* ==================================================
      Helpers

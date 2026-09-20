@@ -7,20 +7,39 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator('.recycle-bin')).toBeVisible();
 });
 
-test('switches the recycle bin modal to its list layout below 600px', async ({ page }) => {
-  await page.setViewportSize({ width: 600, height: 720 });
+test('switches the recycle bin modal to its list layout at and below 600px', async ({ page }) => {
+  await page.setViewportSize({ width: 601, height: 720 });
   await page.locator('.recycle-bin-open').click();
   const card = page.locator('#recycle-bin-modal .modal-recycle-bin');
   const footer = page.locator('.recycle-bin-modal-footer');
   await expect(card).toBeVisible();
   await expect(footer).toHaveCSS('flex-direction', 'row');
 
-  await page.setViewportSize({ width: 599, height: 720 });
-  await expect(footer).toHaveCSS('flex-direction', 'column');
-  await expect(card).toHaveCSS('width', '583px');
-
   await page.setViewportSize({ width: 600, height: 720 });
+  await expect(footer).toHaveCSS('flex-direction', 'column');
+  await expect(card).toHaveCSS('width', '584px');
+
+  await page.setViewportSize({ width: 601, height: 720 });
   await expect(footer).toHaveCSS('flex-direction', 'row');
+});
+
+test('opens the recycle-bin editor from its modal artwork and restores the modal afterwards', async ({ page }) => {
+  await page.setViewportSize({ width: 900, height: 720 });
+  await page.locator('.recycle-bin-open').click();
+
+  const customize = page.locator('#recycle-bin-modal-customize');
+  await expect(customize).toBeVisible();
+  await expect(customize.locator('.recycle-bin-svg')).toBeVisible();
+  await expect(customize.locator('.edit-indicator-svg')).toBeVisible();
+  await customize.click();
+
+  await expect(page.locator('#edit-recycle-bin-modal')).toBeVisible();
+  await expect(page.locator('#recycle-bin-modal')).toHaveAttribute('aria-hidden', 'true');
+  await expect(page.locator('#recycle-bin-modal')).toHaveAttribute('inert', '');
+  await page.locator('#edit-recycle-bin-modal-cancel').click();
+  await expect(page.locator('#edit-recycle-bin-modal')).toBeHidden();
+  await expect(page.locator('#recycle-bin-modal')).toBeVisible();
+  await expect(page.locator('#recycle-bin-modal')).not.toHaveAttribute('inert', '');
 });
 
 async function waitForSaved(page) {

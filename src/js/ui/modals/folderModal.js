@@ -25,6 +25,7 @@ import { showAlert } from './alert.js';
 import { calculateSmartDragLayout } from '../bookmark/smartDragLayout.js';
 import { ensurePanelFits, isListView } from '../viewportMode.js';
 import { createListItem } from '../bookmark/listView.js';
+import { createEditIndicatorSvg } from '../svgIcons.js';
 
 const FOLDER_MOVE_DURATION = 220;
 let initialized = false;
@@ -197,7 +198,10 @@ function renderFolderContents() {
   syncFolderEditUI();
   // The customization action remains visible even when the launcher glyph is hidden.
   const customizeAppearance = { ...folder, showFolder: true };
-  customizeButton.replaceChildren(createFolderVisual(customizeAppearance, [], { compact: true }));
+  customizeButton.replaceChildren(
+    createFolderVisual(customizeAppearance, [], { compact: true }),
+    createEditIndicatorSvg()
+  );
   applyFolderAppearance(customizeButton, customizeAppearance);
   if (!title.isContentEditable) title.textContent = folder.name;
   title.setAttribute('title', t('folder.actions.rename'));

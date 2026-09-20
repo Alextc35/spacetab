@@ -10,7 +10,7 @@ const imageBytes = Buffer.from(
 async function openTheme(page) {
   await page.mouse.move(5, page.viewportSize().height / 2);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🖼️ Theme' }).click();
+  await page.getByRole('button', { name: 'Theme' }).click();
 }
 
 async function uploadImage(page, name) {
@@ -45,7 +45,7 @@ test('two devices choose and remove their own images while sharing the fallback 
     await openTheme(page);
     await page.locator('#settings-theme-bg-image-mode').check();
     await page.locator('#settings-theme-bg-image').fill(fallback);
-    await page.getByRole('button', { name: '☁️ Sync' }).click();
+    await page.getByRole('button', { name: 'Sync' }).click();
     await page.getByRole('radio', { name: /Synced/ }).check();
     await page.locator('#settings-modal-save').click();
     await openTheme(page);
@@ -98,11 +98,11 @@ test('two devices choose and remove their own images while sharing the fallback 
     await expect(other.locator('#settings-theme-bg-image')).toHaveValue(updatedFallback);
 
     // Switching Sync off and back on must also preserve this device's choice.
-    await other.getByRole('button', { name: '☁️ Sync' }).click();
+    await other.getByRole('button', { name: 'Sync' }).click();
     await other.getByRole('radio', { name: /This device only/ }).check();
     await other.locator('#settings-modal-save').click();
     await openTheme(other);
-    await other.getByRole('button', { name: '☁️ Sync' }).click();
+    await other.getByRole('button', { name: 'Sync' }).click();
     await other.getByRole('radio', { name: /Synced/ }).check();
     await other.locator('#settings-modal-save').click();
     await openTheme(other);

@@ -58,62 +58,60 @@
 .recycle-bin-open:focus-visible { outline: 2px solid #7dd3fc; outline-offset: -4px; border-radius: inherit; }
 
 .recycle-bin-glyph {
-  position: relative;
   display: block;
   width: min(58cqw, 72cqh, 88px);
-  height: min(64cqw, 80cqh, 98px);
+  height: auto;
+  aspect-ratio: 23 / 27;
   flex: 0 1 auto;
-  filter: drop-shadow(0 9px 9px rgba(2, 8, 23, .34));
+  filter: drop-shadow(0 7px 8px rgba(2, 8, 23, .28));
   transition: transform .18s ease, filter .18s ease;
+}
+
+.recycle-bin-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.recycle-bin-handle,
+.recycle-bin-lid,
+.recycle-bin-can {
+  stroke: light-dark(
+    color-mix(in srgb, var(--recycle-bin-icon-color, currentColor) 72%, #263247),
+    color-mix(in srgb, var(--recycle-bin-icon-color, currentColor) 42%, #dbeafe)
+  );
+}
+
+.recycle-bin-handle {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
 }
 
 .recycle-bin-lid,
 .recycle-bin-can {
-  position: absolute;
-  left: 50%;
-  border: 1px solid rgba(255, 255, 255, .28);
-  background: linear-gradient(145deg,
-    color-mix(in srgb, var(--recycle-bin-icon-color) 48%, white),
-    var(--recycle-bin-icon-color) 60%,
-    color-mix(in srgb, var(--recycle-bin-icon-color) 76%, black));
-  box-shadow: inset 0 1px rgba(255, 255, 255, .32);
-  transform: translateX(-50%);
+  fill: light-dark(
+    color-mix(in srgb, var(--recycle-bin-icon-color, currentColor) 54%, white),
+    color-mix(in srgb, var(--recycle-bin-icon-color, currentColor) 58%, #26364f)
+  );
+  stroke-width: 1.7;
 }
 
-.recycle-bin-lid {
-  top: 7%;
-  width: 78%;
-  height: 15%;
-  border-radius: 999px 999px 5px 5px;
+.recycle-bin-slots,
+.recycle-bin-sheen {
+  fill: none;
+  stroke-linecap: round;
 }
 
-.recycle-bin-lid::before {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  width: 30%;
-  height: 45%;
-  border: 2px solid color-mix(in srgb, var(--recycle-bin-icon-color) 78%, white);
-  border-bottom: 0;
-  border-radius: 7px 7px 0 0;
-  transform: translateX(-50%);
+.recycle-bin-slots {
+  stroke: light-dark(rgba(255, 255, 255, .72), rgba(234, 244, 255, .72));
+  stroke-width: 2.2;
 }
 
-.recycle-bin-can {
-  top: 26%;
-  width: 65%;
-  height: 66%;
-  border-radius: 5px 5px 14px 14px;
-  clip-path: polygon(4% 0, 96% 0, 86% 100%, 14% 100%);
-}
-
-.recycle-bin-can::after {
-  content: '';
-  position: absolute;
-  inset: 17% 24%;
-  border-right: 2px solid rgba(226, 232, 240, .48);
-  border-left: 2px solid rgba(226, 232, 240, .48);
+.recycle-bin-sheen {
+  stroke: rgba(255, 255, 255, .3);
+  stroke-width: 1.4;
 }
 
 .recycle-bin-caption { display: grid; min-width: 0; gap: 1px; line-height: 1.15; text-align: center; }
@@ -177,9 +175,40 @@
 }
 
 .recycle-bin-modal-header { display: flex; padding: 20px 22px 15px; align-items: center; gap: 13px; border-bottom: 1px solid var(--ui-divider); }
+.recycle-bin-modal-header > div { min-width: 0; flex: 1; }
 .recycle-bin-modal-header h2 { margin: 0 0 3px; }
 .recycle-bin-modal-header p { margin: 0; color: var(--ui-muted); font-size: .78rem; }
-.recycle-bin-modal-icon { display: grid; width: 44px; height: 44px; flex: 0 0 44px; place-items: center; border: 1px solid rgba(96, 165, 250, .25); border-radius: 13px; background: var(--ui-info-bg); color: var(--ui-info-text); font-size: 1.45rem; }
+.recycle-bin-modal-icon {
+  position: relative;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  padding: 7px 9px;
+  place-items: center;
+  overflow: visible;
+  border: 1px solid color-mix(in srgb, var(--ui-info-text) 28%, var(--ui-border));
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 28% 16%, rgba(255, 255, 255, .18), transparent 42%),
+    var(--ui-info-bg);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, .08),
+    0 7px 16px rgba(2, 8, 23, .16);
+  color: var(--ui-info-text);
+  cursor: pointer;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.recycle-bin-modal-icon:hover,
+.recycle-bin-modal-icon:focus-visible {
+  border-color: color-mix(in srgb, var(--ui-accent) 62%, var(--ui-border));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--ui-accent) 14%, transparent),
+    0 9px 20px rgba(2, 8, 23, .22);
+  outline: none;
+  transform: translateY(-1px);
+}
+.recycle-bin-modal-icon .recycle-bin-svg { width: auto; height: 33px; filter: drop-shadow(0 4px 6px rgba(2, 8, 23, .28)); }
 .recycle-bin-toolbar { display: flex; padding: 12px 22px; justify-content: flex-end; gap: 9px; border-bottom: 1px solid var(--ui-divider); }
 .recycle-bin-list { display: grid; min-height: 0; padding: 12px 18px; flex: 1; align-content: start; gap: 8px; overflow-x: hidden; overflow-y: auto; }
 .recycle-bin-item { display: grid; min-width: 0; padding: 10px 12px; align-items: center; grid-template-columns: auto 42px minmax(0, 1fr) auto; gap: 12px; border: 1px solid var(--ui-divider); border-radius: 11px; background: light-dark(rgba(248, 250, 252, .78), rgba(255, 255, 255, .035)); cursor: pointer; }
@@ -243,17 +272,12 @@
   border: 1px solid color-mix(in srgb, var(--ui-accent) 28%, var(--ui-border));
   border-radius: 11px;
   background: var(--ui-info-bg);
-  color: var(--ui-info-text);
+  color: light-dark(#52647d, #c7d7ea);
 }
 
 .settings-recycle-bin-icon svg {
-  width: 21px;
-  height: 21px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: auto;
+  height: 26px;
 }
 
 .settings-recycle-bin-copy {
@@ -306,7 +330,8 @@
 }
 
 .recycle-bin-item input { width: 17px; height: 17px; accent-color: var(--ui-accent); }
-.recycle-bin-item-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 10px; background: var(--ui-info-bg); font-size: 1.35rem; }
+.recycle-bin-item-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 10px; background: var(--ui-info-bg); }
+.recycle-bin-item-icon .spacetab-themed-icon { width: 25px; height: 25px; flex-basis: 25px; }
 .recycle-bin-item-copy { min-width: 0; }
 .recycle-bin-item-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recycle-bin-item-copy small, .recycle-bin-item-expiry { color: var(--ui-muted); font-size: .74rem; }
@@ -320,7 +345,7 @@
   .modal-recycle-bin-editor .edit-bookmark-modal-panel { border-right: 0; }
 }
 
-@media (width < 600px) {
+@media (width <= 600px) {
   .modal-recycle-bin {
     width: calc(100vw - 16px);
     max-width: none;

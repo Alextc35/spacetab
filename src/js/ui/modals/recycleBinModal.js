@@ -17,6 +17,12 @@ import {
   registerModal
 } from '../modalManager.js';
 import { showAlert } from './alert.js';
+import {
+  createEditIndicatorSvg,
+  createRecycleBinSvg,
+  createThemedAssetIcon
+} from '../svgIcons.js';
+import { openRecycleBinEditor } from './recycleBinEditorModal.js';
 
 const selectedIds = new Set();
 let modal;
@@ -31,6 +37,8 @@ let deleteSelectedButton;
 
 export function initRecycleBinModal() {
   modal = document.getElementById('recycle-bin-modal');
+  const customizeButton = document.getElementById('recycle-bin-modal-customize');
+  customizeButton.replaceChildren(createRecycleBinSvg(), createEditIndicatorSvg());
   list = document.getElementById('recycle-bin-list');
   empty = document.getElementById('recycle-bin-empty');
   summary = document.getElementById('recycle-bin-summary');
@@ -50,6 +58,7 @@ export function initRecycleBinModal() {
   });
 
   document.getElementById('recycle-bin-close').addEventListener('click', closeRecycleBin);
+  customizeButton.addEventListener('click', openRecycleBinEditor);
   restoreAllButton.addEventListener('click', restoreAll);
   deleteAllButton.addEventListener('click', deleteAll);
   restoreSelectedButton.addEventListener('click', restoreSelected);
@@ -121,7 +130,7 @@ function createTrashRow(entry) {
   const icon = document.createElement('span');
   icon.className = 'recycle-bin-item-icon';
   icon.setAttribute('aria-hidden', 'true');
-  icon.textContent = entry.type === 'folder' ? '📁' : '🔖';
+  icon.append(createThemedAssetIcon(entry.type === 'folder' ? 'folder' : 'bookmark'));
 
   const copy = document.createElement('span');
   copy.className = 'recycle-bin-item-copy';

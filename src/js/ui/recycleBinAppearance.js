@@ -1,4 +1,5 @@
 import { resolveBackgroundImage } from '../core/localImages.js';
+import { createRecycleBinSvg } from './svgIcons.js';
 
 /** Applies persisted recycle bin colors and element visibility. */
 export function applyRecycleBinAppearance(element, recycleBin = {}) {
@@ -37,9 +38,6 @@ export function createRecycleBinGlyph() {
   const glyph = document.createElement('span');
   glyph.className = 'recycle-bin-glyph';
   glyph.setAttribute('aria-hidden', 'true');
-  glyph.append(
-    Object.assign(document.createElement('span'), { className: 'recycle-bin-lid' }),
-    Object.assign(document.createElement('span'), { className: 'recycle-bin-can' })
-  );
+  glyph.append(createRecycleBinSvg());
   return glyph;
 }

@@ -35,6 +35,7 @@ async function start(page, layouts = [{ id: folderId, gx: 0, gy: 0, w: 2, h: 2 }
 
 async function openEditor(page) {
   await folderCard(page).locator('.folder-open').click();
+  await expect(page.locator('#folder-modal-customize .edit-indicator-svg')).toBeVisible();
   await page.locator('#folder-modal-customize').click();
   await expect(page.locator('#edit-folder-modal')).toBeVisible();
   await expect(saveButton(page)).toBeHidden();
@@ -223,7 +224,7 @@ test('hiding the glyph also hides previews while an empty bordered card still op
   await expect(previewCard(page).locator('.folder-previews')).toBeVisible();
 });
 
-test('transparent rear tabs end at the folder face at small, normal and large sizes', async ({ page }) => {
+test('transparent SVG tabs meet the folder face at small, normal and large sizes', async ({ page }) => {
   await start(page, [
     { id: 'small-folder', gx: 0, gy: 0, w: 1, h: 1, noBackground: true },
     { id: folderId, gx: 1, gy: 0, w: 2, h: 2, noBackground: true },
@@ -231,12 +232,25 @@ test('transparent rear tabs end at the folder face at small, normal and large si
   ]);
   const assertTabBounds = async visual => {
     await expect(visual).toBeVisible();
-    const tabBounds = await visual.locator('.folder-tab').boundingBox();
-    const bodyBounds = await visual.locator('.folder-body').boundingBox();
-    expect(tabBounds.height).toBeGreaterThan(0);
-    expect(tabBounds.y + tabBounds.height).toBeLessThanOrEqual(bodyBounds.y + 1);
-    expect(tabBounds.x).toBeGreaterThanOrEqual(bodyBounds.x);
-    expect(tabBounds.x + tabBounds.width).toBeLessThanOrEqual(bodyBounds.x + bodyBounds.width);
+    const structure = await visual.evaluate(element => {
+      const svg = element.querySelector('.folder-svg');
+      const tab = svg.querySelector('.folder-tab');
+      const body = svg.querySelector('.folder-svg-body');
+      return {
+        viewBox: svg.getAttribute('viewBox'),
+        preserveAspectRatio: svg.getAttribute('preserveAspectRatio'),
+        sameArtwork: tab.parentElement === body.parentElement,
+        bodyPaintsAfterTab: Boolean(
+          tab.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING
+        )
+      };
+    });
+    expect(structure).toEqual({
+      viewBox: '0 0 136 100',
+      preserveAspectRatio: 'xMidYMid meet',
+      sameArtwork: true,
+      bodyPaintsAfterTab: true
+    });
   };
   for (const visual of await page.locator('#bookmark-container .folder-visual').all()) {
     await assertTabBounds(visual);
@@ -247,7 +261,7 @@ test('transparent rear tabs end at the folder face at small, normal and large si
   await assertTabBounds(previewCard(page).locator('.folder-visual'));
 });
 
-test('centers the search glyph and lets the opened-folder preview fill its control', async ({ page }) => {
+test('centers the search glyph and preserves the opened-folder SVG proportions', async ({ page }) => {
   await start(page, [{
     id: folderId,
     gx: 0,
@@ -275,11 +289,14 @@ test('centers the search glyph and lets the opened-folder preview fill its contr
   await folderCard(page).locator('.folder-open').click();
   const previewGeometry = await page.locator('#folder-modal-customize').evaluate(button => {
     const control = button.getBoundingClientRect();
-    const preview = button.querySelector('.folder-body').getBoundingClientRect();
+    const preview = button.querySelector('.folder-visual').getBoundingClientRect();
     return { control: control.toJSON(), preview: preview.toJSON() };
   });
-  expect(previewGeometry.preview.width / previewGeometry.control.width).toBeGreaterThan(.9);
-  expect(previewGeometry.preview.height / previewGeometry.control.height).toBeGreaterThan(.9);
+  expect(previewGeometry.preview.width / previewGeometry.control.width).toBeGreaterThan(.8);
+  expect(previewGeometry.preview.height / previewGeometry.control.height).toBeGreaterThan(.6);
+  expect(Math.abs(
+    previewGeometry.preview.width / previewGeometry.preview.height - 1.36
+  )).toBeLessThan(.02);
   expect(Math.abs(
     previewGeometry.preview.x + previewGeometry.preview.width / 2
       - previewGeometry.control.x - previewGeometry.control.width / 2

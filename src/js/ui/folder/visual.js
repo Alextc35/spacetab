@@ -1,6 +1,7 @@
 import { createFavicon } from '../bookmark/favicon.js';
 import { resolveBackgroundImage } from '../../core/localImages.js';
 import { lightSurfaceTextColor } from '../surfaceContrast.js';
+import { createFolderSvg } from '../svgIcons.js';
 
 /** Creates the shared folder glyph used by cards, previews and headers. */
 export function createFolderVisual(folder, bookmarks = [], { compact = false } = {}) {
@@ -10,8 +11,7 @@ export function createFolderVisual(folder, bookmarks = [], { compact = false } =
   visual.setAttribute('aria-hidden', 'true');
   applyFolderAppearance(visual, folder);
 
-  const tab = document.createElement('span');
-  tab.className = 'folder-tab';
+  const artwork = createFolderSvg();
   const body = document.createElement('span');
   body.className = 'folder-body';
   const previews = document.createElement('span');
@@ -42,7 +42,7 @@ export function createFolderVisual(folder, bookmarks = [], { compact = false } =
   }
 
   body.prepend(previews);
-  visual.append(tab, body);
+  visual.append(artwork, body);
   return visual;
 }
 

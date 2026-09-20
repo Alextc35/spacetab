@@ -53,10 +53,27 @@
     <button id="edit-toggle-mode" type="button">✎</button>
     <div class="floating-add">
       <button id="add-toggle" type="button" aria-label="Add" data-i18n-aria-label="buttons.add"
-        aria-expanded="false" aria-controls="add-options">➕</button>
+        aria-expanded="false" aria-controls="add-options">
+        <svg class="add-toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="8.25"></circle>
+          <path d="M12 8v8M8 12h8"></path>
+        </svg>
+      </button>
       <div id="add-options" hidden>
-        <button id="add-bookmark" type="button"><span aria-hidden="true">🔖</span>Bookmark</button>
-        <button id="add-folder" type="button"><span aria-hidden="true">📁</span>Folder</button>
+        <button id="add-bookmark" type="button">
+          <span class="spacetab-themed-icon" aria-hidden="true">
+            <img class="spacetab-themed-icon-light" src="/src/assets/icons/bookmark-light.svg" alt="" draggable="false">
+            <img class="spacetab-themed-icon-dark" src="/src/assets/icons/bookmark-dark.svg" alt="" draggable="false">
+          </span>
+          Bookmark
+        </button>
+        <button id="add-folder" type="button">
+          <span class="spacetab-themed-icon" aria-hidden="true">
+            <img class="spacetab-themed-icon-light" src="/src/assets/icons/folder-light.svg" alt="" draggable="false">
+            <img class="spacetab-themed-icon-dark" src="/src/assets/icons/folder-dark.svg" alt="" draggable="false">
+          </span>
+          Folder
+        </button>
       </div>
     </div>
     <button id="settings" type="button">⚙️</button>
@@ -325,7 +342,8 @@
     <div class="modal-overlay"></div>
     <div class="modal-card modal-recycle-bin">
       <header class="recycle-bin-modal-header">
-        <span class="recycle-bin-modal-icon" aria-hidden="true">♻</span>
+        <button id="recycle-bin-modal-customize" class="recycle-bin-modal-icon" type="button"
+          aria-label="Edit recycle bin" data-i18n-aria-label="recycleBin.editor.edit"></button>
         <div>
           <h2 data-i18n="recycleBin.title">Papelera de reciclaje</h2>
           <p id="recycle-bin-summary"></p>
@@ -516,26 +534,33 @@
     <div class="modal-card modal-lg">
       <div class="settings-modal-layout">
         <div class="settings-modal-tabs">
-          <button data-tab="settings-modal-tab-general" class="settings-modal-tab-btn active" type="button"
-            data-i18n="settingsModal.sections.general">⚙️ General
+          <button data-tab="settings-modal-tab-general" class="settings-modal-tab-btn active" type="button">
+            <span class="settings-modal-tab-icon" data-settings-icon="general" aria-hidden="true"></span>
+            <span data-i18n="settingsModal.sections.general">General</span>
           </button>
-          <button data-tab="settings-modal-tab-sync" class="settings-modal-tab-btn" type="button"
-            data-i18n="settingsModal.sections.sync">☁️ Sincronización
+          <button data-tab="settings-modal-tab-sync" class="settings-modal-tab-btn" type="button">
+            <span class="settings-modal-tab-icon" data-settings-icon="sync" aria-hidden="true"></span>
+            <span data-i18n="settingsModal.sections.sync">Sincronización</span>
           </button>
-          <button data-tab="settings-modal-tab-theme" class="settings-modal-tab-btn" type="button"
-            data-i18n="settingsModal.sections.theme">🖼️ Tema
+          <button data-tab="settings-modal-tab-theme" class="settings-modal-tab-btn" type="button">
+            <span class="settings-modal-tab-icon" data-settings-icon="theme" aria-hidden="true"></span>
+            <span data-i18n="settingsModal.sections.theme">Tema</span>
           </button>
-          <button data-tab="settings-modal-tab-bookmark" class="settings-modal-tab-btn" type="button"
-            data-i18n="settingsModal.sections.bookmark">🔖 Favoritos
+          <button data-tab="settings-modal-tab-bookmark" class="settings-modal-tab-btn" type="button">
+            <span class="settings-modal-tab-icon" data-settings-icon="bookmark" aria-hidden="true"></span>
+            <span data-i18n="settingsModal.sections.bookmark">Favoritos</span>
           </button>
-          <button data-tab="settings-modal-tab-shortcuts" class="settings-modal-tab-btn" type="button"
-            data-i18n="settingsModal.sections.shortcuts">⌨️ Teclas rápidas
+          <button data-tab="settings-modal-tab-shortcuts" class="settings-modal-tab-btn" type="button">
+            <span class="settings-modal-tab-icon" data-settings-icon="shortcuts" aria-hidden="true"></span>
+            <span data-i18n="settingsModal.sections.shortcuts">Teclas rápidas</span>
           </button>
-          <button data-tab="settings-modal-tab-lang" class="settings-modal-tab-btn" type="button"
-            data-i18n="settingsModal.sections.language">🌐 Idiomas
+          <button data-tab="settings-modal-tab-lang" class="settings-modal-tab-btn" type="button">
+            <span class="settings-modal-tab-icon" data-settings-icon="language" aria-hidden="true"></span>
+            <span data-i18n="settingsModal.sections.language">Idiomas</span>
           </button>
-          <button data-tab="settings-modal-tab-info" class="settings-modal-tab-btn" type="button"
-            data-i18n="settingsModal.sections.information">ℹ️ Información
+          <button data-tab="settings-modal-tab-info" class="settings-modal-tab-btn" type="button">
+            <span class="settings-modal-tab-icon" data-settings-icon="information" aria-hidden="true"></span>
+            <span data-i18n="settingsModal.sections.information">Información</span>
           </button>
         </div>
         <div class="settings-modal-panel">
@@ -566,11 +591,7 @@
             <section class="settings-recycle-bin" aria-labelledby="settings-recycle-bin-title">
               <h3 id="settings-recycle-bin-title" data-i18n="settingsModal.general.recycleBin.title">Papelera de reciclaje</h3>
               <label class="settings-recycle-bin-option" for="settings-show-recycle-bin">
-                <span class="settings-recycle-bin-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" focusable="false">
-                    <path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5" />
-                  </svg>
-                </span>
+                <span class="settings-recycle-bin-icon" aria-hidden="true"></span>
                 <span class="settings-recycle-bin-copy">
                   <strong data-i18n="settingsModal.general.recycleBin.show">Mostrar la papelera en la grilla principal</strong>
                   <small id="settings-recycle-bin-hint" data-i18n="settingsModal.general.recycleBin.hint">Los elementos eliminados se conservan durante 28 días.</small>

@@ -83,7 +83,7 @@
   }
 }
 
-@media (600px <= width <= 1000px) {
+@media (601px <= width <= 1000px) {
   #bookmark-container > .bookmark-folder.is-single-cell {
     & .folder-previews {
       grid-template-columns: 1fr;
