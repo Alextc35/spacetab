@@ -1,7 +1,7 @@
 import { t } from '../core/i18n.js';
 import { getState, toggleEditing } from '../core/store.js';
 
-import { resizeBookmarkView } from './bookmark/renderer.js';
+import { resizeGridView } from '../features/grid/gridRenderer.js';
 import { cancelGridGesture } from './bookmark/dragResize.js';
 import { ensurePanelFits, isListView } from './viewportMode.js';
 
@@ -93,7 +93,7 @@ function handleResize() {
       void toggleEditing();
       return;
     }
-    resizeBookmarkView(containerRef);
+    resizeGridView(containerRef);
     containerRef.querySelector('.is-keyboard-active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   });
 }

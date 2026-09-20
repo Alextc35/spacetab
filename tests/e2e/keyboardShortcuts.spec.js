@@ -35,11 +35,12 @@ test('default shortcuts replace the old keys and expose accessible hints', async
   await page.keyboard.press('Control+KeyB');
   await expect(page.locator('#edit-bookmark-modal')).toBeVisible();
   await page.keyboard.press('Escape');
+  await expect(page.locator('#edit-bookmark-modal')).toBeHidden();
 
   await page.keyboard.press('Control+KeyF');
-  await expect(page.locator('#alert-modal')).toBeVisible();
-  await expect(page.locator('#alert-modal-input')).toBeVisible();
+  await expect(page.locator('#edit-folder-modal')).toBeVisible();
   await page.keyboard.press('Escape');
+  await expect(page.locator('#edit-folder-modal')).toBeHidden();
 
   await page.keyboard.press('Control+KeyS');
   await expect(page.locator('#settings-modal')).toBeVisible();

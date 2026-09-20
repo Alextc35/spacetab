@@ -1,7 +1,7 @@
-import { resolveBackgroundImage } from '../core/localImages.js';
-import { createRecycleBinSvg } from './svgIcons.js';
+import { resolveBackgroundImage } from '../../core/localImages.js';
+import { createRecycleBinSvg } from '../../ui/svgIcons.js';
 
-/** Applies persisted recycle bin colors and element visibility. */
+/** Applies persisted recycle-bin colors and element visibility. */
 export function applyRecycleBinAppearance(element, recycleBin = {}) {
   const noBackground = recycleBin.noBackground === true;
   const backgroundColor = recycleBin.backgroundColor || null;
@@ -15,29 +15,26 @@ export function applyRecycleBinAppearance(element, recycleBin = {}) {
   element.classList.toggle('is-recycle-bin-name-hidden', recycleBin.showName === false);
   element.classList.toggle('is-recycle-bin-count-hidden', recycleBin.showCount === false);
 
-  if (backgroundColor) {
-    element.style.setProperty('--recycle-bin-background', backgroundColor);
-  } else {
-    element.style.removeProperty('--recycle-bin-background');
-  }
-  if (backgroundImage) {
-    element.style.setProperty('--recycle-bin-bg-image', `url("${backgroundImage}")`);
-  } else {
-    element.style.removeProperty('--recycle-bin-bg-image');
-  }
+  setOptionalProperty(element, '--recycle-bin-background', backgroundColor);
+  setOptionalProperty(
+    element,
+    '--recycle-bin-bg-image',
+    backgroundImage ? `url("${backgroundImage}")` : null
+  );
   element.style.setProperty('--recycle-bin-icon-color', recycleBin.iconColor || '#475569');
-  if (textColor) {
-    element.style.setProperty('--recycle-bin-text-color', textColor);
-  } else {
-    element.style.removeProperty('--recycle-bin-text-color');
-  }
+  setOptionalProperty(element, '--recycle-bin-text-color', textColor);
 }
 
-/** Creates the shared recycle bin glyph used by the card and its editor preview. */
+/** Creates the glyph shared by grid, list and editor views. */
 export function createRecycleBinGlyph() {
   const glyph = document.createElement('span');
   glyph.className = 'recycle-bin-glyph';
   glyph.setAttribute('aria-hidden', 'true');
   glyph.append(createRecycleBinSvg());
   return glyph;
+}
+
+function setOptionalProperty(element, name, value) {
+  if (value) element.style.setProperty(name, value);
+  else element.style.removeProperty(name);
 }

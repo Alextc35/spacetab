@@ -11,7 +11,8 @@ import { preloadLocalImages } from './core/localImages.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { applyInterfaceTheme } from './core/interfacePreferences.js';
-import { enableGridEditing, renderBookmarks } from './ui/bookmark/renderer.js';
+import { registerGridItemTypes } from './app/registerGridItemTypes.js';
+import { enableGridEditing, renderGrid } from './features/grid/gridRenderer.js';
 import { clearBookmarkSelection } from './ui/bookmark/selection.js';
 import { initUIController, updateEditUI } from './ui/uiController.js';
 import { initWorkspaceToolbar } from './ui/workspaceToolbar.js';
@@ -64,6 +65,7 @@ initApp().catch(error => {
  * 4. Initialize modals and import/export
  */
 async function initApp() {
+  registerGridItemTypes();
   await initState();
   purgeExpiredRecycleBinEntries();
   ensureRecycleBinPosition();
@@ -157,7 +159,7 @@ function handleStateChange(state, prev) {
     applyGlobalTheme(state.data.settings);
     updateEditUI(state.ui.isEditing);
     const trace = debug.start('Initial grid render');
-    renderBookmarks(container);
+    renderGrid(container);
     trace.end();
     return;
   }
@@ -193,20 +195,20 @@ function handleStateChange(state, prev) {
     void preloadLocalImages(state.data).then(() => {
       trace.mark('Resolve local images');
       if (settingsChanged) applyGlobalTheme(state.data.settings);
-      renderBookmarks(container);
+      renderGrid(container);
       trace.mark('Build grid DOM');
       trace.end();
     }).catch(error => {
       trace.end({ status: 'error', error: error.message });
       console.error('[LOCAL_IMAGE] Could not load local image:', error);
       if (settingsChanged) applyGlobalTheme(state.data.settings);
-      renderBookmarks(container);
+      renderGrid(container);
     });
   } else if (editingChanged) {
     if (state.ui.isEditing) {
       enableGridEditing(container);
     } else {
-      renderBookmarks(container);
+      renderGrid(container);
     }
   }
 

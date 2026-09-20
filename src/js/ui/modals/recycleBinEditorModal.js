@@ -13,7 +13,10 @@ import {
   setImageInputValue,
   setLocalImageSyncNoticeVisibility
 } from '../localImageUpload.js';
-import { applyRecycleBinAppearance, createRecycleBinGlyph } from '../recycleBinAppearance.js';
+import {
+  applyRecycleBinAppearance,
+  createRecycleBinGlyph
+} from '../../features/recycle-bin/recycleBinAppearance.js';
 import { initTabs } from '../tabs.js';
 import { ensurePanelFits } from '../viewportMode.js';
 import { closeModal, openModal, registerModal } from '../modalManager.js';

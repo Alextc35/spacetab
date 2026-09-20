@@ -14,7 +14,7 @@ import {
 import { t } from '../../core/i18n.js';
 import { getState, subscribe } from '../../core/store.js';
 import { createItemActionButton } from '../bookmark/actions.js';
-import { createBookmarkElement } from '../bookmark/renderer.js';
+import { createBookmarkElement } from '../../features/bookmarks/bookmarkCard.js';
 import { flashInfo, flashSuccess } from '../flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { closeModal, openModal, registerModal, isModalSuspended } from '../modalManager.js';

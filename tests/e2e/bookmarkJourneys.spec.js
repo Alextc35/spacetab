@@ -67,7 +67,7 @@ async function enableFolderEditMode(page) {
 async function setBookmarkDragMode(page, mode) {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
   const input = page.locator(`input[name="bookmark-drag-mode"][value="${mode}"]`);
   if (await input.isChecked()) {
     await page.keyboard.press('Escape');
@@ -1472,7 +1472,7 @@ test('turns cascades across rows and persists the whole path atomically', async 
 test('defaults to none, warns about sequence, and persists drag modes', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
 
   const cascade = page.locator('input[name="bookmark-drag-mode"][value="cascade"]');
   const relocate = page.locator('input[name="bookmark-drag-mode"][value="relocate"]');
@@ -1493,7 +1493,7 @@ test('defaults to none, warns about sequence, and persists drag modes', async ({
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
   await expect(cascade).toBeChecked();
   if (!(await page.locator('input[name="bookmark-drag-mode"]').first().isVisible())) {
     await page.locator('#bookmark-drag-settings-title').click();
@@ -2267,7 +2267,7 @@ test('optionally deletes folders when deleting all bookmarks', async ({ page }) 
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
   const deleteAll = page.getByRole('button', { name: 'Delete all bookmarks' });
 
   await deleteAll.click();
@@ -2299,7 +2299,7 @@ test('optionally deletes folders when deleting all bookmarks', async ({ page }) 
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
   await deleteAll.click();
   await expect(checkbox).not.toBeChecked();
   await checkbox.check();
@@ -2319,7 +2319,7 @@ test('optionally deletes folders when deleting all bookmarks', async ({ page }) 
 test('saves a named appearance preset', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeHidden();
   await page.getByRole('textbox', { name: 'Preset name' }).fill('Dark');
   await page.getByRole('button', { name: 'Save preset' }).click();
@@ -2328,14 +2328,14 @@ test('saves a named appearance preset', async ({ page }) => {
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
   await expect(page.getByRole('combobox', { name: 'Saved presets' })).toContainText('Dark');
 });
 
 test('configures the default bookmark through the shared preset editor', async ({ page }) => {
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
 
   await expect(page.locator('#settings-modal-tab-bookmark .default-bookmark-settings')).toBeVisible();
   await expect(page.locator('.default-bookmark-settings + #settings-bookmark-reset')).toBeVisible();
@@ -2365,7 +2365,7 @@ test('configures the default bookmark through the shared preset editor', async (
 
   await revealSideDock(page);
   await page.getByRole('button', { name: '⚙️' }).click();
-  await page.getByRole('button', { name: '🔖 Bookmarks' }).click();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
   await page.getByRole('button', { name: 'Configure default bookmark' }).click();
   await expect(editor.locator('#bookmark-modal-form-backgroundColor')).toHaveValue('#123456');
 });
@@ -3031,8 +3031,9 @@ test('customizes a folder from its miniature and persists the appearance', async
   folder = page.locator('.bookmark-folder', { hasText: 'Games' });
   await expect(folder).toHaveCSS('--folder-color', '#ef4444');
   await expect(folder).toHaveCSS('--folder-text-color', '#fef3c7');
+  await expect(folder).toHaveClass(/has-folder-bg-image/);
   await expect(folder.locator('.folder-body'))
-    .toHaveCSS('background-color', 'rgb(239, 68, 68)');
+    .toHaveCSS('background-image', /folder\.png/);
 
   await reloadSavedPage(page);
   folder = page.locator('.bookmark-folder', { hasText: 'Games' });

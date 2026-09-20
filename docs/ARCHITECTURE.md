@@ -1,7 +1,172 @@
 # SpaceTab architecture
 
 SpaceTab is a Manifest V3 new-tab extension written in vanilla JavaScript. Its
-architecture stays small, but dependencies flow in one direction.
+architecture is being migrated incrementally from technical folders
+(`core/`, `ui/`) toward explicit application, domain, feature, platform and
+shared boundaries. The legacy folders remain valid transition points: files
+move only when a tested boundary exists for them.
+
+## Direction and dependency rules
+
+```text
+newtab.html -> main.js -> app (composition)
+                           |
+                           v
+                     features --------> domain
+                        |                  |
+                        v                  v
+                      shared <--------- platform adapters
+                        |
+                        v
+                 browser DOM / Chrome APIs
+```
+
+The intended responsibilities are:
+
+- `app/`: bootstrap and dependency composition. It may register features but
+  must not contain bookmark, folder, workspace or recycle-bin rules.
+- `domain/`: deterministic entities, normalization, validation and rules. It
+  must not access the DOM or Chrome APIs.
+- `features/`: complete user-facing capabilities and their adapters. A feature
+  may use domain and shared code and receive platform services through its
+  application boundary.
+- `platform/`: Chrome storage, synchronization, browser capabilities, local
+  images and i18n loading. Domain code must not import it.
+- `shared/`: proven cross-feature mechanisms. It must stay small; feature rules
+  do not move here merely because several files call them.
+
+During migration, `core/` contains a mixture of domain and platform code and
+`ui/` contains shared UI plus feature UI. New dependencies should follow the
+direction above. Existing files are moved only as part of a behavior-preserving
+feature phase, not to make the tree look finished.
+
+## Current migration status
+
+Phase 1 introduces the first real seam:
+
+```text
+src/js/
+├── app/
+│   └── registerGridItemTypes.js
+├── features/
+│   ├── bookmarks/
+│   │   ├── bookmarkCard.js
+│   │   └── bookmarkGridItem.js
+│   ├── folders/
+│   │   └── folderGridItem.js
+│   ├── grid/
+│   │   └── gridRenderer.js
+│   └── recycle-bin/
+│       ├── recycleBinAppearance.js
+│       └── recycleBinGridItem.js
+└── shared/
+    └── grid/
+        └── gridItemRegistry.js
+```
+
+The recycle-bin model, commands and modals intentionally remain in their
+legacy locations for now. Moving them without first separating state commands,
+storage and modal composition would only replace old paths with new paths.
+Recycle-bin card rendering and appearance moved because the registry provides
+a genuine feature boundary for them. CSS remains under `css/features/` until a
+complete feature owns its lifecycle and bundling.
+
+## GridItem and the item-type registry
+
+`GridItem` is a structural contract: `id`, `gx`, `gy`, `w`, `h` and `groupId`.
+Bookmarks, folders and the recycle bin already satisfy it. The type is supplied
+by a feature adapter rather than persisted on every item, so this phase needs no
+schema migration and old synchronized data remains compatible.
+
+`shared/grid/gridItemRegistry.js` knows only the adapter protocol. A definition
+provides:
+
+- a stable `type`;
+- `select(state)` to expose visible feature items;
+- `render({ view, ... })` for grid and compact-list views;
+- a DOM selector plus `getElementId()` for generic resize lookup;
+- optional `enableEditing()` behavior;
+- independent grid and list ordering.
+
+`features/grid/gridRenderer.js` iterates registered definitions. It does not
+branch on bookmark, folder, recycle-bin or future widget types. The application
+composition root registers bundled definitions through
+`app/registerGridItemTypes.js`. The registry is static local code and does not
+load remote scripts, keeping it compatible with Manifest V3 CSP.
+
+The registration seam also removed the two static ES-module cycles that used
+to pass through `ui/bookmark/renderer.js`. Bookmark visuals now live in
+`features/bookmarks/bookmarkCard.js`, so previews and folder contents reuse the
+card without importing the grid orchestrator.
+
+## Workspace as a domain entity
+
+Persisted workspaces are still represented by `settings.bookmarkGroups` and
+`activeBookmarkGroupId`. This is the next important domain extraction: create a
+workspace model that owns identity, naming, active-workspace resolution and
+navigation, then adapt the existing schema without changing its persisted shape
+in the same phase. UI code should ultimately ask workspace actions/selectors
+rather than edit settings collections directly.
+
+## Store, persistence and synchronization
+
+The current boundary is functional but broad:
+
+```text
+UI / feature commands
+        ↓
+core/store.js (live state, subscriptions, history, persistence queue)
+        ↓
+core/storage.js (local/sync transport, chunking, compatibility)
+        ↓
+Chrome Storage + device-only image/trash records
+```
+
+Future phases should extract a platform storage adapter and schema/migration
+module while preserving the store API. `store.js` should retain live state,
+subscriptions and history; transport mode, quota accounting and Chrome events
+belong in `platform/storage` and `platform/sync`. Visual components must call
+feature actions rather than the storage facade directly.
+
+## Adding a bundled item or widget
+
+A new bundled type should provide its model and one grid-item definition. For a
+clock, the intended shape is:
+
+```text
+widgets/builtin/clock/
+├── clockModel.js
+├── clockGridItem.js
+├── clockSettings.js
+└── clock.css
+```
+
+Then the composition root registers `clockGridItem`. The generic grid renderer,
+store, modal manager and HTML shell should not change. A widget that needs
+persistence first requires a versioned schema addition and a feature action;
+the registry itself is deliberately not a persistence or plugin-loading API.
+Remote executable plugins are out of scope.
+
+## Incremental roadmap
+
+1. Complete the recycle-bin slice: separate pure domain restoration/retention
+   rules, feature actions and modal UI; move device trash to platform storage.
+2. Move bookmark and folder models/actions behind feature boundaries while
+   retaining the tested store commands.
+3. Introduce the explicit workspace domain entity without changing persisted
+   `bookmarkGroups` data in the same step.
+4. Split store state/history from Chrome persistence, sync transport and schema
+   migration.
+5. Add a minimal bundled-widget API only when the first real widget supplies
+   concrete requirements beyond the GridItem definition.
+
+Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
+the unpacked-extension smoke/package checks.
+
+## Existing implementation details
+
+The remaining sections describe the current behavior that every migration must
+preserve.
 
 ```text
 Core domain and schema

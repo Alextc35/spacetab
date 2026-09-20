@@ -52,9 +52,11 @@ try {
   await page.keyboard.press('Control+KeyB');
   await page.locator('#edit-bookmark-modal').waitFor({ state: 'visible' });
   await page.keyboard.press('Escape');
+  await page.locator('#edit-bookmark-modal').waitFor({ state: 'hidden' });
   await page.keyboard.press('Control+KeyF');
-  await page.locator('#alert-modal-input').waitFor({ state: 'visible' });
+  await page.locator('#edit-folder-modal').waitFor({ state: 'visible' });
   await page.keyboard.press('Escape');
+  await page.locator('#edit-folder-modal').waitFor({ state: 'hidden' });
   await page.keyboard.press('Control+KeyS');
   await page.locator('#settings-modal').waitFor({ state: 'visible' });
   await page.keyboard.press('Escape');

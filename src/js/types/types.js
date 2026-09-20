@@ -1,4 +1,18 @@
 /**
+ * Structural contract shared by every item placed on the main grid.
+ * Feature adapters supply the item type at runtime so existing persisted data
+ * does not need a discriminator migration.
+ *
+ * @typedef {Object} GridItem
+ * @property {string} id
+ * @property {number} gx
+ * @property {number} gy
+ * @property {number} w
+ * @property {number} h
+ * @property {string|null} groupId
+ */
+
+/**
  * @typedef {Object} Bookmark
  * @property {string} id
  * @property {string} name

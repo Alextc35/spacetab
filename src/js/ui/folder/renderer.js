@@ -70,6 +70,7 @@ export function createFolderElement({ container, folder, bookmarks, isEditing })
 
 /** Adds controls and interactions which only exist while the grid is editable. */
 export function enableFolderEditing(container, element, folder) {
+  element.classList.add('is-editing');
   if (element.dataset.editingControlsAttached === 'true') return;
 
   element.dataset.editingControlsAttached = 'true';
