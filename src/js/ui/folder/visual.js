@@ -1,5 +1,5 @@
 import { createFavicon } from '../bookmark/favicon.js';
-import { resolveBackgroundImage } from '../../core/localImages.js';
+import { resolveBackgroundImage } from '../../platform/images/localImages.js';
 import { lightSurfaceTextColor } from '../surfaceContrast.js';
 import { createFolderSvg } from '../svgIcons.js';
 

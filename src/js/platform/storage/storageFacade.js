@@ -1,22 +1,34 @@
-import '../types/types.js'; // typedefs
+import '../../types/types.js'; // typedefs
 import { migratePersistedData } from './dataSchema.js';
-import { mergeChanges } from './mergeChanges.js';
-import { findFirstFreeSlot, isAreaFree } from '../shared/grid/gridPlacement.js';
-import { GRID_COLS, GRID_ROWS } from '../shared/grid/gridGeometry.js';
-import { DATA_SCHEMA_VERSION } from './defaults.js';
+import { mergeChanges } from '../../shared/data/mergeChanges.js';
+import { findFirstFreeSlot, isAreaFree } from '../../shared/grid/gridPlacement.js';
+import { GRID_COLS, GRID_ROWS } from '../../shared/grid/gridGeometry.js';
+import { DATA_SCHEMA_VERSION } from './schemaVersion.js';
+import { callStorage, getStorageBytes } from './chromeStorage.js';
+import {
+  decodeSyncPayload,
+  encodeSyncPayload,
+  getSyncChunkKeys,
+  isSyncTransportKey,
+  SYNC_CHUNK_PREFIX,
+  SYNC_FORMAT_VERSION,
+  SYNC_META_KEY,
+  tryDecodeSyncPayload,
+  validateSyncMetadata
+} from '../sync/syncTransport.js';
 import {
   DEVICE_IMAGE_SELECTIONS_KEY,
   restoreDeviceImageSelections,
   saveDeviceImageSelections,
   withoutDeviceImages
-} from './deviceImages.js';
+} from './deviceImageSelections.js';
 import {
   clearDeviceTrash,
   DEVICE_TRASH_KEY,
   restoreDeviceTrash,
   saveDeviceTrash,
   withoutDeviceTrash
-} from '../platform/storage/deviceTrashStorage.js';
+} from './deviceTrashStorage.js';
 
 export const STORAGE_MODES = Object.freeze({
   LOCAL: 'local',
@@ -26,10 +38,6 @@ export const STORAGE_MODES = Object.freeze({
 const STORAGE_MODE_KEY = 'spacetabStorageMode';
 const SYNC_COMPATIBILITY_KEY = 'spacetabSyncCompatibility';
 const DEVICE_ID_KEY = 'spacetabDeviceId';
-const SYNC_META_KEY = 'spacetabSyncMeta';
-const SYNC_CHUNK_PREFIX = 'spacetabSyncChunk:';
-const SYNC_FORMAT_VERSION = 1;
-const SYNC_ITEM_SAFE_BYTES = 7600;
 const LOCAL_IMAGE_STORAGE_PREFIX = 'spacetabLocalImage:';
 const LEGACY_SYNC_KEYS = [
   'schemaVersion',
@@ -60,27 +68,6 @@ const changeListeners = new Set();
 let lastCommit = null;
 
 /**
- * Converts callback-based chrome.storage calls into promises.
- *
- * @param {chrome.storage.StorageArea} area
- * @param {'get'|'set'|'remove'|'getBytesInUse'} method
- * @param {*} value
- * @returns {Promise<*>}
- */
-function callStorage(area, method, value) {
-  return new Promise((resolve, reject) => {
-    area[method](value, result => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-
-      resolve(result);
-    });
-  });
-}
-
-/**
  * Returns a complete, cloned data object and fills missing nested settings.
  *
  * @param {Partial<PersistedData>|null|undefined} data
@@ -88,63 +75,6 @@ function callStorage(area, method, value) {
  */
 function normalizePersistedData(data) {
   return migratePersistedData(data);
-}
-
-/**
- * Splits serialized data into values that remain below storage.sync's
- * per-item quota, including escaped JSON string characters.
- *
- * @param {string} serialized
- * @returns {string[]}
- */
-function splitForSync(serialized) {
-  if (!serialized) return [''];
-
-  const encoder = new TextEncoder();
-  const chunks = [];
-  let start = 0;
-
-  while (start < serialized.length) {
-    let low = start + 1;
-    let high = serialized.length;
-    let best = start;
-
-    while (low <= high) {
-      const middle = Math.floor((low + high) / 2);
-      const candidate = serialized.slice(start, middle);
-      const bytes = encoder.encode(JSON.stringify(candidate)).length;
-
-      if (bytes <= SYNC_ITEM_SAFE_BYTES) {
-        best = middle;
-        low = middle + 1;
-      } else {
-        high = middle - 1;
-      }
-    }
-
-    if (best === start) {
-      throw new Error('A synchronized storage chunk could not be created.');
-    }
-
-    chunks.push(serialized.slice(start, best));
-    start = best;
-  }
-
-  return chunks;
-}
-
-/**
- * Estimates how Chrome accounts for sync storage usage.
- *
- * @param {Object<string, *>} items
- * @returns {number}
- */
-function getStorageBytes(items) {
-  const encoder = new TextEncoder();
-
-  return Object.entries(items).reduce((total, [key, value]) => (
-    total + encoder.encode(key).length + encoder.encode(JSON.stringify(value)).length
-  ), 0);
 }
 
 function emptyStorageBreakdown() {
@@ -341,29 +271,12 @@ function reconcileLocalStorageBreakdown(breakdown, usedBytes) {
   };
 }
 
-function readChunkedSyncPayload(values) {
-  const meta = values[SYNC_META_KEY];
-  if (!Number.isInteger(meta?.chunkCount) || meta.chunkCount < 1) return null;
-
-  const chunks = Array.from(
-    { length: meta.chunkCount },
-    (_, index) => values[`${SYNC_CHUNK_PREFIX}${index}`]
-  );
-  if (chunks.some(chunk => typeof chunk !== 'string')) return null;
-
-  try {
-    return JSON.parse(chunks.join(''));
-  } catch {
-    return null;
-  }
-}
-
 function getEscapedPayloadWeight(data) {
   return new TextEncoder().encode(JSON.stringify(JSON.stringify(data))).length;
 }
 
 function getChunkedSyncBreakdown(values, entryBytes) {
-  const payload = readChunkedSyncPayload(values);
+  const payload = tryDecodeSyncPayload(values);
   if (!payload) {
     return getDirectStorageBreakdown(values, entryBytes, { includeTrash: false });
   }
@@ -463,40 +376,10 @@ async function readSyncData() {
     ? meta.writerDeviceId
     : null;
 
-  if (
-    meta.version > SYNC_FORMAT_VERSION
-  ) {
-    const error = new Error('The synchronized SpaceTab data uses a newer format.');
-    error.code = 'UNSUPPORTED_SYNC_FORMAT';
-    error.requiredSyncFormatVersion = meta.version;
-    error.supportedSyncFormatVersion = SYNC_FORMAT_VERSION;
-    throw error;
-  }
-
-  if (
-    meta.version !== SYNC_FORMAT_VERSION ||
-    !Number.isInteger(meta.chunkCount) ||
-    meta.chunkCount < 1
-  ) {
-    throw new Error('The synchronized SpaceTab data has an unsupported format.');
-  }
-
-  const keys = Array.from(
-    { length: meta.chunkCount },
-    (_, index) => `${SYNC_CHUNK_PREFIX}${index}`
-  );
+  validateSyncMetadata(meta);
+  const keys = getSyncChunkKeys(meta.chunkCount);
   const values = await callStorage(chrome.storage.sync, 'get', keys);
-  const serialized = keys.map(key => values[key]).join('');
-
-  if (keys.some(key => typeof values[key] !== 'string')) {
-    throw new Error('The synchronized SpaceTab data is incomplete.');
-  }
-
-  try {
-    return JSON.parse(serialized);
-  } catch (error) {
-    throw new Error('The synchronized SpaceTab data is invalid.', { cause: error });
-  }
+  return decodeSyncPayload(meta, values);
 }
 
 /**
@@ -521,7 +404,11 @@ async function writeSyncData(data) {
   await saveDeviceImageSelections(normalized);
   await saveDeviceTrash(normalized);
   const shared = withoutDeviceTrash(withoutDeviceImages(normalized));
-  const chunks = splitForSync(JSON.stringify(shared));
+  const encoded = encodeSyncPayload(shared, {
+    schemaVersion: DATA_SCHEMA_VERSION,
+    writerDeviceId: deviceId
+  });
+  const { chunks, items } = encoded;
   const previous = await callStorage(
     chrome.storage.sync,
     'get',
@@ -536,19 +423,6 @@ async function writeSyncData(data) {
     return;
   }
 
-  const items = Object.fromEntries(
-    chunks.map((chunk, index) => [`${SYNC_CHUNK_PREFIX}${index}`, chunk])
-  );
-
-  items[SYNC_META_KEY] = {
-    version: SYNC_FORMAT_VERSION,
-    schemaVersion: DATA_SCHEMA_VERSION,
-    chunkCount: chunks.length,
-    updatedAt: Date.now(),
-    writerDeviceId: deviceId,
-    writeId: crypto.randomUUID()
-  };
-
   const quotaBytes = chrome.storage.sync.QUOTA_BYTES ?? 102400;
   if (getStorageBytes(items) > quotaBytes) {
     const error = new Error('SpaceTab data exceeds the synchronized storage quota.');
@@ -559,10 +433,7 @@ async function writeSyncData(data) {
   await callStorage(chrome.storage.sync, 'set', items);
 
   const staleKeys = previousChunkCount > chunks.length
-    ? Array.from(
-      { length: previousChunkCount - chunks.length },
-      (_, index) => `${SYNC_CHUNK_PREFIX}${chunks.length + index}`
-    )
+    ? getSyncChunkKeys(previousChunkCount).slice(chunks.length)
     : [];
 
   const legacyKeys = LEGACY_SYNC_KEYS.filter(
@@ -650,9 +521,7 @@ async function getStorageUsage(mode) {
 }
 
 function isSpaceTabSyncKey(key) {
-  return key === SYNC_META_KEY
-    || key.startsWith(SYNC_CHUNK_PREFIX)
-    || LEGACY_SYNC_KEYS.includes(key);
+  return isSyncTransportKey(key) || LEGACY_SYNC_KEYS.includes(key);
 }
 
 /**

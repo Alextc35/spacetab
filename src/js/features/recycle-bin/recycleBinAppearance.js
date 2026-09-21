@@ -1,4 +1,4 @@
-import { resolveBackgroundImage } from '../../core/localImages.js';
+import { resolveBackgroundImage } from '../../platform/images/localImages.js';
 import { createRecycleBinSvg } from '../../ui/svgIcons.js';
 
 /** Applies persisted recycle-bin colors and element visibility. */

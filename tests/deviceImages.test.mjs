@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { migratePersistedData } from '../src/js/core/dataSchema.js';
+import { migratePersistedData } from '../src/js/platform/storage/dataSchema.js';
 import {
   DEVICE_IMAGE_SELECTIONS_KEY,
   restoreDeviceImageSelections,
   saveDeviceImageSelections,
   withoutDeviceImages
-} from '../src/js/core/deviceImages.js';
+} from '../src/js/platform/storage/deviceImageSelections.js';
 
 const owned = 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
 const replacement = 'spacetab-local-image:8c5b9a2e-3f0e-4c7e-889c-72117afc09e9';

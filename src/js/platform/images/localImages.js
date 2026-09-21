@@ -2,7 +2,8 @@ import {
   isLocalImageReference,
   LOCAL_IMAGE_PROTOCOL,
   normalizeBackgroundImage
-} from '../shared/images/backgroundImage.js';
+} from '../../shared/images/backgroundImage.js';
+import { callStorage, getStorageBytes } from '../storage/chromeStorage.js';
 
 const LOCAL_IMAGE_STORAGE_PREFIX = 'spacetabLocalImage:';
 const MAX_SOURCE_FILE_BYTES = 20 * 1024 * 1024;
@@ -238,22 +239,7 @@ async function getLocalStorageBytes() {
   }
 
   const values = await callStorage(chrome.storage.local, 'get', null);
-  return Object.entries(values).reduce((total, [key, value]) => (
-    total + new TextEncoder().encode(key).length
-      + new TextEncoder().encode(JSON.stringify(value)).length
-  ), 0);
-}
-
-function callStorage(area, method, value) {
-  return new Promise((resolve, reject) => {
-    area[method](value, result => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-      resolve(result);
-    });
-  });
+  return getStorageBytes(values);
 }
 
 function localImageError(code) {

@@ -191,9 +191,11 @@ src/js/features/workspaces/                  workspace actions and selectors
 
 src/js/core/bookmarkDragModes.js   drag-mode constants and normalization
 src/js/core/browserCapabilities.js tested sync-browser detection
-src/js/core/dataSchema.js          migrations and import/export envelopes
 src/js/core/store.js               state, persistence status and undo/redo
-src/js/core/storage.js             local/sync storage and quota-safe chunking
+src/js/platform/images/            local image cache and browser processing
+src/js/platform/storage/           schema, Chrome persistence and device data
+src/js/platform/sync/              versioned, quota-safe sync transport
+src/js/shared/data/mergeChanges.js concurrent persisted-data reconciliation
 
 src/js/ui/bookmark/panel.js        reusable create/edit/preset panel
 src/js/ui/bookmark/dragResize.js   shared pointer drag and resize controller

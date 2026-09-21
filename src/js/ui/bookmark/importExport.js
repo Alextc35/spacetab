@@ -3,7 +3,7 @@ import { getState } from '../../core/store.js';
 import {
   createBookmarksEnvelope,
   parseBookmarksPayload
-} from '../../core/dataSchema.js';
+} from '../../platform/storage/dataSchema.js';
 import { flashSuccess, flashError } from '../flash.js';
 import { downloadJson } from '../backup.js';
 import {

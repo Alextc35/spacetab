@@ -1,5 +1,5 @@
 import '../types/types.js'; // typedefs
-import { storage } from './storage.js';
+import { storage } from '../platform/storage/storageFacade.js';
 import { getState, setState } from './store.js';
 import { ensureRecycleBinPosition } from '../features/recycle-bin/recycleBinActions.js';
 

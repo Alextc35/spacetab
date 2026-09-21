@@ -1,4 +1,4 @@
-import { resolveBackgroundImage } from '../../core/localImages.js';
+import { resolveBackgroundImage } from '../../platform/images/localImages.js';
 import { createFavicon } from '../../ui/bookmark/favicon.js';
 import { lightSurfaceTextColor } from '../../ui/surfaceContrast.js';
 

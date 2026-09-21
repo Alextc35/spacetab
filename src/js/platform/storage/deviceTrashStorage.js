@@ -1,3 +1,5 @@
+import { callStorage } from './chromeStorage.js';
+
 /** Chrome-local persistence for recycle-bin contents that must never sync. */
 export const DEVICE_TRASH_KEY = 'spacetabLocalTrash';
 
@@ -11,7 +13,7 @@ export function withoutDeviceTrash(data) {
 /** Persists this device's current recycle-bin contents, including an empty bin. */
 export async function saveDeviceTrash(data) {
   const trash = Array.isArray(data?.trash) ? structuredClone(data.trash) : [];
-  await callLocalStorage('set', { [DEVICE_TRASH_KEY]: trash });
+  await callStorage(chrome.storage.local, 'set', { [DEVICE_TRASH_KEY]: trash });
 }
 
 /**
@@ -20,7 +22,7 @@ export async function saveDeviceTrash(data) {
  */
 export async function restoreDeviceTrash(data) {
   const restored = structuredClone(data);
-  const stored = await callLocalStorage('get', DEVICE_TRASH_KEY);
+  const stored = await callStorage(chrome.storage.local, 'get', DEVICE_TRASH_KEY);
 
   if (Object.hasOwn(stored, DEVICE_TRASH_KEY)) {
     restored.trash = Array.isArray(stored[DEVICE_TRASH_KEY])
@@ -32,24 +34,12 @@ export async function restoreDeviceTrash(data) {
   const legacyTrash = Array.isArray(restored.trash)
     ? structuredClone(restored.trash)
     : [];
-  await callLocalStorage('set', { [DEVICE_TRASH_KEY]: legacyTrash });
+  await callStorage(chrome.storage.local, 'set', { [DEVICE_TRASH_KEY]: legacyTrash });
   restored.trash = legacyTrash;
   return restored;
 }
 
 /** Removes device-only recycle-bin contents during a complete data reset. */
 export function clearDeviceTrash() {
-  return callLocalStorage('remove', DEVICE_TRASH_KEY);
-}
-
-function callLocalStorage(method, value) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local[method](value, result => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-      resolve(result);
-    });
-  });
+  return callStorage(chrome.storage.local, 'remove', DEVICE_TRASH_KEY);
 }

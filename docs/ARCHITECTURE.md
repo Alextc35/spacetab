@@ -42,7 +42,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 4 establish the first domain and feature seams:
+Phases 1 through 5 establish the first domain, feature and platform seams:
 
 ```text
 src/js/
@@ -84,9 +84,20 @@ src/js/
 │       ├── workspaceActions.js
 │       └── workspaceSelectors.js
 ├── platform/
-│   └── storage/
-│       └── deviceTrashStorage.js
+│   ├── images/
+│   │   └── localImages.js
+│   ├── storage/
+│   │   ├── chromeStorage.js
+│   │   ├── dataSchema.js
+│   │   ├── deviceImageSelections.js
+│   │   ├── deviceTrashStorage.js
+│   │   ├── schemaVersion.js
+│   │   └── storageFacade.js
+│   └── sync/
+│       └── syncTransport.js
 └── shared/
+    ├── data/
+    │   └── mergeChanges.js
     ├── grid/
     │   ├── gridGeometry.js
     │   ├── gridItemRegistry.js
@@ -104,12 +115,11 @@ into the pure domain operations, keeping their tests deterministic.
 
 Bookmark, folder and recycle-bin defaults and normalization now live in
 `domain/`. Their shared background-image value rules are separate from the
-device image cache, Chrome Storage and Canvas processing that remain in the
-legacy platform module. Store-backed bookmark, folder and mixed-grid commands
-live in their feature slices. `core/defaults.js` temporarily composes and
-re-exports domain defaults so schema and compatibility callers can migrate
-without a persisted-data change. CSS remains under `css/features/` because its
-loading lifecycle has not changed.
+device image cache, Chrome Storage and Canvas processing under `platform/`.
+Store-backed bookmark, folder and mixed-grid commands live in their feature
+slices. `core/defaults.js` temporarily composes and re-exports domain defaults
+so compatibility callers can migrate without a persisted-data change. CSS
+remains under `css/features/` because its loading lifecycle has not changed.
 
 Workspace identity, naming, normalization and cyclic navigation now live in
 `domain/workspaces`. Store-backed creation, activation, deletion and bookmark
@@ -153,8 +163,10 @@ features/recycle-bin/recycleBinActions.js → core/store.js
              ↓
 domain/recycle-bin/recycleBinEntries.js
 
-core/store.js / core/storage.js
-             ↓
+core/store.js
+     ↓
+platform/storage/storageFacade.js
+     ↓
 platform/storage/deviceTrashStorage.js → chrome.storage.local
 ```
 
@@ -176,29 +188,35 @@ not change `schemaVersion` or synchronized data.
 
 ## Store, persistence and synchronization
 
-The current boundary is functional but broad:
+Chrome-specific persistence is now behind a platform boundary:
 
 ```text
 UI / feature commands
         ↓
 core/store.js (live state, subscriptions, history, persistence queue)
         ↓
-core/storage.js (local/sync transport, chunking, compatibility)
-        ↓
-Chrome Storage + device-only image records
+platform/storage/storageFacade.js (mode, quotas, compatibility, events)
+        ├── platform/storage/dataSchema.js (migration and envelopes)
+        ├── platform/storage/device*Storage.js (device-only records)
+        ├── platform/sync/syncTransport.js (pure versioned codec/chunking)
+        └── platform/storage/chromeStorage.js → Chrome Storage
 
-core/store.js / core/storage.js
+stale page snapshot + latest persisted data
         ↓
-platform/storage/deviceTrashStorage.js
+shared/data/mergeChanges.js
         ↓
-Chrome local device-trash record
+platform/storage/storageFacade.js
 ```
 
-Future phases should extract a platform storage adapter and schema/migration
-module while preserving the store API. `store.js` should retain live state,
-subscriptions and history; transport mode, quota accounting and Chrome events
-belong in `platform/storage` and `platform/sync`. Visual components must call
-feature actions rather than the storage facade directly.
+`store.js` retains live state, subscriptions, undo/redo and the ordered
+persistence queue. It depends on the facade, but does not know Chrome keys,
+callbacks, quotas, chunks or sync wire format. The facade owns local/sync mode,
+compatibility fallback and Chrome change events. The sync module is pure: it
+encodes and decodes the existing versioned chunk format and can be tested
+without browser globals. Schema version 16 and all stored/imported migrations
+live together under `platform/storage`; moving them did not change the schema
+or stored representation. Visual components continue to call feature actions
+rather than the storage facade directly.
 
 ## Adding a bundled item or widget
 
@@ -229,8 +247,8 @@ Remote executable plugins are out of scope.
    retaining the tested store commands.
 4. ✅ Introduce the explicit workspace domain entity without changing persisted
    `bookmarkGroups` data in the same step.
-5. Split store state/history from Chrome persistence, sync transport and schema
-   migration.
+5. ✅ Split store state/history from Chrome persistence, sync transport and
+   schema migration.
 6. Add a minimal bundled-widget API only when the first real widget supplies
    concrete requirements beyond the GridItem definition.
 
@@ -259,8 +277,9 @@ normalization and validation. `src/js/domain/folders/folderModel.js` owns the
 equivalent folder rules, including its name contract. Their functions do not
 read global state, making them deterministic.
 
-`src/js/core/dataSchema.js` is the boundary for stored, synchronized and imported
-data. `schemaVersion` changes only when a persisted shape changes. Old data is
+`src/js/platform/storage/dataSchema.js` is the boundary for stored,
+synchronized and imported data. `schemaVersion` changes only when a persisted
+shape changes; the current value is isolated in `schemaVersion.js`. Old data is
 migrated before entering the store. Schema 3 adds `folders` and the nullable
 `bookmark.folderId` reference; schema 0–2 data migrates with an empty folder
 collection.

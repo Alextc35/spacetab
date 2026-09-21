@@ -6,7 +6,7 @@ const RECORD_COLLECTIONS = new Set([
   'bookmarkPresets'
 ]);
 
-/** Applies only this page's changes to the latest persisted snapshot.
+/** Merges only this page's changes into the latest persisted snapshot.
  * Independent additions and edits survive; deletion wins over a stale edit.
  * Changes to the same field use the last writer inside the device lock.
  */

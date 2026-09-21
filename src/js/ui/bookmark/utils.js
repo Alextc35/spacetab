@@ -1,5 +1,5 @@
 import '../../types/types.js'; // typedefs
-import { resolveBackgroundImage } from '../../core/localImages.js';
+import { resolveBackgroundImage } from '../../platform/images/localImages.js';
 
 /**
  * Determines whether a bookmark should be considered visually dark.

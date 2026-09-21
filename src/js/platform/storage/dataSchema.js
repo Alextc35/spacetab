@@ -1,25 +1,28 @@
-import '../types/types.js';
+import '../../types/types.js';
 import {
-  DATA_SCHEMA_VERSION,
   DEFAULT_RECYCLE_BIN,
   DEFAULT_SETTINGS,
   DEFAULT_STATE
-} from './defaults.js';
+} from '../../core/defaults.js';
+import { DATA_SCHEMA_VERSION } from './schemaVersion.js';
 import {
   normalizeBookmark,
   normalizeBookmarkPreset
-} from '../domain/bookmarks/bookmarkModel.js';
-import { normalizeBookmarkDragMode } from './bookmarkDragModes.js';
-import { normalizeBookmarkResizeMode } from './bookmarkResizeModes.js';
-import { normalizeKeyboardShortcuts } from './keyboardShortcuts.js';
-import { normalizeFolderStyle } from '../domain/folders/folderModel.js';
-import { normalizeBackgroundImage } from '../shared/images/backgroundImage.js';
-import { normalizeInterfaceTheme, normalizeLanguagePreference } from './interfacePreferences.js';
-import { normalizeRecycleBinStyle } from '../domain/recycle-bin/recycleBinModel.js';
+} from '../../domain/bookmarks/bookmarkModel.js';
+import { normalizeBookmarkDragMode } from '../../core/bookmarkDragModes.js';
+import { normalizeBookmarkResizeMode } from '../../core/bookmarkResizeModes.js';
+import { normalizeKeyboardShortcuts } from '../../core/keyboardShortcuts.js';
+import { normalizeFolderStyle } from '../../domain/folders/folderModel.js';
+import { normalizeBackgroundImage } from '../../shared/images/backgroundImage.js';
+import {
+  normalizeInterfaceTheme,
+  normalizeLanguagePreference
+} from '../../core/interfacePreferences.js';
+import { normalizeRecycleBinStyle } from '../../domain/recycle-bin/recycleBinModel.js';
 import {
   normalizeWorkspaces,
   resolveWorkspaceId
-} from '../domain/workspaces/workspaceModel.js';
+} from '../../domain/workspaces/workspaceModel.js';
 
 /**
  * Upgrades and normalizes application data from every supported SpaceTab

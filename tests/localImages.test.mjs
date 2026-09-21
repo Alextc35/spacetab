@@ -3,7 +3,7 @@ import test from 'node:test';
 import {
   preloadLocalImages,
   resolveBackgroundImage
-} from '../src/js/core/localImages.js';
+} from '../src/js/platform/images/localImages.js';
 import { normalizeBackgroundImage } from '../src/js/shared/images/backgroundImage.js';
 
 test('uses the URL when a local file is missing, and prefers it only after the file is loaded', async () => {

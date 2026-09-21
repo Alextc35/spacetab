@@ -1,7 +1,7 @@
 import {
   getLocalImageName,
   saveLocalImage
-} from '../core/localImages.js';
+} from '../platform/images/localImages.js';
 import { isLocalImageReference } from '../shared/images/backgroundImage.js';
 import { t } from '../core/i18n.js';
 import { flashError } from './flash.js';

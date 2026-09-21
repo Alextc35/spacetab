@@ -898,7 +898,7 @@ test('navigates folders and opens them according to the current edit mode', asyn
   await expect(page.locator('#add-toggle')).toBeFocused();
 
   const grid = page.locator('#bookmark-container');
-  const folder = page.locator('.bookmark-folder', { hasText: 'Keyboard folder' });
+  const folder = grid.locator('.bookmark-folder', { hasText: 'Keyboard folder' });
   const folderVisual = folder.locator('.folder-visual');
   const restingFilter = await folderVisual.evaluate(element => getComputedStyle(element).filter);
   await folder.locator('.folder-open').hover();

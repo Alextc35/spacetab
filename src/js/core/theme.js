@@ -1,6 +1,6 @@
 import '../types/types.js'; // typedefs
 import { VERSION } from './config.js';
-import { resolveBackgroundImage } from './localImages.js';
+import { resolveBackgroundImage } from '../platform/images/localImages.js';
 
 /**
  * Applies the global theme variables to the document root element.

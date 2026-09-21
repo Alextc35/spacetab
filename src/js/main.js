@@ -7,7 +7,7 @@ import {
   getSyncCompatibility,
   subscribeToRemoteSyncUpdates
 } from './core/store.js';
-import { preloadLocalImages } from './core/localImages.js';
+import { preloadLocalImages } from './platform/images/localImages.js';
 import { initI18n, changeLanguage } from './core/i18n.js';
 import { applyGlobalTheme } from './core/theme.js';
 import { applyInterfaceTheme } from './core/interfacePreferences.js';

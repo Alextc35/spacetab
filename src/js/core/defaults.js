@@ -13,6 +13,7 @@ import {
   DEFAULT_RECYCLE_BIN_STYLE,
   RECYCLE_BIN_ID
 } from '../domain/recycle-bin/recycleBinDefaults.js';
+import { DATA_SCHEMA_VERSION } from '../platform/storage/schemaVersion.js';
 
 export {
   DEFAULT_BOOKMARK,
@@ -21,10 +22,9 @@ export {
   DEFAULT_FOLDER_STYLE,
   DEFAULT_RECYCLE_BIN,
   DEFAULT_RECYCLE_BIN_STYLE,
+  DATA_SCHEMA_VERSION,
   RECYCLE_BIN_ID
 };
-
-export const DATA_SCHEMA_VERSION = 16;
 
 /**
  * Initial bookmarks used when no persisted data exists.

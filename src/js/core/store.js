@@ -1,10 +1,10 @@
 import '../types/types.js'; // typedefs
 import { debug, describeStateChange } from './debug.js';
 import { DEFAULT_STATE } from './defaults.js';
-import { storage, STORAGE_MODES } from './storage.js';
-import { mergeChanges } from './mergeChanges.js';
-import { clearLocalImages } from './localImages.js';
-import { clearDeviceImageSelections } from './deviceImages.js';
+import { storage, STORAGE_MODES } from '../platform/storage/storageFacade.js';
+import { mergeChanges } from '../shared/data/mergeChanges.js';
+import { clearLocalImages } from '../platform/images/localImages.js';
+import { clearDeviceImageSelections } from '../platform/storage/deviceImageSelections.js';
 import { clearDeviceTrash } from '../platform/storage/deviceTrashStorage.js';
 
 /**

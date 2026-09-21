@@ -1,7 +1,7 @@
 import {
   createBackupEnvelope,
   parseBackupPayload
-} from '../core/dataSchema.js';
+} from '../platform/storage/dataSchema.js';
 import { getState, setState } from '../core/store.js';
 import { flashError, flashSuccess } from './flash.js';
 import { ensureRecycleBinPosition } from '../features/recycle-bin/recycleBinActions.js';

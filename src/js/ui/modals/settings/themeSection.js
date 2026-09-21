@@ -9,7 +9,7 @@ import {
   setLocalImageSyncNoticeVisibility,
   setImageInputValue
 } from '../../localImageUpload.js';
-import { resolveBackgroundImage } from '../../../core/localImages.js';
+import { resolveBackgroundImage } from '../../../platform/images/localImages.js';
 import { getStorageMode } from '../../../core/store.js';
 import {
   getDraftStorageMode,

@@ -7,7 +7,7 @@ import {
   migratePersistedData,
   parseBackupPayload,
   parseBookmarksPayload
-} from '../src/js/core/dataSchema.js';
+} from '../src/js/platform/storage/dataSchema.js';
 import { DATA_SCHEMA_VERSION, DEFAULT_FOLDER_STYLE, DEFAULT_SETTINGS } from '../src/js/core/defaults.js';
 import { BOOKMARK_DRAG_MODES } from '../src/js/core/bookmarkDragModes.js';
 import { DEFAULT_KEYBOARD_SHORTCUTS } from '../src/js/core/keyboardShortcuts.js';

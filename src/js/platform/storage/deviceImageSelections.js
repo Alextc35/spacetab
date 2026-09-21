@@ -1,5 +1,6 @@
-import { preloadLocalImages, resolveImageSource } from './localImages.js';
-import { isLocalImageReference } from '../shared/images/backgroundImage.js';
+import { preloadLocalImages, resolveImageSource } from '../images/localImages.js';
+import { isLocalImageReference } from '../../shared/images/backgroundImage.js';
+import { callStorage } from './chromeStorage.js';
 
 export const DEVICE_IMAGE_SELECTIONS_KEY = 'spacetabLocalImageSelections';
 
@@ -53,7 +54,7 @@ export async function saveDeviceImageSelections(data) {
 
 /** Removes every device-specific image choice during a complete data reset. */
 export function clearDeviceImageSelections() {
-  return callLocalStorage('remove', DEVICE_IMAGE_SELECTIONS_KEY);
+  return callStorage(chrome.storage.local, 'remove', DEVICE_IMAGE_SELECTIONS_KEY);
 }
 
 /**
@@ -91,7 +92,7 @@ export async function restoreDeviceImageSelections(data) {
 }
 
 async function readSelections() {
-  const stored = await callLocalStorage('get', DEVICE_IMAGE_SELECTIONS_KEY);
+  const stored = await callStorage(chrome.storage.local, 'get', DEVICE_IMAGE_SELECTIONS_KEY);
   const value = stored[DEVICE_IMAGE_SELECTIONS_KEY];
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return Object.fromEntries(Object.entries(value).flatMap(([key, selection]) => {
@@ -129,17 +130,7 @@ function pruneSelections(selections, slots) {
 }
 
 function writeSelections(selections) {
-  return callLocalStorage('set', { [DEVICE_IMAGE_SELECTIONS_KEY]: selections });
-}
-
-function callLocalStorage(method, value) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local[method](value, result => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-      resolve(result);
-    });
+  return callStorage(chrome.storage.local, 'set', {
+    [DEVICE_IMAGE_SELECTIONS_KEY]: selections
   });
 }

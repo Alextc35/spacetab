@@ -1,7 +1,7 @@
 import { VERSION } from './config.js';
 import { debug, formatDebugTime } from './debug.js';
 import { getSyncBrowserSupport } from './browserCapabilities.js';
-import { resolveImageSource } from './localImages.js';
+import { resolveImageSource } from '../platform/images/localImages.js';
 import { isLocalImageReference } from '../shared/images/backgroundImage.js';
 import { getState, getStorageMode, getStorageUsage, getSyncCompatibility, subscribe } from './store.js';
 
