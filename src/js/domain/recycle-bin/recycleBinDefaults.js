@@ -1,6 +1,6 @@
 import '../../types/types.js';
 
-export const RECYCLE_BIN_ID = 'spacetab-recycle-bin';
+export const RECYCLE_BIN_ID = 'newdesktab-recycle-bin';
 
 /** Default appearance for the recycle-bin card. */
 export const DEFAULT_RECYCLE_BIN_STYLE = Object.freeze({

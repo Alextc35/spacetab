@@ -1,2 +1,2 @@
-/** Current version of SpaceTab's persisted data contract. */
+/** Current version of NewDeskTab's persisted data contract. */
 export const DATA_SCHEMA_VERSION = 17;

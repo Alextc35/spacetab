@@ -1,7 +1,7 @@
 import { callStorage } from './chromeStorage.js';
 
 /** Chrome-local persistence for recycle-bin contents that must never sync. */
-export const DEVICE_TRASH_KEY = 'spacetabLocalTrash';
+export const DEVICE_TRASH_KEY = 'newdesktabLocalTrash';
 
 /** Removes deleted entries from the payload shared through Sync. */
 export function withoutDeviceTrash(data) {

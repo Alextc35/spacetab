@@ -61,8 +61,8 @@
       "saved": "Configuración guardada",
       "copied": "Valor copiado al portapapeles",
       "resetBg": "Tema restablecido",
-      "deletedAllData": "Todos los datos de SpaceTab eliminados",
-      "deleteAllDataError": "No se pudieron borrar todos los datos de SpaceTab"
+      "deletedAllData": "Todos los datos de NewDeskTab eliminados",
+      "deleteAllDataError": "No se pudieron borrar todos los datos de NewDeskTab"
     },
     "localImage": {
       "invalid": "Elige una imagen PNG, JPEG, WebP, GIF o AVIF.",
@@ -76,7 +76,7 @@
       "remoteLoaded": "Datos sincronizados cargados",
       "updatedFromOtherDevice": "Cambios sincronizados recibidos de otro dispositivo",
       "error": "No se pudo cambiar el modo de almacenamiento",
-      "versionBlocked": "Sincronización pausada: los datos en la nube requieren una versión más reciente de SpaceTab. Se muestran los datos locales de este dispositivo.",
+      "versionBlocked": "Sincronización pausada: los datos en la nube requieren una versión más reciente de NewDeskTab. Se muestran los datos locales de este dispositivo.",
       "quotaError": "Los datos superan el espacio disponible para sincronización",
       "deleted": "Datos sincronizados eliminados",
       "deleteError": "No se pudieron borrar los datos sincronizados"
@@ -125,7 +125,7 @@
     "settings": {
       "cancel": "¿Descartar los cambios en la configuración?",
       "reset": "¿Restablecer todos los ajustes? Los favoritos no se borrarán.",
-      "deleteAllData": "¿Borrar todos los datos de SpaceTab? Se eliminarán permanentemente los favoritos, las carpetas, toda la configuración y los datos sincronizados. Esta acción no se puede deshacer.",
+      "deleteAllData": "¿Borrar todos los datos de NewDeskTab? Se eliminarán permanentemente los favoritos, las carpetas, toda la configuración y los datos sincronizados. Esta acción no se puede deshacer.",
       "theme": {
         "reset": "¿Restablecer la configuración del tema?"
       },
@@ -134,7 +134,7 @@
         "cancel": "¿Descartar los cambios en el aspecto del favorito por defecto?"
       },
       "sync": {
-        "delete": "¿Borrar todos los datos sincronizados de SpaceTab? Si la sincronización está activa, este dispositivo pasará primero al modo local. Esta acción no se puede deshacer."
+        "delete": "¿Borrar todos los datos sincronizados de NewDeskTab? Si la sincronización está activa, este dispositivo pasará primero al modo local. Esta acción no se puede deshacer."
       }
     },
     "backup": {
@@ -388,7 +388,7 @@
         "tooltip": "Información sobre la sincronización"
       },
       "compatibility": {
-        "newerVersion": "La sincronización está bloqueada en este dispositivo porque los datos en la nube se crearon con una versión más reciente de SpaceTab. Tus datos sincronizados están a salvo y no se han modificado. Actualiza SpaceTab para volver a conectarte."
+        "newerVersion": "La sincronización está bloqueada en este dispositivo porque los datos en la nube se crearon con una versión más reciente de NewDeskTab. Tus datos sincronizados están a salvo y no se han modificado. Actualiza NewDeskTab para volver a conectarte."
       },
       "usage": {
         "title": "Disponibilidad de almacenamiento",
@@ -413,17 +413,17 @@
         "error": "Uso no disponible"
       },
       "browserSupport": {
-        "chrome": "Google Chrome sincroniza SpaceTab mediante tu cuenta de Google. SpaceTab no utiliza un servidor propio de sincronización.",
-        "brave": "No disponible en Brave: puede guardar datos de SpaceTab en chrome.storage.sync, pero actualmente no los propaga entre dispositivos.",
+        "chrome": "Google Chrome sincroniza NewDeskTab mediante tu cuenta de Google. NewDeskTab no utiliza un servidor propio de sincronización.",
+        "brave": "No disponible en Brave: puede guardar datos de NewDeskTab en chrome.storage.sync, pero actualmente no los propaga entre dispositivos.",
         "unsupported": "Por ahora, el almacenamiento sincronizado solo está disponible en Google Chrome. Los demás navegadores seguirán bloqueados hasta verificar su sincronización entre dispositivos."
       },
-      "existingNotice": "Si ya existen datos sincronizados de SpaceTab, se cargarán al guardar.",
+      "existingNotice": "Si ya existen datos sincronizados de NewDeskTab, se cargarán al guardar.",
       "deleteData": "Borrar datos sincronizados",
       "metadata": {
         "loading": "Comprobando datos sincronizados…",
         "updatedAt": "Última actualización sincronizada: {{date}}",
         "unknown": "Hay datos sincronizados, pero no consta la fecha de actualización.",
-        "empty": "No hay datos sincronizados de SpaceTab guardados.",
+        "empty": "No hay datos sincronizados de NewDeskTab guardados.",
         "error": "No se pudo cargar la información de los datos sincronizados."
       },
       "status": {
@@ -437,7 +437,7 @@
       "title": "Tema",
       "subtitle": "Fondo de la página",
       "backgroundImageMode": "Imagen",
-      "backgroundDefaultHint": "Sin seleccionar ninguna opción se usa el fondo predeterminado de SpaceTab.",
+      "backgroundDefaultHint": "Sin seleccionar ninguna opción se usa el fondo predeterminado de NewDeskTab.",
       "backgroundSolid": "Color sólido",
       "backgroundColor": "Color:",
       "backgroundImageColor": "Color detrás de la imagen",
@@ -521,7 +521,7 @@
         },
         "openSettings": {
           "title": "Abrir ajustes",
-          "description": "Abre el panel de configuración de SpaceTab."
+          "description": "Abre el panel de configuración de NewDeskTab."
         }
       }
     },

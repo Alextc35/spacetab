@@ -22,7 +22,7 @@ import {
 export function exportBookmarks() {
   try {
     const { data: { bookmarks, folders } } = getState();
-    downloadJson(createBookmarksEnvelope(bookmarks, folders), 'spacetab-bookmarks.json');
+    downloadJson(createBookmarksEnvelope(bookmarks, folders), 'newdesktab-bookmarks.json');
 
     debug.info('Bookmarks exported', { bookmarks: bookmarks.length, folders: folders.length });
 

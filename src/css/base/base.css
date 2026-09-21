@@ -26,13 +26,15 @@ html.is-default-bg body,
 
 html.is-default-bg body::after,
 .bg-preview.is-default-bg::after {
-  content: "Spacetab";
+  content: "New DeskTab";
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -60%);
   font-size: clamp(4rem, 10vw, 7rem);
   font-weight: 800;
+  white-space: nowrap;
+  width: max-content;
   background: linear-gradient(90deg, #00c6ff, #ff00aa);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

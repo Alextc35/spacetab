@@ -165,7 +165,7 @@ test('language preview can be cancelled, saved, and reset to the device default'
   }
 });
 
-test('deletes every SpaceTab data area from General and closes settings', async ({ page }) => {
+test('deletes every NewDeskTab data area from General and closes settings', async ({ page }) => {
   await start(page);
   await page.evaluate(async () => {
     const { DEFAULT_BOOKMARK, DEFAULT_FOLDER_STYLE } = await import('/src/js/core/defaults.js');
@@ -203,12 +203,12 @@ test('deletes every SpaceTab data area from General and closes settings', async 
     });
     await changeStorageMode('sync', getState().data);
     await new Promise(resolve => chrome.storage.local.set({
-      'spacetabLocalImage:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9': {
+      'newdesktabLocalImage:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9': {
         dataUrl: 'data:image/webp;base64,b3duZWQ=',
         name: 'owned.webp'
       },
-      spacetabLocalImageSelections: {
-        theme: 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9'
+      newdesktabLocalImageSelections: {
+        theme: 'newdesktab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9'
       }
     }, resolve));
   });
@@ -221,7 +221,7 @@ test('deletes every SpaceTab data area from General and closes settings', async 
 
   await erase.click();
   await expect(page.locator('#alert-modal')).toBeVisible();
-  await expect(page.locator('#alert-modal-title')).toContainText('Delete all SpaceTab data?');
+  await expect(page.locator('#alert-modal-title')).toContainText('Delete all NewDeskTab data?');
   await page.locator('#alert-modal-cancel').click();
   await expect(page.locator('#settings-modal')).toBeVisible();
   await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(1);
@@ -234,21 +234,21 @@ test('deletes every SpaceTab data area from General and closes settings', async 
 
   await expect.poll(() => page.evaluate(async () => {
     const { DEFAULT_SETTINGS } = await import('/src/js/core/defaults.js');
-    const local = JSON.parse(sessionStorage.getItem('spacetab-test-local') || '{}');
-    const sync = JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}');
+    const local = JSON.parse(sessionStorage.getItem('newdesktab-test-local') || '{}');
+    const sync = JSON.parse(sessionStorage.getItem('newdesktab-test-sync') || '{}');
     const syncKeys = Object.keys(sync).filter(key => (
-      key === 'spacetabSyncMeta'
-      || key.startsWith('spacetabSyncChunk:')
+      key === 'newdesktabSyncMeta'
+      || key.startsWith('newdesktabSyncChunk:')
       || ['schemaVersion', 'bookmarks', 'folders', 'settings'].includes(key)
     ));
     return {
-      mode: local.spacetabStorageMode,
+      mode: local.newdesktabStorageMode,
       bookmarks: local.bookmarks,
       folders: local.folders,
       settingsAreDefault: JSON.stringify(local.settings) === JSON.stringify(DEFAULT_SETTINGS),
       syncKeys,
-      localImageKeys: Object.keys(local).filter(key => key.startsWith('spacetabLocalImage:')),
-      hasImageSelections: Object.hasOwn(local, 'spacetabLocalImageSelections')
+      localImageKeys: Object.keys(local).filter(key => key.startsWith('newdesktabLocalImage:')),
+      hasImageSelections: Object.hasOwn(local, 'newdesktabLocalImageSelections')
     };
   })).toEqual({
     mode: 'local',

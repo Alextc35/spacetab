@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { chromium } from '@playwright/test';
 
-const executablePath = process.env.SPACETAB_BROWSER_PATH;
-const extensionPath = process.env.SPACETAB_EXTENSION_PATH
-  ? resolve(process.env.SPACETAB_EXTENSION_PATH)
+const executablePath = process.env.NEWDESKTAB_BROWSER_PATH;
+const extensionPath = process.env.NEWDESKTAB_EXTENSION_PATH
+  ? resolve(process.env.NEWDESKTAB_EXTENSION_PATH)
   : fileURLToPath(new URL('..', import.meta.url));
 const manifest = JSON.parse(readFileSync(resolve(extensionPath, 'manifest.json'), 'utf8'));
 const context = await chromium.launchPersistentContext('', {

@@ -38,7 +38,7 @@ for entry in required:
 
 output = root / "dist"
 output.mkdir(exist_ok=True)
-archive = output / f"spacetab-{version}.zip"
+archive = output / f"newdesktab-{version}.zip"
 with ZipFile(archive, "w", compression=ZIP_DEFLATED, compresslevel=9) as bundle:
     for name, path in sorted(entries.items()):
         bundle.write(path, name)

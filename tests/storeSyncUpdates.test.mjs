@@ -72,7 +72,7 @@ globalThis.chrome = {
     getManifest: () => ({ version: '0.7.1' })
   },
   storage: {
-    local: createStorageArea('local', { spacetabStorageMode: 'sync' }),
+    local: createStorageArea('local', { newdesktabStorageMode: 'sync' }),
     sync: createStorageArea('sync', initialSyncData),
     onChanged: {
       addListener(listener) {
@@ -121,7 +121,7 @@ test('announces only data updates received from another device', async () => {
   };
 
   chrome.storage.sync.set({
-    spacetabSyncMeta: {
+    newdesktabSyncMeta: {
       version: 1,
       schemaVersion: remoteData.schemaVersion,
       chunkCount: 1,
@@ -135,7 +135,7 @@ test('announces only data updates received from another device', async () => {
   assert.equal(remoteUpdates, 0);
 
   chrome.storage.sync.set({
-    'spacetabSyncChunk:0': JSON.stringify(remoteData)
+    'newdesktabSyncChunk:0': JSON.stringify(remoteData)
   }, () => {});
   await waitForStorageRefresh();
 

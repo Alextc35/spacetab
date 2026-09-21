@@ -52,7 +52,7 @@ function validateDefinition(definition) {
     throw new TypeError('Widget type must be a lowercase kebab-case identifier.');
   }
   if (RESERVED_GRID_ITEM_TYPES.has(definition.type)) {
-    throw new TypeError(`Widget type is reserved by SpaceTab: ${definition.type}`);
+    throw new TypeError(`Widget type is reserved by NewDeskTab: ${definition.type}`);
   }
   if (typeof definition.render !== 'function') {
     throw new TypeError('Widget definition requires render().');

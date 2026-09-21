@@ -5,7 +5,7 @@ import {
 } from '../../shared/images/backgroundImage.js';
 import { callStorage, getStorageBytes } from '../storage/chromeStorage.js';
 
-const LOCAL_IMAGE_STORAGE_PREFIX = 'spacetabLocalImage:';
+const LOCAL_IMAGE_STORAGE_PREFIX = 'newdesktabLocalImage:';
 const MAX_SOURCE_FILE_BYTES = 20 * 1024 * 1024;
 const MAX_STORED_IMAGE_BYTES = 1_250_000;
 const MAX_IMAGE_DIMENSION = 1920;
@@ -132,7 +132,7 @@ export async function saveLocalImage(file) {
   return reference;
 }
 
-/** Removes every image file owned by SpaceTab from this browser profile. */
+/** Removes every image file owned by NewDeskTab from this browser profile. */
 export async function clearLocalImages() {
   const values = await callStorage(chrome.storage.local, 'get', null);
   const keys = Object.keys(values).filter(key => key.startsWith(LOCAL_IMAGE_STORAGE_PREFIX));

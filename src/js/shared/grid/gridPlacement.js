@@ -24,7 +24,7 @@ export function isAreaFree(items, gx, gy, w = 1, h = 1, ignoreId = null) {
 
 /**
  * Finds the first free grid position, scanning columns from left to right and
- * rows from top to bottom to preserve SpaceTab's current placement behavior.
+ * rows from top to bottom to preserve NewDeskTab's current placement behavior.
  *
  * @param {Array<Bookmark|BookmarkFolder>} items
  * @param {Object} bounds

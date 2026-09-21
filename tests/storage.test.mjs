@@ -160,11 +160,11 @@ test('reports exact local data and image categories', async () => {
   const localData = chrome.storage.local.data;
   const previous = structuredClone(localData);
   const imageKeys = {
-    theme: 'spacetabLocalImage:theme-image',
-    bookmark: 'spacetabLocalImage:bookmark-image',
-    folder: 'spacetabLocalImage:folder-image',
-    trash: 'spacetabLocalImage:trash-image',
-    other: 'spacetabLocalImage:orphan-image'
+    theme: 'newdesktabLocalImage:theme-image',
+    bookmark: 'newdesktabLocalImage:bookmark-image',
+    folder: 'newdesktabLocalImage:folder-image',
+    trash: 'newdesktabLocalImage:trash-image',
+    other: 'newdesktabLocalImage:orphan-image'
   };
 
   for (const key of Object.keys(localData)) delete localData[key];
@@ -174,13 +174,13 @@ test('reports exact local data and image categories', async () => {
     folders: [{ id: 'folder', name: 'Folder' }],
     trash: [{ id: 'deleted', type: 'bookmark', bookmark: { id: 'deleted-bookmark' } }],
     [DEVICE_IMAGE_SELECTIONS_KEY]: {
-      theme: { reference: 'spacetab-local-image:theme-image', source: 'local' },
+      theme: { reference: 'newdesktab-local-image:theme-image', source: 'local' },
       'bookmark:bookmark': {
-        reference: 'spacetab-local-image:bookmark-image', source: 'local'
+        reference: 'newdesktab-local-image:bookmark-image', source: 'local'
       },
-      'folder:folder': { reference: 'spacetab-local-image:folder-image', source: 'local' },
+      'folder:folder': { reference: 'newdesktab-local-image:folder-image', source: 'local' },
       'trash:deleted:bookmark:deleted-bookmark': {
-        reference: 'spacetab-local-image:trash-image', source: 'local'
+        reference: 'newdesktab-local-image:trash-image', source: 'local'
       }
     },
     [imageKeys.theme]: { dataUrl: 'data:image/webp;base64,dGhlbWU=', name: 'theme.webp' },
@@ -271,7 +271,7 @@ test('migrates local data to an empty synchronized area', async () => {
     showFavicon: true,
     invertColorIcon: false
   });
-  assert.ok(chrome.storage.sync.data.spacetabSyncMeta);
+  assert.ok(chrome.storage.sync.data.newdesktabSyncMeta);
   assert.equal(chrome.storage.sync.data.bookmarks, undefined);
 
   const usage = await storage.getUsage(STORAGE_MODES.SYNC);
@@ -318,7 +318,7 @@ test('keeps a local copy when synchronization is disabled', async () => {
   assert.equal(result.source, 'migrated');
   assert.equal(storage.getMode(), STORAGE_MODES.LOCAL);
   assert.equal((await storage.get(null)).bookmarks[0].id, 'local');
-  assert.ok(chrome.storage.sync.data.spacetabSyncMeta);
+  assert.ok(chrome.storage.sync.data.newdesktabSyncMeta);
   assert.equal(chrome.storage.local.data[DEVICE_TRASH_KEY], undefined);
 });
 
@@ -348,11 +348,11 @@ test('adopts and removes recycle-bin contents from a legacy synchronized payload
     schemaVersion: DATA_SCHEMA_VERSION - 1,
     trash: legacyTrash
   };
-  const previousMeta = chrome.storage.sync.data.spacetabSyncMeta;
+  const previousMeta = chrome.storage.sync.data.newdesktabSyncMeta;
 
   await new Promise(resolve => chrome.storage.local.remove(DEVICE_TRASH_KEY, resolve));
   await new Promise(resolve => chrome.storage.sync.set({
-    spacetabSyncMeta: {
+    newdesktabSyncMeta: {
       ...previousMeta,
       schemaVersion: DATA_SCHEMA_VERSION - 1,
       chunkCount: 1,
@@ -360,14 +360,14 @@ test('adopts and removes recycle-bin contents from a legacy synchronized payload
       writerDeviceId: 'legacy-device',
       writeId: 'legacy-write'
     },
-    'spacetabSyncChunk:0': JSON.stringify(legacyPayload)
+    'newdesktabSyncChunk:0': JSON.stringify(legacyPayload)
   }, resolve));
 
   const restored = await storage.get(null);
-  const migratedMeta = chrome.storage.sync.data.spacetabSyncMeta;
+  const migratedMeta = chrome.storage.sync.data.newdesktabSyncMeta;
   const migratedPayload = JSON.parse(Array.from(
     { length: migratedMeta.chunkCount },
-    (_, index) => chrome.storage.sync.data[`spacetabSyncChunk:${index}`]
+    (_, index) => chrome.storage.sync.data[`newdesktabSyncChunk:${index}`]
   ).join(''));
 
   assert.equal(restored.trash[0].id, 'legacy-trash-entry');
@@ -385,14 +385,14 @@ test('identifies synchronized writes from this and other devices', async () => {
     bookmarks: LOCAL_DATA.bookmarks.map(bookmark => ({ ...bookmark, name: 'Updated here' }))
   });
 
-  const ownMeta = chrome.storage.sync.data.spacetabSyncMeta;
+  const ownMeta = chrome.storage.sync.data.newdesktabSyncMeta;
   assert.equal(typeof ownMeta.writerDeviceId, 'string');
   assert.equal(typeof ownMeta.writeId, 'string');
   assert.equal(events.at(-1).areaName, STORAGE_MODES.SYNC);
   assert.equal(events.at(-1).origin, 'same-device');
 
   chrome.storage.sync.set({
-    spacetabSyncMeta: {
+    newdesktabSyncMeta: {
       ...ownMeta,
       updatedAt: ownMeta.updatedAt + 1,
       writerDeviceId: 'another-device',
@@ -418,7 +418,7 @@ test('chunks values safely below Chrome per-item quota', async () => {
   await storage.set(chunkedData);
 
   const chunkEntries = Object.entries(chrome.storage.sync.data)
-    .filter(([key]) => key.startsWith('spacetabSyncChunk:'));
+    .filter(([key]) => key.startsWith('newdesktabSyncChunk:'));
   const encoder = new TextEncoder();
 
   assert.ok(chunkEntries.length > 1);
@@ -442,10 +442,10 @@ test('keeps recycle-bin contents on this device and out of synchronized storage'
     trash
   });
 
-  const meta = chrome.storage.sync.data.spacetabSyncMeta;
+  const meta = chrome.storage.sync.data.newdesktabSyncMeta;
   const payload = JSON.parse(Array.from(
     { length: meta.chunkCount },
-    (_, index) => chrome.storage.sync.data[`spacetabSyncChunk:${index}`]
+    (_, index) => chrome.storage.sync.data[`newdesktabSyncChunk:${index}`]
   ).join(''));
   assert.equal(Object.hasOwn(payload, 'trash'), false);
   const restoredTrash = (await storage.get(null)).trash;
@@ -474,7 +474,7 @@ test('rejects synchronized payloads above Chrome quota', async () => {
   );
 });
 
-test('reports and deletes only SpaceTab synchronized data', async () => {
+test('reports and deletes only NewDeskTab synchronized data', async () => {
   chrome.storage.sync.data.unrelatedExtensionValue = 'keep';
 
   const beforeDelete = await storage.getSyncMetadata();
@@ -493,7 +493,7 @@ test('follows storage-mode changes made by another open tab', async () => {
   let notifications = 0;
   const unsubscribe = storage.subscribe(() => { notifications += 1; });
 
-  chrome.storage.local.set({ spacetabStorageMode: STORAGE_MODES.LOCAL }, () => {});
+  chrome.storage.local.set({ newdesktabStorageMode: STORAGE_MODES.LOCAL }, () => {});
 
   assert.equal(storage.getMode(), STORAGE_MODES.LOCAL);
   assert.equal(notifications, 1);
@@ -511,7 +511,7 @@ test('falls back to compatible local data when sync was written by a newer versi
   };
 
   chrome.storage.sync.set(futureSyncData, () => {});
-  chrome.storage.local.set({ spacetabStorageMode: STORAGE_MODES.SYNC }, () => {});
+  chrome.storage.local.set({ newdesktabStorageMode: STORAGE_MODES.SYNC }, () => {});
 
   const recovered = await storage.get(null);
   const compatibility = storage.getSyncCompatibility();
@@ -521,7 +521,7 @@ test('falls back to compatible local data when sync was written by a newer versi
   assert.equal(compatibility.reason, 'newer-sync-data');
   assert.equal(compatibility.requiredSchemaVersion, futureSchemaVersion);
   assert.equal(compatibility.supportedSchemaVersion, DATA_SCHEMA_VERSION);
-  assert.equal(chrome.storage.local.data.spacetabStorageMode, STORAGE_MODES.LOCAL);
+  assert.equal(chrome.storage.local.data.newdesktabStorageMode, STORAGE_MODES.LOCAL);
   assert.equal(chrome.storage.sync.data.schemaVersion, futureSchemaVersion);
   assert.equal(chrome.storage.sync.data.bookmarks[0].id, 'future');
 

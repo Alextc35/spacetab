@@ -8,8 +8,8 @@ export default defineConfig({
   use: {
     baseURL: 'http://127.0.0.1:4175',
     headless: true,
-    launchOptions: process.env.SPACETAB_BROWSER_PATH
-      ? { executablePath: process.env.SPACETAB_BROWSER_PATH }
+    launchOptions: process.env.NEWDESKTAB_BROWSER_PATH
+      ? { executablePath: process.env.NEWDESKTAB_BROWSER_PATH }
       : {}
   },
   webServer: {

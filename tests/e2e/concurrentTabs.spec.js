@@ -35,7 +35,7 @@ test.afterEach(async () => { await context?.close(); });
 // makes the race deterministic without replacing Chrome storage or app code.
 async function concurrently(operation) {
   await pages[0].evaluate(() => {
-    void navigator.locks.request('spacetab-persistence', () => new Promise(resolve => {
+    void navigator.locks.request('newdesktab-persistence', () => new Promise(resolve => {
       window.releaseReviewLock = resolve;
     }));
   });
@@ -43,7 +43,7 @@ async function concurrently(operation) {
   try {
     await Promise.all(pages.map((page, index) => page.evaluate(operation, index)));
     await expect.poll(() => pages[0].evaluate(async () => (
-      (await navigator.locks.query()).pending.filter(lock => lock.name === 'spacetab-persistence').length
+      (await navigator.locks.query()).pending.filter(lock => lock.name === 'newdesktab-persistence').length
     ))).toBe(2);
   } finally {
     await pages[0].evaluate(() => window.releaseReviewLock());

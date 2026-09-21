@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 async function syncSnapshot(page) {
-  return page.evaluate(() => JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}'));
+  return page.evaluate(() => JSON.parse(sessionStorage.getItem('newdesktab-test-sync') || '{}'));
 }
 
 async function receiveSync(page, snapshot) {
@@ -40,10 +40,10 @@ async function deviceState(page) {
 }
 
 function sharedPayload(snapshot) {
-  const meta = snapshot.spacetabSyncMeta;
+  const meta = snapshot.newdesktabSyncMeta;
   return JSON.parse(Array.from(
     { length: meta.chunkCount },
-    (_, index) => snapshot[`spacetabSyncChunk:${index}`]
+    (_, index) => snapshot[`newdesktabSyncChunk:${index}`]
   ).join(''));
 }
 
@@ -65,7 +65,7 @@ test('each synchronized device keeps an independent recycle bin', async ({ page,
     await expect(other.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
     await receiveSync(other, await syncSnapshot(page));
     await other.evaluate(() => new Promise(resolve => (
-      chrome.storage.local.set({ spacetabStorageMode: 'sync' }, resolve)
+      chrome.storage.local.set({ newdesktabStorageMode: 'sync' }, resolve)
     )));
     await other.reload();
 

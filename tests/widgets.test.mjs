@@ -112,7 +112,7 @@ test('widget registration rejects invalid, duplicate and conflicting types', () 
   assert.throws(() => widgets.register({ type: 'Notes' }), /lowercase kebab-case/);
   assert.throws(
     () => widgets.register({ type: 'bookmark', render: () => ({ dataset: {} }) }),
-    /reserved by SpaceTab/
+    /reserved by NewDeskTab/
   );
 
   const occupiedGridRegistry = createGridItemRegistry();

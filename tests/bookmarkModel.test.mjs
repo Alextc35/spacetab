@@ -42,8 +42,8 @@ test('a create draft combines blank identity with a visual preset', () => {
 
 test('normalization can be deterministic through injected runtime values', () => {
   const bookmark = normalizeBookmark({
-    name: '  SpaceTab  ',
-    url: 'github.com/Alextc35/spacetab',
+    name: '  NewDeskTab  ',
+    url: 'github.com/Alextc35/newdesktab',
     gx: -3,
     w: 0
   }, {
@@ -52,8 +52,8 @@ test('normalization can be deterministic through injected runtime values', () =>
   });
 
   assert.equal(bookmark.id, 'bookmark-id');
-  assert.equal(bookmark.name, 'SpaceTab');
-  assert.equal(bookmark.url, 'https://github.com/Alextc35/spacetab');
+  assert.equal(bookmark.name, 'NewDeskTab');
+  assert.equal(bookmark.url, 'https://github.com/Alextc35/newdesktab');
   assert.equal(bookmark.gx, 0);
   assert.equal(bookmark.w, 1);
   assert.equal(bookmark.createdAt, 1234);
@@ -94,7 +94,7 @@ test('URLs are normalized and unsupported protocols are rejected', () => {
 });
 
 test('accepts device-local image references without placing image bytes in app data', () => {
-  const localImage = 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
+  const localImage = 'newdesktab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
 
   assert.equal(validateBookmarkDraft({
     name: 'Local image',

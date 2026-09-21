@@ -18,7 +18,7 @@ const encoder = new TextEncoder();
 
 test('splits escaped and multibyte payloads below the sync per-item limit', () => {
   const serialized = JSON.stringify({
-    text: 'SpaceTab 🚀 "quoted" \\ '.repeat(900)
+    text: 'NewDeskTab 🚀 "quoted" \\ '.repeat(900)
   });
   const chunks = splitSyncPayload(serialized);
 

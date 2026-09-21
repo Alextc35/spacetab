@@ -1,4 +1,4 @@
-# SpaceTab
+# NewDeskTab
 
 Minimalist Chrome/Brave new-tab extension for organizing bookmarks in a visual
 grid workspace.
@@ -10,9 +10,9 @@ grid workspace.
 
 https://github.com/user-attachments/assets/f57533bd-2499-4ff1-9c20-4afb5c9d9c94
 
-SpaceTab replaces the browser's default new tab with a private, customizable
+NewDeskTab replaces the browser's default new tab with a private, customizable
 visual bookmark workspace. Bookmarks can be placed, resized and styled like
-items on a desktop without relying on a SpaceTab account or backend.
+items on a desktop without relying on a NewDeskTab account or backend.
 
 ## Features
 
@@ -40,12 +40,12 @@ items on a desktop without relying on a SpaceTab account or backend.
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/Alextc35/spacetab.git
+   git clone https://github.com/Alextc35/newdesktab.git
    ```
 
 2. Open `chrome://extensions` or `brave://extensions`.
 3. Enable **Developer Mode**.
-4. Choose **Load unpacked** and select the `spacetab` folder.
+4. Choose **Load unpacked** and select the `newdesktab` folder.
 
 ## Bookmark and grid model
 
@@ -128,10 +128,10 @@ grid items.
 ## Debug console
 
 `DEBUG` in `src/js/core/config.js` defaults to `false`. Open the DevTools console
-of a SpaceTab tab and run `SpaceTabDebug.toggle()` to enable live diagnostics
-without reloading. Run it again to disable them. Filter by `[SpaceTab Debug]`
+of a NewDeskTab tab and run `NewDeskTabDebug.toggle()` to enable live diagnostics
+without reloading. Run it again to disable them. Filter by `[NewDeskTab Debug]`
 to find the output. Startup prints a short activation hint. Enabling Debug lists
-the available commands and their purpose; run `SpaceTabDebug.report()` when you
+the available commands and their purpose; run `NewDeskTabDebug.report()` when you
 want the report.
 
 Messages use colored labels, grouped details and the browser's local time as
@@ -147,11 +147,11 @@ reported separately; startup readiness does not wait for remote images, and
 Sync timings measure browser storage writes rather than remote propagation.
 
 ```js
-SpaceTabDebug.toggle()       // Toggle live operation logging; returns true/false
-SpaceTabDebug.enabled        // Read the current state
-await SpaceTabDebug.report() // Fresh general information and storage usage
-SpaceTabDebug.history()      // Last 100 completed operations and their phases
-SpaceTabDebug.clear()        // Clear console + history and confirm the result
+NewDeskTabDebug.toggle()       // Toggle live operation logging; returns true/false
+NewDeskTabDebug.enabled        // Read the current state
+await NewDeskTabDebug.report() // Fresh general information and storage usage
+NewDeskTabDebug.history()      // Last 100 completed operations and their phases
+NewDeskTabDebug.clear()        // Clear console + history and confirm the result
 ```
 
 The commands remain available while Debug is off. Initial load metrics are
@@ -162,7 +162,7 @@ and resets to the configured default on reload.
 
 ## Architecture
 
-SpaceTab uses vanilla JavaScript modules with explicit incremental boundaries:
+NewDeskTab uses vanilla JavaScript modules with explicit incremental boundaries:
 
 ```text
 Application composition
@@ -226,7 +226,7 @@ perform persistence. Controllers decide what saving means. See
 
 ## Local and synchronized storage
 
-SpaceTab starts in **Local** mode. In Google Chrome, **Settings → Sync** offers:
+NewDeskTab starts in **Local** mode. In Google Chrome, **Settings → Sync** offers:
 
 * **Only on this device** — data uses `chrome.storage.local`.
 * **Synchronized** — data uses the browser-managed `chrome.storage.sync` area.
@@ -235,28 +235,28 @@ Synchronization is currently enabled only in branded Google Chrome, where it
 follows the Chrome profile / Google Account configuration. Brave and other
 Chromium browsers remain fully usable in Local mode, but the synchronized
 option is disabled because cross-device propagation has not been reliable; see
-[issue #1](https://github.com/Alextc35/spacetab/issues/1). SpaceTab does not
+[issue #1](https://github.com/Alextc35/newdesktab/issues/1). NewDeskTab does not
 operate an OAuth client, account system or server and cannot access synchronized
 user data.
 
 When Sync is enabled for the first time, local data is uploaded if the profile
-does not already contain SpaceTab data. Existing synchronized data wins to avoid
+does not already contain NewDeskTab data. Existing synchronized data wins to avoid
 accidental overwrites. Returning to Local mode creates a local copy and leaves
 the synchronized copy untouched.
 
-If an older SpaceTab installation encounters synchronized data written by a
+If an older NewDeskTab installation encounters synchronized data written by a
 newer schema or sync format, startup remains usable: that device automatically
 returns to its compatible Local data, leaves the cloud payload untouched and
 locks the Sync option with an update notice. The lock is device-specific and
 disappears after installing a compatible version (or explicitly deleting the
-synchronized SpaceTab data).
+synchronized NewDeskTab data).
 
 Chrome's sync quotas are handled by splitting the versioned payload into safe
-chunks. SpaceTab reports quota/persistence errors and shows the current save
+chunks. NewDeskTab reports quota/persistence errors and shows the current save
 status in Settings. The Sync panel shows live used, total and available capacity
 for the currently selected mode, reports the latest synchronized update and can
-delete all synchronized SpaceTab data after confirmation. Deleting sync data first
-keeps the working data locally when necessary. An open SpaceTab page also shows
+delete all synchronized NewDeskTab data after confirmation. Deleting sync data first
+keeps the working data locally when necessary. An open NewDeskTab page also shows
 a flash message when its data is updated by another synchronized device; writes
 made on the current device do not trigger that message locally.
 
@@ -345,8 +345,8 @@ npm run test:extension
 You can override the browser executable or test an extracted release ZIP:
 
 ```sh
-SPACETAB_BROWSER_PATH="/path/to/browser" npm run test:extension
-SPACETAB_EXTENSION_PATH="/path/to/extracted-release" npm run test:extension
+NEWDESKTAB_BROWSER_PATH="/path/to/browser" npm run test:extension
+NEWDESKTAB_EXTENSION_PATH="/path/to/extracted-release" npm run test:extension
 ```
 
 Create the Store ZIP with `npm run package:store` (Python 3 required). It includes
@@ -378,10 +378,10 @@ American Spanish (`es_419`) and Brazilian Portuguese (`pt_BR`) in
 
 ## Privacy
 
-See the complete [SpaceTab Privacy Policy](PRIVACY.md).
+See the complete [NewDeskTab Privacy Policy](PRIVACY.md).
 
 * No tracking or analytics
-* No SpaceTab-operated backend
+* No NewDeskTab-operated backend
 * Local mode saves workspace data inside the browser profile
 * Sync mode delegates storage and transport to the browser
 * The developer cannot access synchronized data
@@ -394,4 +394,4 @@ provide a distributed lock or guaranteed conflict recovery across devices.
 
 ## License
 
-SpaceTab is released under the [MIT License](LICENSE).
+NewDeskTab is released under the [MIT License](LICENSE).

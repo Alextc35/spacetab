@@ -1,6 +1,6 @@
-# SpaceTab architecture
+# NewDeskTab architecture
 
-SpaceTab is a Manifest V3 new-tab extension written in vanilla JavaScript. Its
+NewDeskTab is a Manifest V3 new-tab extension written in vanilla JavaScript. Its
 architecture is being migrated incrementally from technical folders
 (`core/`, `ui/`) toward explicit application, domain, feature, platform and
 shared boundaries. The legacy folders remain valid transition points: files
@@ -506,11 +506,11 @@ only the persistence-mode choice remains device-specific.
 `browserCapabilities.js` currently permits Sync only in Google Chrome. Brave
 and unverified Chromium browsers stay in Local mode because exposing
 `chrome.storage.sync` does not guarantee that their profile service propagates
-SpaceTab data. The storage facade exposes quota usage for both areas through
+NewDeskTab data. The storage facade exposes quota usage for both areas through
 `getBytesInUse`, with a byte estimate fallback for compatible implementations.
 Settings displays used/total/available capacity for the currently selected mode,
 persistence status and synchronized update metadata. Confirmed deletion removes
-only SpaceTab's synchronized keys; if Sync is active, it preserves the working
+only NewDeskTab's synchronized keys; if Sync is active, it preserves the working
 data in Local first.
 
 Future sync schemas and transport formats are treated as a recoverable
@@ -521,8 +521,8 @@ Sync and explain the required update. The marker expires automatically when the
 installed schema/format catches up, and explicit remote-data deletion also
 clears it.
 
-Complete backups use the `spacetab-backup` format; bookmark-only files use
-`spacetab-bookmarks`. Both versioned formats preserve folders and membership.
+Complete backups use the `newdesktab-backup` format; bookmark-only files use
+`newdesktab-bookmarks`. Both versioned formats preserve folders and membership.
 Legacy raw bookmark arrays remain importable without folders.
 
 ## UI coordination

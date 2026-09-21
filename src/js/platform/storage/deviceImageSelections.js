@@ -2,7 +2,7 @@ import { preloadLocalImages, resolveImageSource } from '../images/localImages.js
 import { isLocalImageReference } from '../../shared/images/backgroundImage.js';
 import { callStorage } from './chromeStorage.js';
 
-export const DEVICE_IMAGE_SELECTIONS_KEY = 'spacetabLocalImageSelections';
+export const DEVICE_IMAGE_SELECTIONS_KEY = 'newdesktabLocalImageSelections';
 
 /** Stable slots let each device choose its own file for the same synchronized item. */
 function imageSlots(data) {

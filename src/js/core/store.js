@@ -277,7 +277,7 @@ export async function waitForPersistence() {
 }
 
 /**
- * Permanently removes the remote SpaceTab payload. If synchronized storage is
+ * Permanently removes the remote NewDeskTab payload. If synchronized storage is
  * active, the current state is copied locally before the remote data is
  * removed so the device never loses its working data.
  *
@@ -448,7 +448,7 @@ function replacePersistedData(data) {
 }
 
 /**
- * Keeps open SpaceTab pages up to date when another tab or device changes the
+ * Keeps open NewDeskTab pages up to date when another tab or device changes the
  * active storage area. Closely grouped chunk events are collapsed into one
  * refresh.
  */

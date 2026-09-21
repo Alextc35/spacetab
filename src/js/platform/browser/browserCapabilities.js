@@ -1,4 +1,4 @@
-/** Browser families with an explicit SpaceTab synchronization policy. */
+/** Browser families with an explicit NewDeskTab synchronization policy. */
 export const SYNC_BROWSERS = Object.freeze({
   CHROME: 'chrome',
   BRAVE: 'brave',
@@ -40,7 +40,7 @@ export function detectSyncBrowser(navigatorLike = globalThis.navigator) {
 }
 
 /**
- * Google Chrome is currently the only browser where SpaceTab sync has been
+ * Google Chrome is currently the only browser where NewDeskTab sync has been
  * confirmed to propagate extension data between devices.
  */
 export function getSyncBrowserSupport(navigatorLike = globalThis.navigator) {

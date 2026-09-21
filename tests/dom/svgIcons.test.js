@@ -6,7 +6,7 @@ import {
   createSettingsSectionSvg
 } from '../../src/js/ui/svgIcons.js';
 
-describe('shared SpaceTab SVG icons', () => {
+describe('shared NewDeskTab SVG icons', () => {
   test.each([
     'general',
     'sync',

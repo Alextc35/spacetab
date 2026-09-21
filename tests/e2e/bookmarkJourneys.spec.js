@@ -162,13 +162,13 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
   await page.locator('#settings-modal-save').click();
 
   await expect.poll(() => page.evaluate(() => {
-    const local = JSON.parse(sessionStorage.getItem('spacetab-test-local') || '{}');
-    const sync = JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}');
-    const serialized = sync['spacetabSyncChunk:0'];
+    const local = JSON.parse(sessionStorage.getItem('newdesktab-test-local') || '{}');
+    const sync = JSON.parse(sessionStorage.getItem('newdesktab-test-sync') || '{}');
+    const serialized = sync['newdesktabSyncChunk:0'];
     return {
-      localAssetCount: Object.keys(local).filter(key => key.startsWith('spacetabLocalImage:')).length,
-      localSelection: local.spacetabLocalImageSelections?.theme,
-      containsLocalSelection: serialized.includes('backgroundImageLocal') || serialized.includes('spacetab-local-image:'),
+      localAssetCount: Object.keys(local).filter(key => key.startsWith('newdesktabLocalImage:')).length,
+      localSelection: local.newdesktabLocalImageSelections?.theme,
+      containsLocalSelection: serialized.includes('backgroundImageLocal') || serialized.includes('newdesktab-local-image:'),
       syncedUrl: JSON.parse(serialized).settings.theme.backgroundImageUrl,
       containsImageBytes: serialized.includes('data:image/'),
       containsFilename: serialized.includes('theme.png')
@@ -176,7 +176,7 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
   })).toEqual({
     localAssetCount: 1,
     localSelection: {
-      reference: expect.stringMatching(/^spacetab-local-image:/),
+      reference: expect.stringMatching(/^newdesktab-local-image:/),
       source: 'local'
     },
     containsLocalSelection: false,
@@ -198,11 +198,11 @@ test('keeps a locally uploaded theme image out of synchronized storage', async (
 
   // Simulate a second device with synchronized settings but no local image files.
   await page.evaluate(() => {
-    const local = JSON.parse(sessionStorage.getItem('spacetab-test-local'));
+    const local = JSON.parse(sessionStorage.getItem('newdesktab-test-local'));
     for (const key of Object.keys(local)) {
-      if (key.startsWith('spacetabLocalImage:')) delete local[key];
+      if (key.startsWith('newdesktabLocalImage:')) delete local[key];
     }
-    sessionStorage.setItem('spacetab-test-local', JSON.stringify(local));
+    sessionStorage.setItem('newdesktab-test-local', JSON.stringify(local));
   });
   await reloadSavedPage(page);
   await expect.poll(() => page.evaluate(() => (
@@ -285,11 +285,11 @@ test('switches to the default wallpaper without losing the custom URL or local i
 
   // The same switch must work when only the synchronized URL is available.
   await page.evaluate(() => {
-    const local = JSON.parse(sessionStorage.getItem('spacetab-test-local'));
+    const local = JSON.parse(sessionStorage.getItem('newdesktab-test-local'));
     for (const key of Object.keys(local)) {
-      if (key.startsWith('spacetabLocalImage:')) delete local[key];
+      if (key.startsWith('newdesktabLocalImage:')) delete local[key];
     }
-    sessionStorage.setItem('spacetab-test-local', JSON.stringify(local));
+    sessionStorage.setItem('newdesktab-test-local', JSON.stringify(local));
   });
   await reloadSavedPage(page);
   await expect(page.locator('body')).toHaveCSS('background-image', `url("${fallbackUrl}")`);
@@ -940,7 +940,7 @@ test('prefers the item aligned with the active grid column', async ({ page }) =>
   await createBookmark(page, 'Left below', 'left-below.test');
 
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const folder = stored.folders.find(entry => entry.name === 'Column folder');
     const below = stored.bookmarks.find(entry => entry.name === 'Directly below');
@@ -970,7 +970,7 @@ test('prefers the item aligned with the active grid column', async ({ page }) =>
 
 test('keeps horizontal navigation on the current row across a gap', async ({ page }) => {
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
 
     Object.assign(stored.bookmarks[0], { gx: 4, gy: 2 });
@@ -1058,7 +1058,7 @@ test('confirms Delete and Backspace on an unselected keyboard-focused folder', a
   await waitForSaved(page);
 
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     Object.assign(stored.recycleBin, { gx: 0, gy: 0, w: 1, h: 1 });
     const folder = stored.folders.find(item => item.name === 'Delete with keyboard');
@@ -1109,7 +1109,7 @@ test('confirms Delete and Backspace on an unselected keyboard-focused folder', a
 
 test('continues Tab navigation on the next occupied row after the row edge', async ({ page }) => {
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
 
     Object.assign(stored.recycleBin, { gx: 0, gy: 0, w: 1, h: 1 });
@@ -1152,7 +1152,7 @@ test('continues Tab navigation on the next occupied row after the row edge', asy
 
 test('limits rapid Tab navigation to one pending arrow move', async ({ page }) => {
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
 
     Object.assign(stored.recycleBin, { gx: 0, gy: 0, w: 1, h: 1 });
@@ -1189,7 +1189,7 @@ test('keeps the current row even when its next card is far away', async ({ page 
   await createBookmark(page, 'Same row target', 'same-row.test');
 
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const target = stored.bookmarks.find(entry => entry.name === 'Same row target');
 
@@ -1214,7 +1214,7 @@ test('keeps the current row even when its next card is far away', async ({ page 
 
   // Empty cells do not make a diagonal card steal horizontal navigation.
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const targetEntry = stored.bookmarks.find(entry => entry.name === 'Same row target');
     Object.assign(targetEntry, { gx: 3, gy: 1 });
@@ -1246,7 +1246,7 @@ test('follows adjacent folders through remembered entry rows and columns', async
   await createBookmark(page, 'Web3Forms', 'https://web3forms.com');
 
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const folder = stored.folders.find(entry => entry.name === 'PokeMMO');
     const testFolder = stored.folders.find(entry => entry.name === 'test');
@@ -1581,7 +1581,7 @@ test('restores the source after a swap and inserts through the released cell', a
   await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
   await createBookmark(page, 'Dragged', 'dragged.test');
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const draggedBookmark = stored.bookmarks.find(bookmark => bookmark.name === 'Dragged');
     const barrierFolder = stored.folders.find(folder => folder.name === 'Barrier');
@@ -1688,7 +1688,7 @@ test('keeps a wide folder collision-free across consecutive sequence steps', asy
   await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
   await createBookmark(page, 'Test', 'test.example');
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const folder = stored.folders.find(item => item.name === 'Wide folder');
     const testBookmark = stored.bookmarks.find(item => item.name === 'Test');
@@ -1744,7 +1744,7 @@ test('keeps a relocated bookmark still while a wide folder continues moving', as
   await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
   await createBookmark(page, 'Test', 'test.example');
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const folder = stored.folders.find(item => item.name === 'Relocating folder');
     const testBookmark = stored.bookmarks.find(item => item.name === 'Test');
@@ -2466,7 +2466,7 @@ test('localizes sync status and confirms synchronized data deletion', async ({ p
   await expect(syncTooltip).toBeHidden();
   await syncHelp.hover();
   await expect(syncTooltip).toBeVisible();
-  await expect(syncTooltip).toContainText('Google Chrome syncs SpaceTab');
+  await expect(syncTooltip).toContainText('Google Chrome syncs NewDeskTab');
   await expect(syncHelp).toHaveAttribute('aria-expanded', 'true');
   expect(await syncTooltip.evaluate(element => element.parentElement.id)).toBe('settings-modal');
   const tooltipBox = await syncTooltip.boundingBox();
@@ -2506,7 +2506,7 @@ test('localizes sync status and confirms synchronized data deletion', async ({ p
 
   await deleteSyncData.click();
   await expect(page.getByRole('heading', {
-    name: /Delete all synchronized SpaceTab data/
+    name: /Delete all synchronized NewDeskTab data/
   })).toBeVisible();
   await page.getByRole('button', { name: 'Cancel' }).click();
   await expect(deleteSyncData).toBeEnabled();
@@ -2516,10 +2516,10 @@ test('localizes sync status and confirms synchronized data deletion', async ({ p
 
   await expect(page.getByRole('radio', { name: /This device only/ })).toBeChecked();
   await expect(page.locator('#storage-sync-last-updated'))
-    .toHaveText('No synchronized SpaceTab data is stored.');
+    .toHaveText('No synchronized NewDeskTab data is stored.');
   await expect(deleteSyncData).toBeDisabled();
   await expect.poll(() => page.evaluate(() => (
-    Object.keys(JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}')).length
+    Object.keys(JSON.parse(sessionStorage.getItem('newdesktab-test-sync') || '{}')).length
   ))).toBe(0);
 
   await page.getByRole('button', { name: 'Languages' }).click();
@@ -2545,7 +2545,7 @@ test('shows local bookmarks and locks sync when cloud data needs a newer version
     settings: { language: 'en' }
   };
   const localData = {
-    spacetabStorageMode: 'sync',
+    newdesktabStorageMode: 'sync',
     schemaVersion,
     bookmarks: [{
       id: 'local-bookmark',
@@ -2557,8 +2557,8 @@ test('shows local bookmarks and locks sync when cloud data needs a newer version
   };
 
   await page.evaluate(({ local, synced }) => {
-    sessionStorage.setItem('spacetab-test-local', JSON.stringify(local));
-    sessionStorage.setItem('spacetab-test-sync', JSON.stringify(synced));
+    sessionStorage.setItem('newdesktab-test-local', JSON.stringify(local));
+    sessionStorage.setItem('newdesktab-test-sync', JSON.stringify(synced));
   }, { local: localData, synced: futureSyncData });
   await reloadSavedPage(page);
 
@@ -2576,7 +2576,7 @@ test('shows local bookmarks and locks sync when cloud data needs a newer version
     'Your synchronized data is safe and has not been modified'
   );
   await expect.poll(() => page.evaluate(() => {
-    const synced = JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}');
+    const synced = JSON.parse(sessionStorage.getItem('newdesktab-test-sync') || '{}');
     return `${synced.schemaVersion}:${synced.bookmarks?.[0]?.id}`;
   })).toBe(`${schemaVersion + 1}:future-bookmark`);
 });
@@ -3191,7 +3191,7 @@ test('renders a 6 by 3 folder grid and smoothly persists relocation', async ({ p
   await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const folder = stored.folders.find(item => item.name === 'Visual grid');
     Object.assign(stored.bookmarks[0], { folderId: folder.id, gx: 0, gy: 0 });
@@ -3299,7 +3299,7 @@ test('moves a bookmark back to the workspace when dragged outside its folder', a
   await waitForSaved(page);
 
   const bookmarkId = await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const folder = stored.folders.find(item => item.name === 'Drag out');
     const bookmark = stored.bookmarks[0];
@@ -3375,7 +3375,7 @@ test('moves a bookmark back to the workspace when dragged outside its folder', a
 
   await expect(item).toHaveCSS('grid-column-start', '3');
   await expect.poll(() => page.evaluate(id => {
-    const stored = JSON.parse(sessionStorage.getItem('spacetab-test-local'));
+    const stored = JSON.parse(sessionStorage.getItem('newdesktab-test-local'));
     return stored.bookmarks.find(bookmark => bookmark.id === id)?.gx;
   }, bookmarkId)).toBe(2);
 
@@ -3395,7 +3395,7 @@ test('moves a bookmark back to the workspace when dragged outside its folder', a
 
   await expect(grid.locator('[data-bookmark-id]')).toHaveCount(0);
   await expect.poll(() => page.evaluate(id => {
-    const stored = JSON.parse(sessionStorage.getItem('spacetab-test-local'));
+    const stored = JSON.parse(sessionStorage.getItem('newdesktab-test-local'));
     return stored.bookmarks.find(bookmark => bookmark.id === id)?.folderId ?? null;
   }, bookmarkId)).toBeNull();
   await expect(page.getByText('Bookmark moved back to the grid')).toBeVisible();
@@ -3415,7 +3415,7 @@ test('honors None and Sequence inside a folder', async ({ page }) => {
   await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const folder = stored.folders.find(item => item.name === 'Drag modes');
     Object.assign(stored.bookmarks[0], { folderId: folder.id, gx: 0, gy: 0 });
@@ -3511,7 +3511,7 @@ test('returns to the open folder after escaping, cancelling or saving bookmark e
   await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const folder = stored.folders.find(item => item.name === 'Edit return');
     Object.assign(stored.bookmarks[0], { folderId: folder.id, gx: 0, gy: 0 });
@@ -3560,7 +3560,7 @@ test('deletes a bookmark permanently from an open folder after confirmation', as
   await page.getByRole('button', { name: 'Add', exact: true }).click();  await waitForSaved(page);
 
   await page.evaluate(() => {
-    const storageKey = 'spacetab-test-local';
+    const storageKey = 'newdesktab-test-local';
     const stored = JSON.parse(sessionStorage.getItem(storageKey));
     const folder = stored.folders.find(item => item.name === 'Delete inside');
     Object.assign(stored.bookmarks[0], { folderId: folder.id, gx: 0, gy: 0 });

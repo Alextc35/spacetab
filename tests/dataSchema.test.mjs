@@ -55,7 +55,7 @@ test('preserves folder controls across backup and bookmarks-only exports', () =>
 });
 
 test('separates legacy local images from URLs across themes, bookmarks, folders and presets', () => {
-  const reference = 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
+  const reference = 'newdesktab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
   const legacyStyle = { backgroundImageUrl: reference, backgroundImageUrlLocked: true };
   const migrated = migratePersistedData({
     schemaVersion: 4,
@@ -88,7 +88,7 @@ test('adds solid color mode without changing saved backgrounds and normalizes co
     backgroundColor: '#2468ac',
     backgroundImageColor: '#102030',
     backgroundImageUrl: 'https://images.test/background.gif',
-    backgroundImageLocal: 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9',
+    backgroundImageLocal: 'newdesktab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9',
     backgroundImageSource: 'url',
     backgroundImageUrlLocked: true
   };
@@ -189,7 +189,7 @@ test('creates and parses a versioned complete backup', () => {
   const envelope = createBackupEnvelope(data);
   const restored = parseBackupPayload(envelope);
 
-  assert.equal(envelope.format, 'spacetab-backup');
+  assert.equal(envelope.format, 'newdesktab-backup');
   assert.equal(envelope.schemaVersion, DATA_SCHEMA_VERSION);
   assert.deepEqual(restored, data);
 });
@@ -241,7 +241,7 @@ test('round-trips a versioned bookmarks-only export without replacing settings',
   ], [{ id: 'reading', name: 'Reading', gx: 0, gy: 0 }]);
   const { bookmarks, folders } = parseBookmarksPayload(envelope, current);
 
-  assert.equal(envelope.format, 'spacetab-bookmarks');
+  assert.equal(envelope.format, 'newdesktab-bookmarks');
   assert.equal(bookmarks[0].id, 'portable');
   assert.equal(bookmarks[0].url, 'https://portable.test');
   assert.equal(bookmarks[0].folderId, 'reading');

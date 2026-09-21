@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>SpaceTab browser harness</title>
+    <title>NewDeskTab browser harness</title>
     <link rel="stylesheet" href="../src/css/main.css">
   </head>
   <body>
@@ -10,7 +10,7 @@
       const listeners = [];
 
       function createArea(areaName) {
-        const storageKey = `spacetab-test-${areaName}`;
+        const storageKey = `newdesktab-test-${areaName}`;
         const data = JSON.parse(sessionStorage.getItem(storageKey) || '{}');
         const persist = () => sessionStorage.setItem(storageKey, JSON.stringify(data));
 

@@ -8,12 +8,12 @@ import {
   withoutDeviceImages
 } from '../src/js/platform/storage/deviceImageSelections.js';
 
-const owned = 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
-const replacement = 'spacetab-local-image:8c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
-const foreign = 'spacetab-local-image:9c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
+const owned = 'newdesktab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
+const replacement = 'newdesktab-local-image:8c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
+const foreign = 'newdesktab-local-image:9c5b9a2e-3f0e-4c7e-889c-72117afc09e9';
 const local = {
-  'spacetabLocalImage:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9': { dataUrl: 'data:image/webp;base64,b3duZWQ=', name: 'owned.webp' },
-  'spacetabLocalImage:8c5b9a2e-3f0e-4c7e-889c-72117afc09e9': { dataUrl: 'data:image/webp;base64,bmV3', name: 'new.webp' }
+  'newdesktabLocalImage:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9': { dataUrl: 'data:image/webp;base64,b3duZWQ=', name: 'owned.webp' },
+  'newdesktabLocalImage:8c5b9a2e-3f0e-4c7e-889c-72117afc09e9': { dataUrl: 'data:image/webp;base64,bmV3', name: 'new.webp' }
 };
 globalThis.chrome = {
   runtime: { lastError: null },
@@ -65,7 +65,7 @@ test('migrates only available legacy files and keeps every image slot local thro
   for (const style of styles(refreshed)) assert.equal(style.backgroundImageLocal, replacement);
 
   const shared = withoutDeviceImages(refreshed);
-  assert.equal(JSON.stringify(shared).includes('spacetab-local-image:'), false);
+  assert.equal(JSON.stringify(shared).includes('newdesktab-local-image:'), false);
   for (const style of styles(shared)) {
     assert.equal(Object.hasOwn(style, 'backgroundImageLocal'), false);
     assert.equal(Object.hasOwn(style, 'backgroundImageSource'), false);
@@ -109,7 +109,7 @@ test('keeps deleted-item image choices out of synchronized payloads', () => {
   });
 
   const shared = withoutDeviceImages(data);
-  assert.equal(JSON.stringify(shared).includes('spacetab-local-image:'), false);
+  assert.equal(JSON.stringify(shared).includes('newdesktab-local-image:'), false);
   assert.equal(shared.trash[0].bookmark.backgroundImageUrl, style.backgroundImageUrl);
   assert.equal(shared.trash[1].folder.backgroundImageUrl, style.backgroundImageUrl);
   assert.equal(shared.trash[1].bookmarks[0].backgroundImageUrl, style.backgroundImageUrl);

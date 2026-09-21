@@ -23,7 +23,7 @@ async function uploadImage(page, name) {
 }
 
 async function syncSnapshot(page) {
-  return page.evaluate(() => JSON.parse(sessionStorage.getItem('spacetab-test-sync') || '{}'));
+  return page.evaluate(() => JSON.parse(sessionStorage.getItem('newdesktab-test-sync') || '{}'));
 }
 
 async function receiveSync(page, snapshot) {
@@ -53,12 +53,12 @@ test('two devices choose and remove their own images while sharing the fallback 
     await uploadImage(page, 'device-a.png');
     const shared = await syncSnapshot(page);
     expect(shared).toEqual(beforeUpload);
-    expect(JSON.stringify(shared)).not.toContain('spacetab-local-image:');
+    expect(JSON.stringify(shared)).not.toContain('newdesktab-local-image:');
     expect(JSON.stringify(shared)).not.toContain('backgroundImageLocal');
 
     await receiveSync(other, shared);
     await other.evaluate(() => new Promise(resolve => (
-      chrome.storage.local.set({ spacetabStorageMode: 'sync' }, resolve)
+      chrome.storage.local.set({ newdesktabStorageMode: 'sync' }, resolve)
     )));
     await other.reload();
     await expect(other.locator('body')).toHaveCSS('background-image', `url("${fallback}")`);

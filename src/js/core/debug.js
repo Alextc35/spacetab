@@ -1,6 +1,6 @@
 import { DEBUG } from './config.js';
 
-const PREFIX = '[SpaceTab Debug]';
+const PREFIX = '[NewDeskTab Debug]';
 const NO_TRACE = Object.freeze({ id: null, mark() {}, end() {} });
 const COLORS = { info: '#1d4ed8', success: '#166534', error: '#b91c1c', muted: '#475569' };
 const CLOCK_STYLE = 'color:#8492a6;font-weight:normal;';

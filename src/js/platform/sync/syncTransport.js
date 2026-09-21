@@ -1,5 +1,5 @@
-export const SYNC_META_KEY = 'spacetabSyncMeta';
-export const SYNC_CHUNK_PREFIX = 'spacetabSyncChunk:';
+export const SYNC_META_KEY = 'newdesktabSyncMeta';
+export const SYNC_CHUNK_PREFIX = 'newdesktabSyncChunk:';
 export const SYNC_FORMAT_VERSION = 1;
 
 const SYNC_ITEM_SAFE_BYTES = 7600;
@@ -87,7 +87,7 @@ export function encodeSyncPayload(data, options) {
  */
 export function validateSyncMetadata(meta) {
   if (meta?.version > SYNC_FORMAT_VERSION) {
-    const error = new Error('The synchronized SpaceTab data uses a newer format.');
+    const error = new Error('The synchronized NewDeskTab data uses a newer format.');
     error.code = 'UNSUPPORTED_SYNC_FORMAT';
     error.requiredSyncFormatVersion = meta.version;
     error.supportedSyncFormatVersion = SYNC_FORMAT_VERSION;
@@ -99,7 +99,7 @@ export function validateSyncMetadata(meta) {
     || !Number.isInteger(meta.chunkCount)
     || meta.chunkCount < 1
   ) {
-    throw new Error('The synchronized SpaceTab data has an unsupported format.');
+    throw new Error('The synchronized NewDeskTab data has an unsupported format.');
   }
 
   return meta;
@@ -116,13 +116,13 @@ export function decodeSyncPayload(meta, values) {
   validateSyncMetadata(meta);
   const keys = getSyncChunkKeys(meta.chunkCount);
   if (keys.some(key => typeof values[key] !== 'string')) {
-    throw new Error('The synchronized SpaceTab data is incomplete.');
+    throw new Error('The synchronized NewDeskTab data is incomplete.');
   }
 
   try {
     return JSON.parse(keys.map(key => values[key]).join(''));
   } catch (error) {
-    throw new Error('The synchronized SpaceTab data is invalid.', { cause: error });
+    throw new Error('The synchronized NewDeskTab data is invalid.', { cause: error });
   }
 }
 

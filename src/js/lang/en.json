@@ -61,8 +61,8 @@
       "saved": "Settings saved",
       "copied": "Value copied to clipboard",
       "resetBg": "Theme reset",
-      "deletedAllData": "All SpaceTab data deleted",
-      "deleteAllDataError": "Could not delete all SpaceTab data"
+      "deletedAllData": "All NewDeskTab data deleted",
+      "deleteAllDataError": "Could not delete all NewDeskTab data"
     },
     "localImage": {
       "invalid": "Choose a PNG, JPEG, WebP, GIF, or AVIF image.",
@@ -76,7 +76,7 @@
       "remoteLoaded": "Synced data loaded",
       "updatedFromOtherDevice": "Synced changes received from another device",
       "error": "Could not change storage mode",
-      "versionBlocked": "Sync was paused because the cloud data requires a newer SpaceTab version. This device's local data is being shown.",
+      "versionBlocked": "Sync was paused because the cloud data requires a newer NewDeskTab version. This device's local data is being shown.",
       "quotaError": "The data exceeds the available sync storage",
       "deleted": "Synced data deleted",
       "deleteError": "Could not delete synced data"
@@ -125,7 +125,7 @@
     "settings": {
       "cancel": "Discard settings changes?",
       "reset": "Reset all settings? Bookmarks will not be deleted.",
-      "deleteAllData": "Delete all SpaceTab data? Bookmarks, folders, settings, and synchronized data will be permanently deleted. This action cannot be undone.",
+      "deleteAllData": "Delete all NewDeskTab data? Bookmarks, folders, settings, and synchronized data will be permanently deleted. This action cannot be undone.",
       "theme": {
         "reset": "Reset theme settings?"
       },
@@ -134,7 +134,7 @@
         "cancel": "Discard changes to the default bookmark appearance?"
       },
       "sync": {
-        "delete": "Delete all synchronized SpaceTab data? If Sync is active, this device will switch to local storage first. This cannot be undone."
+        "delete": "Delete all synchronized NewDeskTab data? If Sync is active, this device will switch to local storage first. This cannot be undone."
       }
     },
     "backup": {
@@ -388,7 +388,7 @@
         "tooltip": "Synchronization information"
       },
       "compatibility": {
-        "newerVersion": "Sync is locked on this device because the cloud data was created by a newer SpaceTab version. Your synchronized data is safe and has not been modified. Update SpaceTab to reconnect."
+        "newerVersion": "Sync is locked on this device because the cloud data was created by a newer NewDeskTab version. Your synchronized data is safe and has not been modified. Update NewDeskTab to reconnect."
       },
       "usage": {
         "title": "Storage availability",
@@ -413,17 +413,17 @@
         "error": "Usage unavailable"
       },
       "browserSupport": {
-        "chrome": "Google Chrome syncs SpaceTab through your Google Account. SpaceTab does not run its own sync server.",
-        "brave": "Unavailable in Brave: it can store SpaceTab data in chrome.storage.sync, but currently does not propagate it between devices.",
+        "chrome": "Google Chrome syncs NewDeskTab through your Google Account. NewDeskTab does not run its own sync server.",
+        "brave": "Unavailable in Brave: it can store NewDeskTab data in chrome.storage.sync, but currently does not propagate it between devices.",
         "unsupported": "Synced storage is only available in Google Chrome for now. Other browsers remain disabled until cross-device support is verified."
       },
-      "existingNotice": "If synced SpaceTab data already exists, it will be loaded when you save.",
+      "existingNotice": "If synced NewDeskTab data already exists, it will be loaded when you save.",
       "deleteData": "Delete synced data",
       "metadata": {
         "loading": "Checking synchronized data…",
         "updatedAt": "Last synchronized update: {{date}}",
         "unknown": "Synchronized data exists, but its update time is unavailable.",
-        "empty": "No synchronized SpaceTab data is stored.",
+        "empty": "No synchronized NewDeskTab data is stored.",
         "error": "Synchronized data information could not be loaded."
       },
       "status": {
@@ -437,7 +437,7 @@
       "title": "Theme",
       "subtitle": "Page background",
       "backgroundImageMode": "Image",
-      "backgroundDefaultHint": "When neither option is selected, the default SpaceTab background is used.",
+      "backgroundDefaultHint": "When neither option is selected, the default NewDeskTab background is used.",
       "backgroundSolid": "Solid color",
       "backgroundColor": "Color:",
       "backgroundImageColor": "Color behind the image",
@@ -521,7 +521,7 @@
         },
         "openSettings": {
           "title": "Open settings",
-          "description": "Open the SpaceTab settings panel."
+          "description": "Open the NewDeskTab settings panel."
         }
       }
     },

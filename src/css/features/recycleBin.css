@@ -331,7 +331,7 @@
 
 .recycle-bin-item input { width: 17px; height: 17px; accent-color: var(--ui-accent); }
 .recycle-bin-item-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 10px; background: var(--ui-info-bg); }
-.recycle-bin-item-icon .spacetab-themed-icon { width: 25px; height: 25px; flex-basis: 25px; }
+.recycle-bin-item-icon .newdesktab-themed-icon { width: 25px; height: 25px; flex-basis: 25px; }
 .recycle-bin-item-copy { min-width: 0; }
 .recycle-bin-item-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recycle-bin-item-copy small, .recycle-bin-item-expiry { color: var(--ui-muted); font-size: .74rem; }

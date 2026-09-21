@@ -175,7 +175,7 @@ try {
     </style></head><body><main>
       <div class="shine"></div>
       <div class="brand"><img src="data:image/png;base64,${icon}" alt="">
-        <div><h1>Spacetab</h1><p>Your new tab, organized your way.</p></div>
+        <div><h1>NewDeskTab</h1><p>Your new tab, organized your way.</p></div>
       </div>
       <div class="cards"><div class="card"></div><div class="card"></div><div class="card"></div><div class="card"></div><div class="card"></div></div>
     </main></body></html>`);

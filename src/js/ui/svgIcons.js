@@ -76,14 +76,14 @@ export function createEditIndicatorSvg() {
 
 /** Creates a pair of real SVG assets and lets CSS select the active interface theme. */
 export function createThemedAssetIcon(kind) {
-  if (!ICON_KINDS.has(kind)) throw new TypeError(`Unknown SpaceTab icon: ${kind}`);
+  if (!ICON_KINDS.has(kind)) throw new TypeError(`Unknown NewDeskTab icon: ${kind}`);
 
   const wrapper = document.createElement('span');
-  wrapper.className = `spacetab-themed-icon spacetab-${kind}-icon`;
+  wrapper.className = `newdesktab-themed-icon newdesktab-${kind}-icon`;
   wrapper.setAttribute('aria-hidden', 'true');
   for (const theme of ['light', 'dark']) {
     const image = document.createElement('img');
-    image.className = `spacetab-themed-icon-${theme}`;
+    image.className = `newdesktab-themed-icon-${theme}`;
     image.src = new URL(`../../assets/icons/${kind}-${theme}.svg`, import.meta.url).href;
     image.alt = '';
     image.draggable = false;

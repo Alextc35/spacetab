@@ -35,10 +35,10 @@ export const STORAGE_MODES = Object.freeze({
   SYNC: 'sync'
 });
 
-const STORAGE_MODE_KEY = 'spacetabStorageMode';
-const SYNC_COMPATIBILITY_KEY = 'spacetabSyncCompatibility';
-const DEVICE_ID_KEY = 'spacetabDeviceId';
-const LOCAL_IMAGE_STORAGE_PREFIX = 'spacetabLocalImage:';
+const STORAGE_MODE_KEY = 'newdesktabStorageMode';
+const SYNC_COMPATIBILITY_KEY = 'newdesktabSyncCompatibility';
+const DEVICE_ID_KEY = 'newdesktabDeviceId';
+const LOCAL_IMAGE_STORAGE_PREFIX = 'newdesktabLocalImage:';
 const LEGACY_SYNC_KEYS = [
   'schemaVersion',
   'bookmarks',
@@ -139,7 +139,7 @@ function getLocalImageCategories(values) {
     const reference = typeof selection === 'string'
       ? selection
       : selection?.reference;
-    if (typeof reference !== 'string' || !reference.startsWith('spacetab-local-image:')) {
+    if (typeof reference !== 'string' || !reference.startsWith('newdesktab-local-image:')) {
       continue;
     }
 
@@ -172,7 +172,7 @@ function getLocalImageBreakdown(values, entryBytes, imageCategories) {
   for (const [key, value] of Object.entries(values)) {
     if (!key.startsWith(LOCAL_IMAGE_STORAGE_PREFIX)) continue;
 
-    const reference = `spacetab-local-image:${key.slice(LOCAL_IMAGE_STORAGE_PREFIX.length)}`;
+    const reference = `newdesktab-local-image:${key.slice(LOCAL_IMAGE_STORAGE_PREFIX.length)}`;
     const category = imageCategories.get(reference) ?? 'other';
     const bytes = getMeasuredEntryBytes(entryBytes, key, value);
     breakdown.totalBytes += bytes;
@@ -205,7 +205,7 @@ function getDirectStorageBreakdown(values, entryBytes, {
       || (key === DEVICE_TRASH_KEY && containsDeviceTrash))) {
       category = 'trash';
     } else if (includeLocalImages && key.startsWith(LOCAL_IMAGE_STORAGE_PREFIX)) {
-      const reference = `spacetab-local-image:${key.slice(LOCAL_IMAGE_STORAGE_PREFIX.length)}`;
+      const reference = `newdesktab-local-image:${key.slice(LOCAL_IMAGE_STORAGE_PREFIX.length)}`;
       const imageCategory = imageCategories.get(reference);
       if (imageCategory === 'bookmark' || imageCategory === 'folder') {
         category = 'bookmark';
@@ -243,7 +243,7 @@ function getLocalStorageBreakdown(values, entryBytes, { deviceTrashOnly = false 
       || (key === DEVICE_TRASH_KEY && containsDeviceTrash)) {
       category = 'trashBytes';
     } else if (key.startsWith(LOCAL_IMAGE_STORAGE_PREFIX)) {
-      const reference = `spacetab-local-image:${key.slice(LOCAL_IMAGE_STORAGE_PREFIX.length)}`;
+      const reference = `newdesktab-local-image:${key.slice(LOCAL_IMAGE_STORAGE_PREFIX.length)}`;
       if (imageCategories.get(reference) === 'trash') category = 'trashBytes';
     }
 
@@ -430,7 +430,7 @@ async function writeSyncData(data) {
 
   const quotaBytes = chrome.storage.sync.QUOTA_BYTES ?? 102400;
   if (getStorageBytes(items) > quotaBytes) {
-    const error = new Error('SpaceTab data exceeds the synchronized storage quota.');
+    const error = new Error('NewDeskTab data exceeds the synchronized storage quota.');
     error.code = 'SYNC_QUOTA_EXCEEDED';
     throw error;
   }
@@ -525,19 +525,19 @@ async function getStorageUsage(mode) {
   };
 }
 
-function isSpaceTabSyncKey(key) {
+function isNewDeskTabSyncKey(key) {
   return isSyncTransportKey(key) || LEGACY_SYNC_KEYS.includes(key);
 }
 
 /**
- * Reads lightweight information about the remote SpaceTab payload without
+ * Reads lightweight information about the remote NewDeskTab payload without
  * hydrating or migrating it.
  *
  * @returns {Promise<{hasData: boolean, updatedAt: number|null}>}
  */
 async function getSyncMetadata() {
   const values = await callStorage(chrome.storage.sync, 'get', null);
-  const syncKeys = Object.keys(values).filter(isSpaceTabSyncKey);
+  const syncKeys = Object.keys(values).filter(isNewDeskTabSyncKey);
   const updatedAt = values[SYNC_META_KEY]?.updatedAt;
 
   return {
@@ -547,13 +547,13 @@ async function getSyncMetadata() {
 }
 
 /**
- * Deletes only SpaceTab-owned values from synchronized extension storage.
+ * Deletes only NewDeskTab-owned values from synchronized extension storage.
  *
  * @returns {Promise<boolean>} Whether any synchronized values were removed.
  */
 async function clearSyncData() {
   const values = await callStorage(chrome.storage.sync, 'get', null);
-  const keys = Object.keys(values).filter(isSpaceTabSyncKey);
+  const keys = Object.keys(values).filter(isNewDeskTabSyncKey);
 
   if (keys.length) await callStorage(chrome.storage.sync, 'remove', keys);
   await clearSyncCompatibility();
@@ -644,7 +644,7 @@ async function initializeLocked() {
 
 function withDeviceLock(operation) {
   if (globalThis.navigator?.locks) {
-    return navigator.locks.request('spacetab-persistence', operation);
+    return navigator.locks.request('newdesktab-persistence', operation);
   }
   // Non-browser unit harnesses have no shared origin or other pages.
   if (typeof window !== 'undefined') throw new Error('Web Locks are required to save safely.');
@@ -652,7 +652,7 @@ function withDeviceLock(operation) {
 }
 
 /**
- * Keeps only compatibility blocks that still require a newer SpaceTab build.
+ * Keeps only compatibility blocks that still require a newer NewDeskTab build.
  * Stale blocks disappear automatically after the extension is upgraded.
  *
  * @param {*} value
@@ -725,7 +725,7 @@ async function clearSyncCompatibility() {
 }
 
 function createSyncCompatibilityError() {
-  const error = new Error('Sync requires a newer version of SpaceTab.');
+  const error = new Error('Sync requires a newer version of NewDeskTab.');
   error.code = 'SYNC_REQUIRES_NEWER_VERSION';
   return error;
 }

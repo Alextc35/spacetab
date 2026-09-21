@@ -1,16 +1,16 @@
 # Chrome Web Store submission
 
-This file is the source of truth for the SpaceTab listing and privacy answers.
+This file is the source of truth for the NewDeskTab listing and privacy answers.
 Review it against the release ZIP before every submission.
 
 ## Listing
 
-- Product name: `Spacetab`
+- Product name: `NewDeskTab`
 - Primary language: `English`
 - Category: `Productivity`
-- Homepage: `https://github.com/Alextc35/spacetab`
-- Support URL: `https://github.com/Alextc35/spacetab/issues`
-- Privacy policy: `https://github.com/Alextc35/spacetab/blob/main/PRIVACY.md`
+- Homepage: `https://github.com/Alextc35/newdesktab`
+- Support URL: `https://github.com/Alextc35/newdesktab/issues`
+- Privacy policy: `https://github.com/Alextc35/newdesktab/blob/main/PRIVACY.md`
 
 ### Summary
 
@@ -18,7 +18,7 @@ Review it against the release ZIP before every submission.
 
 ### Detailed description
 
-> Spacetab replaces Chrome's New Tab page with a private, customizable visual
+> NewDeskTab replaces Chrome's New Tab page with a private, customizable visual
 > workspace for your bookmarks.
 >
 > Arrange bookmarks and folders on a flexible grid, resize and style cards,
@@ -30,7 +30,7 @@ Review it against the release ZIP before every submission.
 > storage so compatible Chrome profiles can share bookmark data and settings.
 > Images uploaded from your device remain local to that browser profile.
 >
-> Spacetab has no account system, advertising, analytics, telemetry, or
+> NewDeskTab has no account system, advertising, analytics, telemetry, or
 > developer-operated backend.
 
 ## Privacy answers
@@ -63,9 +63,9 @@ not executed as code.
 - When a favicon is shown, the bookmark origin may be requested from Google's
   `t3.gstatic.com` favicon service as documented in the privacy policy.
 - User-configured remote images are requested directly from their image hosts.
-- SpaceTab does not read general browsing history, website page contents,
+- NewDeskTab does not read general browsing history, website page contents,
   passwords, authentication data, personal communications or location.
-- SpaceTab has no developer-operated data collection, analytics or advertising.
+- NewDeskTab has no developer-operated data collection, analytics or advertising.
 - Certify compliance with the Chrome Web Store Limited Use requirements.
 
 Match the dashboard's current data-category checkboxes to these statements and
@@ -89,8 +89,8 @@ npm run assets:store
 2. Run `npm run test:e2e`.
 3. Run `npm run assets:store` and visually inspect every generated image.
 4. Run `npm run package:store`.
-5. Extract `dist/spacetab-<version>.zip` into a clean directory.
-6. Run `SPACETAB_EXTENSION_PATH=<clean-directory> npm run test:extension`.
+5. Extract `dist/newdesktab-<version>.zip` into a clean directory.
+6. Run `NEWDESKTAB_EXTENSION_PATH=<clean-directory> npm run test:extension`.
 7. Verify the manifest `key` matches the public key shown by the existing Store
    item. If this is a new item, decide the permanent extension ID before release.
 8. Upload the ZIP and the three listing images, complete the privacy answers,

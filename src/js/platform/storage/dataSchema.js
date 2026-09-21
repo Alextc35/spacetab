@@ -26,7 +26,7 @@ import {
 import { normalizeWidgets } from '../../widgets/widgetModel.js';
 
 /**
- * Upgrades and normalizes application data from every supported SpaceTab
+ * Upgrades and normalizes application data from every supported NewDeskTab
  * version. This is the only entry point for data crossing a persistence or
  * import boundary.
  *
@@ -42,7 +42,7 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
     : 0;
 
   if (sourceVersion > DATA_SCHEMA_VERSION) {
-    const error = new Error('This SpaceTab data was created by a newer version.');
+    const error = new Error('This NewDeskTab data was created by a newer version.');
     error.code = 'UNSUPPORTED_DATA_VERSION';
     error.requiredSchemaVersion = sourceVersion;
     error.supportedSchemaVersion = DATA_SCHEMA_VERSION;
@@ -258,7 +258,7 @@ function normalizeNamedPresets(value) {
  */
 export function createBackupEnvelope(data) {
   return {
-    format: 'spacetab-backup',
+    format: 'newdesktab-backup',
     schemaVersion: DATA_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
     data: migratePersistedData(data)
@@ -280,7 +280,7 @@ export function createBookmarksEnvelope(bookmarks, folders = []) {
   }, { useDefaultsWhenEmpty: false });
 
   return {
-    format: 'spacetab-bookmarks',
+    format: 'newdesktab-bookmarks',
     schemaVersion: DATA_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
     bookmarks: normalized.bookmarks,
@@ -304,7 +304,7 @@ export function parseBackupPayload(payload, currentData = DEFAULT_STATE.data) {
     });
   }
 
-  if (payload?.format === 'spacetab-backup' && payload.data) {
+  if (payload?.format === 'newdesktab-backup' && payload.data) {
     return migratePersistedData(payload.data);
   }
 
@@ -312,7 +312,7 @@ export function parseBackupPayload(payload, currentData = DEFAULT_STATE.data) {
     return migratePersistedData(payload);
   }
 
-  const error = new Error('Invalid SpaceTab backup.');
+  const error = new Error('Invalid NewDeskTab backup.');
   error.code = 'INVALID_BACKUP';
   throw error;
 }
@@ -326,7 +326,7 @@ export function parseBackupPayload(payload, currentData = DEFAULT_STATE.data) {
  * @returns {{bookmarks: Bookmark[], folders: BookmarkFolder[]}}
  */
 export function parseBookmarksPayload(payload, currentData = DEFAULT_STATE.data) {
-  if (payload?.format === 'spacetab-bookmarks' && Array.isArray(payload.bookmarks)) {
+  if (payload?.format === 'newdesktab-bookmarks' && Array.isArray(payload.bookmarks)) {
     const migrated = migratePersistedData({
       ...currentData,
       bookmarks: payload.bookmarks,

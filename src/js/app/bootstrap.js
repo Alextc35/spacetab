@@ -38,7 +38,7 @@ import { registerGridItemTypes } from './registerGridItemTypes.js';
 
 const RECYCLE_BIN_PURGE_INTERVAL_MS = 60 * 60 * 1000;
 
-/** Starts SpaceTab and reports bootstrap failures at the application boundary. */
+/** Starts NewDeskTab and reports bootstrap failures at the application boundary. */
 export async function startApplication() {
   const startedAt = performance.now();
   const trace = debug.start('Initial load');
@@ -47,7 +47,7 @@ export async function startApplication() {
     await bootstrapApplication({ trace, startedAt });
   } catch (error) {
     trace.end({ status: 'error', error: error.message });
-    console.error('[SpaceTab] Could not initialize the page:', error);
+    console.error('[NewDeskTab] Could not initialize the page:', error);
   }
 }
 

@@ -81,8 +81,8 @@
 :root[data-interface-theme="light"] { color-scheme: light; }
 :root[data-interface-theme="dark"] { color-scheme: dark; }
 
-/* Paired SVG assets follow SpaceTab's explicit theme as well as system mode. */
-.spacetab-themed-icon {
+/* Paired SVG assets follow NewDeskTab's explicit theme as well as system mode. */
+.newdesktab-themed-icon {
   display: inline-grid;
   width: 24px;
   height: 24px;
@@ -90,7 +90,7 @@
   place-items: center;
 }
 
-.spacetab-themed-icon > img {
+.newdesktab-themed-icon > img {
   grid-area: 1 / 1;
   display: block;
   width: 100%;
@@ -98,13 +98,13 @@
   object-fit: contain;
 }
 
-.spacetab-themed-icon-dark { display: none !important; }
-:root[data-interface-theme="dark"] .spacetab-themed-icon-light { display: none !important; }
-:root[data-interface-theme="dark"] .spacetab-themed-icon-dark { display: block !important; }
-:root[data-interface-theme="light"] .spacetab-themed-icon-light { display: block !important; }
-:root[data-interface-theme="light"] .spacetab-themed-icon-dark { display: none !important; }
+.newdesktab-themed-icon-dark { display: none !important; }
+:root[data-interface-theme="dark"] .newdesktab-themed-icon-light { display: none !important; }
+:root[data-interface-theme="dark"] .newdesktab-themed-icon-dark { display: block !important; }
+:root[data-interface-theme="light"] .newdesktab-themed-icon-light { display: block !important; }
+:root[data-interface-theme="light"] .newdesktab-themed-icon-dark { display: none !important; }
 
 @media (prefers-color-scheme: dark) {
-  :root[data-interface-theme="system"] .spacetab-themed-icon-light { display: none !important; }
-  :root[data-interface-theme="system"] .spacetab-themed-icon-dark { display: block !important; }
+  :root[data-interface-theme="system"] .newdesktab-themed-icon-light { display: none !important; }
+  :root[data-interface-theme="system"] .newdesktab-themed-icon-dark { display: block !important; }
 }

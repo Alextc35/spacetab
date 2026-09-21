@@ -8,7 +8,7 @@
 export const VERSION = chrome.runtime.getManifest().version;
 
 /**
- * Initial debug state. SpaceTabDebug.toggle() changes it for the current tab.
+ * Initial debug state. NewDeskTabDebug.toggle() changes it for the current tab.
  * @type {boolean}
  */
 export const DEBUG = false;

@@ -1,4 +1,4 @@
-export const LOCAL_IMAGE_PROTOCOL = 'spacetab-local-image:';
+export const LOCAL_IMAGE_PROTOCOL = 'newdesktab-local-image:';
 
 /** Returns whether a value is a device-local image reference. */
 export function isLocalImageReference(value) {

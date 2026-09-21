@@ -10,7 +10,7 @@ export function exportBackup() {
   try {
     downloadJson(
       createBackupEnvelope(getState().data),
-      `spacetab-backup-${new Date().toISOString().slice(0, 10)}.json`
+      `newdesktab-backup-${new Date().toISOString().slice(0, 10)}.json`
     );
     flashSuccess('flash.backup.exported');
   } catch (error) {

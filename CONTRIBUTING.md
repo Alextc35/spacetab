@@ -1,6 +1,6 @@
-# Contributing to SpaceTab
+# Contributing to NewDeskTab
 
-Thanks for helping SpaceTab grow without losing its simplicity.
+Thanks for helping NewDeskTab grow without losing its simplicity.
 
 ## Local setup
 

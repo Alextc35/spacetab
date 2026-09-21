@@ -99,7 +99,7 @@ export async function reportDebugState() {
 export function initDebugTools() {
   if (initialized) return;
   initialized = true;
-  window.SpaceTabDebug = Object.freeze({
+  window.NewDeskTabDebug = Object.freeze({
     get enabled() { return debug.enabled; },
     toggle() {
       debug.setEnabled(!debug.enabled);
@@ -128,7 +128,7 @@ export function initDebugTools() {
   });
   if (debug.enabled) printDebugHelp();
   else debug.guide('Debug available', [
-    { command: 'SpaceTabDebug.toggle()', description: 'Enable Debug mode and view the commands.' }
+    { command: 'NewDeskTabDebug.toggle()', description: 'Enable Debug mode and view the commands.' }
   ], { force: true, tone: 'muted' });
 
   subscribe((state, previous) => {
@@ -146,11 +146,11 @@ export function initDebugTools() {
 
 function printDebugHelp() {
   debug.guide('Debug enabled · Commands', [
-    { command: 'SpaceTabDebug.toggle()', description: 'Enable or disable live operation logging.' },
-    { command: 'await SpaceTabDebug.report()', description: 'Show general information, storage usage and initial load timings.' },
-    { command: 'SpaceTabDebug.history()', description: 'Show the last 100 operations and their timings.' },
-    { command: 'SpaceTabDebug.clear()', description: 'Clear the console and history.' },
-    { command: 'SpaceTabDebug.enabled', description: 'Check whether Debug is enabled.' }
+    { command: 'NewDeskTabDebug.toggle()', description: 'Enable or disable live operation logging.' },
+    { command: 'await NewDeskTabDebug.report()', description: 'Show general information, storage usage and initial load timings.' },
+    { command: 'NewDeskTabDebug.history()', description: 'Show the last 100 operations and their timings.' },
+    { command: 'NewDeskTabDebug.clear()', description: 'Clear the console and history.' },
+    { command: 'NewDeskTabDebug.enabled', description: 'Check whether Debug is enabled.' }
   ], { tone: 'success' });
 }
 
