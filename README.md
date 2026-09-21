@@ -177,6 +177,9 @@ UI controllers and reusable views
 Important modules:
 
 ```text
+src/js/app/bootstrap.js                   application startup and dependency wiring
+src/js/app/appController.js               store-to-UI effect coordination
+src/js/app/appStateChanges.js             pure state-transition classification
 src/js/app/registerGridItemTypes.js       bundled grid-item composition
 src/js/domain/bookmarks/                  bookmark model and defaults
 src/js/domain/folders/                    folder model and internal layout

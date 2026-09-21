@@ -44,11 +44,15 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 6 establish the first domain, feature, platform and widget seams:
+Phases 1 through 7 establish the first application, domain, feature, platform
+and widget seams:
 
 ```text
 src/js/
 ├── app/
+│   ├── appController.js
+│   ├── appStateChanges.js
+│   ├── bootstrap.js
 │   └── registerGridItemTypes.js
 ├── domain/
 │   ├── bookmarks/
@@ -131,6 +135,21 @@ Workspace identity, naming, normalization and cyclic navigation now live in
 `domain/workspaces`. Store-backed creation, activation, deletion and bookmark
 movement live in `features/workspaces`; selectors adapt the legacy persisted
 field names for UI and other feature consumers.
+
+## Application bootstrap and state reactions
+
+`main.js` is deliberately a minimal browser entry point. It delegates startup
+to `app/bootstrap.js`, which owns initialization order, bundled feature
+registration, store hydration and the wiring of UI controllers. Startup
+failures and diagnostics are handled at that same application boundary.
+
+Store transitions are coordinated by `app/appController.js`. It translates
+immutable state-reference changes into theme, localization, grid-render and
+edit-mode effects without containing domain rules. The deterministic change
+classification lives in `app/appStateChanges.js`, making the routing contract
+testable without a DOM or Chrome API. Feature commands remain the only place
+that decides how bookmarks, folders, workspaces, the recycle bin or widgets
+change.
 
 ## GridItem and the item-type registry
 
@@ -272,6 +291,8 @@ remain out of scope.
    schema migration.
 6. ✅ Add the minimal bundled-widget API and versioned generic widget envelope,
    without shipping a visible widget or changing current UX.
+7. ✅ Reduce `main.js` to the browser entry point and move bootstrap composition
+   and store-to-UI coordination behind the application boundary.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.
