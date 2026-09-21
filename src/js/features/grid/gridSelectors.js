@@ -13,6 +13,9 @@ export function getGridItemsInGroup(data, groupId) {
     )),
     ...data.folders.filter(folder => (
       (folder.groupId ?? null) === normalizedGroupId
+    )),
+    ...(data.widgets ?? []).filter(widget => (
+      (widget.groupId ?? null) === normalizedGroupId
     ))
   ];
   if (normalizedGroupId === null && data.settings?.showRecycleBin && data.recycleBin) {

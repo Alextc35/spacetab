@@ -23,6 +23,7 @@ import {
   normalizeWorkspaces,
   resolveWorkspaceId
 } from '../../domain/workspaces/workspaceModel.js';
+import { normalizeWidgets } from '../../widgets/widgetModel.js';
 
 /**
  * Upgrades and normalizes application data from every supported SpaceTab
@@ -91,11 +92,13 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
       return normalized;
     });
   const recycleBin = normalizeRecycleBin(source.recycleBin);
+  const widgets = normalizeWidgets(source.widgets, { now, workspaceIds });
 
   return {
     schemaVersion: DATA_SCHEMA_VERSION,
     bookmarks,
     folders,
+    widgets,
     recycleBin,
     trash: normalizeTrashEntries(source.trash, {
       now,

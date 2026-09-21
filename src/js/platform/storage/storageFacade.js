@@ -43,6 +43,7 @@ const LEGACY_SYNC_KEYS = [
   'schemaVersion',
   'bookmarks',
   'folders',
+  'widgets',
   'recycleBin',
   'trash',
   'settings'
@@ -318,6 +319,7 @@ async function readLocalData() {
     result.schemaVersion === undefined &&
     result.bookmarks === undefined &&
     result.folders === undefined &&
+    result.widgets === undefined &&
     result.recycleBin === undefined &&
     result.trash === undefined &&
     result.settings === undefined
@@ -329,6 +331,7 @@ async function readLocalData() {
     schemaVersion: result.schemaVersion,
     bookmarks: result.bookmarks,
     folders: result.folders,
+    widgets: result.widgets,
     recycleBin: result.recycleBin,
     trash: result.trash,
     settings: result.settings
@@ -355,6 +358,7 @@ async function readSyncData() {
       header.schemaVersion === undefined &&
       header.bookmarks === undefined &&
       header.folders === undefined &&
+      header.widgets === undefined &&
       header.recycleBin === undefined &&
       header.trash === undefined &&
       header.settings === undefined
@@ -366,6 +370,7 @@ async function readSyncData() {
       schemaVersion: header.schemaVersion,
       bookmarks: header.bookmarks,
       folders: header.folders,
+      widgets: header.widgets,
       recycleBin: header.recycleBin,
       trash: header.trash,
       settings: header.settings
@@ -823,6 +828,7 @@ export const storage = {
 
     const isComplete = data.bookmarks !== undefined
       && data.folders !== undefined
+      && data.widgets !== undefined
       && data.settings !== undefined;
     const nextData = isComplete
       ? normalizePersistedData(data)
@@ -935,8 +941,19 @@ export const storage = {
 
 /** Two tabs can reserve the same free cell before either one saves. */
 function placeConcurrentAdditions(base, latest, data) {
-  const previousIds = new Set([...base.bookmarks, ...base.folders, ...latest.bookmarks, ...latest.folders].map(item => item.id));
-  const items = [...data.folders, ...data.bookmarks.filter(bookmark => !bookmark.folderId)];
+  const previousIds = new Set([
+    ...base.bookmarks,
+    ...base.folders,
+    ...base.widgets,
+    ...latest.bookmarks,
+    ...latest.folders,
+    ...latest.widgets
+  ].map(item => item.id));
+  const items = [
+    ...data.folders,
+    ...data.widgets,
+    ...data.bookmarks.filter(bookmark => !bookmark.folderId)
+  ];
   const occupied = [
     ...(data.settings.showRecycleBin ? [data.recycleBin] : []),
     ...items.filter(item => previousIds.has(item.id))
@@ -982,7 +999,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   const isApplicationChange = activeMode === STORAGE_MODES.LOCAL
     ? changedKeys.some(key => (
         key === 'schemaVersion' || key === 'bookmarks' || key === 'settings'
-        || key === 'folders' || key === 'recycleBin' || key === 'trash'
+        || key === 'folders' || key === 'widgets' || key === 'recycleBin' || key === 'trash'
       ))
     : changes[SYNC_META_KEY] !== undefined
       || hasLegacySyncWrite

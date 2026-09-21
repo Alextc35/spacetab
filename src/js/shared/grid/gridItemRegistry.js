@@ -58,6 +58,10 @@ export function createGridItemRegistry() {
 
     types() {
       return [...definitions.keys()];
+    },
+
+    selectors() {
+      return [...definitions.values()].map(definition => definition.selector);
     }
   });
 }

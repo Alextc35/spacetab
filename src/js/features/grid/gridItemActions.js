@@ -10,6 +10,56 @@ import { clearBookmarkHistory, getState, setState } from '../../core/store.js';
 import { getGridItemsInGroup } from './gridSelectors.js';
 import { getWorkspaces } from '../workspaces/workspaceSelectors.js';
 
+/**
+ * Updates grid rectangles across every persisted grid-item collection in one
+ * state transition, keeping a mixed smart-drag operation atomic and undoable.
+ *
+ * @param {Map<string, Partial<Pick<GridItem, 'gx'|'gy'|'w'|'h'>>>} updates
+ * @returns {Array<GridItem>}
+ */
+export function updateGridItemsByIds(updates) {
+  if (!(updates instanceof Map) || !updates.size) return [];
+
+  const { data } = getState();
+  const changed = [];
+  const now = Date.now();
+  const updateItem = item => {
+    const patch = updates.get(item.id);
+    if (!patch) return item;
+
+    const rectangle = {
+      gx: patch.gx ?? item.gx,
+      gy: patch.gy ?? item.gy,
+      w: patch.w ?? item.w,
+      h: patch.h ?? item.h
+    };
+    if (
+      !Number.isInteger(rectangle.gx) || rectangle.gx < 0
+      || !Number.isInteger(rectangle.gy) || rectangle.gy < 0
+      || !Number.isInteger(rectangle.w) || rectangle.w < 1
+      || !Number.isInteger(rectangle.h) || rectangle.h < 1
+    ) return item;
+
+    if (
+      rectangle.gx === item.gx
+      && rectangle.gy === item.gy
+      && rectangle.w === item.w
+      && rectangle.h === item.h
+    ) return item;
+
+    const updated = { ...item, ...rectangle, updatedAt: now };
+    changed.push(updated);
+    return updated;
+  };
+
+  const bookmarks = data.bookmarks.map(updateItem);
+  const folders = data.folders.map(updateItem);
+  const widgets = (data.widgets ?? []).map(updateItem);
+  const recycleBin = updateItem(data.recycleBin);
+  if (changed.length) setState({ data: { bookmarks, folders, widgets, recycleBin } });
+  return changed;
+}
+
 /** Applies the appropriate default appearance to bookmarks and folders atomically. */
 export function applyDefaultStylesToGridItems(selectedItems, bookmarkPreset) {
   const { bookmarkIds, folderIds } = selectedSets(selectedItems);

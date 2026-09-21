@@ -1,12 +1,13 @@
 import '../../types/types.js'; // typedefs
 import {
-  addBookmarkToFolder,
-  updateGridItemsByIds
+  addBookmarkToFolder
 } from '../../features/folders/folderActions.js';
+import { updateGridItemsByIds } from '../../features/grid/gridItemActions.js';
 import { getGridItemsInGroup } from '../../features/grid/gridSelectors.js';
 import { GRID_COLS, GRID_ROWS, PADDING } from '../../shared/grid/gridGeometry.js';
 import { FOLDER_GRID_CAPACITY } from '../../domain/folders/folderGrid.js';
 import { isAreaFree } from '../../shared/grid/gridPlacement.js';
+import { gridItemRegistry } from '../../shared/grid/gridItemRegistry.js';
 import { getState } from '../../core/store.js';
 import {
   BOOKMARK_RESIZE_MODES,
@@ -40,22 +41,26 @@ export function cancelGridGesture() {
 }
 
 /**
- * Enables drag and resize behavior for a bookmark or folder element.
+ * Enables drag and resize behavior for a persisted grid item.
  *
  * Handles:
  * - Reversible smart dragging with automatic bookmark displacement.
  * - Continuous or one-click resizing from all four sides and corners.
- * - Short-click selection for bookmarks and folders.
+ * - Optional short-click selection for bookmarks and folders.
  * - State persistence via store updates.
  *
  * @param {HTMLElement} container - Grid container element.
  * @param {HTMLElement} div - Grid item DOM element.
- * @param {Bookmark|BookmarkFolder} item - Grid item data object.
+ * @param {GridItem} item - Grid item data object.
  * @param {Object} [options]
- * @param {'bookmark'|'folder'|'recycle-bin'} [options.kind='bookmark']
+ * @param {'bookmark'|'folder'|'recycle-bin'|'widget'} [options.kind='bookmark']
+ * @param {boolean} [options.selectable] Defaults to false for widgets.
  * @returns {void}
  */
-export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {}) {
+export function addDragAndResize(container, div, item, {
+  kind = 'bookmark',
+  selectable = kind !== 'widget'
+} = {}) {
   let startX = 0, startY = 0;
   let startLeft = 0, startTop = 0;
 
@@ -187,6 +192,7 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
 
     const isSelectionClick = commit
       && kind !== 'recycle-bin'
+      && selectable
       && !moved
       && event
       && event.timeStamp - pressStartedAt <= SELECTION_CLICK_MAX_DURATION;
@@ -317,7 +323,8 @@ export function addDragAndResize(container, div, item, { kind = 'bookmark' } = {
 }
 
 function createSmartDragSession(container, item, kind) {
-  const { data } = getState();
+  const state = getState();
+  const { data } = state;
   const groupId = item.groupId ?? null;
   const items = getGridItemsInGroup(data, groupId);
   const bookmarkIds = new Set(data.bookmarks
@@ -327,18 +334,19 @@ function createSmartDragSession(container, item, kind) {
     .filter(gridItem => {
       if (kind === 'recycle-bin') return true;
       if (gridItem.id === data.recycleBin?.id) return false;
-      return kind === 'folder' || bookmarkIds.has(gridItem.id);
+      return kind === 'folder' || kind === 'widget' || bookmarkIds.has(gridItem.id);
     })
     .map(gridItem => gridItem.id);
   const movable = new Set(movableIds);
   const originals = new Map(items
     .filter(item => movable.has(item.id))
     .map(item => [item.id, pickGridPosition(item)]));
-  const elements = new Map(Array.from(
-    container.querySelectorAll(
-      '.bookmark[data-bookmark-id], .bookmark-folder[data-folder-id], .recycle-bin[data-recycle-bin-id]'
-    )
-  ).map(element => [getGridItemId(element), element]));
+  const selector = gridItemRegistry.selectors().join(', ');
+  const elements = new Map((selector
+    ? Array.from(container.querySelectorAll(selector))
+    : [])
+    .map(element => [gridItemRegistry.resolveElement(element, state)?.item.id, element])
+    .filter(([id]) => id));
   const inheritedTouchedIds = new Set(Array.from(elements)
     .filter(([, element]) => element.classList.contains('is-smart-moving'))
     .map(([id]) => id));
@@ -354,7 +362,7 @@ function createSmartDragSession(container, item, kind) {
       .filter(element => element.matches('.bookmark-folder[data-folder-id]'))
       .map(element => ({ element, rect: element.getBoundingClientRect() }))
     : [];
-  const recycleBinTargets = kind !== 'recycle-bin'
+  const recycleBinTargets = ['bookmark', 'folder'].includes(kind)
     ? Array.from(elements.values())
       .filter(element => element.matches('.recycle-bin[data-recycle-bin-id]'))
       .map(element => ({ element, rect: element.getBoundingClientRect() }))
@@ -483,12 +491,6 @@ function applyPreviewPosition(container, session, id, element, position) {
     session.gridMetrics
   );
   session.previewPositions.set(id, { gx: position.gx, gy: position.gy });
-}
-
-function getGridItemId(element) {
-  return element.dataset.bookmarkId
-    ?? element.dataset.folderId
-    ?? element.dataset.recycleBinId;
 }
 
 function suppressFolderOpen(element) {

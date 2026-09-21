@@ -1,6 +1,4 @@
-import {
-  updateGridItemsByIds
-} from '../../features/folders/folderActions.js';
+import { updateGridItemsByIds } from '../../features/grid/gridItemActions.js';
 import { getGridItemsInGroup } from '../../features/grid/gridSelectors.js';
 import {
   GRID_COLS,

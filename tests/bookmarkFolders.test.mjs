@@ -40,9 +40,9 @@ const {
   removeBookmarkFromFolder,
   renameBookmarkFolder,
   updateBookmarkFolder,
-  updateFolderBookmarkPositions,
-  updateGridItemsByIds
+  updateFolderBookmarkPositions
 } = await import('../src/js/features/folders/folderActions.js');
+const { updateGridItemsByIds } = await import('../src/js/features/grid/gridItemActions.js');
 const {
   createFolderBookmarkLayout,
   FOLDER_GRID_CAPACITY

@@ -115,6 +115,11 @@ const LOCAL_DATA = {
     id: 'local', name: 'Local bookmark', url: 'https://local.test', folderId: 'saved'
   }],
   folders: [{ id: 'saved', name: 'Saved', gx: 0, gy: 0, w: 1, h: 1 }],
+  widgets: [{
+    id: 'clock', type: 'clock', version: 1,
+    gx: 2, gy: 0, w: 2, h: 1, groupId: null,
+    config: { timezone: 'UTC' }, createdAt: 10, updatedAt: 10
+  }],
   settings: SETTINGS
 };
 
@@ -249,6 +254,8 @@ test('migrates local data to an empty synchronized area', async () => {
   assert.equal(stored.bookmarks[0].name, 'Local bookmark');
   assert.equal(stored.bookmarks[0].folderId, 'saved');
   assert.equal(stored.folders[0].name, 'Saved');
+  assert.equal(stored.widgets[0].type, 'clock');
+  assert.equal(stored.widgets[0].config.timezone, 'UTC');
   assert.deepEqual(stored.settings.keyboardShortcuts, SETTINGS.keyboardShortcuts);
   assert.deepEqual(stored.settings.bookmarkDefault, {
     backgroundImageUrl: null,

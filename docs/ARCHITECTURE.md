@@ -12,10 +12,10 @@ move only when a tested boundary exists for them.
 newtab.html -> main.js -> app (composition)
                            |
                            v
-                     features --------> domain
-                        |                  |
-                        v                  v
-                      shared <--------- platform adapters
+               features / bundled widgets ---> domain
+                        |                         |
+                        v                         v
+                      shared <------------- platform adapters
                         |
                         v
                  browser DOM / Chrome APIs
@@ -34,6 +34,8 @@ The intended responsibilities are:
   images and i18n loading. Domain code must not import it.
 - `shared/`: proven cross-feature mechanisms. It must stay small; feature rules
   do not move here merely because several files call them.
+- `widgets/`: statically bundled grid-item types, their common persisted
+  envelope and lifecycle commands. It is not a remote plugin loader.
 
 During migration, `core/` contains a mixture of domain and platform code and
 `ui/` contains shared UI plus feature UI. New dependencies should follow the
@@ -42,7 +44,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 5 establish the first domain, feature and platform seams:
+Phases 1 through 6 establish the first domain, feature, platform and widget seams:
 
 ```text
 src/js/
@@ -95,15 +97,19 @@ src/js/
 │   │   └── storageFacade.js
 │   └── sync/
 │       └── syncTransport.js
-└── shared/
-    ├── data/
-    │   └── mergeChanges.js
-    ├── grid/
-    │   ├── gridGeometry.js
-    │   ├── gridItemRegistry.js
-    │   └── gridPlacement.js
-    └── images/
-        └── backgroundImage.js
+├── shared/
+│   ├── data/
+│   │   └── mergeChanges.js
+│   ├── grid/
+│   │   ├── gridGeometry.js
+│   │   ├── gridItemRegistry.js
+│   │   └── gridPlacement.js
+│   └── images/
+│       └── backgroundImage.js
+└── widgets/
+    ├── widgetActions.js
+    ├── widgetModel.js
+    └── widgetRegistry.js
 ```
 
 The recycle-bin slice now has an explicit split. Pure entry creation,
@@ -213,15 +219,27 @@ persistence queue. It depends on the facade, but does not know Chrome keys,
 callbacks, quotas, chunks or sync wire format. The facade owns local/sync mode,
 compatibility fallback and Chrome change events. The sync module is pure: it
 encodes and decodes the existing versioned chunk format and can be tested
-without browser globals. Schema version 16 and all stored/imported migrations
-live together under `platform/storage`; moving them did not change the schema
-or stored representation. Visual components continue to call feature actions
-rather than the storage facade directly.
+without browser globals. Schema version 17 adds the generic `widgets`
+collection; all stored/imported migrations remain together under
+`platform/storage`. Visual components continue to call feature actions rather
+than the storage facade directly.
 
-## Adding a bundled item or widget
+## Bundled-widget API
 
-A new bundled type should provide its model and one grid-item definition. For a
-clock, the intended shape is:
+`WidgetInstance` is the common persisted envelope: grid identity and geometry,
+a stable bundled `type`, a per-widget `version`, timestamps and an opaque
+`config` object. The schema preserves valid unknown types so data is not lost
+when a bundled implementation is temporarily unavailable. Widgets participate
+in backup, local/sync storage, concurrent merge, grid collision, undo/redo and
+the normal render subscription without adding widget branches to the store.
+
+`widgets/widgetRegistry.js` adapts a widget to `GridItem`: it selects instances
+of the registered type in the active workspace and owns the common DOM identity
+attributes. A definition supplies only a stable `type`, `render()` and optional
+`enableEditing()`. Registration is synchronous local-module composition and is
+compatible with Manifest V3 CSP; no code is downloaded or evaluated.
+
+For a clock, the intended shape is:
 
 ```text
 widgets/builtin/clock/
@@ -231,11 +249,14 @@ widgets/builtin/clock/
 └── clock.css
 ```
 
-Then the composition root registers `clockGridItem`. The generic grid renderer,
-store, modal manager and HTML shell should not change. A widget that needs
-persistence first requires a versioned schema addition and a feature action;
-the registry itself is deliberately not a persistence or plugin-loading API.
-Remote executable plugins are out of scope.
+Its bundled entry point calls `registerWidget(clockWidget)`. Creation, config
+updates and permanent removal use `widgetActions`; a widget may opt into the
+shared drag/resize controller with `kind: 'widget'`. The generic grid renderer,
+store, storage facade, modal manager and HTML shell do not change. The widget
+still owns its config normalization, UI entry point, settings surface and any
+explicit recycle-bin policy. No example clock is bundled yet: the phase adds
+only infrastructure exercised by contract tests. Remote executable plugins
+remain out of scope.
 
 ## Incremental roadmap
 
@@ -249,8 +270,8 @@ Remote executable plugins are out of scope.
    `bookmarkGroups` data in the same step.
 5. ✅ Split store state/history from Chrome persistence, sync transport and
    schema migration.
-6. Add a minimal bundled-widget API only when the first real widget supplies
-   concrete requirements beyond the GridItem definition.
+6. ✅ Add the minimal bundled-widget API and versioned generic widget envelope,
+   without shipping a visible widget or changing current UX.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.

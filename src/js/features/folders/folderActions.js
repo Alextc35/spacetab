@@ -76,56 +76,6 @@ export function renameBookmarkFolder(folderId, name) {
   return renamed;
 }
 
-/**
- * Updates bookmark and folder grid rectangles in one state transition.
- * Keeping both collections in the same write makes smart mixed-item drags
- * atomic and therefore produces a single undo step.
- *
- * @param {Map<string, Partial<Pick<Bookmark, 'gx'|'gy'|'w'|'h'>>>} updates
- * @returns {Array<Bookmark|BookmarkFolder>}
- */
-export function updateGridItemsByIds(updates) {
-  if (!(updates instanceof Map) || !updates.size) return [];
-
-  const { data } = getState();
-  const changed = [];
-  const now = Date.now();
-  const updateItem = item => {
-    const patch = updates.get(item.id);
-    if (!patch) return item;
-
-    const rectangle = {
-      gx: patch.gx ?? item.gx,
-      gy: patch.gy ?? item.gy,
-      w: patch.w ?? item.w,
-      h: patch.h ?? item.h
-    };
-    if (
-      !Number.isInteger(rectangle.gx) || rectangle.gx < 0
-      || !Number.isInteger(rectangle.gy) || rectangle.gy < 0
-      || !Number.isInteger(rectangle.w) || rectangle.w < 1
-      || !Number.isInteger(rectangle.h) || rectangle.h < 1
-    ) return item;
-
-    if (
-      rectangle.gx === item.gx
-      && rectangle.gy === item.gy
-      && rectangle.w === item.w
-      && rectangle.h === item.h
-    ) return item;
-
-    const updated = { ...item, ...rectangle, updatedAt: now };
-    changed.push(updated);
-    return updated;
-  };
-
-  const bookmarks = data.bookmarks.map(updateItem);
-  const folders = data.folders.map(updateItem);
-  const recycleBin = updateItem(data.recycleBin);
-  if (changed.length) setState({ data: { bookmarks, folders, recycleBin } });
-  return changed;
-}
-
 /** Updates the editable identity and appearance of one folder. */
 export function updateBookmarkFolder(folderId, draft) {
   const validation = validateFolderDraft(draft);

@@ -196,6 +196,9 @@ src/js/platform/images/            local image cache and browser processing
 src/js/platform/storage/           schema, Chrome persistence and device data
 src/js/platform/sync/              versioned, quota-safe sync transport
 src/js/shared/data/mergeChanges.js concurrent persisted-data reconciliation
+src/js/widgets/widgetModel.js      generic persisted widget envelope
+src/js/widgets/widgetRegistry.js   bundled-widget to GridItem adapter
+src/js/widgets/widgetActions.js    generic widget lifecycle commands
 
 src/js/ui/bookmark/panel.js        reusable create/edit/preset panel
 src/js/ui/bookmark/dragResize.js   shared pointer drag and resize controller

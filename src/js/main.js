@@ -173,6 +173,9 @@ function handleStateChange(state, prev) {
   const foldersChanged =
     state.data.folders !== prev.data.folders;
 
+  const widgetsChanged =
+    state.data.widgets !== prev.data.widgets;
+
   const recycleBinChanged =
     state.data.recycleBin !== prev.data.recycleBin
     || state.data.trash !== prev.data.trash;
@@ -190,8 +193,12 @@ function handleStateChange(state, prev) {
     syncKeyboardShortcutAccessibility(state.data.settings.keyboardShortcuts);
   }
 
-  if (settingsChanged || bookmarksChanged || foldersChanged || recycleBinChanged) {
-    const trace = debug.start('Render grid', { bookmarks: state.data.bookmarks.length, folders: state.data.folders.length });
+  if (settingsChanged || bookmarksChanged || foldersChanged || widgetsChanged || recycleBinChanged) {
+    const trace = debug.start('Render grid', {
+      bookmarks: state.data.bookmarks.length,
+      folders: state.data.folders.length,
+      widgets: state.data.widgets.length
+    });
     void preloadLocalImages(state.data).then(() => {
       trace.mark('Resolve local images');
       if (settingsChanged) applyGlobalTheme(state.data.settings);

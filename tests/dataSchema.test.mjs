@@ -194,6 +194,30 @@ test('creates and parses a versioned complete backup', () => {
   assert.deepEqual(restored, data);
 });
 
+test('migrates and backs up the generic bundled-widget envelope', () => {
+  const data = migratePersistedData({
+    bookmarks: [],
+    widgets: [{
+      id: 'clock', type: 'clock', version: 2,
+      gx: 11, gy: 5, w: 3, h: 2,
+      groupId: 'work', config: { timezone: 'UTC' },
+      createdAt: 10, updatedAt: 20
+    }],
+    settings: {
+      ...DEFAULT_SETTINGS,
+      bookmarkGroups: [{ id: 'work', name: 'Work' }]
+    }
+  });
+
+  assert.deepEqual(data.widgets[0], {
+    id: 'clock', type: 'clock', version: 2,
+    gx: 9, gy: 4, w: 3, h: 2,
+    groupId: 'work', config: { timezone: 'UTC' },
+    createdAt: 10, updatedAt: 20
+  });
+  assert.deepEqual(parseBackupPayload(createBackupEnvelope(data)), data);
+});
+
 test('keeps compatibility with the old bookmarks-only export', () => {
   const current = migratePersistedData({ bookmarks: [], settings: DEFAULT_SETTINGS });
   const restored = parseBackupPayload([

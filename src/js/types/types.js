@@ -13,6 +13,19 @@
  */
 
 /**
+ * Common persisted envelope for a statically bundled widget. Its `config`
+ * object is private to the widget implementation identified by `type`.
+ *
+ * @typedef {GridItem & {
+ *   type: string,
+ *   version: number,
+ *   config: Object,
+ *   createdAt: number,
+ *   updatedAt: number
+ * }} WidgetInstance
+ */
+
+/**
  * @typedef {Object} Bookmark
  * @property {string} id
  * @property {string} name
@@ -158,6 +171,7 @@
  * @property {number} schemaVersion
  * @property {Bookmark[]} bookmarks
  * @property {BookmarkFolder[]} folders
+ * @property {WidgetInstance[]} widgets
  * @property {RecycleBin} recycleBin
  * @property {Array<BookmarkTrashEntry|FolderTrashEntry>} trash
  * @property {Settings} settings
@@ -181,7 +195,7 @@
  */
 
 /**
- * @typedef {Pick<AppState['data'], 'schemaVersion' | 'bookmarks' | 'folders' | 'recycleBin' | 'trash' | 'settings'>} PersistedData
+ * @typedef {Pick<AppState['data'], 'schemaVersion' | 'bookmarks' | 'folders' | 'widgets' | 'recycleBin' | 'trash' | 'settings'>} PersistedData
  */
 
 /**

@@ -33,9 +33,9 @@ let unsubscribeFromStorage = null;
 let persistenceQueue = Promise.resolve();
 
 const HISTORY_LIMIT = 50;
-/** @type {Array<Pick<DataState, 'bookmarks'|'folders'|'recycleBin'|'trash'>>} */
+/** @type {Array<Pick<DataState, 'bookmarks'|'folders'|'widgets'|'recycleBin'|'trash'>>} */
 const undoStack = [];
-/** @type {Array<Pick<DataState, 'bookmarks'|'folders'|'recycleBin'|'trash'>>} */
+/** @type {Array<Pick<DataState, 'bookmarks'|'folders'|'widgets'|'recycleBin'|'trash'>>} */
 const redoStack = [];
 
 /**
@@ -79,6 +79,9 @@ export async function setState(partial, { recordHistory = true, debugTrace } = {
     partial.data?.folders !== undefined
     && partial.data.folders !== state.data.folders
   ) || (
+    partial.data?.widgets !== undefined
+    && partial.data.widgets !== state.data.widgets
+  ) || (
     partial.data?.recycleBin !== undefined
     && partial.data.recycleBin !== state.data.recycleBin
   ) || (
@@ -90,6 +93,7 @@ export async function setState(partial, { recordHistory = true, debugTrace } = {
     undoStack.push(structuredClone({
       bookmarks: state.data.bookmarks,
       folders: state.data.folders,
+      widgets: state.data.widgets,
       recycleBin: state.data.recycleBin,
       trash: state.data.trash
     }));
@@ -116,11 +120,14 @@ export async function setState(partial, { recordHistory = true, debugTrace } = {
     bookmarksBefore: prevState.data.bookmarks.length,
     bookmarksAfter: state.data.bookmarks.length,
     foldersBefore: prevState.data.folders.length,
-    foldersAfter: state.data.folders.length
+    foldersAfter: state.data.folders.length,
+    widgetsBefore: prevState.data.widgets.length,
+    widgetsAfter: state.data.widgets.length
   } : {};
   const shouldPersist = !isHydrating && (
     state.data.bookmarks !== prevState.data.bookmarks ||
     state.data.folders !== prevState.data.folders ||
+    state.data.widgets !== prevState.data.widgets ||
     state.data.recycleBin !== prevState.data.recycleBin ||
     state.data.trash !== prevState.data.trash ||
     state.data.settings !== prevState.data.settings
@@ -197,6 +204,7 @@ export async function undoBookmarks() {
   redoStack.push(structuredClone({
     bookmarks: state.data.bookmarks,
     folders: state.data.folders,
+    widgets: state.data.widgets,
     recycleBin: state.data.recycleBin,
     trash: state.data.trash
   }));
@@ -212,6 +220,7 @@ export async function redoBookmarks() {
   undoStack.push(structuredClone({
     bookmarks: state.data.bookmarks,
     folders: state.data.folders,
+    widgets: state.data.widgets,
     recycleBin: state.data.recycleBin,
     trash: state.data.trash
   }));
@@ -296,6 +305,7 @@ export async function clearAllData() {
   const data = structuredClone(DEFAULT_STATE.data);
   data.bookmarks = [];
   data.folders = [];
+  data.widgets = [];
 
   await setState({ data }, { recordHistory: false });
   if (state.ui.persistence.status === 'error') {

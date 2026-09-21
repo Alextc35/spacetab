@@ -112,6 +112,7 @@ export const DEFAULT_STATE = {
     schemaVersion: DATA_SCHEMA_VERSION,
     bookmarks: structuredClone(DEFAULT_BOOKMARKS),
     folders: [],
+    widgets: [],
     recycleBin: structuredClone(DEFAULT_RECYCLE_BIN),
     trash: [],
     settings: structuredClone(DEFAULT_SETTINGS)

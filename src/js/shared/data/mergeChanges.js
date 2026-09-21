@@ -1,6 +1,7 @@
 const RECORD_COLLECTIONS = new Set([
   'bookmarks',
   'folders',
+  'widgets',
   'trash',
   'bookmarkGroups',
   'bookmarkPresets'
