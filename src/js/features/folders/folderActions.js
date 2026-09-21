@@ -16,6 +16,7 @@ import {
 import { getState, setState } from '../../core/store.js';
 import { moveFolderToRecycleBin } from '../recycle-bin/recycleBinActions.js';
 import { getGridItemsInGroup } from '../grid/gridSelectors.js';
+import { getActiveWorkspaceId } from '../workspaces/workspaceSelectors.js';
 
 export { BOOKMARK_FOLDER_NAME_MAX_LENGTH };
 
@@ -33,7 +34,7 @@ export function createBookmarkFolder(name, { columns, rows } = {}, appearance = 
   if (!normalizedName) return null;
 
   const { data } = getState();
-  const groupId = data.settings.activeBookmarkGroupId ?? null;
+  const groupId = getActiveWorkspaceId(data);
   const position = findFirstFreeSlot(getGridItemsInGroup(data, groupId), {
     columns,
     rows

@@ -5,6 +5,7 @@ import { isGridKeyboardActive } from '../../ui/bookmark/gridKeyboardNavigation.j
 import { createListItem } from '../../ui/bookmark/listView.js';
 import { isBookmarkSelected } from '../../ui/bookmark/selection.js';
 import { applyGridItemPosition } from '../../ui/gridItemLayout.js';
+import { getActiveWorkspaceId } from '../workspaces/workspaceSelectors.js';
 
 export const bookmarkGridItem = Object.freeze({
   type: 'bookmark',
@@ -13,7 +14,7 @@ export const bookmarkGridItem = Object.freeze({
   getElementId: element => element.dataset.bookmarkId,
   select: state => state.data.bookmarks
     .filter(bookmark => !bookmark.folderId
-      && (bookmark.groupId ?? null) === state.data.settings.activeBookmarkGroupId),
+      && (bookmark.groupId ?? null) === getActiveWorkspaceId(state.data)),
   render({ view, container, item, state }) {
     if (view === 'list') {
       return createListItem(item, {

@@ -162,34 +162,40 @@ and resets to the configured default on reload.
 
 ## Architecture
 
-SpaceTab uses vanilla JavaScript modules with a small dependency direction:
+SpaceTab uses vanilla JavaScript modules with explicit incremental boundaries:
 
 ```text
-Core domain and versioned schema
-              ↓
-Store and browser persistence
-              ↓
-Use-case/modal controllers
-              ↓
-Reusable UI components and renderers
+Application composition
+        ↓
+Feature actions and adapters → Pure domain models
+        ↓                         ↓
+Transitional store/schema → Platform and shared mechanisms
+        ↓
+UI controllers and reusable views
 ```
 
 Important modules:
 
 ```text
-src/js/core/bookmarkModel.js       drafts, presets, normalization, validation
-src/js/core/bookmarkFolders.js     folder membership and placement commands
-src/js/core/folderGrid.js          fixed 3 × 6 internal folder layout
+src/js/app/registerGridItemTypes.js       bundled grid-item composition
+src/js/domain/bookmarks/                  bookmark model and defaults
+src/js/domain/folders/                    folder model and internal layout
+src/js/domain/recycle-bin/                pure trash and restoration rules
+src/js/domain/workspaces/workspaceModel.js workspace identity and navigation
+
+src/js/features/bookmarks/bookmarkActions.js bookmark commands
+src/js/features/folders/folderActions.js     folder membership and commands
+src/js/features/grid/                        item registry consumers and actions
+src/js/features/recycle-bin/                 recycle-bin actions and UI
+src/js/features/workspaces/                  workspace actions and selectors
+
 src/js/core/bookmarkDragModes.js   drag-mode constants and normalization
 src/js/core/browserCapabilities.js tested sync-browser detection
 src/js/core/dataSchema.js          migrations and import/export envelopes
-src/js/core/bookmark.js            bookmark commands and batch operations
-src/js/core/bookmarkGroups.js      workspace commands
 src/js/core/store.js               state, persistence status and undo/redo
 src/js/core/storage.js             local/sync storage and quota-safe chunking
 
 src/js/ui/bookmark/panel.js        reusable create/edit/preset panel
-src/js/ui/bookmark/renderer.js     bookmark and folder grid rendering
 src/js/ui/bookmark/dragResize.js   shared pointer drag and resize controller
 src/js/ui/bookmark/smartDragLayout.js pure collision and displacement planner
 src/js/ui/bookmark/gridKeyboardNavigation.js Tab-based grid focus and actions

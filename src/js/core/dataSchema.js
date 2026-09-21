@@ -16,6 +16,10 @@ import { normalizeFolderStyle } from '../domain/folders/folderModel.js';
 import { normalizeBackgroundImage } from '../shared/images/backgroundImage.js';
 import { normalizeInterfaceTheme, normalizeLanguagePreference } from './interfacePreferences.js';
 import { normalizeRecycleBinStyle } from '../domain/recycle-bin/recycleBinModel.js';
+import {
+  normalizeWorkspaces,
+  resolveWorkspaceId
+} from '../domain/workspaces/workspaceModel.js';
 
 /**
  * Upgrades and normalizes application data from every supported SpaceTab
@@ -50,18 +54,19 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
     : {};
   const now = Date.now();
 
-  const bookmarkGroups = normalizeBookmarkGroups(rawSettings.bookmarkGroups);
-  const bookmarkGroupIds = new Set(bookmarkGroups.map(group => group.id));
-  const activeBookmarkGroupId = bookmarkGroups.some(
-    group => group.id === rawSettings.activeBookmarkGroupId
-  ) ? rawSettings.activeBookmarkGroupId : null;
+  const workspaces = normalizeWorkspaces(rawSettings.bookmarkGroups);
+  const workspaceIds = new Set(workspaces.map(workspace => workspace.id));
+  const activeWorkspaceId = resolveWorkspaceId(
+    workspaces,
+    rawSettings.activeBookmarkGroupId
+  );
 
   const folders = rawFolders
     .filter(folder => folder && typeof folder === 'object')
     .map((folder, index) => normalizeBookmarkFolder(folder, {
       index,
       now,
-      bookmarkGroupIds
+      workspaceIds
     }));
   const folderById = new Map(folders.map(folder => [folder.id, folder]));
   const bookmarks = rawBookmarks
@@ -72,7 +77,7 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
         touchUpdatedAt: false,
         idFactory: () => `migrated-${now}-${index}`
       });
-      normalized.groupId = bookmarkGroupIds.has(normalized.groupId)
+      normalized.groupId = workspaceIds.has(normalized.groupId)
         ? normalized.groupId
         : null;
       const folder = folderById.get(normalized.folderId);
@@ -91,7 +96,7 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
     recycleBin,
     trash: normalizeTrashEntries(source.trash, {
       now,
-      bookmarkGroupIds
+      workspaceIds
     }),
     settings: {
       ...structuredClone(DEFAULT_SETTINGS),
@@ -105,8 +110,8 @@ export function migratePersistedData(input, { useDefaultsWhenEmpty = true } = {}
       keyboardShortcuts: normalizeKeyboardShortcuts(rawSettings.keyboardShortcuts),
       showRecycleBin: rawSettings.showRecycleBin !== false,
       bookmarkPresets: normalizeNamedPresets(rawSettings.bookmarkPresets),
-      bookmarkGroups,
-      activeBookmarkGroupId
+      bookmarkGroups: workspaces,
+      activeBookmarkGroupId: activeWorkspaceId
     }
   };
 }
@@ -127,7 +132,7 @@ function normalizeRecycleBin(value) {
   };
 }
 
-function normalizeTrashEntries(value, { now, bookmarkGroupIds }) {
+function normalizeTrashEntries(value, { now, workspaceIds }) {
   if (!Array.isArray(value)) return [];
 
   return value.flatMap((entry, entryIndex) => {
@@ -143,7 +148,7 @@ function normalizeTrashEntries(value, { now, bookmarkGroupIds }) {
         touchUpdatedAt: false,
         idFactory: () => `trashed-bookmark-${now}-${entryIndex}`
       });
-      bookmark.groupId = bookmarkGroupIds.has(bookmark.groupId) ? bookmark.groupId : null;
+      bookmark.groupId = workspaceIds.has(bookmark.groupId) ? bookmark.groupId : null;
       return [{ id, type: 'bookmark', deletedAt, bookmark }];
     }
 
@@ -151,7 +156,7 @@ function normalizeTrashEntries(value, { now, bookmarkGroupIds }) {
       const folder = normalizeBookmarkFolder(entry.folder, {
         index: entryIndex,
         now,
-        bookmarkGroupIds
+        workspaceIds
       });
       const bookmarks = (Array.isArray(entry.bookmarks) ? entry.bookmarks : [])
         .filter(bookmark => bookmark && typeof bookmark === 'object')
@@ -190,8 +195,8 @@ function normalizeTheme(value) {
   return theme;
 }
 
-function normalizeBookmarkFolder(folder, { index, now, bookmarkGroupIds }) {
-  const groupId = bookmarkGroupIds.has(folder.groupId) ? folder.groupId : null;
+function normalizeBookmarkFolder(folder, { index, now, workspaceIds }) {
+  const groupId = workspaceIds.has(folder.groupId) ? folder.groupId : null;
 
   return {
     ...normalizeFolderStyle(folder),
@@ -236,21 +241,6 @@ function normalizeNamedPresets(value) {
         ? preset.name.trim()
         : `Preset ${index + 1}`,
       style: normalizeBookmarkPreset(preset.style ?? preset)
-    }));
-}
-
-function normalizeBookmarkGroups(value) {
-  if (!Array.isArray(value)) return [];
-
-  return value
-    .filter(group => group && typeof group === 'object')
-    .map((group, index) => ({
-      id: typeof group.id === 'string' && group.id.trim()
-        ? group.id
-        : `workspace-${index + 1}`,
-      name: typeof group.name === 'string' && group.name.trim()
-        ? group.name.trim()
-        : `Workspace ${index + 1}`
     }));
 }
 

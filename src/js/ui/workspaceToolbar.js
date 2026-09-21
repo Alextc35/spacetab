@@ -1,9 +1,16 @@
 import {
-  createBookmarkGroup,
-  deleteBookmarkGroup,
-  getAdjacentBookmarkGroupId,
-  setActiveBookmarkGroup
-} from '../core/bookmarkGroups.js';
+  createWorkspace,
+  deleteWorkspace,
+  setActiveWorkspace
+} from '../features/workspaces/workspaceActions.js';
+import {
+  getActiveWorkspaceId,
+  getAdjacentWorkspaceId,
+  getWorkspaceById,
+  getWorkspaceIds,
+  getWorkspaceItemCounts,
+  getWorkspaces
+} from '../features/workspaces/workspaceSelectors.js';
 import { getState, redoBookmarks, subscribe, undoBookmarks } from '../core/store.js';
 import { t } from '../core/i18n.js';
 import { flash, flashSuccess } from './flash.js';
@@ -33,9 +40,9 @@ export function initWorkspaceToolbar() {
   select.addEventListener('keydown', event => event.stopPropagation());
   select.addEventListener('change', async () => {
     const targetId = select.value || null;
-    const { bookmarkGroups, activeBookmarkGroupId } = getState().data.settings;
-    const ids = [null, ...bookmarkGroups.map(group => group.id)];
-    const direction = ids.indexOf(targetId) < ids.indexOf(activeBookmarkGroupId)
+    const { data } = getState();
+    const ids = getWorkspaceIds(data);
+    const direction = ids.indexOf(targetId) < ids.indexOf(getActiveWorkspaceId(data))
       ? -1
       : 1;
     await switchWorkspace(container, targetId, direction);
@@ -44,24 +51,26 @@ export function initWorkspaceToolbar() {
     const name = await showPrompt(t('workspace.prompt'), {
       placeholder: t('workspace.namePlaceholder')
     });
-    if (name && createBookmarkGroup(name)) {
+    if (name && createWorkspace(name)) {
       flashSuccess('flash.workspace.created');
     }
   });
   deleteButton.addEventListener('click', async () => {
     if (!select.value) return;
-    const { bookmarks, folders, settings } = getState().data;
-    const group = settings.bookmarkGroups.find(item => item.id === select.value);
-    if (!group) return;
+    const { data } = getState();
+    const workspace = getWorkspaceById(data, select.value);
+    if (!workspace) return;
 
-    const bookmarkCount = bookmarks.filter(bookmark => bookmark.groupId === group.id).length;
-    const folderCount = folders.filter(folder => folder.groupId === group.id).length;
+    const { bookmarks: bookmarkCount, folders: folderCount } = getWorkspaceItemCounts(
+      data,
+      workspace.id
+    );
     const confirmed = await showAlert(t('workspace.confirmDelete', {
-      name: group.name,
+      name: workspace.name,
       bookmarkCount,
       folderCount
     }), { type: 'confirm' });
-    if (confirmed && deleteBookmarkGroup(group.id)) {
+    if (confirmed && deleteWorkspace(workspace.id)) {
       flashSuccess('flash.workspace.deleted');
     }
   });
@@ -73,10 +82,10 @@ export function initWorkspaceToolbar() {
   });
 
   subscribe(state => {
-    const { bookmarkGroups, activeBookmarkGroupId } = state.data.settings;
-    const selected = activeBookmarkGroupId ?? '';
+    const workspaces = getWorkspaces(state.data);
+    const selected = getActiveWorkspaceId(state.data) ?? '';
     select.replaceChildren(...(selectButton ? [selectButton] : []), new Option(t('workspace.main'), ''));
-    for (const group of bookmarkGroups) select.add(new Option(group.name, group.id));
+    for (const workspace of workspaces) select.add(new Option(workspace.name, workspace.id));
     select.value = selected;
     select.title = select.selectedOptions[0]?.textContent ?? '';
     deleteButton.disabled = !selected;
@@ -97,9 +106,9 @@ export function initWorkspaceToolbar() {
     if (isSwitchingWorkspace || hasOpenModal() || isTypingTarget(event.target)) return;
 
     const direction = event.key === 'ArrowUp' ? -1 : 1;
-    const settings = getState().data.settings;
-    const targetId = getAdjacentBookmarkGroupId(settings, direction);
-    if (targetId === settings.activeBookmarkGroupId) return;
+    const { data } = getState();
+    const targetId = getAdjacentWorkspaceId(data, direction);
+    if (targetId === getActiveWorkspaceId(data)) return;
 
     event.preventDefault();
     void switchWorkspace(container, targetId, direction);
@@ -116,7 +125,7 @@ export function initWorkspaceToolbar() {
  */
 async function switchWorkspace(container, targetId, direction) {
   if (isSwitchingWorkspace) return false;
-  if (getState().data.settings.activeBookmarkGroupId === targetId) return false;
+  if (getActiveWorkspaceId(getState().data) === targetId) return false;
 
   isSwitchingWorkspace = true;
   clearBookmarkSelection();
@@ -139,7 +148,7 @@ async function switchWorkspace(container, targetId, direction) {
       await exitAnimation.finished;
     }
 
-    const changed = await setActiveBookmarkGroup(targetId);
+    const changed = await setActiveWorkspace(targetId);
     exitAnimation?.cancel();
     exitAnimation = null;
     if (!changed) return false;

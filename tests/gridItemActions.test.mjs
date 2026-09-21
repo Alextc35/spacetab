@@ -35,7 +35,7 @@ globalThis.chrome = {
 const {
   applyDefaultStylesToGridItems,
   duplicateGridItems,
-  moveGridItemsToGroup,
+  moveGridItemsToWorkspace,
   permanentlyDeleteGridItem
 } = await import('../src/js/features/grid/gridItemActions.js');
 const { moveGridItemsToRecycleBin } = await import(
@@ -161,7 +161,7 @@ test('moves a mixed selection with folder contents and deletes it atomically', a
     { kind: 'bookmark', id: 'top' },
     { kind: 'folder', id: 'folder' }
   ];
-  const moved = moveGridItemsToGroup(selected, 'work', { columns: 3, rows: 1 });
+  const moved = moveGridItemsToWorkspace(selected, 'work', { columns: 3, rows: 1 });
 
   assert.deepEqual(moved, { moved: 2, skipped: 0 });
   assert.equal(getState().data.bookmarks.find(item => item.id === 'top').groupId, 'work');

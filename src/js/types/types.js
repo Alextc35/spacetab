@@ -103,9 +103,15 @@
  * @property {boolean} theme.backgroundImageUrlLocked
  * @property {BookmarkPreset} bookmarkDefault
  * @property {Array<{id: string, name: string, style: BookmarkPreset}>} bookmarkPresets
- * @property {Array<{id: string, name: string}>} bookmarkGroups
+ * @property {Workspace[]} bookmarkGroups Legacy persisted field for workspaces.
  * @property {string|null} activeBookmarkGroupId
  * @property {boolean} showRecycleBin
+ */
+
+/**
+ * @typedef {Object} Workspace
+ * @property {string} id
+ * @property {string} name
  */
 
 /**

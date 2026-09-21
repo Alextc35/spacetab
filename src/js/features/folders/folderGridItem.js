@@ -2,6 +2,7 @@ import { isGridKeyboardActive } from '../../ui/bookmark/gridKeyboardNavigation.j
 import { createListItem } from '../../ui/bookmark/listView.js';
 import { createFolderElement, enableFolderEditing } from '../../ui/folder/renderer.js';
 import { openFolderModal } from '../../ui/modals/folderModal.js';
+import { getActiveWorkspaceId } from '../workspaces/workspaceSelectors.js';
 
 export const folderGridItem = Object.freeze({
   type: 'folder',
@@ -17,7 +18,7 @@ export const folderGridItem = Object.freeze({
       bookmarksByFolderId.set(bookmark.folderId, contents);
     }
     return state.data.folders
-      .filter(folder => (folder.groupId ?? null) === state.data.settings.activeBookmarkGroupId)
+      .filter(folder => (folder.groupId ?? null) === getActiveWorkspaceId(state.data))
       .map(item => ({ item, bookmarks: bookmarksByFolderId.get(item.id) ?? [] }));
   },
   render({ view, container, item, bookmarks, state }) {

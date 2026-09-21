@@ -1,5 +1,6 @@
 import { t } from '../../core/i18n.js';
 import { getState } from '../../core/store.js';
+import { getWorkspaces } from '../../features/workspaces/workspaceSelectors.js';
 import { closeModal, openModal, registerModal } from '../modalManager.js';
 
 let initialized = false;
@@ -36,8 +37,12 @@ export function openSearchModal() {
 
 function renderResults() {
   const query = input.value.trim().toLocaleLowerCase();
-  const { data: { bookmarks, folders, settings } } = getState();
-  const groups = new Map(settings.bookmarkGroups.map(group => [group.id, group.name]));
+  const { data } = getState();
+  const { bookmarks, folders } = data;
+  const workspaces = new Map(getWorkspaces(data).map(workspace => [
+    workspace.id,
+    workspace.name
+  ]));
   const folderNames = new Map(folders.map(folder => [folder.id, folder.name]));
   const matches = bookmarks
     .filter(bookmark => !query || `${bookmark.name} ${bookmark.url}`.toLocaleLowerCase().includes(query))
@@ -63,7 +68,7 @@ function renderResults() {
     const name = document.createElement('strong');
     name.textContent = bookmark.name;
     const detail = document.createElement('small');
-    const workspace = groups.get(bookmark.groupId) ?? t('workspace.main');
+    const workspace = workspaces.get(bookmark.groupId) ?? t('workspace.main');
     const folder = folderNames.get(bookmark.folderId);
     detail.textContent = [
       workspace,

@@ -7,6 +7,7 @@ import {
   findFirstFreeFolderCell
 } from '../folders/folderGrid.js';
 import { findFirstFreeSlot, isAreaFree } from '../../shared/grid/gridPlacement.js';
+import { resolveWorkspaceId } from '../workspaces/workspaceModel.js';
 
 export const RECYCLE_BIN_RETENTION_DAYS = 28;
 export const RECYCLE_BIN_RETENTION_MS = RECYCLE_BIN_RETENTION_DAYS * 24 * 60 * 60 * 1000;
@@ -165,7 +166,10 @@ export function findRecycleBinPlacement(data, recycleBin) {
 
 function restoreFolderEntry(entry, context) {
   const { data, bookmarks, folders, now, createId } = context;
-  const validGroupId = resolveGroupId(data.settings, entry.folder.groupId);
+  const validGroupId = resolveWorkspaceId(
+    data.settings.bookmarkGroups,
+    entry.folder.groupId
+  );
   const folderId = uniqueId(
     entry.folder.id,
     new Set(folders.map(folder => folder.id)),
@@ -231,7 +235,7 @@ function restoreBookmarkEntry(entry, context) {
     }
   }
 
-  const groupId = resolveGroupId(data.settings, original.groupId);
+  const groupId = resolveWorkspaceId(data.settings.bookmarkGroups, original.groupId);
   const candidate = { ...original, groupId, folderId: null };
   const position = findRestorePosition(candidate, occupiedGridItems(
     { ...data, bookmarks, folders },
@@ -270,10 +274,6 @@ function occupiedGridItems(data, groupId) {
     items.push(data.recycleBin);
   }
   return items;
-}
-
-function resolveGroupId(settings, groupId) {
-  return settings.bookmarkGroups.some(group => group.id === groupId) ? groupId : null;
 }
 
 function uniqueId(preferred, used, createId) {

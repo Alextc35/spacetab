@@ -1,9 +1,13 @@
 import {
   applyDefaultStylesToGridItems,
   duplicateGridItems,
-  moveGridItemsToGroup
+  moveGridItemsToWorkspace
 } from '../../features/grid/gridItemActions.js';
 import { moveGridItemsToRecycleBin } from '../../features/recycle-bin/recycleBinActions.js';
+import {
+  getActiveWorkspaceId,
+  getWorkspaces
+} from '../../features/workspaces/workspaceSelectors.js';
 import { subscribe } from '../../core/store.js';
 import { t } from '../../core/i18n.js';
 import { showAlert } from '../modals/alert.js';
@@ -63,7 +67,7 @@ export function initBulkBookmarkActions() {
   groupSelect.addEventListener('change', async () => {
     const items = getSelectedGridItems();
     if (!items.length) return;
-    const result = moveGridItemsToGroup(items, groupSelect.value || null, {
+    const result = moveGridItemsToWorkspace(items, groupSelect.value || null, {
       columns: getMaxVisibleCols(),
       rows: getMaxVisibleRows()
     });
@@ -83,10 +87,10 @@ export function initBulkBookmarkActions() {
       folderIds: state.data.folders.map(folder => folder.id)
     });
     groupSelect.replaceChildren(new Option(t('workspace.main'), ''));
-    for (const group of state.data.settings.bookmarkGroups) {
-      groupSelect.add(new Option(group.name, group.id));
+    for (const workspace of getWorkspaces(state.data)) {
+      groupSelect.add(new Option(workspace.name, workspace.id));
     }
-    groupSelect.value = state.data.settings.activeBookmarkGroupId ?? '';
+    groupSelect.value = getActiveWorkspaceId(state.data) ?? '';
   });
 
   subscribeToGridItemSelection(items => {

@@ -33,9 +33,13 @@ globalThis.chrome = {
 };
 
 const {
-  deleteBookmarkGroup,
-  getAdjacentBookmarkGroupId
-} = await import('../src/js/core/bookmarkGroups.js');
+  createWorkspace,
+  deleteWorkspace,
+  moveBookmarksToWorkspace,
+  setActiveWorkspace
+} = await import(
+  '../src/js/features/workspaces/workspaceActions.js'
+);
 const { getState, hydrateStore, setState } = await import('../src/js/core/store.js');
 
 test('deleting a workspace also deletes its bookmarks without moving them to Main', async () => {
@@ -58,30 +62,55 @@ test('deleting a workspace also deletes its bookmarks without moving them to Mai
     }
   });
 
-  assert.equal(deleteBookmarkGroup('temporary'), true);
+  assert.equal(deleteWorkspace('temporary'), true);
   assert.deepEqual(getState().data.bookmarks.map(bookmark => bookmark.id), ['main']);
   assert.deepEqual(getState().data.folders.map(folder => folder.id), ['main-folder']);
   assert.deepEqual(getState().data.settings.bookmarkGroups, []);
   assert.equal(getState().data.settings.activeBookmarkGroupId, null);
 });
 
-test('cycles through workspaces in both directions including Main', () => {
-  const settings = {
-    bookmarkGroups: [
-      { id: 'work', name: 'Work' },
-      { id: 'play', name: 'Play' }
-    ],
-    activeBookmarkGroupId: null
-  };
+test('creates, activates and safely resolves workspaces through feature actions', async () => {
+  const workspace = createWorkspace('  Personal  ');
+  assert.equal(workspace.name, 'Personal');
+  assert.equal(getState().data.settings.activeBookmarkGroupId, workspace.id);
 
-  assert.equal(getAdjacentBookmarkGroupId(settings, 1), 'work');
-  assert.equal(getAdjacentBookmarkGroupId(settings, -1), 'play');
-  assert.equal(getAdjacentBookmarkGroupId({
-    ...settings,
-    activeBookmarkGroupId: 'work'
-  }, -1), null);
-  assert.equal(getAdjacentBookmarkGroupId({
-    ...settings,
-    activeBookmarkGroupId: 'play'
-  }, 1), null);
+  assert.equal(await setActiveWorkspace('missing'), true);
+  assert.equal(getState().data.settings.activeBookmarkGroupId, null);
+  assert.equal(await setActiveWorkspace(null), false);
+});
+
+test('moves bookmarks into available cells in the requested workspace', async () => {
+  await setState({
+    data: {
+      bookmarks: [
+        { id: 'source', name: 'Source', groupId: null, folderId: null, gx: 0, gy: 0, w: 1, h: 1 },
+        { id: 'occupied', name: 'Occupied', groupId: 'work', folderId: null, gx: 0, gy: 0, w: 1, h: 1 }
+      ],
+      folders: [],
+      settings: {
+        ...getState().data.settings,
+        bookmarkGroups: [{ id: 'work', name: 'Work' }],
+        activeBookmarkGroupId: null
+      }
+    }
+  });
+
+  assert.deepEqual(
+    moveBookmarksToWorkspace(['source'], 'work', { columns: 2, rows: 1 }),
+    { moved: 1, skipped: 0 }
+  );
+  assert.deepEqual(
+    getState().data.bookmarks.find(bookmark => bookmark.id === 'source'),
+    {
+      id: 'source',
+      name: 'Source',
+      groupId: 'work',
+      folderId: null,
+      gx: 1,
+      gy: 0,
+      w: 1,
+      h: 1,
+      updatedAt: getState().data.bookmarks.find(bookmark => bookmark.id === 'source').updatedAt
+    }
+  );
 });

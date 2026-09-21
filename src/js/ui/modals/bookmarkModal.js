@@ -10,6 +10,7 @@ import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { findFirstFreeSlot } from '../../shared/grid/gridPlacement.js';
 import { getOccupiedGridItems } from '../../features/bookmarks/bookmarkActions.js';
 import { ensurePanelFits } from '../viewportMode.js';
+import { getActiveWorkspaceId } from '../../features/workspaces/workspaceSelectors.js';
 
 const modal = document.getElementById('edit-bookmark-modal');
 const modalTitle = modal.querySelector('h2');
@@ -74,10 +75,10 @@ export function initBookmarkModal() {
  */
 export function openAddBookmark() {
   if (!ensurePanelFits()) return;
-  const { data: { settings } } = getState();
+  const { data } = getState();
   const draft = createBookmarkDraft({
-    preset: settings.bookmarkDefault,
-    bookmark: { groupId: settings.activeBookmarkGroupId }
+    preset: data.settings.bookmarkDefault,
+    bookmark: { groupId: getActiveWorkspaceId(data) }
   });
 
   openBookmarkModal('add', draft);
@@ -317,10 +318,10 @@ async function handleCancel() {
 }
 
 function resetAddForm() {
-  const { data: { settings } } = getState();
+  const { data } = getState();
   form.reset(createBookmarkDraft({
-    preset: settings.bookmarkDefault,
-    bookmark: { groupId: settings.activeBookmarkGroupId }
+    preset: data.settings.bookmarkDefault,
+    bookmark: { groupId: getActiveWorkspaceId(data) }
   }));
 }
 

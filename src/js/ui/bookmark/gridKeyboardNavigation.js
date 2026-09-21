@@ -9,6 +9,7 @@ import {
   getGridItemNavigationAnchor
 } from '../../core/gridKeyboardRoute.js';
 import { permanentlyDeleteGridItem } from '../../features/grid/gridItemActions.js';
+import { getActiveWorkspaceId } from '../../features/workspaces/workspaceSelectors.js';
 import { flashInfo, flashSuccess } from '../flash.js';
 import { hasOpenModal } from '../modalManager.js';
 import { isListView } from '../viewportMode.js';
@@ -355,8 +356,9 @@ function canStartGridNavigation() {
 }
 
 function getVisibleGridItems() {
-  const { data: { bookmarks, folders, recycleBin, settings } } = getState();
-  const activeGroupId = settings.activeBookmarkGroupId ?? null;
+  const { data } = getState();
+  const { bookmarks, folders, recycleBin, settings } = data;
+  const activeGroupId = getActiveWorkspaceId(data);
   const visibleIds = isListView() ? new Set(
     [...containerRef.querySelectorAll('.bookmark-list-item:not([hidden])')]
       .map(element => element.dataset.bookmarkId

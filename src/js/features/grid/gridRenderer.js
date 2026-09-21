@@ -8,6 +8,10 @@ import { applyGridItemPosition } from '../../ui/gridItemLayout.js';
 import { updateGridSize } from '../../ui/gridLayout.js';
 import { isListView } from '../../ui/viewportMode.js';
 import { gridItemRegistry } from '../../shared/grid/gridItemRegistry.js';
+import {
+  getActiveWorkspaceId,
+  getWorkspaceById
+} from '../workspaces/workspaceSelectors.js';
 
 const listSearchStates = new WeakMap();
 
@@ -70,7 +74,7 @@ export function enableGridEditing(container) {
 }
 
 function renderList(container, state) {
-  const groupId = state.data.settings.activeBookmarkGroupId;
+  const groupId = getActiveWorkspaceId(state.data);
   let searchState = listSearchStates.get(container);
   const oldSearch = container.querySelector('#bookmark-list-search');
   const restoreSearchFocus = oldSearch && document.activeElement === oldSearch;
@@ -86,8 +90,7 @@ function renderList(container, state) {
   const header = document.createElement('header');
   header.className = 'bookmark-list-header';
   const heading = document.createElement('h1');
-  heading.textContent = state.data.settings.bookmarkGroups
-    .find(group => group.id === groupId)?.name || t('workspace.main');
+  heading.textContent = getWorkspaceById(state.data, groupId)?.name || t('workspace.main');
   const caption = document.createElement('small');
   caption.textContent = t('view.list');
   header.append(heading, caption);

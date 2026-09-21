@@ -7,6 +7,7 @@ import {
   GRID_ROWS
 } from '../../shared/grid/gridGeometry.js';
 import { getState } from '../../core/store.js';
+import { getActiveWorkspaceId } from '../../features/workspaces/workspaceSelectors.js';
 import { hasOpenModal } from '../modalManager.js';
 import { isGridKeyboardNavigationActive } from './gridKeyboardNavigation.js';
 import { getSelectedGridItems } from './selection.js';
@@ -55,9 +56,7 @@ function handleBookmarkArrowKey(event) {
     .find(candidate => (
       candidate.id === selected.id
       && !candidate.folderId
-      && (candidate.groupId ?? null) === (
-        state.data.settings.activeBookmarkGroupId ?? null
-      )
+      && (candidate.groupId ?? null) === getActiveWorkspaceId(state.data)
     ));
   if (!item) return;
 

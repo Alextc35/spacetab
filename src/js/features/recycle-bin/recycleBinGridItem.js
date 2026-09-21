@@ -7,6 +7,7 @@ import { applyGridItemPosition } from '../../ui/gridItemLayout.js';
 import { openRecycleBinEditor } from './recycleBinEditorModal.js';
 import { openRecycleBinModal } from './recycleBinModal.js';
 import { applyRecycleBinAppearance, createRecycleBinGlyph } from './recycleBinAppearance.js';
+import { getActiveWorkspaceId } from '../workspaces/workspaceSelectors.js';
 
 export const recycleBinGridItem = Object.freeze({
   type: 'recycle-bin',
@@ -15,7 +16,7 @@ export const recycleBinGridItem = Object.freeze({
   getElementId: element => element.dataset.recycleBinId,
   select(state) {
     const { settings } = state.data;
-    if (!settings.showRecycleBin || settings.activeBookmarkGroupId !== null) return [];
+    if (!settings.showRecycleBin || getActiveWorkspaceId(state.data) !== null) return [];
     return [{ item: state.data.recycleBin, trash: state.data.trash }];
   },
   render({ view, container, item, trash, state }) {

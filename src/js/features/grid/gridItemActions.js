@@ -4,9 +4,11 @@ import {
   normalizeBookmark
 } from '../../domain/bookmarks/bookmarkModel.js';
 import { DEFAULT_FOLDER_STYLE } from '../../domain/folders/folderDefaults.js';
+import { resolveWorkspaceId } from '../../domain/workspaces/workspaceModel.js';
 import { findFirstFreeSlot } from '../../shared/grid/gridPlacement.js';
 import { clearBookmarkHistory, getState, setState } from '../../core/store.js';
 import { getGridItemsInGroup } from './gridSelectors.js';
+import { getWorkspaces } from '../workspaces/workspaceSelectors.js';
 
 /** Applies the appropriate default appearance to bookmarks and folders atomically. */
 export function applyDefaultStylesToGridItems(selectedItems, bookmarkPreset) {
@@ -119,12 +121,13 @@ export function duplicateGridItems(selectedItems, {
 }
 
 /** Moves selected bookmarks and complete folders to another workspace atomically. */
-export function moveGridItemsToGroup(selectedItems, groupId, { columns, rows } = {}) {
+export function moveGridItemsToWorkspace(selectedItems, workspaceId, { columns, rows } = {}) {
   const { bookmarkIds, folderIds } = selectedSets(selectedItems);
   const { data } = getState();
-  const normalizedGroupId = data.settings.bookmarkGroups.some(group => group.id === groupId)
-    ? groupId
-    : null;
+  const normalizedGroupId = resolveWorkspaceId(
+    getWorkspaces(data),
+    workspaceId
+  );
   const selectedFolderChildIds = new Set(data.bookmarks
     .filter(bookmark => folderIds.has(bookmark.folderId))
     .map(bookmark => bookmark.id));

@@ -42,7 +42,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 3 establish the first domain and feature seams:
+Phases 1 through 4 establish the first domain and feature seams:
 
 ```text
 src/js/
@@ -56,10 +56,12 @@ src/js/
 │   │   ├── folderDefaults.js
 │   │   ├── folderGrid.js
 │   │   └── folderModel.js
-│   └── recycle-bin/
-│       ├── recycleBinDefaults.js
-│       ├── recycleBinEntries.js
-│       └── recycleBinModel.js
+│   ├── recycle-bin/
+│   │   ├── recycleBinDefaults.js
+│   │   ├── recycleBinEntries.js
+│   │   └── recycleBinModel.js
+│   └── workspaces/
+│       └── workspaceModel.js
 ├── features/
 │   ├── bookmarks/
 │   │   ├── bookmarkActions.js
@@ -72,12 +74,15 @@ src/js/
 │   │   ├── gridItemActions.js
 │   │   ├── gridRenderer.js
 │   │   └── gridSelectors.js
-│   └── recycle-bin/
-│       ├── recycleBinActions.js
-│       ├── recycleBinAppearance.js
-│       ├── recycleBinEditorModal.js
-│       ├── recycleBinGridItem.js
-│       └── recycleBinModal.js
+│   ├── recycle-bin/
+│   │   ├── recycleBinActions.js
+│   │   ├── recycleBinAppearance.js
+│   │   ├── recycleBinEditorModal.js
+│   │   ├── recycleBinGridItem.js
+│   │   └── recycleBinModal.js
+│   └── workspaces/
+│       ├── workspaceActions.js
+│       └── workspaceSelectors.js
 ├── platform/
 │   └── storage/
 │       └── deviceTrashStorage.js
@@ -105,6 +110,11 @@ live in their feature slices. `core/defaults.js` temporarily composes and
 re-exports domain defaults so schema and compatibility callers can migrate
 without a persisted-data change. CSS remains under `css/features/` because its
 loading lifecycle has not changed.
+
+Workspace identity, naming, normalization and cyclic navigation now live in
+`domain/workspaces`. Store-backed creation, activation, deletion and bookmark
+movement live in `features/workspaces`; selectors adapt the legacy persisted
+field names for UI and other feature consumers.
 
 ## GridItem and the item-type registry
 
@@ -156,12 +166,13 @@ record used to recover data that was permanently removed from the application.
 
 ## Workspace as a domain entity
 
-Persisted workspaces are still represented by `settings.bookmarkGroups` and
-`activeBookmarkGroupId`. This is the next important domain extraction: create a
-workspace model that owns identity, naming, active-workspace resolution and
-navigation, then adapt the existing schema without changing its persisted shape
-in the same phase. UI code should ultimately ask workspace actions/selectors
-rather than edit settings collections directly.
+Persisted workspaces remain represented by `settings.bookmarkGroups` and
+`activeBookmarkGroupId` for backward compatibility. The explicit `Workspace`
+entity owns identity, naming, normalization, active-workspace resolution and
+navigation without knowing about the store or browser APIs. Feature selectors
+are the adapter between those concepts and the legacy settings keys, so UI code
+does not edit the persisted collections directly. This phase deliberately does
+not change `schemaVersion` or synchronized data.
 
 ## Store, persistence and synchronization
 
@@ -216,7 +227,7 @@ Remote executable plugins are out of scope.
    trash to platform storage.
 3. ✅ Move bookmark and folder models/actions behind feature boundaries while
    retaining the tested store commands.
-4. Introduce the explicit workspace domain entity without changing persisted
+4. ✅ Introduce the explicit workspace domain entity without changing persisted
    `bookmarkGroups` data in the same step.
 5. Split store state/history from Chrome persistence, sync transport and schema
    migration.
@@ -264,11 +275,11 @@ Schema 10 adds the four configurable keyboard shortcuts under
 `settings.keyboardShortcuts`. Missing, invalid or conflicting legacy values
 fall back to the safe default combinations.
 
-`features/bookmarks/bookmarkActions.js`, `features/folders/folderActions.js`
-and `features/grid/gridItemActions.js` implement store-backed application
-commands. Batch operations make one store transition, so undo treats them as a
-single user action. Workspace commands remain in `core/bookmarkGroups.js` until
-the workspace domain phase.
+`features/bookmarks/bookmarkActions.js`, `features/folders/folderActions.js`,
+`features/grid/gridItemActions.js` and `features/workspaces/workspaceActions.js`
+implement store-backed application commands. Batch operations make one store
+transition, so undo treats them as a single user action. Workspace UI reads the
+legacy persisted fields only through `workspaceSelectors.js`.
 
 `src/js/core/bookmarkDragModes.js` owns the persisted drag-mode contract and
 normalizes missing or unknown values to None. `src/js/core/browserCapabilities.js`
@@ -432,7 +443,8 @@ when present. Selection is pruned when bookmarks disappear and is cleared when
 edit mode closes.
 
 `src/js/ui/workspaceToolbar.js` owns cyclic workspace navigation. `Alt/Option`
-with the up or down arrow resolves the adjacent workspace through the core,
+with the up or down arrow resolves the adjacent workspace through the workspace
+domain and feature selectors,
 animates the current grid out and the next grid in, and skips the transition
 when the operating system requests reduced motion. Shortcuts are ignored while
 typing or while a modal is open.
