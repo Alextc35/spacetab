@@ -1,10 +1,10 @@
-import '../types/types.js';
+import '../../types/types.js';
 import {
   DEFAULT_BOOKMARK,
   DEFAULT_BOOKMARK_STRUCTURE,
   DEFAULT_BOOKMARK_STYLE
-} from './defaults.js';
-import { normalizeBackgroundImage } from './localImages.js';
+} from './bookmarkDefaults.js';
+import { normalizeBackgroundImage } from '../../shared/images/backgroundImage.js';
 
 export const BOOKMARK_STYLE_KEYS = Object.freeze([
   'backgroundImageUrl',

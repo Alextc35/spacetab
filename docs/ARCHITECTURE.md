@@ -42,23 +42,36 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 and 2 introduce the first feature seams:
+Phases 1 through 3 establish the first domain and feature seams:
 
 ```text
 src/js/
 ├── app/
 │   └── registerGridItemTypes.js
 ├── domain/
+│   ├── bookmarks/
+│   │   ├── bookmarkDefaults.js
+│   │   └── bookmarkModel.js
+│   ├── folders/
+│   │   ├── folderDefaults.js
+│   │   ├── folderGrid.js
+│   │   └── folderModel.js
 │   └── recycle-bin/
-│       └── recycleBinEntries.js
+│       ├── recycleBinDefaults.js
+│       ├── recycleBinEntries.js
+│       └── recycleBinModel.js
 ├── features/
 │   ├── bookmarks/
+│   │   ├── bookmarkActions.js
 │   │   ├── bookmarkCard.js
 │   │   └── bookmarkGridItem.js
 │   ├── folders/
+│   │   ├── folderActions.js
 │   │   └── folderGridItem.js
 │   ├── grid/
-│   │   └── gridRenderer.js
+│   │   ├── gridItemActions.js
+│   │   ├── gridRenderer.js
+│   │   └── gridSelectors.js
 │   └── recycle-bin/
 │       ├── recycleBinActions.js
 │       ├── recycleBinAppearance.js
@@ -69,9 +82,12 @@ src/js/
 │   └── storage/
 │       └── deviceTrashStorage.js
 └── shared/
-    └── grid/
-        ├── gridGeometry.js
-        └── gridItemRegistry.js
+    ├── grid/
+    │   ├── gridGeometry.js
+    │   ├── gridItemRegistry.js
+    │   └── gridPlacement.js
+    └── images/
+        └── backgroundImage.js
 ```
 
 The recycle-bin slice now has an explicit split. Pure entry creation,
@@ -81,13 +97,14 @@ modal UI. Device-only trash persistence lives under `platform/storage`.
 Time and id generation remain in the feature action layer and are injected
 into the pure domain operations, keeping their tests deterministic.
 
-`core/recycleBinModel.js` remains a temporary schema-adjacent model because its
-visual normalization shares the background-image contract used by bookmarks,
-folders and `dataSchema.js`. It should move only after that shared value model
-has a stable home. The legacy bookmark, folder, workspace and settings commands
-also call recycle-bin feature actions during this transition; those dependency
-edges disappear as each caller is migrated in its own phase. CSS remains under
-`css/features/` because its loading lifecycle has not changed.
+Bookmark, folder and recycle-bin defaults and normalization now live in
+`domain/`. Their shared background-image value rules are separate from the
+device image cache, Chrome Storage and Canvas processing that remain in the
+legacy platform module. Store-backed bookmark, folder and mixed-grid commands
+live in their feature slices. `core/defaults.js` temporarily composes and
+re-exports domain defaults so schema and compatibility callers can migrate
+without a persisted-data change. CSS remains under `css/features/` because its
+loading lifecycle has not changed.
 
 ## GridItem and the item-type registry
 
@@ -197,7 +214,7 @@ Remote executable plugins are out of scope.
 2. ✅ Complete the recycle-bin slice: separate pure domain
    restoration/retention rules, feature actions and modal UI; move device
    trash to platform storage.
-3. Move bookmark and folder models/actions behind feature boundaries while
+3. ✅ Move bookmark and folder models/actions behind feature boundaries while
    retaining the tested store commands.
 4. Introduce the explicit workspace domain entity without changing persisted
    `bookmarkGroups` data in the same step.
@@ -215,19 +232,21 @@ The remaining sections describe the current behavior that every migration must
 preserve.
 
 ```text
-Core domain and schema
-        ↓
-Store and browser persistence
-        ↓
-Use-case controllers
-        ↓
 Reusable UI components and renderers
+        ↓
+Feature actions and selectors
+        ↓
+Domain models + core/store.js
+        ↓
+Browser persistence
 ```
 
-## Core
+## Domain and transitional core
 
-`src/js/core/bookmarkModel.js` owns bookmark drafts, presets, normalization and
-validation. Its functions do not read global state, making them deterministic.
+`src/js/domain/bookmarks/bookmarkModel.js` owns bookmark drafts, presets,
+normalization and validation. `src/js/domain/folders/folderModel.js` owns the
+equivalent folder rules, including its name contract. Their functions do not
+read global state, making them deterministic.
 
 `src/js/core/dataSchema.js` is the boundary for stored, synchronized and imported
 data. `schemaVersion` changes only when a persisted shape changes. Old data is
@@ -245,9 +264,11 @@ Schema 10 adds the four configurable keyboard shortcuts under
 `settings.keyboardShortcuts`. Missing, invalid or conflicting legacy values
 fall back to the safe default combinations.
 
-`src/js/core/bookmark.js`, `src/js/core/bookmarkFolders.js` and
-`src/js/core/bookmarkGroups.js` implement application commands. Batch operations
-make one store transition, so undo treats them as a single user action.
+`features/bookmarks/bookmarkActions.js`, `features/folders/folderActions.js`
+and `features/grid/gridItemActions.js` implement store-backed application
+commands. Batch operations make one store transition, so undo treats them as a
+single user action. Workspace commands remain in `core/bookmarkGroups.js` until
+the workspace domain phase.
 
 `src/js/core/bookmarkDragModes.js` owns the persisted drag-mode contract and
 normalizes missing or unknown values to None. `src/js/core/browserCapabilities.js`
@@ -401,10 +422,10 @@ moves and occupied-cell displacement through the same
 rendered as smooth transforms from each item's persisted cell; on release the
 transform remains visible until
 `updateFolderBookmarkPositions()` atomically commits that exact layout, avoiding
-a source/destination flash. `src/js/core/folderGrid.js` owns the pure local
-layout contract and normalizes legacy or colliding positions deterministically.
-Main-grid bookmark drag logic detects folder hit targets and delegates
-membership changes to the core.
+a source/destination flash. `src/js/domain/folders/folderGrid.js` owns the pure
+local layout contract and normalizes legacy or colliding positions
+deterministically. Main-grid bookmark drag logic detects folder hit targets and
+delegates membership changes to the folder feature actions.
 
 Search indexes all workspaces and contained bookmarks, showing folder context
 when present. Selection is pruned when bookmarks disappear and is cleared when

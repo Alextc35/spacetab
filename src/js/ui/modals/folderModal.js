@@ -3,14 +3,14 @@ import {
   removeBookmarkFromFolder,
   renameBookmarkFolder,
   updateFolderBookmarkPositions
-} from '../../core/bookmarkFolders.js';
-import { deleteBookmarksByIds } from '../../core/bookmark.js';
+} from '../../features/folders/folderActions.js';
+import { deleteBookmarksByIds } from '../../features/bookmarks/bookmarkActions.js';
 import {
   createFolderBookmarkLayout,
   FOLDER_GRID_CAPACITY,
   FOLDER_GRID_COLUMNS,
   FOLDER_GRID_ROWS
-} from '../../core/folderGrid.js';
+} from '../../domain/folders/folderGrid.js';
 import { t } from '../../core/i18n.js';
 import { getState, subscribe } from '../../core/store.js';
 import { createItemActionButton } from '../bookmark/actions.js';

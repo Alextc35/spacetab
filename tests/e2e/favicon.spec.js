@@ -24,7 +24,7 @@ test('loads the parent favicon when the app host returns a valid generic image w
   await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
 
   const id = await page.evaluate(async () => {
-    const { addBookmark } = await import('/src/js/core/bookmark.js');
+    const { addBookmark } = await import('/src/js/features/bookmarks/bookmarkActions.js');
     return addBookmark({ name: 'Web3Forms', url: 'https://app.web3forms.com/dashboard' }).id;
   });
   const card = page.locator(`#bookmark-container [data-bookmark-id="${id}"]`);

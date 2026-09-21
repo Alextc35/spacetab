@@ -8,7 +8,7 @@ import {
   findGridKeyboardRoute,
   getGridItemNavigationAnchor
 } from '../../core/gridKeyboardRoute.js';
-import { permanentlyDeleteGridItem } from '../../core/gridItemActions.js';
+import { permanentlyDeleteGridItem } from '../../features/grid/gridItemActions.js';
 import { flashInfo, flashSuccess } from '../flash.js';
 import { hasOpenModal } from '../modalManager.js';
 import { isListView } from '../viewportMode.js';

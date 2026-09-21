@@ -1,9 +1,9 @@
-import { DEFAULT_RECYCLE_BIN_STYLE } from '../../core/defaults.js';
+import { DEFAULT_RECYCLE_BIN_STYLE } from '../../domain/recycle-bin/recycleBinDefaults.js';
 import { t } from '../../core/i18n.js';
 import {
   normalizeRecycleBinStyle,
   validateRecycleBinStyle
-} from '../../core/recycleBinModel.js';
+} from '../../domain/recycle-bin/recycleBinModel.js';
 import { updateRecycleBinAppearance } from './recycleBinActions.js';
 import { getState, getStorageMode, waitForPersistence } from '../../core/store.js';
 import { flashSuccess } from '../../ui/flash.js';

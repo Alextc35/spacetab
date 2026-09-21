@@ -1,9 +1,12 @@
-import '../types/types.js';
-import { applyBookmarkPreset, normalizeBookmark } from './bookmarkModel.js';
-import { getGridItemsInGroup } from './bookmarkFolders.js';
-import { DEFAULT_FOLDER_STYLE } from './defaults.js';
-import { findFirstFreeSlot } from './grid.js';
-import { clearBookmarkHistory, getState, setState } from './store.js';
+import '../../types/types.js';
+import {
+  applyBookmarkPreset,
+  normalizeBookmark
+} from '../../domain/bookmarks/bookmarkModel.js';
+import { DEFAULT_FOLDER_STYLE } from '../../domain/folders/folderDefaults.js';
+import { findFirstFreeSlot } from '../../shared/grid/gridPlacement.js';
+import { clearBookmarkHistory, getState, setState } from '../../core/store.js';
+import { getGridItemsInGroup } from './gridSelectors.js';
 
 /** Applies the appropriate default appearance to bookmarks and folders atomically. */
 export function applyDefaultStylesToGridItems(selectedItems, bookmarkPreset) {

@@ -1,48 +1,23 @@
-import '../types/types.js';
-import { findFirstFreeSlot } from './grid.js';
+import '../../types/types.js';
+import { findFirstFreeSlot } from '../../shared/grid/gridPlacement.js';
 import {
   cellKey,
   createFolderBookmarkLayout,
   FOLDER_GRID_CAPACITY,
   findFirstFreeFolderCell,
   isFolderCell
-} from './folderGrid.js';
-import { getState, setState } from './store.js';
-import { normalizeFolderStyle, validateFolderDraft } from './folderModel.js';
-import { moveFolderToRecycleBin } from '../features/recycle-bin/recycleBinActions.js';
+} from '../../domain/folders/folderGrid.js';
+import {
+  BOOKMARK_FOLDER_NAME_MAX_LENGTH,
+  normalizeBookmarkFolderName,
+  normalizeFolderStyle,
+  validateFolderDraft
+} from '../../domain/folders/folderModel.js';
+import { getState, setState } from '../../core/store.js';
+import { moveFolderToRecycleBin } from '../recycle-bin/recycleBinActions.js';
+import { getGridItemsInGroup } from '../grid/gridSelectors.js';
 
-export const BOOKMARK_FOLDER_NAME_MAX_LENGTH = 60;
-
-function normalizeBookmarkFolderName(name) {
-  return typeof name === 'string'
-    ? name.trim().slice(0, BOOKMARK_FOLDER_NAME_MAX_LENGTH)
-    : '';
-}
-
-/**
- * Returns the items that currently reserve cells in one workspace.
- * Bookmarks inside folders deliberately do not participate in grid collisions.
- *
- * @param {Pick<DataState, 'bookmarks'|'folders'>} data
- * @param {string|null} groupId
- * @returns {Array<Bookmark|BookmarkFolder>}
- */
-export function getGridItemsInGroup(data, groupId) {
-  const normalizedGroupId = groupId ?? null;
-  const items = [
-    ...data.bookmarks.filter(bookmark => (
-      !bookmark.folderId
-      && (bookmark.groupId ?? null) === normalizedGroupId
-    )),
-    ...data.folders.filter(folder => (
-      (folder.groupId ?? null) === normalizedGroupId
-    ))
-  ];
-  if (normalizedGroupId === null && data.settings?.showRecycleBin && data.recycleBin) {
-    items.push(data.recycleBin);
-  }
-  return items;
-}
+export { BOOKMARK_FOLDER_NAME_MAX_LENGTH };
 
 /**
  * Creates a folder in the first free cell of the active workspace.

@@ -1,5 +1,5 @@
 import '../../types/types.js'; // typedefs
-import { clearBookmarks } from '../../core/bookmark.js';
+import { clearBookmarks } from '../../features/bookmarks/bookmarkActions.js';
 import { t } from '../../core/i18n.js';
 import { showConfirmWithCheckbox } from '../modals/alert.js';
 import { closeModal } from '../modalManager.js';

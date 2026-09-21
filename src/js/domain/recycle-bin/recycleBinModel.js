@@ -1,5 +1,5 @@
-import { DEFAULT_RECYCLE_BIN_STYLE } from './defaults.js';
-import { normalizeBackgroundImage } from './localImages.js';
+import { DEFAULT_RECYCLE_BIN_STYLE } from './recycleBinDefaults.js';
+import { normalizeBackgroundImage } from '../../shared/images/backgroundImage.js';
 
 export const RECYCLE_BIN_STYLE_KEYS = Object.freeze([
   'noBackground',

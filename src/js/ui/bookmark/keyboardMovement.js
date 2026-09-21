@@ -1,7 +1,7 @@
 import {
-  getGridItemsInGroup,
   updateGridItemsByIds
-} from '../../core/bookmarkFolders.js';
+} from '../../features/folders/folderActions.js';
+import { getGridItemsInGroup } from '../../features/grid/gridSelectors.js';
 import {
   GRID_COLS,
   GRID_ROWS

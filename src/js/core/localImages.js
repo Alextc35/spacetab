@@ -1,4 +1,9 @@
-const LOCAL_IMAGE_PROTOCOL = 'spacetab-local-image:';
+import {
+  isLocalImageReference,
+  LOCAL_IMAGE_PROTOCOL,
+  normalizeBackgroundImage
+} from '../shared/images/backgroundImage.js';
+
 const LOCAL_IMAGE_STORAGE_PREFIX = 'spacetabLocalImage:';
 const MAX_SOURCE_FILE_BYTES = 20 * 1024 * 1024;
 const MAX_STORED_IMAGE_BYTES = 1_250_000;
@@ -17,22 +22,6 @@ const cachedImages = new Map();
 const cachedImageNames = new Map();
 
 /**
- * Returns whether a value points to an image intentionally kept on this
- * browser profile. Both files and their selections stay on this device.
- *
- * @param {*} value
- * @returns {boolean}
- */
-export function isLocalImageReference(value) {
-  if (typeof value !== 'string' || !value.startsWith(LOCAL_IMAGE_PROTOCOL)) {
-    return false;
-  }
-
-  const id = value.slice(LOCAL_IMAGE_PROTOCOL.length);
-  return /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(id);
-}
-
-/**
  * Resolves a persisted image value for CSS or an image element.
  * Remote URLs are returned unchanged; unavailable local references resolve to
  * null so a synced layout remains usable on another device.
@@ -43,25 +32,6 @@ export function isLocalImageReference(value) {
 export function resolveImageSource(value) {
   if (typeof value !== 'string' || !value.trim()) return null;
   return isLocalImageReference(value) ? cachedImages.get(value) ?? null : value;
-}
-
-/** Keeps the URL fallback separate from the device-local file, including legacy data. */
-export function normalizeBackgroundImage(value = {}) {
-  const url = typeof value?.backgroundImageUrl === 'string'
-    ? value.backgroundImageUrl.trim() || null
-    : null;
-  const legacyLocal = isLocalImageReference(url);
-  const backgroundImageLocal = isLocalImageReference(value?.backgroundImageLocal)
-    ? value.backgroundImageLocal
-    : legacyLocal ? url : null;
-  return {
-    backgroundImageUrl: legacyLocal ? null : url,
-    backgroundImageLocal,
-    backgroundImageSource: backgroundImageLocal && value?.backgroundImageSource !== 'url'
-      ? 'local'
-      : 'url',
-    backgroundImageUrlLocked: !legacyLocal && value?.backgroundImageUrlLocked === true
-  };
 }
 
 /** Resolves the selected source first and keeps the other image as a fallback. */

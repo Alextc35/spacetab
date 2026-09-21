@@ -1,4 +1,4 @@
-import '../types/types.js'; // typedefs
+import '../../types/types.js'; // typedefs
 
 /**
  * Checks whether a rectangular grid area is free of overlapping grid items.

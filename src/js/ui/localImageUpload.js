@@ -1,8 +1,8 @@
 import {
   getLocalImageName,
-  isLocalImageReference,
   saveLocalImage
 } from '../core/localImages.js';
+import { isLocalImageReference } from '../shared/images/backgroundImage.js';
 import { t } from '../core/i18n.js';
 import { flashError } from './flash.js';
 

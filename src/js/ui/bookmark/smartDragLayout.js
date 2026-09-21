@@ -1,4 +1,4 @@
-import { isAreaFree } from '../../core/grid.js';
+import { isAreaFree } from '../../shared/grid/gridPlacement.js';
 import {
   BOOKMARK_DRAG_MODES,
   normalizeBookmarkDragMode

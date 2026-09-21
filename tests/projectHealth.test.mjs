@@ -40,12 +40,21 @@ test('all interface languages expose the same translation contract', () => {
   }
 });
 
-test('source modules do not contain static import cycles', () => {
+test('source modules resolve relative imports and do not contain static cycles', () => {
   const sourceRoot = resolve('src/js');
   const files = listJavaScriptFiles(sourceRoot);
   const knownFiles = new Set(files);
-  const graph = new Map(files.map(file => [file, readStaticDependencies(file)
-    .filter(dependency => knownFiles.has(dependency))]));
+  const graph = new Map(files.map(file => {
+    const dependencies = readStaticDependencies(file);
+    for (const dependency of dependencies) {
+      assert.equal(
+        existsSync(dependency),
+        true,
+        `Missing module imported by ${relative(sourceRoot, file)}: ${dependency}`
+      );
+    }
+    return [file, dependencies.filter(dependency => knownFiles.has(dependency))];
+  }));
   const visited = new Set();
   const active = new Set();
   const stack = [];

@@ -1,4 +1,4 @@
-import '../types/types.js';
+import '../../types/types.js';
 
 export const FOLDER_GRID_COLUMNS = 6;
 export const FOLDER_GRID_ROWS = 3;

@@ -24,7 +24,11 @@ try {
   await context.route(/^https?:/, route => route.abort());
   const page = await context.newPage();
   const errors = [];
+  const consoleErrors = [];
   page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => {
+    if (message.type() === 'error') consoleErrors.push(message.text());
+  });
   await page.goto('chrome://newtab/');
   await page.waitForLoadState('domcontentloaded');
 
@@ -32,9 +36,19 @@ try {
   assert.equal(new URL(page.url()).pathname, `/${manifest.chrome_url_overrides.newtab}`);
   await page.locator('#workspace-toolbar').waitFor({ state: 'visible' });
   await page.locator('#bookmark-container').waitFor({ state: 'visible' });
-  await page.waitForFunction(() => document.querySelectorAll('#bookmark-container .bookmark').length >= 2);
+  try {
+    await page.waitForFunction(() => (
+      document.querySelectorAll('#bookmark-container .bookmark').length >= 2
+    ));
+  } catch (error) {
+    throw new Error([
+      error.message,
+      `Page errors: ${errors.join(' | ') || 'none'}`,
+      `Console errors: ${consoleErrors.join(' | ') || 'none'}`
+    ].join('\n'), { cause: error });
+  }
   await page.evaluate(async () => {
-    const { addBookmark } = await import('./js/core/bookmark.js');
+    const { addBookmark } = await import('./js/features/bookmarks/bookmarkActions.js');
     addBookmark({ name: 'Release smoke', url: 'https://smoke.internal', gx: 5, gy: 0 });
   });
   await page.waitForFunction(async () => {

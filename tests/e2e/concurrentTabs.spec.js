@@ -22,9 +22,9 @@ test.beforeEach(async () => {
     await page.goto(`chrome-extension://${extensionId}/${manifest.chrome_url_overrides.newtab}`);
     await expect(page.locator('#bookmark-container .bookmark')).toHaveCount(2);
     await page.evaluate(async () => {
-      window.commands = await import('./js/core/bookmark.js');
+      window.commands = await import('./js/features/bookmarks/bookmarkActions.js');
       window.store = await import('./js/core/store.js');
-      window.folders = await import('./js/core/bookmarkFolders.js');
+      window.folders = await import('./js/features/folders/folderActions.js');
     });
   }
 });

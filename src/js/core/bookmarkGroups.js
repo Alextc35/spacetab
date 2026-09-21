@@ -1,6 +1,6 @@
 import { clearBookmarkHistory, getState, setState } from './store.js';
-import { findFirstFreeSlot } from './grid.js';
-import { getGridItemsInGroup } from './bookmarkFolders.js';
+import { findFirstFreeSlot } from '../shared/grid/gridPlacement.js';
+import { getGridItemsInGroup } from '../features/grid/gridSelectors.js';
 import { moveWorkspaceToRecycleBin } from '../features/recycle-bin/recycleBinActions.js';
 
 export function createBookmarkGroup(name) {

@@ -1,14 +1,14 @@
 import { createBookmarkEditorPanel } from '../bookmark/panel.js';
-import { addBookmark, updateBookmarkById } from '../../core/bookmark.js';
-import { createBookmarkDraft } from '../../core/bookmarkModel.js';
+import { addBookmark, updateBookmarkById } from '../../features/bookmarks/bookmarkActions.js';
+import { createBookmarkDraft } from '../../domain/bookmarks/bookmarkModel.js';
 import { flashSuccess } from '../flash.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 import { getState, waitForPersistence } from '../../core/store.js';
 import { showAlert } from './alert.js';
 import { t } from '../../core/i18n.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
-import { findFirstFreeSlot } from '../../core/grid.js';
-import { getOccupiedGridItems } from '../../core/bookmark.js';
+import { findFirstFreeSlot } from '../../shared/grid/gridPlacement.js';
+import { getOccupiedGridItems } from '../../features/bookmarks/bookmarkActions.js';
 import { ensurePanelFits } from '../viewportMode.js';
 
 const modal = document.getElementById('edit-bookmark-modal');

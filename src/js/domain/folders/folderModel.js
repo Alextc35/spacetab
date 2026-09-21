@@ -1,6 +1,15 @@
-import '../types/types.js';
-import { DEFAULT_FOLDER_STYLE } from './defaults.js';
-import { normalizeBackgroundImage } from './localImages.js';
+import '../../types/types.js';
+import { DEFAULT_FOLDER_STYLE } from './folderDefaults.js';
+import { normalizeBackgroundImage } from '../../shared/images/backgroundImage.js';
+
+export const BOOKMARK_FOLDER_NAME_MAX_LENGTH = 60;
+
+/** Normalizes editable folder identity without consulting application state. */
+export function normalizeBookmarkFolderName(name) {
+  return typeof name === 'string'
+    ? name.trim().slice(0, BOOKMARK_FOLDER_NAME_MAX_LENGTH)
+    : '';
+}
 
 export const FOLDER_STYLE_KEYS = Object.freeze([
   'noBackground',

@@ -33,7 +33,7 @@ globalThis.chrome = {
 };
 
 const { DEFAULT_RECYCLE_BIN, DEFAULT_SETTINGS } = await import('../src/js/core/defaults.js');
-const { getGridItemsInGroup } = await import('../src/js/core/bookmarkFolders.js');
+const { getGridItemsInGroup } = await import('../src/js/features/grid/gridSelectors.js');
 const {
   moveBookmarksToRecycleBin,
   moveFolderToRecycleBin,

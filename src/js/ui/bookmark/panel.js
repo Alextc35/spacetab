@@ -2,7 +2,7 @@ import {
   createBookmarkDraft,
   normalizeBookmarkPreset,
   validateBookmarkDraft
-} from '../../core/bookmarkModel.js';
+} from '../../domain/bookmarks/bookmarkModel.js';
 import { applyI18n, t } from '../../core/i18n.js';
 import { createBookmarkEditor } from './editor.js';
 import { initTabs } from '../tabs.js';

@@ -37,7 +37,7 @@ test('reports startup, actual quotas and persisted create/edit/delete timings', 
 
   const id = await bookmark.getAttribute('data-bookmark-id');
   await page.evaluate(async id => {
-    const { updateBookmarkById, deleteBookmarksByIds } = await import('/src/js/core/bookmark.js');
+    const { updateBookmarkById, deleteBookmarksByIds } = await import('/src/js/features/bookmarks/bookmarkActions.js');
     updateBookmarkById(id, { name: 'Updated debug example' });
     deleteBookmarksByIds([id]);
   }, id);
@@ -72,14 +72,14 @@ test('a failed storage write is reported as an error and later writes still succ
         chrome.runtime.lastError = null;
       } else original(items, callback);
     };
-    const { addBookmark } = await import('/src/js/core/bookmark.js');
+    const { addBookmark } = await import('/src/js/features/bookmarks/bookmarkActions.js');
     addBookmark({ name: 'Failure', url: 'https://failure.internal' });
   });
   await expect.poll(() => page.evaluate(() => window.SpaceTabDebug.history().some(record => (
     record.label === 'Create bookmark' && record.status === 'error' && record.details.persisted === false
   )))).toBe(true);
   await page.evaluate(async () => {
-    const { addBookmark } = await import('/src/js/core/bookmark.js');
+    const { addBookmark } = await import('/src/js/features/bookmarks/bookmarkActions.js');
     addBookmark({ name: 'Recovery', url: 'https://recovery.internal' });
   });
   await expect.poll(() => page.evaluate(() => window.SpaceTabDebug.history().some(record => (
@@ -200,7 +200,7 @@ for (const command of ['clear', 'toggle']) {
 
 async function createBookmark(page, name) {
   await page.evaluate(async name => {
-    const { addBookmark } = await import('/src/js/core/bookmark.js');
+    const { addBookmark } = await import('/src/js/features/bookmarks/bookmarkActions.js');
     addBookmark({ name, url: 'https://debug.internal' });
   }, name);
   await expect(page.locator('#bookmark-container .bookmark').filter({ hasText: name })).toBeVisible();

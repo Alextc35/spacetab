@@ -1,7 +1,7 @@
 import '../types/types.js'; // typedefs
 import { migratePersistedData } from './dataSchema.js';
 import { mergeChanges } from './mergeChanges.js';
-import { findFirstFreeSlot, isAreaFree } from './grid.js';
+import { findFirstFreeSlot, isAreaFree } from '../shared/grid/gridPlacement.js';
 import { GRID_COLS, GRID_ROWS } from '../shared/grid/gridGeometry.js';
 import { DATA_SCHEMA_VERSION } from './defaults.js';
 import {

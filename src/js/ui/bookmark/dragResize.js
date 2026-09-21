@@ -1,12 +1,12 @@
 import '../../types/types.js'; // typedefs
 import {
   addBookmarkToFolder,
-  getGridItemsInGroup,
   updateGridItemsByIds
-} from '../../core/bookmarkFolders.js';
+} from '../../features/folders/folderActions.js';
+import { getGridItemsInGroup } from '../../features/grid/gridSelectors.js';
 import { GRID_COLS, GRID_ROWS, PADDING } from '../../shared/grid/gridGeometry.js';
-import { FOLDER_GRID_CAPACITY } from '../../core/folderGrid.js';
-import { isAreaFree } from '../../core/grid.js';
+import { FOLDER_GRID_CAPACITY } from '../../domain/folders/folderGrid.js';
+import { isAreaFree } from '../../shared/grid/gridPlacement.js';
 import { getState } from '../../core/store.js';
 import {
   BOOKMARK_RESIZE_MODES,

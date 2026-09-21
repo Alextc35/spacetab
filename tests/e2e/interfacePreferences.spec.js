@@ -23,7 +23,7 @@ test('light folder grids and previews keep labels readable without changing save
   await page.emulateMedia({ colorScheme: 'light' });
   await start(page);
   await page.evaluate(async () => {
-    const { createBookmarkFolder } = await import('/src/js/core/bookmarkFolders.js');
+    const { createBookmarkFolder } = await import('/src/js/features/folders/folderActions.js');
     createBookmarkFolder('Reading', { columns: 12, rows: 6 });
   });
   await page.locator('.bookmark-folder .folder-open').click();

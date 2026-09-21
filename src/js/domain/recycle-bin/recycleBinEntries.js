@@ -5,8 +5,8 @@ import {
   createFolderBookmarkLayout,
   FOLDER_GRID_CAPACITY,
   findFirstFreeFolderCell
-} from '../../core/folderGrid.js';
-import { findFirstFreeSlot, isAreaFree } from '../../core/grid.js';
+} from '../folders/folderGrid.js';
+import { findFirstFreeSlot, isAreaFree } from '../../shared/grid/gridPlacement.js';
 
 export const RECYCLE_BIN_RETENTION_DAYS = 28;
 export const RECYCLE_BIN_RETENTION_MS = RECYCLE_BIN_RETENTION_DAYS * 24 * 60 * 60 * 1000;

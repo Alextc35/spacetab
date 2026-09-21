@@ -37,7 +37,7 @@ const {
   duplicateGridItems,
   moveGridItemsToGroup,
   permanentlyDeleteGridItem
-} = await import('../src/js/core/gridItemActions.js');
+} = await import('../src/js/features/grid/gridItemActions.js');
 const { moveGridItemsToRecycleBin } = await import(
   '../src/js/features/recycle-bin/recycleBinActions.js'
 );

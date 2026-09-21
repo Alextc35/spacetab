@@ -2,111 +2,29 @@ import '../types/types.js'; // typedefs
 import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
 import { DEFAULT_KEYBOARD_SHORTCUTS } from './keyboardShortcuts.js';
+import {
+  DEFAULT_BOOKMARK,
+  DEFAULT_BOOKMARK_STRUCTURE,
+  DEFAULT_BOOKMARK_STYLE
+} from '../domain/bookmarks/bookmarkDefaults.js';
+import { DEFAULT_FOLDER_STYLE } from '../domain/folders/folderDefaults.js';
+import {
+  DEFAULT_RECYCLE_BIN,
+  DEFAULT_RECYCLE_BIN_STYLE,
+  RECYCLE_BIN_ID
+} from '../domain/recycle-bin/recycleBinDefaults.js';
+
+export {
+  DEFAULT_BOOKMARK,
+  DEFAULT_BOOKMARK_STRUCTURE,
+  DEFAULT_BOOKMARK_STYLE,
+  DEFAULT_FOLDER_STYLE,
+  DEFAULT_RECYCLE_BIN,
+  DEFAULT_RECYCLE_BIN_STYLE,
+  RECYCLE_BIN_ID
+};
 
 export const DATA_SCHEMA_VERSION = 16;
-
-export const RECYCLE_BIN_ID = 'spacetab-recycle-bin';
-
-/** Default appearance for the recycle bin card. */
-export const DEFAULT_RECYCLE_BIN_STYLE = Object.freeze({
-  noBackground: false,
-  backgroundColor: null,
-  backgroundImageUrl: null,
-  backgroundImageLocal: null,
-  backgroundImageSource: 'url',
-  backgroundImageUrlLocked: false,
-  iconColor: '#475569',
-  textColor: null,
-  showIcon: true,
-  showName: true,
-  showCount: true
-});
-
-/** The recycle bin is a first-class grid item, but only in Main. */
-export const DEFAULT_RECYCLE_BIN = Object.freeze({
-  id: RECYCLE_BIN_ID,
-  ...DEFAULT_RECYCLE_BIN_STYLE,
-  gx: 0,
-  gy: 0,
-  w: 1,
-  h: 1,
-  groupId: null,
-  updatedAt: 0
-});
-
-/** Default appearance applied to new and legacy folders. */
-export const DEFAULT_FOLDER_STYLE = Object.freeze({
-  noBackground: false,
-  backgroundColor: '#38bdf8',
-  outerBackgroundColor: null,
-  backgroundImageUrl: null,
-  backgroundImageLocal: null,
-  backgroundImageSource: 'url',
-  backgroundImageUrlLocked: false,
-  textColor: '#f8fafc',
-  showFolder: true,
-  showPreviews: true,
-  showName: true,
-  showCount: true
-});
-
-/**
- * Default visual style for a bookmark.
- * Contains only appearance-related properties.
- *
- * @type {BookmarkPreset}
- */
-export const DEFAULT_BOOKMARK_STYLE = {
-  backgroundImageUrl: null,
-  backgroundImageLocal: null,
-  backgroundImageSource: 'url',
-  backgroundImageUrlLocked: false,
-  backgroundFavicon: true,
-  invertColorBg: false,
-  noBackground: true,
-  backgroundColor: '#000000',
-
-  showText: true,
-  textColor: '#ffffff',
-
-  showFavicon: true,
-  invertColorIcon: false,
-};
-
-/**
- * Default structural values for a bookmark.
- * Contains position and layout related properties.
- *
- * @type {Bookmark}
- */
-export const DEFAULT_BOOKMARK_STRUCTURE = {
-  name: '',
-  url: '',
-  urlLocked: false,
-
-  gx: 0,
-  gy: 0,
-  w: 1,
-  h: 1,
-  groupId: null,
-  folderId: null,
-
-  createdAt: 0,
-  updatedAt: 0
-};
-
-/** Defines the canonical default values for all Bookmark
- * properties except `id`, which must be generated at runtime.
- *
- * This object acts as the bookmark schema reference and
- * must remain side-effect free.
- *
- * @type {Omit<Bookmark, 'id'>}
- */
-export const DEFAULT_BOOKMARK = {
-  ...DEFAULT_BOOKMARK_STRUCTURE,
-  ...DEFAULT_BOOKMARK_STYLE
-};
 
 /**
  * Initial bookmarks used when no persisted data exists.

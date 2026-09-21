@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  normalizeBackgroundImage,
   preloadLocalImages,
   resolveBackgroundImage
 } from '../src/js/core/localImages.js';
+import { normalizeBackgroundImage } from '../src/js/shared/images/backgroundImage.js';
 
 test('uses the URL when a local file is missing, and prefers it only after the file is loaded', async () => {
   const reference = 'spacetab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9';

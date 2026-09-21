@@ -2,7 +2,7 @@ import {
   applyDefaultStylesToGridItems,
   duplicateGridItems,
   moveGridItemsToGroup
-} from '../../core/gridItemActions.js';
+} from '../../features/grid/gridItemActions.js';
 import { moveGridItemsToRecycleBin } from '../../features/recycle-bin/recycleBinActions.js';
 import { subscribe } from '../../core/store.js';
 import { t } from '../../core/i18n.js';

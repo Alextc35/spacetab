@@ -1,7 +1,7 @@
 import '../../types/types.js';
-import { DEFAULT_RECYCLE_BIN } from '../../core/defaults.js';
+import { DEFAULT_RECYCLE_BIN } from '../../domain/recycle-bin/recycleBinDefaults.js';
 import { clearBookmarkHistory, getState, setState } from '../../core/store.js';
-import { normalizeRecycleBinStyle } from '../../core/recycleBinModel.js';
+import { normalizeRecycleBinStyle } from '../../domain/recycle-bin/recycleBinModel.js';
 import {
   createBookmarkTrashEntry,
   createCollectionTrashEntries,

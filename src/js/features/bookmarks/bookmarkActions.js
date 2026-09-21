@@ -1,18 +1,18 @@
-import '../types/types.js'; // typedefs
-import { debug } from './debug.js';
-import { getState, setState } from './store.js';
+import '../../types/types.js'; // typedefs
+import { debug } from '../../core/debug.js';
+import { getState, setState } from '../../core/store.js';
 import {
   applyBookmarkPreset,
   createBookmarkDraft,
   normalizeBookmark as normalizeBookmarkValue,
   validateBookmarkDraft
-} from './bookmarkModel.js';
-import { findFirstFreeSlot } from './grid.js';
-import { getGridItemsInGroup } from './bookmarkFolders.js';
+} from '../../domain/bookmarks/bookmarkModel.js';
+import { findFirstFreeSlot } from '../../shared/grid/gridPlacement.js';
+import { getGridItemsInGroup } from '../grid/gridSelectors.js';
 import {
   moveAllToRecycleBin,
   moveBookmarksToRecycleBin
-} from '../features/recycle-bin/recycleBinActions.js';
+} from '../recycle-bin/recycleBinActions.js';
 
 /**
  * Adds a new bookmark to the application state.

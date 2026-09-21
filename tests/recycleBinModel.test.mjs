@@ -5,7 +5,7 @@ import { DEFAULT_RECYCLE_BIN_STYLE } from '../src/js/core/defaults.js';
 import {
   normalizeRecycleBinStyle,
   validateRecycleBinStyle
-} from '../src/js/core/recycleBinModel.js';
+} from '../src/js/domain/recycle-bin/recycleBinModel.js';
 
 test('normalizes recycle bin colors and independently hidden elements', () => {
   assert.deepEqual(normalizeRecycleBinStyle({

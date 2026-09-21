@@ -8,14 +8,14 @@ import {
 import {
   normalizeBookmark,
   normalizeBookmarkPreset
-} from './bookmarkModel.js';
+} from '../domain/bookmarks/bookmarkModel.js';
 import { normalizeBookmarkDragMode } from './bookmarkDragModes.js';
 import { normalizeBookmarkResizeMode } from './bookmarkResizeModes.js';
 import { normalizeKeyboardShortcuts } from './keyboardShortcuts.js';
-import { normalizeFolderStyle } from './folderModel.js';
-import { normalizeBackgroundImage } from './localImages.js';
+import { normalizeFolderStyle } from '../domain/folders/folderModel.js';
+import { normalizeBackgroundImage } from '../shared/images/backgroundImage.js';
 import { normalizeInterfaceTheme, normalizeLanguagePreference } from './interfacePreferences.js';
-import { normalizeRecycleBinStyle } from './recycleBinModel.js';
+import { normalizeRecycleBinStyle } from '../domain/recycle-bin/recycleBinModel.js';
 
 /**
  * Upgrades and normalizes application data from every supported SpaceTab

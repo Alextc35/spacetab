@@ -1,4 +1,5 @@
-import { isLocalImageReference, preloadLocalImages, resolveImageSource } from './localImages.js';
+import { preloadLocalImages, resolveImageSource } from './localImages.js';
+import { isLocalImageReference } from '../shared/images/backgroundImage.js';
 
 export const DEVICE_IMAGE_SELECTIONS_KEY = 'spacetabLocalImageSelections';
 

@@ -2,7 +2,7 @@ import { showAlert } from '../alert.js';
 import { openBookmarkPresetEditor } from '../bookmarkModal.js';
 import { t } from '../../../core/i18n.js';
 import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
-import { normalizeBookmarkPreset } from '../../../core/bookmarkModel.js';
+import { normalizeBookmarkPreset } from '../../../domain/bookmarks/bookmarkModel.js';
 import { deleteAllBookmarks } from '../../bookmark/actions.js';
 import { initImportExportButtons } from '../../bookmark/importExport.js';
 import {

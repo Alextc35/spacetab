@@ -118,7 +118,7 @@ test('moves, resizes, hides and shows the recycle bin', async ({ page }) => {
 
   const expectedPosition = await page.evaluate(async () => {
     const { DEFAULT_BOOKMARK } = await import('/src/js/core/defaults.js');
-    const { findFirstFreeSlot } = await import('/src/js/core/grid.js');
+    const { findFirstFreeSlot } = await import('/src/js/shared/grid/gridPlacement.js');
     const { getState, setState } = await import('/src/js/core/store.js');
     const { data } = getState();
     const blocker = {
