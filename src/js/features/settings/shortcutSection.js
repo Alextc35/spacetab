@@ -2,13 +2,13 @@ import {
   DEFAULT_KEYBOARD_SHORTCUTS,
   formatShortcut,
   shortcutFromKeyboardEvent
-} from '../../../core/keyboardShortcuts.js';
-import { subscribeLanguageChange, t } from '../../../core/i18n.js';
+} from '../../core/keyboardShortcuts.js';
+import { subscribeLanguageChange, t } from '../../core/i18n.js';
 import {
   getDraftKeyboardShortcuts,
   replaceDraftKeyboardShortcuts,
   setDraftKeyboardShortcut
-} from './settingsState.js';
+} from './settingsDraft.js';
 
 /** Initializes the editable keyboard-shortcut settings section. */
 export function initShortcutSection({ onRequestSaveStateUpdate }) {

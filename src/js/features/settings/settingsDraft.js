@@ -1,9 +1,8 @@
-// settingsState.js
-import { normalizeBookmarkDragMode } from '../../../core/bookmarkDragModes.js';
-import { normalizeBookmarkResizeMode } from '../../../core/bookmarkResizeModes.js';
-import { normalizeInterfaceTheme } from '../../../core/interfacePreferences.js';
-import { normalizeKeyboardShortcuts } from '../../../core/keyboardShortcuts.js';
-import { getState } from '../../../core/store.js';
+import { normalizeBookmarkDragMode } from '../../core/bookmarkDragModes.js';
+import { normalizeBookmarkResizeMode } from '../../core/bookmarkResizeModes.js';
+import { normalizeInterfaceTheme } from '../../core/interfacePreferences.js';
+import { normalizeKeyboardShortcuts } from '../../core/keyboardShortcuts.js';
+import { getState } from '../../core/store.js';
 
 /**
  * Draft theme state used while the settings modal is open.

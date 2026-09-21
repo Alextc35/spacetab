@@ -1,15 +1,15 @@
-import { applyInterfaceTheme } from '../../../core/interfacePreferences.js';
+import { applyInterfaceTheme } from '../../core/interfacePreferences.js';
 import {
   getDraftInterfaceTheme,
   getDraftShowRecycleBin,
   setDraftInterfaceTheme,
   setDraftShowRecycleBin,
   getInitialSnapshot
-} from './settingsState.js';
-import { t } from '../../../core/i18n.js';
-import { exportBackup, importBackup } from '../../backup.js';
-import { showAlert } from '../alert.js';
-import { createRecycleBinSvg } from '../../svgIcons.js';
+} from './settingsDraft.js';
+import { t } from '../../core/i18n.js';
+import { exportBackup, importBackup } from '../../ui/backup.js';
+import { showAlert } from '../../ui/modals/alert.js';
+import { createRecycleBinSvg } from '../../ui/svgIcons.js';
 
 /** Connects complete backup/restore and destructive reset actions. */
 export function initGeneralSection({

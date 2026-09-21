@@ -1,9 +1,9 @@
-import { changeLanguage } from '../../../core/i18n.js';
-import { getInitialSnapshot } from './settingsState.js';
+import { changeLanguage } from '../../core/i18n.js';
+import { getInitialSnapshot } from './settingsDraft.js';
 import {
   getDraftLanguage,
   setDraftLanguage
-} from './settingsState.js';
+} from './settingsDraft.js';
 
 /**
  * Initializes the language section inside the settings modal.

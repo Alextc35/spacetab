@@ -1,22 +1,22 @@
-import { createLockableInputController } from '../helper/stateLocked.js';
-import { showAlert } from '../alert.js';
-import { t } from '../../../core/i18n.js';
-import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
-import { flashSuccess } from '../../flash.js';
+import { createLockableInputController } from '../../ui/modals/helper/stateLocked.js';
+import { showAlert } from '../../ui/modals/alert.js';
+import { t } from '../../core/i18n.js';
+import { DEFAULT_SETTINGS } from '../../core/defaults.js';
+import { flashSuccess } from '../../ui/flash.js';
 import {
   getImageInputValue,
   initLocalImageUpload,
   setLocalImageSyncNoticeVisibility,
   setImageInputValue
-} from '../../localImageUpload.js';
-import { resolveBackgroundImage } from '../../../platform/images/localImages.js';
-import { getStorageMode } from '../../../core/store.js';
+} from '../../ui/localImageUpload.js';
+import { resolveBackgroundImage } from '../../platform/images/localImages.js';
+import { getStorageMode } from '../../core/store.js';
 import {
   getDraftStorageMode,
   getDraftTheme,
   setDraftThemeValue,
   replaceDraftTheme
-} from './settingsState.js';
+} from './settingsDraft.js';
 
 /**
  * Initializes the theme section inside the settings modal.

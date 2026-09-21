@@ -1,22 +1,20 @@
-// ui/modals/settings/index.js
-import { registerModal, openModal, closeModal } from '../../modalManager.js';
-import { flashSuccess, flashError } from '../../flash.js';
-import { initTabs } from '../../tabs.js';
-import { ensurePanelFits } from '../../viewportMode.js';
+import { registerModal, openModal, closeModal } from '../../ui/modalManager.js';
+import { flashSuccess, flashError } from '../../ui/flash.js';
+import { initTabs } from '../../ui/tabs.js';
+import { ensurePanelFits } from '../../ui/viewportMode.js';
 
-import { changeLanguage, t } from '../../../core/i18n.js';
-import { DEFAULT_SETTINGS } from '../../../core/defaults.js';
+import { changeLanguage, t } from '../../core/i18n.js';
+import { DEFAULT_SETTINGS } from '../../core/defaults.js';
 import {
   changeStorageMode,
   clearAllData,
   getState,
   getStorageMode
-} from '../../../core/store.js';
-import { updateSettings } from '../../../core/settings.js';
-import { ensureRecycleBinPosition } from '../../../features/recycle-bin/recycleBinActions.js';
+} from '../../core/store.js';
+import { ensureRecycleBinPosition } from '../recycle-bin/recycleBinActions.js';
 
-import { showAlert } from '../alert.js';
-import { createSettingsSectionSvg } from '../../svgIcons.js';
+import { showAlert } from '../../ui/modals/alert.js';
+import { createSettingsSectionSvg } from '../../ui/svgIcons.js';
 
 import { initGeneralSection } from './generalSection.js';
 import { initThemeSection } from './themeSection.js';
@@ -32,7 +30,8 @@ import {
   getDraftStorageMode,
   reconcileDraftStorageMode,
   replaceDraftSettings
-} from './settingsState.js';
+} from './settingsDraft.js';
+import { updateSettings } from './settingsActions.js';
 
 /**
  * Initializes the settings modal.

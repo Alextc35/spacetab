@@ -2,7 +2,7 @@ import {
   getDraftStorageMode,
   reconcileDraftStorageMode,
   setDraftStorageMode
-} from './settingsState.js';
+} from './settingsDraft.js';
 import {
   deleteSyncedData,
   getStorageMode,
@@ -10,14 +10,14 @@ import {
   getSyncCompatibility,
   getSyncedDataMetadata,
   subscribe
-} from '../../../core/store.js';
-import { subscribeLanguageChange, t } from '../../../core/i18n.js';
+} from '../../core/store.js';
+import { subscribeLanguageChange, t } from '../../core/i18n.js';
 import {
   getSyncBrowserSupport,
   SYNC_BROWSERS
-} from '../../../core/browserCapabilities.js';
-import { showAlert } from '../alert.js';
-import { flashError, flashSuccess } from '../../flash.js';
+} from '../../core/browserCapabilities.js';
+import { showAlert } from '../../ui/modals/alert.js';
+import { flashError, flashSuccess } from '../../ui/flash.js';
 
 function getBrowserNoticeKey(browser) {
   if (browser === SYNC_BROWSERS.CHROME) {

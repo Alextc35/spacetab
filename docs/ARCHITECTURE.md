@@ -44,7 +44,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 7 establish the first application, domain, feature, platform
+Phases 1 through 8 establish the first application, domain, feature, platform
 and widget seams:
 
 ```text
@@ -86,6 +86,11 @@ src/js/
 │   │   ├── recycleBinEditorModal.js
 │   │   ├── recycleBinGridItem.js
 │   │   └── recycleBinModal.js
+│   ├── settings/
+│   │   ├── settingsActions.js
+│   │   ├── settingsDraft.js
+│   │   ├── settingsModal.js
+│   │   └── *Section.js
 │   └── workspaces/
 │       ├── workspaceActions.js
 │       └── workspaceSelectors.js
@@ -150,6 +155,20 @@ classification lives in `app/appStateChanges.js`, making the routing contract
 testable without a DOM or Chrome API. Feature commands remain the only place
 that decides how bookmarks, folders, workspaces, the recycle bin or widgets
 change.
+
+## Settings feature boundary
+
+The settings capability is owned by `features/settings`. Its store-backed
+command, modal controller, isolated draft and section controllers now live in
+one vertical slice. The application bootstrap composes that feature directly;
+the generic modal index no longer acts as a feature registry. Reusable modal,
+tab, flash, upload and icon primitives remain in `ui/` while storage and sync
+operations remain behind the existing store/platform boundary.
+
+This move is intentionally schema-neutral. The persisted `settings` object,
+live-preview behavior, storage-mode workflow and HTML/CSS contracts are
+unchanged. Feature-action tests protect partial updates and the recycle-bin
+placement side effect when its visibility is enabled.
 
 ## GridItem and the item-type registry
 
@@ -293,6 +312,8 @@ remain out of scope.
    without shipping a visible widget or changing current UX.
 7. ✅ Reduce `main.js` to the browser entry point and move bootstrap composition
    and store-to-UI coordination behind the application boundary.
+8. ✅ Encapsulate settings commands, draft state, modal coordination and section
+   controllers as a complete feature while retaining reusable UI primitives.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.
