@@ -1,6 +1,6 @@
 import '../../types/types.js'; // typedefs
 import { clearBookmarks } from '../../features/bookmarks/bookmarkActions.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { showConfirmWithCheckbox } from '../modals/alert.js';
 import { closeModal } from '../modalManager.js';
 import { openEditBookmark } from '../modals/bookmarkModal.js';

@@ -4,7 +4,7 @@ import {
   updateBookmarkFolder
 } from '../../features/folders/folderActions.js';
 import { validateFolderDraft } from '../../domain/folders/folderModel.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { getState, getStorageMode, waitForPersistence } from '../../core/store.js';
 import { createFolderVisual, applyFolderAppearance } from '../folder/visual.js';
 import { flashSuccess } from '../flash.js';

@@ -1,5 +1,5 @@
 import { getState } from '../../core/store.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import {
   clearGridKeyboardNavigation
 } from '../../ui/bookmark/gridKeyboardNavigation.js';

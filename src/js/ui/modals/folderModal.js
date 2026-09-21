@@ -11,7 +11,7 @@ import {
   FOLDER_GRID_COLUMNS,
   FOLDER_GRID_ROWS
 } from '../../domain/folders/folderGrid.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { getState, subscribe } from '../../core/store.js';
 import { createItemActionButton } from '../bookmark/actions.js';
 import { createBookmarkElement } from '../../features/bookmarks/bookmarkCard.js';

@@ -3,11 +3,11 @@ import {
   moveBookmarksToRecycleBin,
   moveFolderToRecycleBin
 } from '../../features/recycle-bin/recycleBinActions.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import {
   findGridKeyboardRoute,
   getGridItemNavigationAnchor
-} from '../../core/gridKeyboardRoute.js';
+} from '../../shared/grid/gridKeyboardRoute.js';
 import { permanentlyDeleteGridItem } from '../../features/grid/gridItemActions.js';
 import { getActiveWorkspaceId } from '../../features/workspaces/workspaceSelectors.js';
 import { flashInfo, flashSuccess } from '../flash.js';

@@ -1,6 +1,6 @@
 import { createLockableInputController } from '../../ui/modals/helper/stateLocked.js';
 import { showAlert } from '../../ui/modals/alert.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { DEFAULT_SETTINGS } from '../../core/defaults.js';
 import { flashSuccess } from '../../ui/flash.js';
 import {

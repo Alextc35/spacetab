@@ -26,8 +26,3 @@ export function resolveLanguage(preference, deviceLanguage) {
     default: return 'en';
   }
 }
-
-/** Interface colors are independent of the user's wallpaper and bookmark styles. */
-export function applyInterfaceTheme(preference) {
-  document.documentElement.dataset.interfaceTheme = normalizeInterfaceTheme(preference);
-}

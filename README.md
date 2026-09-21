@@ -184,6 +184,7 @@ src/js/app/registerGridItemTypes.js       bundled grid-item composition
 src/js/domain/bookmarks/                  bookmark model and defaults
 src/js/domain/folders/                    folder model and internal layout
 src/js/domain/recycle-bin/                pure trash and restoration rules
+src/js/domain/settings/                   portable preference normalization
 src/js/domain/workspaces/workspaceModel.js workspace identity and navigation
 
 src/js/features/bookmarks/bookmarkActions.js bookmark commands
@@ -194,12 +195,16 @@ src/js/features/settings/                    settings actions, draft and modal U
 src/js/features/workspaces/                  workspace actions and selectors
 
 src/js/core/bookmarkDragModes.js   drag-mode constants and normalization
-src/js/core/browserCapabilities.js tested sync-browser detection
 src/js/core/store.js               state, persistence status and undo/redo
+src/js/platform/browser/           tested browser capability detection
 src/js/platform/images/            local image cache and browser processing
+src/js/platform/i18n/              locale resolution and translation runtime
 src/js/platform/storage/           schema, Chrome persistence and device data
 src/js/platform/sync/              versioned, quota-safe sync transport
 src/js/shared/data/mergeChanges.js concurrent persisted-data reconciliation
+src/js/shared/grid/                generic geometry, placement and keyboard routing
+src/js/shared/keyboard/            shortcut normalization and event matching
+src/js/shared/ui/interfaceTheme.js interface-theme DOM adapter
 src/js/widgets/widgetModel.js      generic persisted widget envelope
 src/js/widgets/widgetRegistry.js   bundled-widget to GridItem adapter
 src/js/widgets/widgetActions.js    generic widget lifecycle commands

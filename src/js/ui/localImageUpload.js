@@ -3,7 +3,7 @@ import {
   saveLocalImage
 } from '../platform/images/localImages.js';
 import { isLocalImageReference } from '../shared/images/backgroundImage.js';
-import { t } from '../core/i18n.js';
+import { t } from '../platform/i18n/i18n.js';
 import { flashError } from './flash.js';
 
 const LOCAL_IMAGE_REFERENCE_DATASET_KEY = 'localImageReference';

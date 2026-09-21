@@ -1,6 +1,6 @@
 import { debug } from '../core/debug.js';
-import { changeLanguage } from '../core/i18n.js';
-import { applyInterfaceTheme } from '../core/interfacePreferences.js';
+import { changeLanguage } from '../platform/i18n/i18n.js';
+import { applyInterfaceTheme } from '../shared/ui/interfaceTheme.js';
 import { applyGlobalTheme } from '../core/theme.js';
 import { enableGridEditing, renderGrid } from '../features/grid/gridRenderer.js';
 import { preloadLocalImages } from '../platform/images/localImages.js';

@@ -26,7 +26,7 @@ import {
   moveFolderToRecycleBin
 } from '../../features/recycle-bin/recycleBinActions.js';
 import { showAlert } from '../modals/alert.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 
 let dragging = false;
 let resizing = false;

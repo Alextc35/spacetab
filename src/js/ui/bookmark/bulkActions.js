@@ -9,7 +9,7 @@ import {
   getWorkspaces
 } from '../../features/workspaces/workspaceSelectors.js';
 import { subscribe } from '../../core/store.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { showAlert } from '../modals/alert.js';
 import { flashSuccess } from '../flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';

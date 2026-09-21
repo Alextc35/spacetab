@@ -11,13 +11,13 @@ import {
 } from '../../domain/bookmarks/bookmarkModel.js';
 import { normalizeBookmarkDragMode } from '../../core/bookmarkDragModes.js';
 import { normalizeBookmarkResizeMode } from '../../core/bookmarkResizeModes.js';
-import { normalizeKeyboardShortcuts } from '../../core/keyboardShortcuts.js';
+import { normalizeKeyboardShortcuts } from '../../shared/keyboard/keyboardShortcuts.js';
 import { normalizeFolderStyle } from '../../domain/folders/folderModel.js';
 import { normalizeBackgroundImage } from '../../shared/images/backgroundImage.js';
 import {
   normalizeInterfaceTheme,
   normalizeLanguagePreference
-} from '../../core/interfacePreferences.js';
+} from '../../domain/settings/interfacePreferences.js';
 import { normalizeRecycleBinStyle } from '../../domain/recycle-bin/recycleBinModel.js';
 import {
   normalizeWorkspaces,

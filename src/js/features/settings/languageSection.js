@@ -1,4 +1,4 @@
-import { changeLanguage } from '../../core/i18n.js';
+import { changeLanguage } from '../../platform/i18n/i18n.js';
 import { getInitialSnapshot } from './settingsDraft.js';
 import {
   getDraftLanguage,

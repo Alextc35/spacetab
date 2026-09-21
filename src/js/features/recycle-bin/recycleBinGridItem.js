@@ -1,4 +1,4 @@
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { createItemActionButton } from '../../ui/bookmark/actions.js';
 import { addDragAndResize } from '../../ui/bookmark/dragResize.js';
 import { isGridKeyboardActive } from '../../ui/bookmark/gridKeyboardNavigation.js';

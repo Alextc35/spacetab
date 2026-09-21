@@ -12,7 +12,7 @@ import {
   getWorkspaces
 } from '../features/workspaces/workspaceSelectors.js';
 import { getState, redoBookmarks, subscribe, undoBookmarks } from '../core/store.js';
-import { t } from '../core/i18n.js';
+import { t } from '../platform/i18n/i18n.js';
 import { flash, flashSuccess } from './flash.js';
 import { hasOpenModal } from './modalManager.js';
 import { showAlert, showPrompt } from './modals/alert.js';

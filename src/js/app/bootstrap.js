@@ -1,7 +1,7 @@
 import { debug } from '../core/debug.js';
 import { finishDebugStartup, initDebugTools } from '../core/diagnostics.js';
-import { initI18n } from '../core/i18n.js';
-import { applyInterfaceTheme } from '../core/interfacePreferences.js';
+import { initI18n } from '../platform/i18n/i18n.js';
+import { applyInterfaceTheme } from '../shared/ui/interfaceTheme.js';
 import {
   getState,
   getSyncCompatibility,
@@ -69,7 +69,7 @@ export async function bootstrapApplication({ trace, startedAt }) {
   await preloadLocalImages(getState().data);
   trace.mark('Load local images');
 
-  await initI18n();
+  await initI18n(getState().data.settings);
   trace.mark('Load language');
 
   const appController = createAppController({ container: elements.container });

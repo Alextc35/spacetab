@@ -1,4 +1,4 @@
-import { t } from '../core/i18n.js';
+import { t } from '../platform/i18n/i18n.js';
 import { getState, toggleEditing } from '../core/store.js';
 
 import { resizeGridView } from '../features/grid/gridRenderer.js';

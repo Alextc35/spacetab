@@ -1,4 +1,4 @@
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { getState } from '../../core/store.js';
 import { getWorkspaces } from '../../features/workspaces/workspaceSelectors.js';
 import { closeModal, openModal, registerModal } from '../modalManager.js';

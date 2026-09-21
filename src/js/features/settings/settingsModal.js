@@ -3,7 +3,7 @@ import { flashSuccess, flashError } from '../../ui/flash.js';
 import { initTabs } from '../../ui/tabs.js';
 import { ensurePanelFits } from '../../ui/viewportMode.js';
 
-import { changeLanguage, t } from '../../core/i18n.js';
+import { changeLanguage, t } from '../../platform/i18n/i18n.js';
 import { DEFAULT_SETTINGS } from '../../core/defaults.js';
 import {
   changeStorageMode,

@@ -5,7 +5,7 @@ import { flashSuccess } from '../flash.js';
 import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 import { getState, waitForPersistence } from '../../core/store.js';
 import { showAlert } from './alert.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { findFirstFreeSlot } from '../../shared/grid/gridPlacement.js';
 import { getOccupiedGridItems } from '../../features/bookmarks/bookmarkActions.js';

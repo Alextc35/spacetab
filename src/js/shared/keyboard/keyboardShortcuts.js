@@ -1,3 +1,4 @@
+/** Stable application actions that can be bound to keyboard shortcuts. */
 export const SHORTCUT_ACTIONS = Object.freeze({
   TOGGLE_EDITING: 'toggleEditing',
   ADD_BOOKMARK: 'addBookmark',

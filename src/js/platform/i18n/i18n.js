@@ -1,8 +1,10 @@
-import '../types/types.js'; // typedefs
-import { VERSION } from './config.js';
-import { getState } from './store.js';
-import { loadTranslations } from '../lang/index.js';
-import { normalizeLanguagePreference, resolveLanguage } from './interfacePreferences.js';
+import '../../types/types.js'; // typedefs
+import { VERSION } from '../../core/config.js';
+import { loadTranslations } from '../../lang/index.js';
+import {
+  normalizeLanguagePreference,
+  resolveLanguage
+} from '../../domain/settings/interfacePreferences.js';
 
 /** @type {TranslationTree} */
 let translations = {};
@@ -22,13 +24,13 @@ const languageChangeListeners = new Set();
 /**
  * Initializes the internationalization system.
  *
- * Loads translations for the current language stored in the application state
- * and applies them to the document.
+ * Loads translations for the supplied application settings and applies them to
+ * the document. State access remains at the application composition boundary.
  *
+ * @param {Partial<Settings>} [settings={}]
  * @returns {Promise<void>}
  */
-export async function initI18n() {
-  const { data: { settings } } = getState();
+export async function initI18n(settings = {}) {
   await changeLanguage(settings);
   window.addEventListener('languagechange', () => {
     if (activePreference === 'system') void changeLanguage({ language: 'system' });

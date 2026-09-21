@@ -1,5 +1,5 @@
 import { getState, subscribe } from '../../core/store.js';
-import { subscribeLanguageChange, t } from '../../core/i18n.js';
+import { subscribeLanguageChange, t } from '../../platform/i18n/i18n.js';
 import {
   emptyRecycleBin,
   permanentlyDeleteTrashEntries,

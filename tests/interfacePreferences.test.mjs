@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { resolveLanguage } from '../src/js/core/interfacePreferences.js';
+import { resolveLanguage } from '../src/js/domain/settings/interfacePreferences.js';
 import {
   createBackupEnvelope,
   migratePersistedData,

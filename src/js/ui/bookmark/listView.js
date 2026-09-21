@@ -1,4 +1,4 @@
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { resolveBackgroundImage } from '../../platform/images/localImages.js';
 import { createFavicon } from './favicon.js';
 import { applyFolderAppearance, createFolderVisual } from '../folder/visual.js';

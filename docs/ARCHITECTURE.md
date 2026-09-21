@@ -44,7 +44,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 8 establish the first application, domain, feature, platform
+Phases 1 through 9 establish the first application, domain, feature, platform
 and widget seams:
 
 ```text
@@ -66,6 +66,8 @@ src/js/
 │   │   ├── recycleBinDefaults.js
 │   │   ├── recycleBinEntries.js
 │   │   └── recycleBinModel.js
+│   ├── settings/
+│   │   └── interfacePreferences.js
 │   └── workspaces/
 │       └── workspaceModel.js
 ├── features/
@@ -95,8 +97,12 @@ src/js/
 │       ├── workspaceActions.js
 │       └── workspaceSelectors.js
 ├── platform/
+│   ├── browser/
+│   │   └── browserCapabilities.js
 │   ├── images/
 │   │   └── localImages.js
+│   ├── i18n/
+│   │   └── i18n.js
 │   ├── storage/
 │   │   ├── chromeStorage.js
 │   │   ├── dataSchema.js
@@ -112,9 +118,14 @@ src/js/
 │   ├── grid/
 │   │   ├── gridGeometry.js
 │   │   ├── gridItemRegistry.js
+│   │   ├── gridKeyboardRoute.js
 │   │   └── gridPlacement.js
-│   └── images/
-│       └── backgroundImage.js
+│   ├── images/
+│   │   └── backgroundImage.js
+│   ├── keyboard/
+│   │   └── keyboardShortcuts.js
+│   └── ui/
+│       └── interfaceTheme.js
 └── widgets/
     ├── widgetActions.js
     ├── widgetModel.js
@@ -140,6 +151,21 @@ Workspace identity, naming, normalization and cyclic navigation now live in
 `domain/workspaces`. Store-backed creation, activation, deletion and bookmark
 movement live in `features/workspaces`; selectors adapt the legacy persisted
 field names for UI and other feature consumers.
+
+## Platform and shared runtime boundaries
+
+Browser-brand detection and the translation runtime live under `platform/`
+because they read browser capabilities, Chrome runtime URLs, device locale and
+translation assets. Portable preference normalization remains deterministic in
+`domain/settings`, while `shared/ui/interfaceTheme.js` owns the small DOM
+effect that applies the normalized interface theme. The bootstrap injects the
+hydrated settings into i18n, so the platform service does not read the store.
+
+Keyboard shortcut parsing and spatial grid routing are pure cross-feature
+mechanisms under `shared/keyboard` and `shared/grid`. Their consumers import
+those modules directly; no compatibility re-export remains in `core/`.
+`core/store.js` deliberately stays in place until its remaining consumers can
+move as a separate, tested phase.
 
 ## Application bootstrap and state reactions
 
@@ -314,6 +340,8 @@ remain out of scope.
    and store-to-UI coordination behind the application boundary.
 8. ✅ Encapsulate settings commands, draft state, modal coordination and section
    controllers as a complete feature while retaining reusable UI primitives.
+9. ✅ Move browser/i18n runtime services and reusable keyboard/grid policies out
+   of transitional `core/`; split pure interface preferences from their DOM effect.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.
@@ -364,9 +392,10 @@ transition, so undo treats them as a single user action. Workspace UI reads the
 legacy persisted fields only through `workspaceSelectors.js`.
 
 `src/js/core/bookmarkDragModes.js` owns the persisted drag-mode contract and
-normalizes missing or unknown values to None. `src/js/core/browserCapabilities.js`
-keeps browser detection out of Settings and only enables synchronized storage
-for tested, branded Google Chrome environments.
+normalizes missing or unknown values to None.
+`src/js/platform/browser/browserCapabilities.js` keeps browser detection out of
+Settings and only enables synchronized storage for tested, branded Google
+Chrome environments.
 
 `src/js/core/store.js` owns live state, the persistence queue and grid-content
 undo/redo history. A history snapshot contains bookmarks and folders together.

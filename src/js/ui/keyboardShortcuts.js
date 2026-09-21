@@ -3,7 +3,7 @@ import {
   formatAriaShortcut,
   normalizeKeyboardShortcuts,
   SHORTCUT_ACTIONS
-} from '../core/keyboardShortcuts.js';
+} from '../shared/keyboard/keyboardShortcuts.js';
 import { getState } from '../core/store.js';
 import { hasOpenModal, isModalActive } from './modalManager.js';
 

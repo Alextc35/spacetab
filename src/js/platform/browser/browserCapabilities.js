@@ -1,3 +1,4 @@
+/** Browser families with an explicit SpaceTab synchronization policy. */
 export const SYNC_BROWSERS = Object.freeze({
   CHROME: 'chrome',
   BRAVE: 'brave',

@@ -1,3 +1,4 @@
+/** Pure spatial routing shared by every keyboard-navigable grid item. */
 const HORIZONTAL_DIRECTIONS = new Set(['ArrowLeft', 'ArrowRight']);
 const VERTICAL_DIRECTIONS = new Set(['ArrowUp', 'ArrowDown']);
 

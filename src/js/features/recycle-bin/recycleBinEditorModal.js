@@ -1,5 +1,5 @@
 import { DEFAULT_RECYCLE_BIN_STYLE } from '../../domain/recycle-bin/recycleBinDefaults.js';
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import {
   normalizeRecycleBinStyle,
   validateRecycleBinStyle

@@ -11,11 +11,11 @@ import {
   getSyncedDataMetadata,
   subscribe
 } from '../../core/store.js';
-import { subscribeLanguageChange, t } from '../../core/i18n.js';
+import { subscribeLanguageChange, t } from '../../platform/i18n/i18n.js';
 import {
   getSyncBrowserSupport,
   SYNC_BROWSERS
-} from '../../core/browserCapabilities.js';
+} from '../../platform/browser/browserCapabilities.js';
 import { showAlert } from '../../ui/modals/alert.js';
 import { flashError, flashSuccess } from '../../ui/flash.js';
 

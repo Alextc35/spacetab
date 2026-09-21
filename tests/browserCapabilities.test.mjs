@@ -5,7 +5,7 @@ import {
   detectSyncBrowser,
   getSyncBrowserSupport,
   SYNC_BROWSERS
-} from '../src/js/core/browserCapabilities.js';
+} from '../src/js/platform/browser/browserCapabilities.js';
 
 test('allows sync in branded Google Chrome', () => {
   const navigatorLike = {

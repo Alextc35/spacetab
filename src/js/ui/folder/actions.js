@@ -1,4 +1,4 @@
-import { t } from '../../core/i18n.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { createItemActionButton } from '../bookmark/actions.js';
 import { isVisuallyDark } from '../bookmark/utils.js';
 import { openFolderEditor } from '../modals/folderEditorModal.js';

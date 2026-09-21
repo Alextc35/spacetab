@@ -2,8 +2,8 @@ import {
   DEFAULT_KEYBOARD_SHORTCUTS,
   formatShortcut,
   shortcutFromKeyboardEvent
-} from '../../core/keyboardShortcuts.js';
-import { subscribeLanguageChange, t } from '../../core/i18n.js';
+} from '../../shared/keyboard/keyboardShortcuts.js';
+import { subscribeLanguageChange, t } from '../../platform/i18n/i18n.js';
 import {
   getDraftKeyboardShortcuts,
   replaceDraftKeyboardShortcuts,

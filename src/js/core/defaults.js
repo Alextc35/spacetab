@@ -1,7 +1,7 @@
 import '../types/types.js'; // typedefs
 import { BOOKMARK_DRAG_MODES } from './bookmarkDragModes.js';
 import { BOOKMARK_RESIZE_MODES } from './bookmarkResizeModes.js';
-import { DEFAULT_KEYBOARD_SHORTCUTS } from './keyboardShortcuts.js';
+import { DEFAULT_KEYBOARD_SHORTCUTS } from '../shared/keyboard/keyboardShortcuts.js';
 import {
   DEFAULT_BOOKMARK,
   DEFAULT_BOOKMARK_STRUCTURE,
