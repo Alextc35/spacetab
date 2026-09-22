@@ -188,7 +188,7 @@ src/js/domain/settings/                   portable preference normalization
 src/js/domain/workspaces/workspaceModel.js workspace identity and navigation
 
 src/js/features/bookmarks/                  bookmark commands, cards and editor UI
-src/js/features/folders/folderActions.js     folder membership and commands
+src/js/features/folders/                     folder commands, cards and modal UI
 src/js/features/grid/                        item registry consumers and actions
 src/js/features/recycle-bin/                 recycle-bin actions and UI
 src/js/features/search/                      global and compact-list search UI
@@ -214,8 +214,6 @@ src/js/ui/bookmark/dragResize.js   shared pointer drag and resize controller
 src/js/ui/bookmark/smartDragLayout.js pure collision and displacement planner
 src/js/ui/bookmark/gridKeyboardNavigation.js Tab-based grid focus and actions
 src/js/ui/bookmark/keyboardMovement.js selected-bookmark arrow movement
-src/js/ui/folder/                  folder card, actions and contents controller
-src/js/ui/modals/folderModal.js    compact folder workspace and drag controller
 src/js/ui/bookmark/bulkActions.js  multi-selection workflows
 src/js/ui/modalManager.js          modal stack and focus management
 ```

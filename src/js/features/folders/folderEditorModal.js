@@ -2,24 +2,24 @@ import {
   BOOKMARK_FOLDER_NAME_MAX_LENGTH,
   createBookmarkFolder,
   updateBookmarkFolder
-} from '../../features/folders/folderActions.js';
+} from './folderActions.js';
 import { validateFolderDraft } from '../../domain/folders/folderModel.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { getState, getStorageMode, waitForPersistence } from '../../core/store.js';
-import { createFolderVisual, applyFolderAppearance } from '../folder/visual.js';
-import { flashSuccess } from '../flash.js';
-import { initTabs } from '../tabs.js';
-import { closeModal, openModal, registerModal } from '../modalManager.js';
+import { flashSuccess } from '../../ui/flash.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from '../../ui/gridLayout.js';
 import {
   getImageInputValue,
   initLocalImageUpload,
   setLocalImageSyncNoticeVisibility,
   setImageInputValue
-} from '../localImageUpload.js';
-import { showAlert } from './alert.js';
-import { createLockableInputController } from './helper/stateLocked.js';
-import { ensurePanelFits } from '../viewportMode.js';
-import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
+} from '../../ui/localImageUpload.js';
+import { closeModal, openModal, registerModal } from '../../ui/modalManager.js';
+import { showAlert } from '../../ui/modals/alert.js';
+import { createLockableInputController } from '../../ui/modals/helper/stateLocked.js';
+import { initTabs } from '../../ui/tabs.js';
+import { ensurePanelFits } from '../../ui/viewportMode.js';
+import { applyFolderAppearance, createFolderVisual } from './folderVisual.js';
 
 let initialized = false;
 /** @type {'create'|'edit'|null} */

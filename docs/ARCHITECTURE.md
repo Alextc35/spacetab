@@ -44,7 +44,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 11 establish the first application, domain, feature, platform
+Phases 1 through 12 establish the first application, domain, feature, platform
 and widget seams:
 
 ```text
@@ -81,7 +81,13 @@ src/js/
 │   │   └── bookmarkPreview.js
 │   ├── folders/
 │   │   ├── folderActions.js
-│   │   └── folderGridItem.js
+│   │   ├── folderCard.js
+│   │   ├── folderCardActions.js
+│   │   ├── folderController.js
+│   │   ├── folderEditorModal.js
+│   │   ├── folderGridItem.js
+│   │   ├── folderModal.js
+│   │   └── folderVisual.js
 │   ├── grid/
 │   │   ├── gridItemActions.js
 │   │   ├── gridRenderer.js
@@ -235,6 +241,22 @@ also remain transitional shared UI because they operate across bookmarks,
 folders, the recycle bin and widgets. Existing HTML templates, CSS, persistence
 and bookmark draft contracts are unchanged by this phase.
 
+## Folder feature boundary
+
+The folder capability is owned by `features/folders`. Store-backed membership
+and layout commands, the GridItem adapter, card and action rendering, shared
+folder visual, create/edit modal and compact folder workspace now form one
+vertical slice. The application bootstrap composes its controller and modals
+directly, and the generic modal index no longer exposes folder-specific entry
+points.
+
+The folder slice continues to consume proven cross-feature interaction
+mechanisms from `ui/`: bookmark-card actions, compact list rows, grid
+drag/resize, selection, modal management, tabs and local-image inputs. Its
+modal also invokes the bookmark editor through the bookmark feature entry
+point. Moving these modules changes neither folder data, internal 6 × 3 layout,
+HTML templates, CSS nor keyboard behavior.
+
 ## GridItem and the item-type registry
 
 `GridItem` is a structural contract: `id`, `gx`, `gy`, `w`, `h` and `groupId`.
@@ -385,6 +407,8 @@ remain out of scope.
     feature, with the reusable query policy covered independently from its DOM UI.
 11. ✅ Encapsulate the bookmark modal, editor panel, form controller and preview
     as one vertical feature while retaining proven cross-feature UI primitives.
+12. ✅ Encapsulate folder cards, visual actions, create/edit flow and compact
+    folder workspace alongside the existing folder commands and GridItem adapter.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.
@@ -577,8 +601,8 @@ modal manager owns stacking, focus trapping, background isolation and focus
 restoration.
 
 The renderer displays top-level bookmarks and folders in the active workspace.
-`src/js/ui/folder/renderer.js` owns the folder card and previews, while
-`src/js/ui/modals/folderModal.js` reuses the production bookmark renderer in a
+`features/folders/folderCard.js` owns the folder card and previews, while
+`features/folders/folderModal.js` reuses the production bookmark renderer in a
 compact 3 × 6 workspace. The modal starts in a link-only view with no action or
 drag listeners. Its local edit mode, toggled by the header control or the
 configured edit shortcut (`Ctrl + E` by default),

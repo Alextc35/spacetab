@@ -1,7 +1,7 @@
 import { t } from '../../platform/i18n/i18n.js';
-import { createItemActionButton } from '../bookmark/actions.js';
-import { isVisuallyDark } from '../bookmark/utils.js';
-import { openFolderEditor } from '../modals/folderEditorModal.js';
+import { createItemActionButton } from '../../ui/bookmark/actions.js';
+import { isVisuallyDark } from '../../ui/bookmark/utils.js';
+import { openFolderEditor } from './folderEditorModal.js';
 
 export function addFolderActions(container, folder) {
   const themeClass = isFolderActionSurfaceDark(folder) ? 'is-dark' : 'is-light';

@@ -14,7 +14,7 @@ import { flashInfo, flashSuccess } from '../flash.js';
 import { hasOpenModal } from '../modalManager.js';
 import { isListView } from '../viewportMode.js';
 import { openEditBookmark } from '../../features/bookmarks/bookmarkModal.js';
-import { openFolderEditor } from '../modals/folderEditorModal.js';
+import { openFolderEditor } from '../../features/folders/folderEditorModal.js';
 import { openRecycleBinModal } from '../../features/recycle-bin/recycleBinModal.js';
 import { openRecycleBinEditor } from '../../features/recycle-bin/recycleBinEditorModal.js';
 import { showAlert } from '../modals/alert.js';

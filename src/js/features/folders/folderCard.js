@@ -1,11 +1,11 @@
 import { t } from '../../platform/i18n/i18n.js';
-import { applyGridItemPosition } from '../gridItemLayout.js';
-import { addDragAndResize } from '../bookmark/dragResize.js';
-import { openFolderModal } from '../modals/folderModal.js';
-import { isGridKeyboardActive } from '../bookmark/gridKeyboardNavigation.js';
-import { addFolderActions } from './actions.js';
-import { applyFolderAppearance, createFolderVisual } from './visual.js';
-import { isGridItemSelected } from '../bookmark/selection.js';
+import { addDragAndResize } from '../../ui/bookmark/dragResize.js';
+import { isGridKeyboardActive } from '../../ui/bookmark/gridKeyboardNavigation.js';
+import { isGridItemSelected } from '../../ui/bookmark/selection.js';
+import { applyGridItemPosition } from '../../ui/gridItemLayout.js';
+import { addFolderActions } from './folderCardActions.js';
+import { openFolderModal } from './folderModal.js';
+import { applyFolderAppearance, createFolderVisual } from './folderVisual.js';
 
 /** Creates a resizable folder card for the bookmark grid. */
 export function createFolderElement({ container, folder, bookmarks, isEditing }) {

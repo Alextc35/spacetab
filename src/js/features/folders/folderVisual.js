@@ -1,7 +1,7 @@
-import { createFavicon } from '../bookmark/favicon.js';
 import { resolveBackgroundImage } from '../../platform/images/localImages.js';
-import { lightSurfaceTextColor } from '../surfaceContrast.js';
-import { createFolderSvg } from '../svgIcons.js';
+import { createFavicon } from '../../ui/bookmark/favicon.js';
+import { lightSurfaceTextColor } from '../../ui/surfaceContrast.js';
+import { createFolderSvg } from '../../ui/svgIcons.js';
 
 /** Creates the shared folder glyph used by cards, previews and headers. */
 export function createFolderVisual(folder, bookmarks = [], { compact = false } = {}) {

@@ -14,6 +14,9 @@ import {
   purgeExpiredRecycleBinEntries
 } from '../features/recycle-bin/recycleBinActions.js';
 import { initBookmarkModal } from '../features/bookmarks/bookmarkModal.js';
+import { initFolderController } from '../features/folders/folderController.js';
+import { initFolderEditorModal } from '../features/folders/folderEditorModal.js';
+import { initFolderModal } from '../features/folders/folderModal.js';
 import { initSearchModal } from '../features/search/searchModal.js';
 import { initSettingsModal } from '../features/settings/settingsModal.js';
 import { preloadLocalImages } from '../platform/images/localImages.js';
@@ -22,12 +25,9 @@ import { initBulkBookmarkActions } from '../ui/bookmark/bulkActions.js';
 import { initGridKeyboardNavigation } from '../ui/bookmark/gridKeyboardNavigation.js';
 import { flashInfo } from '../ui/flash.js';
 import { initFloatingMenu } from '../ui/floatingMenu.js';
-import { initFolderController } from '../ui/folder/controller.js';
 import { initKeyboardShortcuts } from '../ui/keyboardShortcuts.js';
 import {
   initAlertModal,
-  initFolderEditorModal,
-  initFolderModal,
   initRecycleBinEditorModal,
   initRecycleBinModal
 } from '../ui/modals/index.js';

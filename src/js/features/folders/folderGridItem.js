@@ -1,8 +1,8 @@
 import { isGridKeyboardActive } from '../../ui/bookmark/gridKeyboardNavigation.js';
 import { createListItem } from '../../ui/bookmark/listView.js';
-import { createFolderElement, enableFolderEditing } from '../../ui/folder/renderer.js';
-import { openFolderModal } from '../../ui/modals/folderModal.js';
 import { getActiveWorkspaceId } from '../workspaces/workspaceSelectors.js';
+import { createFolderElement, enableFolderEditing } from './folderCard.js';
+import { openFolderModal } from './folderModal.js';
 
 export const folderGridItem = Object.freeze({
   type: 'folder',

@@ -1,7 +1,10 @@
 import { t } from '../../platform/i18n/i18n.js';
 import { resolveBackgroundImage } from '../../platform/images/localImages.js';
 import { createFavicon } from './favicon.js';
-import { applyFolderAppearance, createFolderVisual } from '../folder/visual.js';
+import {
+  applyFolderAppearance,
+  createFolderVisual
+} from '../../features/folders/folderVisual.js';
 
 /** A read-only launcher row. Display preferences never overwrite saved styles. */
 export function createListItem(item, { folder = false, count = 0, active = false, onOpen } = {}) {

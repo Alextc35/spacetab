@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 
-import { applyFolderAppearance, createFolderVisual } from '../../src/js/ui/folder/visual.js';
+import {
+  applyFolderAppearance,
+  createFolderVisual
+} from '../../src/js/features/folders/folderVisual.js';
 
 beforeEach(() => {
   document.body.replaceChildren();

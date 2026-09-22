@@ -3,8 +3,8 @@ import {
   removeBookmarkFromFolder,
   renameBookmarkFolder,
   updateFolderBookmarkPositions
-} from '../../features/folders/folderActions.js';
-import { deleteBookmarksByIds } from '../../features/bookmarks/bookmarkActions.js';
+} from './folderActions.js';
+import { deleteBookmarksByIds } from '../bookmarks/bookmarkActions.js';
 import {
   createFolderBookmarkLayout,
   FOLDER_GRID_CAPACITY,
@@ -13,19 +13,24 @@ import {
 } from '../../domain/folders/folderGrid.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { getState, subscribe } from '../../core/store.js';
-import { createItemActionButton } from '../bookmark/actions.js';
-import { createBookmarkElement } from '../../features/bookmarks/bookmarkCard.js';
-import { flashInfo, flashSuccess } from '../flash.js';
-import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
-import { closeModal, openModal, registerModal, isModalSuspended } from '../modalManager.js';
-import { openEditBookmark } from '../../features/bookmarks/bookmarkModal.js';
+import { createItemActionButton } from '../../ui/bookmark/actions.js';
+import { calculateSmartDragLayout } from '../../ui/bookmark/smartDragLayout.js';
+import { createListItem } from '../../ui/bookmark/listView.js';
+import { flashInfo, flashSuccess } from '../../ui/flash.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from '../../ui/gridLayout.js';
+import {
+  closeModal,
+  isModalSuspended,
+  openModal,
+  registerModal
+} from '../../ui/modalManager.js';
+import { showAlert } from '../../ui/modals/alert.js';
+import { createEditIndicatorSvg } from '../../ui/svgIcons.js';
+import { ensurePanelFits, isListView } from '../../ui/viewportMode.js';
+import { createBookmarkElement } from '../bookmarks/bookmarkCard.js';
+import { openEditBookmark } from '../bookmarks/bookmarkModal.js';
 import { openFolderEditor } from './folderEditorModal.js';
-import { applyFolderAppearance, createFolderVisual } from '../folder/visual.js';
-import { showAlert } from './alert.js';
-import { calculateSmartDragLayout } from '../bookmark/smartDragLayout.js';
-import { ensurePanelFits, isListView } from '../viewportMode.js';
-import { createListItem } from '../bookmark/listView.js';
-import { createEditIndicatorSvg } from '../svgIcons.js';
+import { applyFolderAppearance, createFolderVisual } from './folderVisual.js';
 
 const FOLDER_MOVE_DURATION = 220;
 let initialized = false;

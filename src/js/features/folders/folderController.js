@@ -1,4 +1,4 @@
-import { openCreateFolder } from '../modals/folderEditorModal.js';
+import { openCreateFolder } from './folderEditorModal.js';
 
 let initialized = false;
 
