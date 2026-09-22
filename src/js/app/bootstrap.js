@@ -13,6 +13,8 @@ import {
   ensureRecycleBinPosition,
   purgeExpiredRecycleBinEntries
 } from '../features/recycle-bin/recycleBinActions.js';
+import { initRecycleBinEditorModal } from '../features/recycle-bin/recycleBinEditorModal.js';
+import { initRecycleBinModal } from '../features/recycle-bin/recycleBinModal.js';
 import { initBookmarkModal } from '../features/bookmarks/bookmarkModal.js';
 import { initFolderController } from '../features/folders/folderController.js';
 import { initFolderEditorModal } from '../features/folders/folderEditorModal.js';
@@ -25,14 +27,10 @@ import { preloadLocalImages } from '../platform/images/localImages.js';
 import { initBookmarkKeyboardMovement } from '../ui/bookmark/keyboardMovement.js';
 import { initBulkBookmarkActions } from '../ui/bookmark/bulkActions.js';
 import { initGridKeyboardNavigation } from '../ui/bookmark/gridKeyboardNavigation.js';
-import { flashInfo } from '../ui/flash.js';
+import { initAlertModal } from '../shared/ui/alertModal.js';
+import { flashInfo } from '../shared/ui/flash.js';
 import { initFloatingMenu } from '../ui/floatingMenu.js';
 import { initKeyboardShortcuts } from '../ui/keyboardShortcuts.js';
-import {
-  initAlertModal,
-  initRecycleBinEditorModal,
-  initRecycleBinModal
-} from '../ui/modals/index.js';
 import { initUIController } from '../ui/uiController.js';
 import { createAppController } from './appController.js';
 import { registerGridItemTypes } from './registerGridItemTypes.js';

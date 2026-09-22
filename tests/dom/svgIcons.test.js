@@ -3,8 +3,9 @@ import {
   createEditIndicatorSvg,
   createFolderSvg,
   createRecycleBinSvg,
-  createSettingsSectionSvg
-} from '../../src/js/ui/svgIcons.js';
+  createSettingsSectionSvg,
+  createThemedAssetIcon
+} from '../../src/js/shared/ui/svgIcons.js';
 
 describe('shared NewDeskTab SVG icons', () => {
   test.each([
@@ -36,5 +37,15 @@ describe('shared NewDeskTab SVG icons', () => {
     expect(svg.getAttribute('preserveAspectRatio')).toBe('xMidYMid meet');
     expect(svg.querySelector('.edit-indicator-pencil')).not.toBeNull();
     expect(svg.querySelector('.edit-indicator-detail')).not.toBeNull();
+  });
+
+  test('resolves themed icon assets from the extension asset directory', () => {
+    const icon = createThemedAssetIcon('bookmark');
+    const images = [...icon.querySelectorAll('img')];
+    const sources = images.map(image => decodeURIComponent(image.src));
+
+    expect(images).toHaveLength(2);
+    expect(sources[0]).toMatch(/bookmark-light(?:-fill|\.svg)/);
+    expect(sources[1]).toMatch(/bookmark-dark(?:-fill|\.svg)/);
   });
 });

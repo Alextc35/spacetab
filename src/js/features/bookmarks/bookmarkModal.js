@@ -2,14 +2,14 @@ import { getState, waitForPersistence } from '../../core/store.js';
 import { createBookmarkDraft } from '../../domain/bookmarks/bookmarkModel.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { findFirstFreeSlot } from '../../shared/grid/gridPlacement.js';
-import { flashSuccess } from '../../ui/flash.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
+import { flashSuccess } from '../../shared/ui/flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../../ui/gridLayout.js';
 import {
   closeModal,
   openModal as openManagedModal,
   registerModal
-} from '../../ui/modalManager.js';
-import { showAlert } from '../../ui/modals/alert.js';
+} from '../../shared/ui/modalManager.js';
 import { ensurePanelFits } from '../../ui/viewportMode.js';
 import { getActiveWorkspaceId } from '../workspaces/workspaceSelectors.js';
 import {

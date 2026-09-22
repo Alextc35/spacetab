@@ -1,6 +1,6 @@
 import { resolveBackgroundImage } from '../../platform/images/localImages.js';
 import { createFavicon } from '../../ui/bookmark/favicon.js';
-import { lightSurfaceTextColor } from '../../ui/surfaceContrast.js';
+import { lightSurfaceTextColor } from '../../shared/ui/surfaceContrast.js';
 
 /**
  * Creates a bookmark card without attaching grid behavior. Editors, folder

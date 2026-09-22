@@ -1,5 +1,5 @@
 /**
- * Derives a readable display color for light interface canvases. Persisted
+ * Derives a readable shared display color for light interface canvases. Persisted
  * bookmark/folder colors still control wallpaper, image and dark surfaces.
  */
 export function lightSurfaceTextColor(color) {

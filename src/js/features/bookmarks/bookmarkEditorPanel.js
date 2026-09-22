@@ -4,7 +4,7 @@ import {
   validateBookmarkDraft
 } from '../../domain/bookmarks/bookmarkModel.js';
 import { applyI18n, t } from '../../platform/i18n/i18n.js';
-import { initTabs } from '../../ui/tabs.js';
+import { initTabs } from '../../shared/ui/tabs.js';
 import { createBookmarkEditor } from './bookmarkEditor.js';
 
 const TEMPLATE_ID = 'bookmark-form-template';

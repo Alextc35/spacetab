@@ -1,11 +1,11 @@
 import { getStorageMode } from '../../core/store.js';
-import { createLockableInputController } from '../../ui/modals/helper/stateLocked.js';
+import { createLockableInputController } from '../../shared/ui/lockableInput.js';
 import {
   getImageInputValue,
   initLocalImageUpload,
   setLocalImageSyncNoticeVisibility,
   setImageInputValue
-} from '../../ui/localImageUpload.js';
+} from '../../shared/ui/localImageUpload.js';
 import { renderBookmarkPreview } from './bookmarkPreview.js';
 
 /**

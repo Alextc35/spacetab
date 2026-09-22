@@ -1,5 +1,5 @@
-import { MAX_FLASHES } from '../core/config.js'
-import { t } from '../platform/i18n/i18n.js';
+import { MAX_FLASHES } from '../../core/config.js'
+import { t } from '../../platform/i18n/i18n.js';
 
 const flashContainer = document.getElementById('flash-container');
 

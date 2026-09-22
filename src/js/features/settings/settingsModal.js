@@ -1,6 +1,8 @@
-import { registerModal, openModal, closeModal } from '../../ui/modalManager.js';
-import { flashSuccess, flashError } from '../../ui/flash.js';
-import { initTabs } from '../../ui/tabs.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
+import { flashSuccess, flashError } from '../../shared/ui/flash.js';
+import { registerModal, openModal, closeModal } from '../../shared/ui/modalManager.js';
+import { createSettingsSectionSvg } from '../../shared/ui/svgIcons.js';
+import { initTabs } from '../../shared/ui/tabs.js';
 import { ensurePanelFits } from '../../ui/viewportMode.js';
 
 import { changeLanguage, t } from '../../platform/i18n/i18n.js';
@@ -13,8 +15,6 @@ import {
 } from '../../core/store.js';
 import { ensureRecycleBinPosition } from '../recycle-bin/recycleBinActions.js';
 
-import { showAlert } from '../../ui/modals/alert.js';
-import { createSettingsSectionSvg } from '../../ui/svgIcons.js';
 
 import { initGeneralSection } from './generalSection.js';
 import { initThemeSection } from './themeSection.js';

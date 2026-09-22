@@ -6,22 +6,22 @@ import {
 } from '../../domain/recycle-bin/recycleBinModel.js';
 import { updateRecycleBinAppearance } from './recycleBinActions.js';
 import { getState, getStorageMode, waitForPersistence } from '../../core/store.js';
-import { flashSuccess } from '../../ui/flash.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
+import { flashSuccess } from '../../shared/ui/flash.js';
 import {
   getImageInputValue,
   initLocalImageUpload,
   setImageInputValue,
   setLocalImageSyncNoticeVisibility
-} from '../../ui/localImageUpload.js';
+} from '../../shared/ui/localImageUpload.js';
 import {
   applyRecycleBinAppearance,
   createRecycleBinGlyph
 } from './recycleBinAppearance.js';
-import { initTabs } from '../../ui/tabs.js';
+import { createLockableInputController } from '../../shared/ui/lockableInput.js';
+import { closeModal, openModal, registerModal } from '../../shared/ui/modalManager.js';
+import { initTabs } from '../../shared/ui/tabs.js';
 import { ensurePanelFits } from '../../ui/viewportMode.js';
-import { closeModal, openModal, registerModal } from '../../ui/modalManager.js';
-import { showAlert } from '../../ui/modals/alert.js';
-import { createLockableInputController } from '../../ui/modals/helper/stateLocked.js';
 
 let initialized = false;
 let initialValue = null;

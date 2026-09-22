@@ -5,7 +5,7 @@ import { resizeGridView } from '../features/grid/gridRenderer.js';
 import { cancelGridGesture } from './bookmark/dragResize.js';
 import { ensurePanelFits, isListView } from './viewportMode.js';
 
-import { flash } from './flash.js';
+import { flash } from '../shared/ui/flash.js';
 
 /** @type {HTMLElement|null} */
 let containerRef = null;

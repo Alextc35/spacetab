@@ -4,7 +4,7 @@ import {
   createBookmarksEnvelope,
   parseBookmarksPayload
 } from '../../platform/storage/dataSchema.js';
-import { flashSuccess, flashError } from '../flash.js';
+import { flashSuccess, flashError } from '../../shared/ui/flash.js';
 import { downloadJson } from '../backup.js';
 import {
   ensureRecycleBinPosition,

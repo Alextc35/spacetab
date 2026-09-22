@@ -6,18 +6,18 @@ import {
 import { validateFolderDraft } from '../../domain/folders/folderModel.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { getState, getStorageMode, waitForPersistence } from '../../core/store.js';
-import { flashSuccess } from '../../ui/flash.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
+import { flashSuccess } from '../../shared/ui/flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../../ui/gridLayout.js';
 import {
   getImageInputValue,
   initLocalImageUpload,
   setLocalImageSyncNoticeVisibility,
   setImageInputValue
-} from '../../ui/localImageUpload.js';
-import { closeModal, openModal, registerModal } from '../../ui/modalManager.js';
-import { showAlert } from '../../ui/modals/alert.js';
-import { createLockableInputController } from '../../ui/modals/helper/stateLocked.js';
-import { initTabs } from '../../ui/tabs.js';
+} from '../../shared/ui/localImageUpload.js';
+import { createLockableInputController } from '../../shared/ui/lockableInput.js';
+import { closeModal, openModal, registerModal } from '../../shared/ui/modalManager.js';
+import { initTabs } from '../../shared/ui/tabs.js';
 import { ensurePanelFits } from '../../ui/viewportMode.js';
 import { applyFolderAppearance, createFolderVisual } from './folderVisual.js';
 

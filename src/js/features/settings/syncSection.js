@@ -16,8 +16,8 @@ import {
   getSyncBrowserSupport,
   SYNC_BROWSERS
 } from '../../platform/browser/browserCapabilities.js';
-import { showAlert } from '../../ui/modals/alert.js';
-import { flashError, flashSuccess } from '../../ui/flash.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
+import { flashError, flashSuccess } from '../../shared/ui/flash.js';
 
 function getBrowserNoticeKey(browser) {
   if (browser === SYNC_BROWSERS.CHROME) {

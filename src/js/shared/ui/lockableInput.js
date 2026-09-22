@@ -1,4 +1,4 @@
-import { flashSuccess } from "../../flash.js";
+import { flashSuccess } from './flash.js';
 
 /**
  * Creates a lockable input controller.

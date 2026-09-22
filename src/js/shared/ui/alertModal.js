@@ -1,6 +1,6 @@
 import { t } from '../../platform/i18n/i18n.js';
-import { registerModal, openModal, closeModal, isModalSuspended } from '../modalManager.js';
-import { flashInfo } from '../flash.js';
+import { registerModal, openModal, closeModal, isModalSuspended } from './modalManager.js';
+import { flashInfo } from './flash.js';
 
 /**
  * Alert modal root element.

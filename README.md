@@ -206,7 +206,7 @@ src/js/platform/sync/              versioned, quota-safe sync transport
 src/js/shared/data/mergeChanges.js concurrent persisted-data reconciliation
 src/js/shared/grid/                generic geometry, placement and keyboard routing
 src/js/shared/keyboard/            shortcut normalization and event matching
-src/js/shared/ui/interfaceTheme.js interface-theme DOM adapter
+src/js/shared/ui/                 reusable modal, tabs, notices, image and visual primitives
 src/js/widgets/widgetModel.js      generic persisted widget envelope
 src/js/widgets/widgetRegistry.js   bundled-widget to GridItem adapter
 src/js/widgets/widgetActions.js    generic widget lifecycle commands
@@ -216,7 +216,6 @@ src/js/ui/bookmark/smartDragLayout.js pure collision and displacement planner
 src/js/ui/bookmark/gridKeyboardNavigation.js Tab-based grid focus and actions
 src/js/ui/bookmark/keyboardMovement.js selected-bookmark arrow movement
 src/js/ui/bookmark/bulkActions.js  multi-selection workflows
-src/js/ui/modalManager.js          modal stack and focus management
 ```
 
 The bookmark panel does not import the store, calculate grid placement or

@@ -10,8 +10,8 @@ import {
 } from '../../features/workspaces/workspaceSelectors.js';
 import { subscribe } from '../../core/store.js';
 import { t } from '../../platform/i18n/i18n.js';
-import { showAlert } from '../modals/alert.js';
-import { flashSuccess } from '../flash.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
+import { flashSuccess } from '../../shared/ui/flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import {
   clearGridItemSelection,

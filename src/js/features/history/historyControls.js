@@ -1,6 +1,6 @@
 import { redoBookmarks, subscribe, undoBookmarks } from '../../core/store.js';
 import { t } from '../../platform/i18n/i18n.js';
-import { flash } from '../../ui/flash.js';
+import { flash } from '../../shared/ui/flash.js';
 
 let initialized = false;
 

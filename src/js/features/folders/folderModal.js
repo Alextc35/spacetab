@@ -16,16 +16,16 @@ import { getState, subscribe } from '../../core/store.js';
 import { createItemActionButton } from '../../ui/bookmark/actions.js';
 import { calculateSmartDragLayout } from '../../ui/bookmark/smartDragLayout.js';
 import { createListItem } from '../../ui/bookmark/listView.js';
-import { flashInfo, flashSuccess } from '../../ui/flash.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
+import { flashInfo, flashSuccess } from '../../shared/ui/flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../../ui/gridLayout.js';
 import {
   closeModal,
   isModalSuspended,
   openModal,
   registerModal
-} from '../../ui/modalManager.js';
-import { showAlert } from '../../ui/modals/alert.js';
-import { createEditIndicatorSvg } from '../../ui/svgIcons.js';
+} from '../../shared/ui/modalManager.js';
+import { createEditIndicatorSvg } from '../../shared/ui/svgIcons.js';
 import { ensurePanelFits, isListView } from '../../ui/viewportMode.js';
 import { createBookmarkElement } from '../bookmarks/bookmarkCard.js';
 import { openEditBookmark } from '../bookmarks/bookmarkModal.js';

@@ -11,19 +11,19 @@ import {
   RECYCLE_BIN_RETENTION_DAYS,
   RECYCLE_BIN_RETENTION_MS
 } from '../../domain/recycle-bin/recycleBinEntries.js';
-import { flashSuccess } from '../../ui/flash.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
+import { flashSuccess } from '../../shared/ui/flash.js';
 import {
   closeModal,
   isModalActive,
   openModal,
   registerModal
-} from '../../ui/modalManager.js';
-import { showAlert } from '../../ui/modals/alert.js';
+} from '../../shared/ui/modalManager.js';
 import {
   createEditIndicatorSvg,
   createRecycleBinSvg,
   createThemedAssetIcon
-} from '../../ui/svgIcons.js';
+} from '../../shared/ui/svgIcons.js';
 import { openRecycleBinEditor } from './recycleBinEditorModal.js';
 
 const selectedIds = new Set();

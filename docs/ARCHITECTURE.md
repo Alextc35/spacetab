@@ -44,7 +44,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 13 establish the first application, domain, feature, platform
+Phases 1 through 14 establish the first application, domain, feature, platform
 and widget seams:
 
 ```text
@@ -142,7 +142,15 @@ src/js/
 │   ├── keyboard/
 │   │   └── keyboardShortcuts.js
 │   └── ui/
-│       └── interfaceTheme.js
+│       ├── alertModal.js
+│       ├── flash.js
+│       ├── interfaceTheme.js
+│       ├── localImageUpload.js
+│       ├── lockableInput.js
+│       ├── modalManager.js
+│       ├── surfaceContrast.js
+│       ├── svgIcons.js
+│       └── tabs.js
 └── widgets/
     ├── widgetActions.js
     ├── widgetModel.js
@@ -184,6 +192,21 @@ those modules directly; no compatibility re-export remains in `core/`.
 `core/store.js` deliberately stays in place until its remaining consumers can
 move as a separate, tested phase.
 
+## Shared UI primitives
+
+Modal stacking, alerts, flash messages, tabs, local-image inputs, lockable
+inputs, surface contrast and SVG factories live under `shared/ui`. Each is a
+proven cross-feature mechanism with no feature ownership; feature controllers
+import the primitive they use directly. The obsolete generic modal index has
+been removed, so application composition names each feature modal explicitly.
+
+The remaining `ui/` modules coordinate the application shell or interactions
+that still cross feature boundaries, including grid selection, pointer
+drag/resize, keyboard movement, viewport behavior, backup flows and the
+floating menu. They remain transitional until those larger responsibilities
+have their own tested boundary. This move changes no HTML, CSS, persisted data
+or modal behavior.
+
 ## Application bootstrap and state reactions
 
 `main.js` is deliberately a minimal browser entry point. It delegates startup
@@ -205,8 +228,8 @@ The settings capability is owned by `features/settings`. Its store-backed
 command, modal controller, isolated draft and section controllers now live in
 one vertical slice. The application bootstrap composes that feature directly;
 the generic modal index no longer acts as a feature registry. Reusable modal,
-tab, flash, upload and icon primitives remain in `ui/` while storage and sync
-operations remain behind the existing store/platform boundary.
+tab, flash, upload and icon primitives live in `shared/ui` while storage and
+sync operations remain behind the existing store/platform boundary.
 
 This move is intentionally schema-neutral. The persisted `settings` object,
 live-preview behavior, storage-mode workflow and HTML/CSS contracts are
@@ -223,7 +246,7 @@ bootstrap imports the feature entry points directly; the generic modal index is
 no longer a registry for Search. The search modal also owns its toolbar trigger,
 so workspace controls do not depend on Search.
 
-Reusable modal coordination remains in `ui/modalManager.js`. Existing HTML ids
+Reusable modal coordination lives in `shared/ui/modalManager.js`. Existing HTML ids
 and CSS under `css/features/searchModal.css` are intentionally unchanged, so
 this move does not alter the DOM, styling, keyboard shortcut or persisted data
 contracts. Unit tests protect the query behavior and the existing Playwright
@@ -239,11 +262,11 @@ actions, keyboard navigation, folder modal and Settings import that feature
 entry point directly. The generic modal index is no longer a registry for the
 bookmark editor.
 
-Reusable tabs, modal management, alerts, viewport checks and local-image input
-controllers remain in `ui/`. Grid selection, drag/resize and keyboard movement
-also remain transitional shared UI because they operate across bookmarks,
-folders, the recycle bin and widgets. Existing HTML templates, CSS, persistence
-and bookmark draft contracts are unchanged by this phase.
+Reusable tabs, modal management, alerts and local-image input controllers live
+in `shared/ui`. Viewport checks, grid selection, drag/resize and keyboard
+movement remain transitional cross-feature coordination in `ui/` because they
+operate across bookmarks, folders, the recycle bin and widgets. Existing HTML
+templates, CSS, persistence and bookmark draft contracts are unchanged.
 
 ## Folder feature boundary
 
@@ -255,11 +278,11 @@ directly, and the generic modal index no longer exposes folder-specific entry
 points.
 
 The folder slice continues to consume proven cross-feature interaction
-mechanisms from `ui/`: bookmark-card actions, compact list rows, grid
-drag/resize, selection, modal management, tabs and local-image inputs. Its
-modal also invokes the bookmark editor through the bookmark feature entry
-point. Moving these modules changes neither folder data, internal 6 × 3 layout,
-HTML templates, CSS nor keyboard behavior.
+controllers from `ui/` for bookmark-card actions, compact list rows, grid
+drag/resize and selection. Generic modal, tab and local-image primitives come
+from `shared/ui`. Its modal also invokes the bookmark editor through the
+bookmark feature entry point. Moving these modules changes neither folder data,
+internal 6 × 3 layout, HTML templates, CSS nor keyboard behavior.
 
 ## Workspace and history control boundaries
 
@@ -429,6 +452,8 @@ remain out of scope.
     folder workspace alongside the existing folder commands and GridItem adapter.
 13. ✅ Complete the workspace UI slice and separate Search activation and global
     history controls from workspace-specific behavior.
+14. ✅ Consolidate proven cross-feature UI primitives under `shared/ui`, remove
+    the generic modal index and keep feature composition explicit.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.

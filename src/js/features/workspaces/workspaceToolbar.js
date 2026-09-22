@@ -14,9 +14,9 @@ import {
 import { getState, subscribe } from '../../core/store.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { clearBookmarkSelection } from '../../ui/bookmark/selection.js';
-import { flashSuccess } from '../../ui/flash.js';
-import { hasOpenModal } from '../../ui/modalManager.js';
-import { showAlert, showPrompt } from '../../ui/modals/alert.js';
+import { showAlert, showPrompt } from '../../shared/ui/alertModal.js';
+import { flashSuccess } from '../../shared/ui/flash.js';
+import { hasOpenModal } from '../../shared/ui/modalManager.js';
 
 const WORKSPACE_EXIT_DURATION = 120;
 const WORKSPACE_ENTER_DURATION = 220;

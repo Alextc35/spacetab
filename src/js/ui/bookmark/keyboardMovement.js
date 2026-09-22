@@ -6,7 +6,7 @@ import {
 } from '../../shared/grid/gridGeometry.js';
 import { getState } from '../../core/store.js';
 import { getActiveWorkspaceId } from '../../features/workspaces/workspaceSelectors.js';
-import { hasOpenModal } from '../modalManager.js';
+import { hasOpenModal } from '../../shared/ui/modalManager.js';
 import { isGridKeyboardNavigationActive } from './gridKeyboardNavigation.js';
 import { getSelectedGridItems } from './selection.js';
 import { calculateKeyboardMoveLayout } from './smartDragLayout.js';

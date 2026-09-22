@@ -1,6 +1,6 @@
 import { getState } from '../../core/store.js';
 import { t } from '../../platform/i18n/i18n.js';
-import { closeModal, openModal, registerModal } from '../../ui/modalManager.js';
+import { closeModal, openModal, registerModal } from '../../shared/ui/modalManager.js';
 import { getWorkspaces } from '../workspaces/workspaceSelectors.js';
 import { searchBookmarks } from './searchBookmarks.js';
 

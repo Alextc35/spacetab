@@ -10,14 +10,14 @@ import {
 } from '../../shared/grid/gridKeyboardRoute.js';
 import { permanentlyDeleteGridItem } from '../../features/grid/gridItemActions.js';
 import { getActiveWorkspaceId } from '../../features/workspaces/workspaceSelectors.js';
-import { flashInfo, flashSuccess } from '../flash.js';
-import { hasOpenModal } from '../modalManager.js';
+import { flashInfo, flashSuccess } from '../../shared/ui/flash.js';
+import { hasOpenModal } from '../../shared/ui/modalManager.js';
 import { isListView } from '../viewportMode.js';
 import { openEditBookmark } from '../../features/bookmarks/bookmarkModal.js';
 import { openFolderEditor } from '../../features/folders/folderEditorModal.js';
 import { openRecycleBinModal } from '../../features/recycle-bin/recycleBinModal.js';
 import { openRecycleBinEditor } from '../../features/recycle-bin/recycleBinEditorModal.js';
-import { showAlert } from '../modals/alert.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
 import {
   clearGridItemSelection,
   getSelectedGridItems,

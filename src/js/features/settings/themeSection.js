@@ -1,14 +1,14 @@
-import { createLockableInputController } from '../../ui/modals/helper/stateLocked.js';
-import { showAlert } from '../../ui/modals/alert.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
+import { createLockableInputController } from '../../shared/ui/lockableInput.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { DEFAULT_SETTINGS } from '../../core/defaults.js';
-import { flashSuccess } from '../../ui/flash.js';
+import { flashSuccess } from '../../shared/ui/flash.js';
 import {
   getImageInputValue,
   initLocalImageUpload,
   setLocalImageSyncNoticeVisibility,
   setImageInputValue
-} from '../../ui/localImageUpload.js';
+} from '../../shared/ui/localImageUpload.js';
 import { resolveBackgroundImage } from '../../platform/images/localImages.js';
 import { getStorageMode } from '../../core/store.js';
 import {

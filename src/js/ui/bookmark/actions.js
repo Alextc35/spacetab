@@ -1,11 +1,11 @@
 import '../../types/types.js'; // typedefs
 import { clearBookmarks } from '../../features/bookmarks/bookmarkActions.js';
 import { t } from '../../platform/i18n/i18n.js';
-import { showConfirmWithCheckbox } from '../modals/alert.js';
-import { closeModal } from '../modalManager.js';
+import { showConfirmWithCheckbox } from '../../shared/ui/alertModal.js';
+import { closeModal } from '../../shared/ui/modalManager.js';
 import { openEditBookmark } from '../../features/bookmarks/bookmarkModal.js';
 import { isVisuallyDark } from './utils.js';
-import { flashSuccess, flashError } from '../flash.js';
+import { flashSuccess, flashError } from '../../shared/ui/flash.js';
 
 /**
  * Adds the direct edit control to a bookmark element.

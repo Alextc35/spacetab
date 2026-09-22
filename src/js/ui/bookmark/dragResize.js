@@ -13,7 +13,7 @@ import {
   BOOKMARK_RESIZE_MODES,
   normalizeBookmarkResizeMode
 } from '../../core/bookmarkResizeModes.js';
-import { flashError, flashSuccess } from '../flash.js';
+import { flashError, flashSuccess } from '../../shared/ui/flash.js';
 import { toggleGridItemSelection } from './selection.js';
 import {
   calculateResizeGeometry,
@@ -25,7 +25,7 @@ import {
   moveBookmarksToRecycleBin,
   moveFolderToRecycleBin
 } from '../../features/recycle-bin/recycleBinActions.js';
-import { showAlert } from '../modals/alert.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
 import { t } from '../../platform/i18n/i18n.js';
 
 let dragging = false;

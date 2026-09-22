@@ -1,5 +1,5 @@
 /**
- * Initializes a tab interface inside a given root element.
+ * Initializes a reusable tab interface inside a given root element.
  *
  * Finds tab buttons and tab content panels, then wires the buttons
  * to show the matching panel when clicked.

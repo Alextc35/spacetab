@@ -1,4 +1,4 @@
-import { showAlert } from '../../ui/modals/alert.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
 import { openBookmarkPresetEditor } from '../bookmarks/bookmarkModal.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { DEFAULT_SETTINGS } from '../../core/defaults.js';

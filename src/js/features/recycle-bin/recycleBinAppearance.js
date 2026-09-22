@@ -1,5 +1,5 @@
 import { resolveBackgroundImage } from '../../platform/images/localImages.js';
-import { createRecycleBinSvg } from '../../ui/svgIcons.js';
+import { createRecycleBinSvg } from '../../shared/ui/svgIcons.js';
 
 /** Applies persisted recycle-bin colors and element visibility. */
 export function applyRecycleBinAppearance(element, recycleBin = {}) {

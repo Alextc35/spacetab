@@ -15,7 +15,7 @@ vi.mock('../../src/js/core/store.js', () => ({
 }));
 
 vi.mock('../../src/js/platform/i18n/i18n.js', () => ({ t: mocks.t }));
-vi.mock('../../src/js/ui/flash.js', () => ({ flash: mocks.flash }));
+vi.mock('../../src/js/shared/ui/flash.js', () => ({ flash: mocks.flash }));
 
 import { initHistoryControls } from '../../src/js/features/history/historyControls.js';
 

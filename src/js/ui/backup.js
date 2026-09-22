@@ -3,7 +3,7 @@ import {
   parseBackupPayload
 } from '../platform/storage/dataSchema.js';
 import { getState, setState } from '../core/store.js';
-import { flashError, flashSuccess } from './flash.js';
+import { flashError, flashSuccess } from '../shared/ui/flash.js';
 import { ensureRecycleBinPosition } from '../features/recycle-bin/recycleBinActions.js';
 
 export function exportBackup() {

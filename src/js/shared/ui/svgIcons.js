@@ -1,3 +1,4 @@
+/** Shared SVG factories for feature-owned views. */
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const ICON_KINDS = new Set(['bookmark', 'folder', 'recycle-bin']);
 const SETTINGS_ICON_PATHS = Object.freeze({
@@ -84,7 +85,7 @@ export function createThemedAssetIcon(kind) {
   for (const theme of ['light', 'dark']) {
     const image = document.createElement('img');
     image.className = `newdesktab-themed-icon-${theme}`;
-    image.src = new URL(`../../assets/icons/${kind}-${theme}.svg`, import.meta.url).href;
+    image.src = new URL(`../../../assets/icons/${kind}-${theme}.svg`, import.meta.url).href;
     image.alt = '';
     image.draggable = false;
     wrapper.append(image);

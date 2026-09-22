@@ -1,4 +1,4 @@
-import { debug } from '../core/debug.js';
+import { debug } from '../../core/debug.js';
 
 /**
  * Stack of currently open modals.

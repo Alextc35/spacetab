@@ -8,8 +8,8 @@ import {
 } from './settingsDraft.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { exportBackup, importBackup } from '../../ui/backup.js';
-import { showAlert } from '../../ui/modals/alert.js';
-import { createRecycleBinSvg } from '../../ui/svgIcons.js';
+import { showAlert } from '../../shared/ui/alertModal.js';
+import { createRecycleBinSvg } from '../../shared/ui/svgIcons.js';
 
 /** Connects complete backup/restore and destructive reset actions. */
 export function initGeneralSection({
