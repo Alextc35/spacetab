@@ -16,7 +16,7 @@ import { t } from '../platform/i18n/i18n.js';
 import { flash, flashSuccess } from './flash.js';
 import { hasOpenModal } from './modalManager.js';
 import { showAlert, showPrompt } from './modals/alert.js';
-import { openSearchModal } from './modals/searchModal.js';
+import { openSearchModal } from '../features/search/searchModal.js';
 import { clearBookmarkSelection } from './bookmark/selection.js';
 
 const WORKSPACE_EXIT_DURATION = 120;

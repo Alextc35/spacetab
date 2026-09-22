@@ -3,7 +3,7 @@ import { t } from '../../platform/i18n/i18n.js';
 import {
   clearGridKeyboardNavigation
 } from '../../ui/bookmark/gridKeyboardNavigation.js';
-import { createListSearch } from '../../ui/bookmark/listSearch.js';
+import { createListSearch } from '../search/listSearch.js';
 import { applyGridItemPosition } from '../../ui/gridItemLayout.js';
 import { updateGridSize } from '../../ui/gridLayout.js';
 import { isListView } from '../../ui/viewportMode.js';

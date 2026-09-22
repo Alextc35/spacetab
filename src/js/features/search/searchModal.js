@@ -1,7 +1,8 @@
-import { t } from '../../platform/i18n/i18n.js';
 import { getState } from '../../core/store.js';
-import { getWorkspaces } from '../../features/workspaces/workspaceSelectors.js';
-import { closeModal, openModal, registerModal } from '../modalManager.js';
+import { t } from '../../platform/i18n/i18n.js';
+import { closeModal, openModal, registerModal } from '../../ui/modalManager.js';
+import { getWorkspaces } from '../workspaces/workspaceSelectors.js';
+import { searchBookmarks } from './searchBookmarks.js';
 
 let initialized = false;
 let input;
@@ -36,7 +37,6 @@ export function openSearchModal() {
 }
 
 function renderResults() {
-  const query = input.value.trim().toLocaleLowerCase();
   const { data } = getState();
   const { bookmarks, folders } = data;
   const workspaces = new Map(getWorkspaces(data).map(workspace => [
@@ -44,10 +44,7 @@ function renderResults() {
     workspace.name
   ]));
   const folderNames = new Map(folders.map(folder => [folder.id, folder.name]));
-  const matches = bookmarks
-    .filter(bookmark => !query || `${bookmark.name} ${bookmark.url}`.toLocaleLowerCase().includes(query))
-    .sort((a, b) => b.updatedAt - a.updatedAt)
-    .slice(0, 30);
+  const matches = searchBookmarks(bookmarks, input.value);
 
   results.replaceChildren();
   if (!matches.length) {

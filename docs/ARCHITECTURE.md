@@ -44,7 +44,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 9 establish the first application, domain, feature, platform
+Phases 1 through 10 establish the first application, domain, feature, platform
 and widget seams:
 
 ```text
@@ -88,6 +88,10 @@ src/js/
 │   │   ├── recycleBinEditorModal.js
 │   │   ├── recycleBinGridItem.js
 │   │   └── recycleBinModal.js
+│   ├── search/
+│   │   ├── listSearch.js
+│   │   ├── searchBookmarks.js
+│   │   └── searchModal.js
 │   ├── settings/
 │   │   ├── settingsActions.js
 │   │   ├── settingsDraft.js
@@ -195,6 +199,21 @@ This move is intentionally schema-neutral. The persisted `settings` object,
 live-preview behavior, storage-mode workflow and HTML/CSS contracts are
 unchanged. Feature-action tests protect partial updates and the recycle-bin
 placement side effect when its visibility is enabled.
+
+## Search feature boundary
+
+The global bookmark search and compact-list filter are owned by
+`features/search`. The global modal delegates matching, recency ordering and
+result limits to the pure `searchBookmarks()` query, while workspace and folder
+labels remain presentation context assembled by the modal. The application
+bootstrap and workspace toolbar import the feature entry points directly; the
+generic modal index is no longer a registry for Search.
+
+Reusable modal coordination remains in `ui/modalManager.js`. Existing HTML ids
+and CSS under `css/features/searchModal.css` are intentionally unchanged, so
+this move does not alter the DOM, styling, keyboard shortcut or persisted data
+contracts. Unit tests protect the query behavior and the existing Playwright
+journeys protect both search surfaces.
 
 ## GridItem and the item-type registry
 
@@ -342,6 +361,8 @@ remain out of scope.
    controllers as a complete feature while retaining reusable UI primitives.
 9. ✅ Move browser/i18n runtime services and reusable keyboard/grid policies out
    of transitional `core/`; split pure interface preferences from their DOM effect.
+10. ✅ Encapsulate global bookmark search and compact-list filtering as a Search
+    feature, with the reusable query policy covered independently from its DOM UI.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.
@@ -549,9 +570,10 @@ local layout contract and normalizes legacy or colliding positions
 deterministically. Main-grid bookmark drag logic detects folder hit targets and
 delegates membership changes to the folder feature actions.
 
-Search indexes all workspaces and contained bookmarks, showing folder context
-when present. Selection is pruned when bookmarks disappear and is cleared when
-edit mode closes.
+`features/search/searchModal.js` indexes all workspaces and contained bookmarks,
+showing folder context when present. `features/search/listSearch.js` filters the
+already-rendered compact view without changing saved data. Selection is pruned
+when bookmarks disappear and is cleared when edit mode closes.
 
 `src/js/ui/workspaceToolbar.js` owns cyclic workspace navigation. `Alt/Option`
 with the up or down arrow resolves the adjacent workspace through the workspace

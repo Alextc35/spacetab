@@ -191,6 +191,7 @@ src/js/features/bookmarks/bookmarkActions.js bookmark commands
 src/js/features/folders/folderActions.js     folder membership and commands
 src/js/features/grid/                        item registry consumers and actions
 src/js/features/recycle-bin/                 recycle-bin actions and UI
+src/js/features/search/                      global and compact-list search UI
 src/js/features/settings/                    settings actions, draft and modal UI
 src/js/features/workspaces/                  workspace actions and selectors
 
