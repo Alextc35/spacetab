@@ -17,8 +17,10 @@ import { initBookmarkModal } from '../features/bookmarks/bookmarkModal.js';
 import { initFolderController } from '../features/folders/folderController.js';
 import { initFolderEditorModal } from '../features/folders/folderEditorModal.js';
 import { initFolderModal } from '../features/folders/folderModal.js';
+import { initHistoryControls } from '../features/history/historyControls.js';
 import { initSearchModal } from '../features/search/searchModal.js';
 import { initSettingsModal } from '../features/settings/settingsModal.js';
+import { initWorkspaceToolbar } from '../features/workspaces/workspaceToolbar.js';
 import { preloadLocalImages } from '../platform/images/localImages.js';
 import { initBookmarkKeyboardMovement } from '../ui/bookmark/keyboardMovement.js';
 import { initBulkBookmarkActions } from '../ui/bookmark/bulkActions.js';
@@ -32,7 +34,6 @@ import {
   initRecycleBinModal
 } from '../ui/modals/index.js';
 import { initUIController } from '../ui/uiController.js';
-import { initWorkspaceToolbar } from '../ui/workspaceToolbar.js';
 import { createAppController } from './appController.js';
 import { registerGridItemTypes } from './registerGridItemTypes.js';
 
@@ -104,6 +105,7 @@ function initializeUserInterface({ container, gridOverlay, toggleButton }) {
   initUIController({ container, gridOverlay, toggleButton });
   initFloatingMenu();
   initModals();
+  initHistoryControls();
   initWorkspaceToolbar();
   initBulkBookmarkActions();
   initGridKeyboardNavigation(container);

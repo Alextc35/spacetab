@@ -44,7 +44,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 12 establish the first application, domain, feature, platform
+Phases 1 through 13 establish the first application, domain, feature, platform
 and widget seams:
 
 ```text
@@ -92,6 +92,8 @@ src/js/
 │   │   ├── gridItemActions.js
 │   │   ├── gridRenderer.js
 │   │   └── gridSelectors.js
+│   ├── history/
+│   │   └── historyControls.js
 │   ├── recycle-bin/
 │   │   ├── recycleBinActions.js
 │   │   ├── recycleBinAppearance.js
@@ -109,7 +111,8 @@ src/js/
 │   │   └── *Section.js
 │   └── workspaces/
 │       ├── workspaceActions.js
-│       └── workspaceSelectors.js
+│       ├── workspaceSelectors.js
+│       └── workspaceToolbar.js
 ├── platform/
 │   ├── browser/
 │   │   └── browserCapabilities.js
@@ -216,8 +219,9 @@ The global bookmark search and compact-list filter are owned by
 `features/search`. The global modal delegates matching, recency ordering and
 result limits to the pure `searchBookmarks()` query, while workspace and folder
 labels remain presentation context assembled by the modal. The application
-bootstrap and workspace toolbar import the feature entry points directly; the
-generic modal index is no longer a registry for Search.
+bootstrap imports the feature entry points directly; the generic modal index is
+no longer a registry for Search. The search modal also owns its toolbar trigger,
+so workspace controls do not depend on Search.
 
 Reusable modal coordination remains in `ui/modalManager.js`. Existing HTML ids
 and CSS under `css/features/searchModal.css` are intentionally unchanged, so
@@ -256,6 +260,20 @@ drag/resize, selection, modal management, tabs and local-image inputs. Its
 modal also invokes the bookmark editor through the bookmark feature entry
 point. Moving these modules changes neither folder data, internal 6 × 3 layout,
 HTML templates, CSS nor keyboard behavior.
+
+## Workspace and history control boundaries
+
+`features/workspaces/workspaceToolbar.js` owns workspace selection, creation,
+deletion and animated cyclic navigation. It consumes the workspace commands and
+selectors from its own slice and clears transient grid selection when switching
+contexts. Search activation and undo/redo are no longer mixed into that
+controller.
+
+Global undo and redo buttons plus the `Ctrl/Cmd + Z` shortcut live in the small
+`features/history` slice, which adapts the existing store history API to the
+DOM. Search owns its own toolbar button. The application bootstrap composes all
+three controllers explicitly. Existing toolbar markup, CSS, history semantics
+and workspace persistence remain unchanged.
 
 ## GridItem and the item-type registry
 
@@ -409,6 +427,8 @@ remain out of scope.
     as one vertical feature while retaining proven cross-feature UI primitives.
 12. ✅ Encapsulate folder cards, visual actions, create/edit flow and compact
     folder workspace alongside the existing folder commands and GridItem adapter.
+13. ✅ Complete the workspace UI slice and separate Search activation and global
+    history controls from workspace-specific behavior.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.
@@ -622,9 +642,9 @@ showing folder context when present. `features/search/listSearch.js` filters the
 already-rendered compact view without changing saved data. Selection is pruned
 when bookmarks disappear and is cleared when edit mode closes.
 
-`src/js/ui/workspaceToolbar.js` owns cyclic workspace navigation. `Alt/Option`
-with the up or down arrow resolves the adjacent workspace through the workspace
-domain and feature selectors,
+`features/workspaces/workspaceToolbar.js` owns cyclic workspace navigation.
+`Alt/Option` with the up or down arrow resolves the adjacent workspace through
+the workspace domain and feature selectors,
 animates the current grid out and the next grid in, and skips the transition
 when the operating system requests reduced motion. Shortcuts are ignored while
 typing or while a modal is open.

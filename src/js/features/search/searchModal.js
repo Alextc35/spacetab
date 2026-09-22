@@ -18,6 +18,7 @@ export function initSearchModal() {
 
   input.addEventListener('input', renderResults);
   document.getElementById('search-modal-close').addEventListener('click', closeModal);
+  document.getElementById('search-bookmarks').addEventListener('click', openSearchModal);
 
   registerModal({
     id: 'search',

@@ -2,7 +2,7 @@ import {
   createWorkspace,
   deleteWorkspace,
   setActiveWorkspace
-} from '../features/workspaces/workspaceActions.js';
+} from './workspaceActions.js';
 import {
   getActiveWorkspaceId,
   getAdjacentWorkspaceId,
@@ -10,14 +10,13 @@ import {
   getWorkspaceIds,
   getWorkspaceItemCounts,
   getWorkspaces
-} from '../features/workspaces/workspaceSelectors.js';
-import { getState, redoBookmarks, subscribe, undoBookmarks } from '../core/store.js';
-import { t } from '../platform/i18n/i18n.js';
-import { flash, flashSuccess } from './flash.js';
-import { hasOpenModal } from './modalManager.js';
-import { showAlert, showPrompt } from './modals/alert.js';
-import { openSearchModal } from '../features/search/searchModal.js';
-import { clearBookmarkSelection } from './bookmark/selection.js';
+} from './workspaceSelectors.js';
+import { getState, subscribe } from '../../core/store.js';
+import { t } from '../../platform/i18n/i18n.js';
+import { clearBookmarkSelection } from '../../ui/bookmark/selection.js';
+import { flashSuccess } from '../../ui/flash.js';
+import { hasOpenModal } from '../../ui/modalManager.js';
+import { showAlert, showPrompt } from '../../ui/modals/alert.js';
 
 const WORKSPACE_EXIT_DURATION = 120;
 const WORKSPACE_ENTER_DURATION = 220;
@@ -31,10 +30,6 @@ export function initWorkspaceToolbar() {
   const selectButton = select.querySelector('button');
   const addButton = document.getElementById('workspace-add');
   const deleteButton = document.getElementById('workspace-delete');
-  const undoButton = document.getElementById('history-undo');
-  const redoButton = document.getElementById('history-redo');
-
-  document.getElementById('search-bookmarks').addEventListener('click', openSearchModal);
 
   // Keep Space and type-ahead in the picker from triggering page shortcuts.
   select.addEventListener('keydown', event => event.stopPropagation());
@@ -74,13 +69,6 @@ export function initWorkspaceToolbar() {
       flashSuccess('flash.workspace.deleted');
     }
   });
-  undoButton.addEventListener('click', async () => {
-    if (await undoBookmarks()) flash(t('flash.history.undone'), 'info', 1000);
-  });
-  redoButton.addEventListener('click', async () => {
-    if (await redoBookmarks()) flash(t('flash.history.redone'), 'info', 1000);
-  });
-
   subscribe(state => {
     const workspaces = getWorkspaces(state.data);
     const selected = getActiveWorkspaceId(state.data) ?? '';
@@ -89,15 +77,6 @@ export function initWorkspaceToolbar() {
     select.value = selected;
     select.title = select.selectedOptions[0]?.textContent ?? '';
     deleteButton.disabled = !selected;
-    undoButton.disabled = !state.ui.history.canUndo;
-    redoButton.disabled = !state.ui.history.canRedo;
-  });
-
-  document.addEventListener('keydown', event => {
-    if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z') return;
-    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
-    event.preventDefault();
-    (event.shiftKey ? redoButton : undoButton).click();
   });
 
   document.addEventListener('keydown', event => {

@@ -190,10 +190,11 @@ src/js/domain/workspaces/workspaceModel.js workspace identity and navigation
 src/js/features/bookmarks/                  bookmark commands, cards and editor UI
 src/js/features/folders/                     folder commands, cards and modal UI
 src/js/features/grid/                        item registry consumers and actions
+src/js/features/history/                     global undo/redo UI coordination
 src/js/features/recycle-bin/                 recycle-bin actions and UI
 src/js/features/search/                      global and compact-list search UI
 src/js/features/settings/                    settings actions, draft and modal UI
-src/js/features/workspaces/                  workspace actions and selectors
+src/js/features/workspaces/                  workspace actions, selectors and toolbar
 
 src/js/core/bookmarkDragModes.js   drag-mode constants and normalization
 src/js/core/store.js               state, persistence status and undo/redo
