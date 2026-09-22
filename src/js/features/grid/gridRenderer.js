@@ -2,10 +2,10 @@ import { getState } from '../../core/store.js';
 import { t } from '../../platform/i18n/i18n.js';
 import {
   clearGridKeyboardNavigation
-} from '../../ui/bookmark/gridKeyboardNavigation.js';
+} from './gridKeyboardController.js';
 import { createListSearch } from '../search/listSearch.js';
-import { applyGridItemPosition } from '../../ui/gridItemLayout.js';
-import { updateGridSize } from '../../ui/gridLayout.js';
+import { applyGridItemPosition } from './gridItemLayout.js';
+import { updateGridSize } from './gridLayout.js';
 import { isListView } from '../../ui/viewportMode.js';
 import { gridItemRegistry } from '../../shared/grid/gridItemRegistry.js';
 import {

@@ -1,34 +1,31 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import {
-  clearBookmarkSelection,
-  getSelectedBookmarkIds,
+  clearGridItemSelection,
   getSelectedGridItems,
   pruneGridItemSelection,
-  pruneBookmarkSelection,
-  subscribeToBookmarkSelection,
-  toggleGridItemSelection,
-  toggleBookmarkSelection
-} from '../../src/js/ui/bookmark/selection.js';
+  subscribeToGridItemSelection,
+  toggleGridItemSelection
+} from '../../src/js/features/grid/gridSelection.js';
 
-beforeEach(() => clearBookmarkSelection());
+beforeEach(() => clearGridItemSelection());
 
-test('selection toggles, publishes snapshots and prunes deleted bookmarks', () => {
+test('selection toggles, publishes snapshots and prunes deleted grid items', () => {
   const listener = vi.fn();
-  const unsubscribe = subscribeToBookmarkSelection(listener);
+  const unsubscribe = subscribeToGridItemSelection(listener);
 
-  toggleBookmarkSelection('one');
-  toggleBookmarkSelection('two');
-  toggleBookmarkSelection('one');
-  pruneBookmarkSelection(['one']);
+  toggleGridItemSelection('bookmark', 'one');
+  toggleGridItemSelection('bookmark', 'two');
+  toggleGridItemSelection('bookmark', 'one');
+  pruneGridItemSelection({ bookmarkIds: ['one'] });
 
-  expect(getSelectedBookmarkIds()).toEqual([]);
+  expect(getSelectedGridItems()).toEqual([]);
   expect(listener).toHaveBeenCalledTimes(5);
   unsubscribe();
 });
 
 test('keeps bookmark and folder identities distinct in a mixed selection', () => {
-  toggleBookmarkSelection('shared-id');
+  toggleGridItemSelection('bookmark', 'shared-id');
   toggleGridItemSelection('folder', 'shared-id');
   toggleGridItemSelection('folder', 'other-folder');
 

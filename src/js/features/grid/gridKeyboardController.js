@@ -1,28 +1,18 @@
 import { getState, toggleEditing } from '../../core/store.js';
 import {
-  moveBookmarksToRecycleBin,
-  moveFolderToRecycleBin
-} from '../../features/recycle-bin/recycleBinActions.js';
-import { t } from '../../platform/i18n/i18n.js';
-import {
   findGridKeyboardRoute,
   getGridItemNavigationAnchor
 } from '../../shared/grid/gridKeyboardRoute.js';
-import { permanentlyDeleteGridItem } from '../../features/grid/gridItemActions.js';
-import { getActiveWorkspaceId } from '../../features/workspaces/workspaceSelectors.js';
+import { gridItemRegistry } from '../../shared/grid/gridItemRegistry.js';
 import { flashInfo, flashSuccess } from '../../shared/ui/flash.js';
 import { hasOpenModal } from '../../shared/ui/modalManager.js';
-import { isListView } from '../viewportMode.js';
-import { openEditBookmark } from '../../features/bookmarks/bookmarkModal.js';
-import { openFolderEditor } from '../../features/folders/folderEditorModal.js';
-import { openRecycleBinModal } from '../../features/recycle-bin/recycleBinModal.js';
-import { openRecycleBinEditor } from '../../features/recycle-bin/recycleBinEditorModal.js';
+import { isListView } from '../../ui/viewportMode.js';
 import { showAlert } from '../../shared/ui/alertModal.js';
 import {
   clearGridItemSelection,
   getSelectedGridItems,
   toggleGridItemSelection
-} from './selection.js';
+} from './gridSelection.js';
 
 const ARROW_DIRECTIONS = new Set([
   'ArrowLeft',
@@ -41,13 +31,6 @@ const OPPOSITE_DIRECTIONS = {
 const MAX_NAVIGATION_HISTORY = 100;
 const GRID_NAVIGATION_INTERVAL_MS = 120;
 const GRID_REJECTION_DURATION_MS = 420;
-
-const GRID_ITEM_SELECTOR = [
-  '.bookmark[data-bookmark-id]',
-  '.bookmark-folder[data-folder-id]',
-  '.recycle-bin[data-recycle-bin-id]',
-  '.bookmark-list-item[data-recycle-bin-id]'
-].join(', ');
 
 let containerRef = null;
 let activeItemId = null;
@@ -174,11 +157,10 @@ function handleGridKeyboardNavigation(event) {
     event.stopPropagation();
     cancelPendingNavigation();
     if (event.repeat || !item) return;
-    if (item.kind === 'recycle-bin') {
+    if (!item.definition.remove || !item.definition.getRemovalConfirmation) {
       showGridKeyboardRejection();
       return;
     }
-    if (!['bookmark', 'folder'].includes(item.kind)) return;
     void confirmFocusedGridItemDeletion(item, { permanent: event.shiftKey });
     return;
   }
@@ -188,28 +170,19 @@ function handleGridKeyboardNavigation(event) {
     const { ui } = getState();
     if (!item) return;
 
-    if (item.kind === 'recycle-bin' && !ui.isEditing) {
-      event.preventDefault();
-      openGridItem(item);
-      return;
-    }
-
     if (!ui.isEditing) {
+      if (!item.definition.open) return;
       event.preventDefault();
-      // A bookmark leaves the page, so there is no navigation state to restore.
-      // Folders open an in-app modal and keep the active grid item/focus alive.
-      if (item.kind === 'bookmark') {
+      if (item.definition.clearKeyboardOnOpen) {
         clearGridKeyboardNavigation();
       }
       openGridItem(item);
       return;
     }
 
-    if (!canOpenFocusedItemEditor(item)) return;
+    if (!item.definition.edit || !canOpenFocusedItemEditor(item)) return;
     event.preventDefault();
-    if (item.kind === 'bookmark') openEditBookmark(item.id);
-    else if (item.kind === 'folder') openFolderEditor(item.id);
-    else openRecycleBinEditor();
+    item.definition.edit(createItemActionContext(item));
     return;
   }
 
@@ -222,7 +195,7 @@ function handleGridKeyboardNavigation(event) {
     event.preventDefault();
     event.stopPropagation();
     cancelPendingNavigation();
-    if (item.kind === 'recycle-bin') {
+    if (!item.definition.selectable) {
       showGridKeyboardRejection();
       return;
     }
@@ -233,18 +206,10 @@ function handleGridKeyboardNavigation(event) {
 async function confirmFocusedGridItemDeletion(item, { permanent = false } = {}) {
   const itemsBeforeDeletion = getVisibleGridItems();
   const deletedItemIndex = itemsBeforeDeletion.findIndex(entry => entry.id === item.id);
-  const { bookmarks } = getState().data;
-  const confirmationKey = permanent
-    ? (item.kind === 'bookmark'
-      ? 'alert.bookmark.confirmPermanentDelete'
-      : 'folder.confirmPermanentDelete')
-    : (item.kind === 'bookmark'
-      ? 'alert.bookmark.confirmDelete'
-      : 'folder.confirmDelete');
-  const confirmation = t(confirmationKey, {
-      name: item.name,
-      count: bookmarks.filter(bookmark => bookmark.folderId === item.id).length
-    });
+  const confirmation = item.definition.getRemovalConfirmation({
+    ...createItemActionContext(item),
+    permanent
+  });
   const confirmed = await showAlert(
     confirmation,
     { type: 'confirm', requiresWideViewport: true }
@@ -254,11 +219,10 @@ async function confirmFocusedGridItemDeletion(item, { permanent = false } = {}) 
     return;
   }
 
-  const deleted = permanent
-    ? permanentlyDeleteGridItem(item.kind, item.id).deleted
-    : item.kind === 'bookmark'
-      ? moveBookmarksToRecycleBin([item.id]) > 0
-      : moveFolderToRecycleBin(item.id).deleted;
+  const deleted = await item.definition.remove({
+    ...createItemActionContext(item),
+    permanent
+  });
   if (!deleted) return;
   keepGridKeyboardNavigationAfterDeletion(deletedItemIndex);
   flashSuccess(permanent
@@ -356,33 +320,34 @@ function canStartGridNavigation() {
 }
 
 function getVisibleGridItems() {
-  const { data } = getState();
-  const { bookmarks, folders, recycleBin, settings } = data;
-  const activeGroupId = getActiveWorkspaceId(data);
-  const visibleIds = isListView() ? new Set(
-    [...containerRef.querySelectorAll('.bookmark-list-item:not([hidden])')]
-      .map(element => element.dataset.bookmarkId
-        ?? element.dataset.folderId
-        ?? element.dataset.recycleBinId)
-  ) : null;
-  return [
-    ...bookmarks
-      .filter(bookmark => !bookmark.folderId && (bookmark.groupId ?? null) === activeGroupId)
-      .map(bookmark => ({ ...bookmark, kind: 'bookmark' })),
-    ...folders
-      .filter(folder => (folder.groupId ?? null) === activeGroupId)
-      .map(folder => ({ ...folder, kind: 'folder' })),
-    ...(activeGroupId === null && settings.showRecycleBin
-      ? [{ ...recycleBin, kind: 'recycle-bin' }]
-      : [])
-  ].filter(item => !visibleIds || visibleIds.has(item.id)).sort((a, b) => {
-    if (isListView()) {
-      const kindOrder = { 'recycle-bin': 0, folder: 1, bookmark: 2 };
-      const kindDifference = kindOrder[a.kind] - kindOrder[b.kind];
-      if (kindDifference) return kindDifference;
-    }
-    return a.gy - b.gy || a.gx - b.gx || a.id.localeCompare(b.id);
+  const state = getState();
+  const listView = isListView();
+  const entries = gridItemRegistry.entries(state, {
+    view: listView ? 'list' : 'grid'
   });
+  const visibleKeys = listView ? getVisibleElementKeys(state) : null;
+  const items = entries
+    .map(entry => ({
+      ...entry.item,
+      kind: entry.definition.type,
+      definition: entry.definition,
+      registryEntry: entry
+    }))
+    .filter(item => !visibleKeys || visibleKeys.has(gridItemKey(item.kind, item.id)));
+
+  return listView
+    ? items
+    : items.sort((a, b) => a.gy - b.gy || a.gx - b.gx || a.id.localeCompare(b.id));
+}
+
+function getVisibleElementKeys(state) {
+  const selector = gridItemRegistry.selectors().join(', ');
+  if (!selector) return new Set();
+  return new Set([...containerRef.querySelectorAll(selector)]
+    .filter(element => !element.hidden)
+    .map(element => gridItemRegistry.resolveElement(element, state))
+    .filter(Boolean)
+    .map(entry => gridItemKey(entry.definition.type, entry.item.id)));
 }
 
 function findDirectionalRoute(current, direction) {
@@ -425,17 +390,7 @@ function findDirectionalRoute(current, direction) {
 }
 
 function openGridItem(item) {
-  if (item.kind === 'recycle-bin') {
-    openRecycleBinModal();
-    return;
-  }
-  if (item.kind === 'folder') {
-    getGridItemElement(item.id)?.querySelector('.folder-open')?.click();
-    return;
-  }
-
-  const link = getGridItemElement(item.id)?.querySelector('.bookmark-link');
-  if (link?.href) window.location.assign(link.href);
+  item.definition.open?.(createItemActionContext(item));
 }
 
 function canOpenFocusedItemEditor(item) {
@@ -451,15 +406,14 @@ function setActiveItem(itemId) {
   activeItemId = itemId;
   containerRef?.focus({ preventScroll: true });
 
-  containerRef?.querySelectorAll(
-    GRID_ITEM_SELECTOR
-  )
-    .forEach(element => {
-      const id = element.dataset.bookmarkId
-        ?? element.dataset.folderId
-        ?? element.dataset.recycleBinId;
-      element.classList.toggle('is-keyboard-active', id === itemId);
+  const state = getState();
+  const selector = gridItemRegistry.selectors().join(', ');
+  if (selector) {
+    containerRef?.querySelectorAll(selector).forEach(element => {
+      const entry = gridItemRegistry.resolveElement(element, state);
+      element.classList.toggle('is-keyboard-active', entry?.item.id === itemId);
     });
+  }
   const activeElement = getGridItemElement(itemId);
   syncKeyboardCursor(activeElement);
   activeElement?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -555,11 +509,21 @@ function scheduleKeyboardCursorRefresh() {
 }
 
 function getGridItemElement(itemId) {
-  return [...(containerRef?.querySelectorAll(
-    GRID_ITEM_SELECTOR
-  ) ?? [])].find(element => (
-    element.dataset.bookmarkId === itemId
-    || element.dataset.folderId === itemId
-    || element.dataset.recycleBinId === itemId
-  )) ?? null;
+  const item = getVisibleGridItems().find(entry => entry.id === itemId);
+  if (!item) return null;
+  return [...(containerRef?.querySelectorAll(item.definition.selector) ?? [])]
+    .find(element => item.definition.getElementId(element) === item.id) ?? null;
+}
+
+function createItemActionContext(item) {
+  return {
+    ...item.registryEntry,
+    item: item.registryEntry.item,
+    state: getState(),
+    element: getGridItemElement(item.id)
+  };
+}
+
+function gridItemKey(kind, itemId) {
+  return `${kind}:${itemId}`;
 }

@@ -44,7 +44,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 14 establish the first application, domain, feature, platform
+Phases 1 through 15 establish the first application, domain, feature, platform
 and widget seams:
 
 ```text
@@ -89,8 +89,15 @@ src/js/
 │   │   ├── folderModal.js
 │   │   └── folderVisual.js
 │   ├── grid/
+│   │   ├── gridBulkActions.js
 │   │   ├── gridItemActions.js
+│   │   ├── gridItemLayout.js
+│   │   ├── gridKeyboardController.js
+│   │   ├── gridKeyboardMovement.js
+│   │   ├── gridLayout.js
+│   │   ├── gridPointerController.js
 │   │   ├── gridRenderer.js
+│   │   ├── gridSelection.js
 │   │   └── gridSelectors.js
 │   ├── history/
 │   │   └── historyControls.js
@@ -136,7 +143,9 @@ src/js/
 │   │   ├── gridGeometry.js
 │   │   ├── gridItemRegistry.js
 │   │   ├── gridKeyboardRoute.js
-│   │   └── gridPlacement.js
+│   │   ├── gridPlacement.js
+│   │   ├── resizeGeometry.js
+│   │   └── smartDragLayout.js
 │   ├── images/
 │   │   └── backgroundImage.js
 │   ├── keyboard/
@@ -200,12 +209,32 @@ proven cross-feature mechanism with no feature ownership; feature controllers
 import the primitive they use directly. The obsolete generic modal index has
 been removed, so application composition names each feature modal explicitly.
 
-The remaining `ui/` modules coordinate the application shell or interactions
-that still cross feature boundaries, including grid selection, pointer
-drag/resize, keyboard movement, viewport behavior, backup flows and the
-floating menu. They remain transitional until those larger responsibilities
-have their own tested boundary. This move changes no HTML, CSS, persisted data
-or modal behavior.
+The remaining `ui/` modules coordinate the application shell, backup flows and
+bookmark-oriented presentation helpers that do not yet have a final owner.
+They remain transitional until those responsibilities have their own tested
+boundary. This move changes no HTML, CSS, persisted data or modal behavior.
+
+## Grid interaction boundary
+
+The complete top-level interaction layer lives in `features/grid`: rendering,
+DOM layout, transient mixed-item selection, bulk actions, pointer gestures,
+keyboard focus and keyboard movement. Feature-owned GridItem adapters opt into
+those controllers without duplicating interaction logic. The selection API is
+generic and represents `{ kind, id }` pairs; bookmark-only compatibility aliases
+have been removed.
+
+Keyboard navigation discovers visible items through the registry instead of
+enumerating feature collections or DOM data attributes. Definitions may expose
+`open`, `edit`, removal-confirmation and `remove` callbacks plus selection
+capability. Those feature-owned hooks keep bookmark, folder, recycle-bin and
+future widget behavior out of the grid controller.
+
+Deterministic resize geometry and smart-movement planning live in
+`shared/grid`. They receive plain rectangles and policies and do not access the
+DOM, store or feature controllers. The feature layer supplies current state and
+commits the resulting positions atomically. This keeps reusable policy separate
+from browser event coordination and avoids introducing item-type branches into
+the renderer.
 
 ## Application bootstrap and state reactions
 
@@ -263,10 +292,10 @@ entry point directly. The generic modal index is no longer a registry for the
 bookmark editor.
 
 Reusable tabs, modal management, alerts and local-image input controllers live
-in `shared/ui`. Viewport checks, grid selection, drag/resize and keyboard
-movement remain transitional cross-feature coordination in `ui/` because they
-operate across bookmarks, folders, the recycle bin and widgets. Existing HTML
-templates, CSS, persistence and bookmark draft contracts are unchanged.
+in `shared/ui`. Viewport checks remain transitional shell coordination in
+`ui/`; grid selection, drag/resize and keyboard movement belong to the Grid
+feature. Existing HTML templates, CSS, persistence and bookmark draft contracts
+are unchanged.
 
 ## Folder feature boundary
 
@@ -277,10 +306,10 @@ vertical slice. The application bootstrap composes its controller and modals
 directly, and the generic modal index no longer exposes folder-specific entry
 points.
 
-The folder slice continues to consume proven cross-feature interaction
-controllers from `ui/` for bookmark-card actions, compact list rows, grid
-drag/resize and selection. Generic modal, tab and local-image primitives come
-from `shared/ui`. Its modal also invokes the bookmark editor through the
+The folder slice consumes the Grid feature for top-level layout, drag/resize,
+selection and keyboard behavior. Transitional bookmark-card actions and compact
+list rows remain in `ui/`, while generic modal, tab and local-image primitives
+come from `shared/ui`. Its modal also invokes the bookmark editor through the
 bookmark feature entry point. Moving these modules changes neither folder data,
 internal 6 × 3 layout, HTML templates, CSS nor keyboard behavior.
 
@@ -313,6 +342,7 @@ provides:
 - `render({ view, ... })` for grid and compact-list views;
 - a DOM selector plus `getElementId()` for generic resize lookup;
 - optional `enableEditing()` behavior;
+- optional `open()`, `edit()`, removal and selection capabilities;
 - independent grid and list ordering.
 
 `features/grid/gridRenderer.js` iterates registered definitions. It does not
@@ -401,9 +431,10 @@ the normal render subscription without adding widget branches to the store.
 
 `widgets/widgetRegistry.js` adapts a widget to `GridItem`: it selects instances
 of the registered type in the active workspace and owns the common DOM identity
-attributes. A definition supplies only a stable `type`, `render()` and optional
-`enableEditing()`. Registration is synchronous local-module composition and is
-compatible with Manifest V3 CSP; no code is downloaded or evaluated.
+attributes. A definition supplies a stable `type`, `render()` and any optional
+editing or interaction capabilities it needs. Registration is synchronous
+local-module composition and is compatible with Manifest V3 CSP; no code is
+downloaded or evaluated.
 
 For a clock, the intended shape is:
 
@@ -454,6 +485,8 @@ remain out of scope.
     history controls from workspace-specific behavior.
 14. ✅ Consolidate proven cross-feature UI primitives under `shared/ui`, remove
     the generic modal index and keep feature composition explicit.
+15. ✅ Encapsulate mixed-item grid interaction under `features/grid` and move
+    deterministic resize and smart-layout policies into `shared/grid`.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.
@@ -558,14 +591,14 @@ embed a second editor implementation.
 
 ## Grid interaction
 
-`src/js/ui/bookmark/dragResize.js` is the shared pointer controller for bookmark
-and folder cards. It owns drag gesture thresholds, folder drop targeting,
+`features/grid/gridPointerController.js` is the shared pointer controller for
+registered grid items. It owns drag gesture thresholds, folder drop targeting,
 eight-direction resize handles, previews and atomic commits through
 `updateGridItemsByIds()`. Resize geometry lives in the pure
-`resizeGeometry.js` module. An invalid gesture restores the original rectangle,
-not the last valid intermediate preview.
+`shared/grid/resizeGeometry.js` module. An invalid gesture restores the original
+rectangle, not the last valid intermediate preview.
 
-`src/js/ui/bookmark/smartDragLayout.js` is a pure layout planner. Persisted state
+`shared/grid/smartDragLayout.js` is a pure layout planner. Persisted state
 remains the baseline while pointer previews are reversible:
 
 * `none` rejects occupied pointer targets.
@@ -578,12 +611,13 @@ top-level grid item in its movable set, allowing folders to participate in the
 same planner without a separate drag implementation. Folder size is always
 included in collision checks.
 
-Selection lives in `selection.js` and is intentionally transient. A short
+Selection lives in `features/grid/gridSelection.js` and is intentionally
+transient. A short
 primary click toggles a bookmark, while a held primary click becomes a drag.
 Middle click delegates to the same editor entry point as the direct pencil and
 prevents the bookmark link from opening a tab.
 
-`gridKeyboardNavigation.js` owns explicit top-level grid focus. `Tab` enters
+`features/grid/gridKeyboardController.js` owns explicit top-level grid focus. `Tab` enters
 or leaves the mode, and arrows select the nearest visible bookmark, folder or
 recycle bin in the requested direction while carrying the row or column used
 to enter resized cards. Horizontal arrows choose the closest candidate using
@@ -592,16 +626,16 @@ empty cell, but can fill a route after two or more empty cells; vertical arrows
 stay in the remembered column and are no-ops when the column is empty. Outside
 edit mode, `Enter` opens the focused item. In
 edit mode, `Enter` opens its editor when there is no selection or when the
-focused bookmark is the sole selected item; `S` toggles only bookmark selection
-and gives folders a transient unavailable-state signal. The active item is
+focused item is the sole selected item; `S` toggles bookmark or folder selection
+and gives the recycle bin a transient unavailable-state signal. The active item is
 transient UI state rendered as a keyboard-focus affordance. Reversing the last
 arrow movement returns to its origin, preserving the route used to enter a
 folder or bookmark. Opening an in-app folder, editor or recycle-bin modal keeps
 that state and lets the modal manager restore focus to the same card on close;
 bookmark URLs are the one exception because they navigate away from the page.
 
-`keyboardMovement.js` remains responsible for moving one visible, top-level
-selected bookmark in edit mode when keyboard grid navigation is not active.
+`features/grid/gridKeyboardMovement.js` moves one visible, top-level selected
+bookmark or folder in edit mode when keyboard grid navigation is not active.
 None mode scans to the next free rectangle; the smart modes exchange bookmarks
 one keypress at a time and skip fixed folder rectangles. The resulting bookmark
 and displacement updates use one state transition and therefore one undo entry.

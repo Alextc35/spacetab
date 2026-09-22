@@ -2,7 +2,7 @@ import { t } from '../platform/i18n/i18n.js';
 import { getState, toggleEditing } from '../core/store.js';
 
 import { resizeGridView } from '../features/grid/gridRenderer.js';
-import { cancelGridGesture } from './bookmark/dragResize.js';
+import { cancelGridGesture } from '../features/grid/gridPointerController.js';
 import { ensurePanelFits, isListView } from './viewportMode.js';
 
 import { flash } from '../shared/ui/flash.js';

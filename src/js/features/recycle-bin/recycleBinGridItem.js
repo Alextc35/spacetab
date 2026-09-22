@@ -1,9 +1,9 @@
 import { t } from '../../platform/i18n/i18n.js';
 import { createItemActionButton } from '../../ui/bookmark/actions.js';
-import { addDragAndResize } from '../../ui/bookmark/dragResize.js';
-import { isGridKeyboardActive } from '../../ui/bookmark/gridKeyboardNavigation.js';
+import { isGridKeyboardActive } from '../grid/gridKeyboardController.js';
+import { applyGridItemPosition } from '../grid/gridItemLayout.js';
+import { addGridItemPointerControls } from '../grid/gridPointerController.js';
 import { isVisuallyDark } from '../../ui/bookmark/utils.js';
-import { applyGridItemPosition } from '../../ui/gridItemLayout.js';
 import { openRecycleBinEditor } from './recycleBinEditorModal.js';
 import { openRecycleBinModal } from './recycleBinModal.js';
 import { applyRecycleBinAppearance, createRecycleBinGlyph } from './recycleBinAppearance.js';
@@ -35,7 +35,9 @@ export const recycleBinGridItem = Object.freeze({
       isEditing: state.ui.isEditing
     });
   },
-  enableEditing: enableRecycleBinEditing
+  enableEditing: enableRecycleBinEditing,
+  open: () => openRecycleBinModal(),
+  edit: () => openRecycleBinEditor()
 });
 
 export function createRecycleBinElement({ container, recycleBin, trash, isEditing }) {
@@ -87,7 +89,7 @@ export function enableRecycleBinEditing(container, element, recycleBin) {
   element.dataset.editingControlsAttached = 'true';
   element.classList.add('is-editing');
   addRecycleBinActions(element, recycleBin);
-  addDragAndResize(container, element, recycleBin, { kind: 'recycle-bin' });
+  addGridItemPointerControls(container, element, recycleBin, { kind: 'recycle-bin' });
 }
 
 function createRecycleBinListItem({ recycleBin, count, active, onOpen }) {

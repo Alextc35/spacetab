@@ -13,7 +13,7 @@ import {
 } from './workspaceSelectors.js';
 import { getState, subscribe } from '../../core/store.js';
 import { t } from '../../platform/i18n/i18n.js';
-import { clearBookmarkSelection } from '../../ui/bookmark/selection.js';
+import { clearGridItemSelection } from '../grid/gridSelection.js';
 import { showAlert, showPrompt } from '../../shared/ui/alertModal.js';
 import { flashSuccess } from '../../shared/ui/flash.js';
 import { hasOpenModal } from '../../shared/ui/modalManager.js';
@@ -107,7 +107,7 @@ async function switchWorkspace(container, targetId, direction) {
   if (getActiveWorkspaceId(getState().data) === targetId) return false;
 
   isSwitchingWorkspace = true;
-  clearBookmarkSelection();
+  clearGridItemSelection();
   container?.classList.add('is-switching-workspace');
 
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;

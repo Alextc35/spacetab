@@ -57,8 +57,15 @@ function validateDefinition(definition) {
   if (typeof definition.render !== 'function') {
     throw new TypeError('Widget definition requires render().');
   }
-  if (definition.enableEditing !== undefined && typeof definition.enableEditing !== 'function') {
-    throw new TypeError('Widget enableEditing must be a function.');
+  for (const key of ['enableEditing', 'open', 'edit', 'remove', 'getRemovalConfirmation']) {
+    if (definition[key] !== undefined && typeof definition[key] !== 'function') {
+      throw new TypeError(`Widget ${key} must be a function.`);
+    }
+  }
+  for (const key of ['selectable', 'clearKeyboardOnOpen']) {
+    if (definition[key] !== undefined && typeof definition[key] !== 'boolean') {
+      throw new TypeError(`Widget ${key} must be a boolean.`);
+    }
   }
 
   return Object.freeze({
@@ -76,6 +83,8 @@ function createGridItemAdapter(widget) {
     order: widget.order,
     selector: `[data-widget-type="${widget.type}"][data-widget-id]`,
     getElementId: element => element.dataset.widgetId,
+    selectable: widget.selectable ?? false,
+    clearKeyboardOnOpen: widget.clearKeyboardOnOpen ?? false,
     select(state) {
       const activeWorkspaceId = state.data.settings?.activeBookmarkGroupId ?? null;
       return (state.data.widgets ?? []).filter(instance => (
@@ -106,6 +115,15 @@ function createGridItemAdapter(widget) {
         config: item.config
       })
     );
+  }
+
+  for (const key of ['open', 'edit', 'remove', 'getRemovalConfirmation']) {
+    if (!widget[key]) continue;
+    adapter[key] = context => widget[key]({
+      ...context,
+      widget: context.item,
+      config: context.item.config
+    });
   }
 
   return adapter;

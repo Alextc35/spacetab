@@ -24,9 +24,9 @@ import { initSearchModal } from '../features/search/searchModal.js';
 import { initSettingsModal } from '../features/settings/settingsModal.js';
 import { initWorkspaceToolbar } from '../features/workspaces/workspaceToolbar.js';
 import { preloadLocalImages } from '../platform/images/localImages.js';
-import { initBookmarkKeyboardMovement } from '../ui/bookmark/keyboardMovement.js';
-import { initBulkBookmarkActions } from '../ui/bookmark/bulkActions.js';
-import { initGridKeyboardNavigation } from '../ui/bookmark/gridKeyboardNavigation.js';
+import { initGridBulkActions } from '../features/grid/gridBulkActions.js';
+import { initGridKeyboardNavigation } from '../features/grid/gridKeyboardController.js';
+import { initGridKeyboardMovement } from '../features/grid/gridKeyboardMovement.js';
 import { initAlertModal } from '../shared/ui/alertModal.js';
 import { flashInfo } from '../shared/ui/flash.js';
 import { initFloatingMenu } from '../ui/floatingMenu.js';
@@ -105,9 +105,9 @@ function initializeUserInterface({ container, gridOverlay, toggleButton }) {
   initModals();
   initHistoryControls();
   initWorkspaceToolbar();
-  initBulkBookmarkActions();
+  initGridBulkActions();
   initGridKeyboardNavigation(container);
-  initBookmarkKeyboardMovement();
+  initGridKeyboardMovement();
   initFolderController();
   initKeyboardShortcuts();
 }

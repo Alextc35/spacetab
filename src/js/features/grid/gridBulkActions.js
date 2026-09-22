@@ -2,25 +2,25 @@ import {
   applyDefaultStylesToGridItems,
   duplicateGridItems,
   moveGridItemsToWorkspace
-} from '../../features/grid/gridItemActions.js';
-import { moveGridItemsToRecycleBin } from '../../features/recycle-bin/recycleBinActions.js';
+} from './gridItemActions.js';
+import { moveGridItemsToRecycleBin } from '../recycle-bin/recycleBinActions.js';
 import {
   getActiveWorkspaceId,
   getWorkspaces
-} from '../../features/workspaces/workspaceSelectors.js';
+} from '../workspaces/workspaceSelectors.js';
 import { subscribe } from '../../core/store.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { showAlert } from '../../shared/ui/alertModal.js';
 import { flashSuccess } from '../../shared/ui/flash.js';
-import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from './gridLayout.js';
 import {
   clearGridItemSelection,
   getSelectedGridItems,
   pruneGridItemSelection,
   subscribeToGridItemSelection
-} from './selection.js';
+} from './gridSelection.js';
 
-export function initBulkBookmarkActions() {
+export function initGridBulkActions() {
   const toolbar = document.getElementById('bulk-actions');
   const count = document.getElementById('bulk-selection-count');
   const groupSelect = document.getElementById('bulk-workspace-select');

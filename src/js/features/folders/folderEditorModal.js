@@ -8,7 +8,7 @@ import { t } from '../../platform/i18n/i18n.js';
 import { getState, getStorageMode, waitForPersistence } from '../../core/store.js';
 import { showAlert } from '../../shared/ui/alertModal.js';
 import { flashSuccess } from '../../shared/ui/flash.js';
-import { getMaxVisibleCols, getMaxVisibleRows } from '../../ui/gridLayout.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from '../grid/gridLayout.js';
 import {
   getImageInputValue,
   initLocalImageUpload,

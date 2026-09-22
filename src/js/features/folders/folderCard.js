@@ -1,8 +1,8 @@
 import { t } from '../../platform/i18n/i18n.js';
-import { addDragAndResize } from '../../ui/bookmark/dragResize.js';
-import { isGridKeyboardActive } from '../../ui/bookmark/gridKeyboardNavigation.js';
-import { isGridItemSelected } from '../../ui/bookmark/selection.js';
-import { applyGridItemPosition } from '../../ui/gridItemLayout.js';
+import { isGridKeyboardActive } from '../grid/gridKeyboardController.js';
+import { applyGridItemPosition } from '../grid/gridItemLayout.js';
+import { addGridItemPointerControls } from '../grid/gridPointerController.js';
+import { isGridItemSelected } from '../grid/gridSelection.js';
 import { addFolderActions } from './folderCardActions.js';
 import { openFolderModal } from './folderModal.js';
 import { applyFolderAppearance, createFolderVisual } from './folderVisual.js';
@@ -75,5 +75,5 @@ export function enableFolderEditing(container, element, folder) {
 
   element.dataset.editingControlsAttached = 'true';
   addFolderActions(element, folder);
-  addDragAndResize(container, element, folder, { kind: 'folder' });
+  addGridItemPointerControls(container, element, folder, { kind: 'folder' });
 }

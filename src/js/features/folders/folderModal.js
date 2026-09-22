@@ -14,11 +14,11 @@ import {
 import { t } from '../../platform/i18n/i18n.js';
 import { getState, subscribe } from '../../core/store.js';
 import { createItemActionButton } from '../../ui/bookmark/actions.js';
-import { calculateSmartDragLayout } from '../../ui/bookmark/smartDragLayout.js';
+import { calculateSmartDragLayout } from '../../shared/grid/smartDragLayout.js';
 import { createListItem } from '../../ui/bookmark/listView.js';
 import { showAlert } from '../../shared/ui/alertModal.js';
 import { flashInfo, flashSuccess } from '../../shared/ui/flash.js';
-import { getMaxVisibleCols, getMaxVisibleRows } from '../../ui/gridLayout.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from '../grid/gridLayout.js';
 import {
   closeModal,
   isModalSuspended,

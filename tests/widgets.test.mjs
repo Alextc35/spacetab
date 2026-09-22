@@ -61,10 +61,15 @@ test('registerWidget adapts persisted instances to the GridItem protocol', () =>
   const gridRegistry = createGridItemRegistry();
   const widgets = createWidgetRegistry(gridRegistry);
   let editingContext = null;
+  let openContext = null;
   widgets.register({
     type: 'clock',
+    selectable: true,
     render({ widget, config, view }) {
       return { dataset: {}, widget, config, view };
+    },
+    open(context) {
+      openContext = context;
     },
     enableEditing(container, element, widget, context) {
       editingContext = { container, element, widget, context };
@@ -90,10 +95,14 @@ test('registerWidget adapts persisted instances to the GridItem protocol', () =>
   assert.equal(element.dataset.widgetId, 'clock');
   assert.equal(element.dataset.widgetType, 'clock');
   assert.deepEqual(element.config, { timezone: 'UTC' });
+  assert.equal(entry.definition.selectable, true);
 
   entry.definition.enableEditing('grid', element, clock, entry);
   assert.equal(editingContext.widget, clock);
   assert.equal(editingContext.context.config.timezone, 'UTC');
+  entry.definition.open({ ...entry, state, element });
+  assert.equal(openContext.widget, clock);
+  assert.equal(openContext.config.timezone, 'UTC');
   assert.equal(gridRegistry.resolveElement({
     dataset: element.dataset,
     matches: selector => selector === '[data-widget-type="clock"][data-widget-id]'

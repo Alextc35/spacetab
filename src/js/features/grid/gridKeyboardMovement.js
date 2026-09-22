@@ -1,15 +1,15 @@
-import { updateGridItemsByIds } from '../../features/grid/gridItemActions.js';
-import { getGridItemsInGroup } from '../../features/grid/gridSelectors.js';
+import { updateGridItemsByIds } from './gridItemActions.js';
+import { getGridItemsInGroup } from './gridSelectors.js';
 import {
   GRID_COLS,
   GRID_ROWS
 } from '../../shared/grid/gridGeometry.js';
 import { getState } from '../../core/store.js';
-import { getActiveWorkspaceId } from '../../features/workspaces/workspaceSelectors.js';
+import { getActiveWorkspaceId } from '../workspaces/workspaceSelectors.js';
 import { hasOpenModal } from '../../shared/ui/modalManager.js';
-import { isGridKeyboardNavigationActive } from './gridKeyboardNavigation.js';
-import { getSelectedGridItems } from './selection.js';
-import { calculateKeyboardMoveLayout } from './smartDragLayout.js';
+import { calculateKeyboardMoveLayout } from '../../shared/grid/smartDragLayout.js';
+import { isGridKeyboardNavigationActive } from './gridKeyboardController.js';
+import { getSelectedGridItems } from './gridSelection.js';
 
 const ARROW_STEPS = Object.freeze({
   ArrowLeft: { gx: -1, gy: 0 },
@@ -25,11 +25,11 @@ const ARROW_STEPS = Object.freeze({
  * controls, modal dialogs and modified arrow shortcuts retain their native
  * behavior.
  */
-export function initBookmarkKeyboardMovement() {
-  document.addEventListener('keydown', handleBookmarkArrowKey);
+export function initGridKeyboardMovement() {
+  document.addEventListener('keydown', handleGridItemArrowKey);
 }
 
-function handleBookmarkArrowKey(event) {
+function handleGridItemArrowKey(event) {
   const step = ARROW_STEPS[event.key];
   if (
     !step

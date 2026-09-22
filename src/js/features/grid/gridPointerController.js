@@ -1,9 +1,9 @@
 import '../../types/types.js'; // typedefs
 import {
   addBookmarkToFolder
-} from '../../features/folders/folderActions.js';
-import { updateGridItemsByIds } from '../../features/grid/gridItemActions.js';
-import { getGridItemsInGroup } from '../../features/grid/gridSelectors.js';
+} from '../folders/folderActions.js';
+import { updateGridItemsByIds } from './gridItemActions.js';
+import { getGridItemsInGroup } from './gridSelectors.js';
 import { GRID_COLS, GRID_ROWS, PADDING } from '../../shared/grid/gridGeometry.js';
 import { FOLDER_GRID_CAPACITY } from '../../domain/folders/folderGrid.js';
 import { isAreaFree } from '../../shared/grid/gridPlacement.js';
@@ -14,17 +14,17 @@ import {
   normalizeBookmarkResizeMode
 } from '../../core/bookmarkResizeModes.js';
 import { flashError, flashSuccess } from '../../shared/ui/flash.js';
-import { toggleGridItemSelection } from './selection.js';
+import { toggleGridItemSelection } from './gridSelection.js';
 import {
   calculateResizeGeometry,
   getResizeClickDelta,
   RESIZE_DIRECTIONS
-} from './resizeGeometry.js';
-import { calculateSmartDragLayout } from './smartDragLayout.js';
+} from '../../shared/grid/resizeGeometry.js';
+import { calculateSmartDragLayout } from '../../shared/grid/smartDragLayout.js';
 import {
   moveBookmarksToRecycleBin,
   moveFolderToRecycleBin
-} from '../../features/recycle-bin/recycleBinActions.js';
+} from '../recycle-bin/recycleBinActions.js';
 import { showAlert } from '../../shared/ui/alertModal.js';
 import { t } from '../../platform/i18n/i18n.js';
 
@@ -57,7 +57,7 @@ export function cancelGridGesture() {
  * @param {boolean} [options.selectable] Defaults to false for widgets.
  * @returns {void}
  */
-export function addDragAndResize(container, div, item, {
+export function addGridItemPointerControls(container, div, item, {
   kind = 'bookmark',
   selectable = kind !== 'widget'
 } = {}) {

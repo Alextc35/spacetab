@@ -83,6 +83,16 @@ function validateDefinition(definition) {
   if (typeof definition.selector !== 'string' || !definition.selector.trim()) {
     throw new TypeError('Grid item definition requires a DOM selector.');
   }
+  for (const key of ['open', 'edit', 'remove', 'getRemovalConfirmation']) {
+    if (definition[key] !== undefined && typeof definition[key] !== 'function') {
+      throw new TypeError(`Grid item ${key} must be a function.`);
+    }
+  }
+  for (const key of ['selectable', 'clearKeyboardOnOpen']) {
+    if (definition[key] !== undefined && typeof definition[key] !== 'boolean') {
+      throw new TypeError(`Grid item ${key} must be a boolean.`);
+    }
+  }
 
   return Object.freeze({
     ...definition,

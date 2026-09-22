@@ -1,24 +1,5 @@
 const selectedItems = new Map();
-const bookmarkListeners = new Set();
 const gridItemListeners = new Set();
-
-export function getSelectedBookmarkIds() {
-  return getSelectedGridItems()
-    .filter(item => item.kind === 'bookmark')
-    .map(item => item.id);
-}
-
-export function isBookmarkSelected(bookmarkId) {
-  return isGridItemSelected('bookmark', bookmarkId);
-}
-
-export function toggleBookmarkSelection(bookmarkId) {
-  return toggleGridItemSelection('bookmark', bookmarkId);
-}
-
-export function clearBookmarkSelection() {
-  clearGridItemSelection();
-}
 
 export function getSelectedGridItems() {
   return [...selectedItems.values()].map(item => ({ ...item }));
@@ -44,17 +25,6 @@ export function clearGridItemSelection() {
   notify();
 }
 
-export function pruneBookmarkSelection(validIds) {
-  const allowed = new Set(validIds);
-  let changed = false;
-  for (const [key, item] of selectedItems) {
-    if (item.kind !== 'bookmark' || allowed.has(item.id)) continue;
-    selectedItems.delete(key);
-    changed = true;
-  }
-  if (changed) notify();
-}
-
 export function pruneGridItemSelection({ bookmarkIds = [], folderIds = [] } = {}) {
   const allowedByKind = {
     bookmark: new Set(bookmarkIds),
@@ -70,12 +40,6 @@ export function pruneGridItemSelection({ bookmarkIds = [], folderIds = [] } = {}
   if (changed) notify();
 }
 
-export function subscribeToBookmarkSelection(listener) {
-  bookmarkListeners.add(listener);
-  listener(getSelectedBookmarkIds());
-  return () => bookmarkListeners.delete(listener);
-}
-
 export function subscribeToGridItemSelection(listener) {
   gridItemListeners.add(listener);
   listener(getSelectedGridItems());
@@ -84,10 +48,6 @@ export function subscribeToGridItemSelection(listener) {
 
 function notify() {
   const items = getSelectedGridItems();
-  const bookmarkIds = items
-    .filter(item => item.kind === 'bookmark')
-    .map(item => item.id);
-  for (const listener of bookmarkListeners) listener(bookmarkIds);
   for (const listener of gridItemListeners) listener(items);
 }
 

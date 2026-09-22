@@ -47,6 +47,20 @@ test('rejects duplicate and incomplete definitions', () => {
     () => registry.register({ type: 'weather' }),
     /requires select/
   );
+  assert.throws(
+    () => registry.register({
+      ...definition('calendar', {}, []),
+      open: 'calendar-modal'
+    }),
+    /open must be a function/
+  );
+  assert.throws(
+    () => registry.register({
+      ...definition('tasks', {}, []),
+      selectable: 'yes'
+    }),
+    /selectable must be a boolean/
+  );
 });
 
 test('resolves a DOM element through its registered feature adapter', () => {

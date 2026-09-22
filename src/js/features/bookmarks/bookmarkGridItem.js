@@ -1,17 +1,23 @@
 import { createBookmarkElement } from './bookmarkCard.js';
+import { openEditBookmark } from './bookmarkModal.js';
+import { moveBookmarksToRecycleBin } from '../recycle-bin/recycleBinActions.js';
+import { permanentlyDeleteGridItem } from '../grid/gridItemActions.js';
 import { addBookmarkActions } from '../../ui/bookmark/actions.js';
-import { addDragAndResize } from '../../ui/bookmark/dragResize.js';
-import { isGridKeyboardActive } from '../../ui/bookmark/gridKeyboardNavigation.js';
+import { isGridKeyboardActive } from '../grid/gridKeyboardController.js';
+import { addGridItemPointerControls } from '../grid/gridPointerController.js';
+import { isGridItemSelected } from '../grid/gridSelection.js';
 import { createListItem } from '../../ui/bookmark/listView.js';
-import { isBookmarkSelected } from '../../ui/bookmark/selection.js';
-import { applyGridItemPosition } from '../../ui/gridItemLayout.js';
+import { applyGridItemPosition } from '../grid/gridItemLayout.js';
 import { getActiveWorkspaceId } from '../workspaces/workspaceSelectors.js';
+import { t } from '../../platform/i18n/i18n.js';
 
 export const bookmarkGridItem = Object.freeze({
   type: 'bookmark',
   order: { grid: 10, list: 30 },
   selector: '.bookmark[data-bookmark-id]',
   getElementId: element => element.dataset.bookmarkId,
+  selectable: true,
+  clearKeyboardOnOpen: true,
   select: state => state.data.bookmarks
     .filter(bookmark => !bookmark.folderId
       && (bookmark.groupId ?? null) === getActiveWorkspaceId(state.data)),
@@ -24,7 +30,7 @@ export const bookmarkGridItem = Object.freeze({
 
     const element = createBookmarkElement(item, { isEditing: state.ui.isEditing });
     element.dataset.bookmarkId = item.id;
-    element.classList.toggle('is-selected', isBookmarkSelected(item.id));
+    element.classList.toggle('is-selected', isGridItemSelected('bookmark', item.id));
     element.classList.toggle('is-keyboard-active', isGridKeyboardActive(item.id));
     applyGridItemPosition(container, element, item);
     if (state.ui.isEditing) enableBookmarkEditing(container, element, item);
@@ -35,7 +41,22 @@ export const bookmarkGridItem = Object.freeze({
     });
     return element;
   },
-  enableEditing: enableBookmarkEditing
+  enableEditing: enableBookmarkEditing,
+  open({ element }) {
+    const link = element?.querySelector('.bookmark-link');
+    if (link?.href) window.location.assign(link.href);
+  },
+  edit: ({ item }) => openEditBookmark(item.id),
+  getRemovalConfirmation({ item, permanent }) {
+    return t(permanent
+      ? 'alert.bookmark.confirmPermanentDelete'
+      : 'alert.bookmark.confirmDelete', { name: item.name });
+  },
+  remove({ item, permanent }) {
+    return permanent
+      ? permanentlyDeleteGridItem('bookmark', item.id).deleted
+      : moveBookmarksToRecycleBin([item.id]) > 0;
+  }
 });
 
 export function enableBookmarkEditing(container, element, bookmark) {
@@ -44,5 +65,5 @@ export function enableBookmarkEditing(container, element, bookmark) {
   element.classList.add('is-editing');
   element.querySelector('.bookmark-link')?.classList.add('is-editing');
   addBookmarkActions(element, bookmark);
-  addDragAndResize(container, element, bookmark);
+  addGridItemPointerControls(container, element, bookmark);
 }

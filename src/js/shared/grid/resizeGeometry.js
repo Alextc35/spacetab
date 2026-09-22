@@ -1,3 +1,4 @@
+/** Resize directions supported by generic grid items. */
 export const RESIZE_DIRECTIONS = [
   'top',
   'top-right',

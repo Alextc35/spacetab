@@ -189,7 +189,7 @@ src/js/domain/workspaces/workspaceModel.js workspace identity and navigation
 
 src/js/features/bookmarks/                  bookmark commands, cards and editor UI
 src/js/features/folders/                     folder commands, cards and modal UI
-src/js/features/grid/                        item registry consumers and actions
+src/js/features/grid/                        grid rendering, layout, selection and interactions
 src/js/features/history/                     global undo/redo UI coordination
 src/js/features/recycle-bin/                 recycle-bin actions and UI
 src/js/features/search/                      global and compact-list search UI
@@ -204,18 +204,13 @@ src/js/platform/i18n/              locale resolution and translation runtime
 src/js/platform/storage/           schema, Chrome persistence and device data
 src/js/platform/sync/              versioned, quota-safe sync transport
 src/js/shared/data/mergeChanges.js concurrent persisted-data reconciliation
-src/js/shared/grid/                generic geometry, placement and keyboard routing
+src/js/shared/grid/                generic placement, resize, movement and keyboard policies
 src/js/shared/keyboard/            shortcut normalization and event matching
 src/js/shared/ui/                 reusable modal, tabs, notices, image and visual primitives
 src/js/widgets/widgetModel.js      generic persisted widget envelope
 src/js/widgets/widgetRegistry.js   bundled-widget to GridItem adapter
 src/js/widgets/widgetActions.js    generic widget lifecycle commands
 
-src/js/ui/bookmark/dragResize.js   shared pointer drag and resize controller
-src/js/ui/bookmark/smartDragLayout.js pure collision and displacement planner
-src/js/ui/bookmark/gridKeyboardNavigation.js Tab-based grid focus and actions
-src/js/ui/bookmark/keyboardMovement.js selected-bookmark arrow movement
-src/js/ui/bookmark/bulkActions.js  multi-selection workflows
 ```
 
 The bookmark panel does not import the store, calculate grid placement or

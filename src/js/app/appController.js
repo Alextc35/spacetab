@@ -3,8 +3,8 @@ import { changeLanguage } from '../platform/i18n/i18n.js';
 import { applyInterfaceTheme } from '../shared/ui/interfaceTheme.js';
 import { applyGlobalTheme } from '../core/theme.js';
 import { enableGridEditing, renderGrid } from '../features/grid/gridRenderer.js';
+import { clearGridItemSelection } from '../features/grid/gridSelection.js';
 import { preloadLocalImages } from '../platform/images/localImages.js';
-import { clearBookmarkSelection } from '../ui/bookmark/selection.js';
 import { syncKeyboardShortcutAccessibility } from '../ui/keyboardShortcuts.js';
 import { updateEditUI } from '../ui/uiController.js';
 import { detectApplicationChanges } from './appStateChanges.js';
@@ -29,7 +29,7 @@ export function createAppController({ container }) {
       const changes = detectApplicationChanges(state, previousState);
 
       if (changes.editing && !state.ui.isEditing) {
-        clearBookmarkSelection();
+        clearGridItemSelection();
       }
 
       if (changes.settings) {

@@ -4,7 +4,7 @@ import { BOOKMARK_DRAG_MODES } from '../src/js/core/bookmarkDragModes.js';
 import {
   calculateKeyboardMoveLayout,
   calculateSmartDragLayout
-} from '../src/js/ui/bookmark/smartDragLayout.js';
+} from '../src/js/shared/grid/smartDragLayout.js';
 
 function plan(items, draggedId, target, options = {}) {
   return calculateSmartDragLayout({
