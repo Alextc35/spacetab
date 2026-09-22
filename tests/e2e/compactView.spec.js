@@ -582,7 +582,9 @@ test('compact view hides unavailable tools and blocks shortcuts through 600px', 
   }
   await page.keyboard.press('Control+KeyE');
   expect(await page.evaluate(async () => (await import('/src/js/core/store.js')).getState().ui.isEditing)).toBe(false);
-  await page.evaluate(async () => (await import('/src/js/ui/modals/bookmarkModal.js')).openEditBookmark('compact-1'));
+  await page.evaluate(async () => (
+    await import('/src/js/features/bookmarks/bookmarkModal.js')
+  ).openEditBookmark('compact-1'));
   await expect(page.locator('#edit-bookmark-modal')).toBeHidden();
   await page.setViewportSize({ width: 601, height: 720 });
   await expect(page.locator('#floating-menu')).toBeVisible();
@@ -659,7 +661,9 @@ for (const mode of ['add', 'edit']) {
     await start(page);
     const original = await data(page);
     if (mode === 'add') await sideAction(page, 'add-bookmark');
-    else await page.evaluate(async () => (await import('/src/js/ui/modals/bookmarkModal.js')).openEditBookmark('compact-1'));
+    else await page.evaluate(async () => (
+      await import('/src/js/features/bookmarks/bookmarkModal.js')
+    ).openEditBookmark('compact-1'));
     const name = page.locator('#bookmark-modal-form-name');
     await name.fill('Unfinished bookmark');
     if (mode === 'add') await page.locator('#bookmark-modal-form-url').fill('https://example.internal/draft');

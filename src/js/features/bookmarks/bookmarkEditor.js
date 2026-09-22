@@ -1,12 +1,12 @@
-import { renderBookmarkPreview } from './preview.js';
-import { createLockableInputController } from '../modals/helper/stateLocked.js';
+import { getStorageMode } from '../../core/store.js';
+import { createLockableInputController } from '../../ui/modals/helper/stateLocked.js';
 import {
   getImageInputValue,
   initLocalImageUpload,
   setLocalImageSyncNoticeVisibility,
   setImageInputValue
-} from '../localImageUpload.js';
-import { getStorageMode } from '../../core/store.js';
+} from '../../ui/localImageUpload.js';
+import { renderBookmarkPreview } from './bookmarkPreview.js';
 
 /**
  * Creates a bookmark editor that keeps form inputs,

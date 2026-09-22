@@ -1,4 +1,4 @@
-import { createBookmarkElement } from '../../features/bookmarks/bookmarkCard.js';
+import { createBookmarkElement } from './bookmarkCard.js';
 
 export function renderBookmarkPreview(container, bookmark, { faviconUrl = null } = {}) {
   if (!container) return;

@@ -13,6 +13,7 @@ import {
   ensureRecycleBinPosition,
   purgeExpiredRecycleBinEntries
 } from '../features/recycle-bin/recycleBinActions.js';
+import { initBookmarkModal } from '../features/bookmarks/bookmarkModal.js';
 import { initSearchModal } from '../features/search/searchModal.js';
 import { initSettingsModal } from '../features/settings/settingsModal.js';
 import { preloadLocalImages } from '../platform/images/localImages.js';
@@ -25,7 +26,6 @@ import { initFolderController } from '../ui/folder/controller.js';
 import { initKeyboardShortcuts } from '../ui/keyboardShortcuts.js';
 import {
   initAlertModal,
-  initBookmarkModal,
   initFolderEditorModal,
   initFolderModal,
   initRecycleBinEditorModal,

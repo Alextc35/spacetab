@@ -4,8 +4,8 @@ import {
   validateBookmarkDraft
 } from '../../domain/bookmarks/bookmarkModel.js';
 import { applyI18n, t } from '../../platform/i18n/i18n.js';
-import { createBookmarkEditor } from './editor.js';
-import { initTabs } from '../tabs.js';
+import { initTabs } from '../../ui/tabs.js';
+import { createBookmarkEditor } from './bookmarkEditor.js';
 
 const TEMPLATE_ID = 'bookmark-form-template';
 const ALL_SECTIONS = Object.freeze(['general', 'style', 'text', 'icon']);

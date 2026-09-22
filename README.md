@@ -187,7 +187,7 @@ src/js/domain/recycle-bin/                pure trash and restoration rules
 src/js/domain/settings/                   portable preference normalization
 src/js/domain/workspaces/workspaceModel.js workspace identity and navigation
 
-src/js/features/bookmarks/bookmarkActions.js bookmark commands
+src/js/features/bookmarks/                  bookmark commands, cards and editor UI
 src/js/features/folders/folderActions.js     folder membership and commands
 src/js/features/grid/                        item registry consumers and actions
 src/js/features/recycle-bin/                 recycle-bin actions and UI
@@ -210,7 +210,6 @@ src/js/widgets/widgetModel.js      generic persisted widget envelope
 src/js/widgets/widgetRegistry.js   bundled-widget to GridItem adapter
 src/js/widgets/widgetActions.js    generic widget lifecycle commands
 
-src/js/ui/bookmark/panel.js        reusable create/edit/preset panel
 src/js/ui/bookmark/dragResize.js   shared pointer drag and resize controller
 src/js/ui/bookmark/smartDragLayout.js pure collision and displacement planner
 src/js/ui/bookmark/gridKeyboardNavigation.js Tab-based grid focus and actions

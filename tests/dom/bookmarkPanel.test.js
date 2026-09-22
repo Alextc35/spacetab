@@ -15,7 +15,9 @@ beforeAll(async () => {
     .replace(/^.*?<html[^>]*>/s, '')
     .replace(/<\/html>.*$/s, '');
 
-  ({ createBookmarkEditorPanel } = await import('../../src/js/ui/bookmark/panel.js'));
+  ({ createBookmarkEditorPanel } = await import(
+    '../../src/js/features/bookmarks/bookmarkEditorPanel.js'
+  ));
   ({ createFavicon } = await import('../../src/js/ui/bookmark/favicon.js'));
   ({ createBookmarkElement } = await import('../../src/js/features/bookmarks/bookmarkCard.js'));
 });

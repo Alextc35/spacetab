@@ -1,16 +1,23 @@
-import { createBookmarkEditorPanel } from '../bookmark/panel.js';
-import { addBookmark, updateBookmarkById } from '../../features/bookmarks/bookmarkActions.js';
-import { createBookmarkDraft } from '../../domain/bookmarks/bookmarkModel.js';
-import { flashSuccess } from '../flash.js';
-import { registerModal, openModal as openManagedModal, closeModal } from '../modalManager.js';
 import { getState, waitForPersistence } from '../../core/store.js';
-import { showAlert } from './alert.js';
+import { createBookmarkDraft } from '../../domain/bookmarks/bookmarkModel.js';
 import { t } from '../../platform/i18n/i18n.js';
-import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { findFirstFreeSlot } from '../../shared/grid/gridPlacement.js';
-import { getOccupiedGridItems } from '../../features/bookmarks/bookmarkActions.js';
-import { ensurePanelFits } from '../viewportMode.js';
-import { getActiveWorkspaceId } from '../../features/workspaces/workspaceSelectors.js';
+import { flashSuccess } from '../../ui/flash.js';
+import { getMaxVisibleCols, getMaxVisibleRows } from '../../ui/gridLayout.js';
+import {
+  closeModal,
+  openModal as openManagedModal,
+  registerModal
+} from '../../ui/modalManager.js';
+import { showAlert } from '../../ui/modals/alert.js';
+import { ensurePanelFits } from '../../ui/viewportMode.js';
+import { getActiveWorkspaceId } from '../workspaces/workspaceSelectors.js';
+import {
+  addBookmark,
+  getOccupiedGridItems,
+  updateBookmarkById
+} from './bookmarkActions.js';
+import { createBookmarkEditorPanel } from './bookmarkEditorPanel.js';
 
 const modal = document.getElementById('edit-bookmark-modal');
 const modalTitle = modal.querySelector('h2');

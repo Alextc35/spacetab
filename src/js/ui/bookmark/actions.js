@@ -3,7 +3,7 @@ import { clearBookmarks } from '../../features/bookmarks/bookmarkActions.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { showConfirmWithCheckbox } from '../modals/alert.js';
 import { closeModal } from '../modalManager.js';
-import { openEditBookmark } from '../modals/bookmarkModal.js';
+import { openEditBookmark } from '../../features/bookmarks/bookmarkModal.js';
 import { isVisuallyDark } from './utils.js';
 import { flashSuccess, flashError } from '../flash.js';
 

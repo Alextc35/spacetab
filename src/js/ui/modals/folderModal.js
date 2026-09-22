@@ -18,7 +18,7 @@ import { createBookmarkElement } from '../../features/bookmarks/bookmarkCard.js'
 import { flashInfo, flashSuccess } from '../flash.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from '../gridLayout.js';
 import { closeModal, openModal, registerModal, isModalSuspended } from '../modalManager.js';
-import { openEditBookmark } from './bookmarkModal.js';
+import { openEditBookmark } from '../../features/bookmarks/bookmarkModal.js';
 import { openFolderEditor } from './folderEditorModal.js';
 import { applyFolderAppearance, createFolderVisual } from '../folder/visual.js';
 import { showAlert } from './alert.js';

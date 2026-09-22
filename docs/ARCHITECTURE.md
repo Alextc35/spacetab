@@ -44,7 +44,7 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 10 establish the first application, domain, feature, platform
+Phases 1 through 11 establish the first application, domain, feature, platform
 and widget seams:
 
 ```text
@@ -74,7 +74,11 @@ src/js/
 │   ├── bookmarks/
 │   │   ├── bookmarkActions.js
 │   │   ├── bookmarkCard.js
-│   │   └── bookmarkGridItem.js
+│   │   ├── bookmarkEditor.js
+│   │   ├── bookmarkEditorPanel.js
+│   │   ├── bookmarkGridItem.js
+│   │   ├── bookmarkModal.js
+│   │   └── bookmarkPreview.js
 │   ├── folders/
 │   │   ├── folderActions.js
 │   │   └── folderGridItem.js
@@ -214,6 +218,22 @@ and CSS under `css/features/searchModal.css` are intentionally unchanged, so
 this move does not alter the DOM, styling, keyboard shortcut or persisted data
 contracts. Unit tests protect the query behavior and the existing Playwright
 journeys protect both search surfaces.
+
+## Bookmark editor feature boundary
+
+The complete bookmark editing flow is owned by `features/bookmarks`: its modal
+coordinates create, edit and preset use cases; the reusable editor panel owns
+draft validation and lifecycle; and the editor plus preview keep form state and
+the production bookmark card synchronized. The application bootstrap, bookmark
+actions, keyboard navigation, folder modal and Settings import that feature
+entry point directly. The generic modal index is no longer a registry for the
+bookmark editor.
+
+Reusable tabs, modal management, alerts, viewport checks and local-image input
+controllers remain in `ui/`. Grid selection, drag/resize and keyboard movement
+also remain transitional shared UI because they operate across bookmarks,
+folders, the recycle bin and widgets. Existing HTML templates, CSS, persistence
+and bookmark draft contracts are unchanged by this phase.
 
 ## GridItem and the item-type registry
 
@@ -363,6 +383,8 @@ remain out of scope.
    of transitional `core/`; split pure interface preferences from their DOM effect.
 10. ✅ Encapsulate global bookmark search and compact-list filtering as a Search
     feature, with the reusable query policy covered independently from its DOM UI.
+11. ✅ Encapsulate the bookmark modal, editor panel, form controller and preview
+    as one vertical feature while retaining proven cross-feature UI primitives.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.
@@ -447,7 +469,8 @@ The schema and commands enforce these rules:
 
 ## Bookmark editor
 
-`createBookmarkEditorPanel()` supports three modes:
+`features/bookmarks/bookmarkEditorPanel.js` exposes
+`createBookmarkEditorPanel()` with three modes:
 
 * `create`: blank identity combined with the current appearance preset.
 * `edit`: an existing bookmark, including identity and appearance.
