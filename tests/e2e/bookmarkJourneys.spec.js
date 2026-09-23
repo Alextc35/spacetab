@@ -2877,6 +2877,7 @@ test('duplicates several selected bookmarks without overlaps', async ({ page }) 
 
 test('creates a folder, accepts a dragged bookmark and persists its contents', async ({ page }) => {
   await setBookmarkDragMode(page, 'relocate');
+  await createBookmark(page, 'Reading item', 'reading-item.test');
   await revealSideDock(page);
   await page.locator('#add-toggle').click();
   await page.locator('#add-folder').click();
@@ -2893,7 +2894,7 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
   await expect(folder.getByRole('button', { name: 'Delete folder' })).toHaveCount(0);
   await expect(folder.locator('.bookmark-action-menu, .bookmark-actions')).toHaveCount(0);
   await expect(folder.locator('.resizer')).toHaveCount(8);
-  const bookmark = page.locator('.bookmark[data-bookmark-id]').first();
+  const bookmark = page.locator('.bookmark[data-bookmark-id]', { hasText: 'Reading item' });
   const bookmarkStart = await visibleBox(bookmark);
   const folderStart = await visibleBox(folder);
 
@@ -2942,9 +2943,16 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
     .toBe(folderGridPosition.left);
   await expect.poll(() => folder.evaluate(element => element.offsetTop))
     .toBe(folderGridPosition.top);
+  await bookmark.evaluate(element => {
+    window.folderDropElement = element;
+  });
   await page.mouse.up();
 
-  await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(1);
+  await expect.poll(() => page.evaluate(() => ({
+    connected: window.folderDropElement?.isConnected,
+    hiddenBeforeRemoval: window.folderDropElement?.classList.contains('is-drop-committed')
+  }))).toEqual({ connected: false, hiddenBeforeRemoval: true });
+  await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(0);
   await expect(page.locator('.bookmark-folder')).toContainText('1 saved');
   await expect.poll(() => folder.evaluate(element => element.offsetLeft))
     .toBe(folderGridPosition.left);
@@ -2982,18 +2990,18 @@ test('creates a folder, accepts a dragged bookmark and persists its contents', a
   expect(Math.abs(persistedFolderBox.height - resizedFolderBox.height)).toBeLessThan(2);
   await persistedFolder.getByRole('button', { name: /Open Reading/ }).click();
   await expect(page.getByRole('heading', { name: 'Reading' })).toBeVisible();
-  await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Reading item/ })).toBeVisible();
   const folderGrid = page.getByRole('list', { name: 'Folder bookmarks' });
   await expect(folderGrid).toBeVisible();
   await expect(folderGrid.getByRole('button')).toHaveCount(0);
-  await expect(folderGrid.getByRole('link', { name: /DEVELOPED BY/ }))
+  await expect(folderGrid.getByRole('link', { name: /Reading item/ }))
     .toHaveCSS('cursor', 'pointer');
 
   await enableFolderEditMode(page);
-  await page.getByRole('button', { name: /Move DEVELOPED BY out of the folder/ }).click();
+  await page.getByRole('button', { name: /Move Reading item out of the folder/ }).click();
   await expect(page.getByText('0 of 18 spaces used')).toBeVisible();
   await page.getByRole('button', { name: 'Close' }).click();
-  await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Reading item/ })).toBeVisible();
 });
 
 test('customizes a folder from its miniature and persists the appearance', async ({ page }) => {

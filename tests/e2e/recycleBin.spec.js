@@ -238,7 +238,7 @@ test('asks before dropping a folder with contents and supports permanent deletio
   await expect(page.locator('#alert-modal')).toBeVisible();
   await expect(page.locator('#alert-modal-title')).toContainText('Archive');
   await expect(folder).toBeHidden();
-  await expect(folder).toHaveClass(/is-recycle-drop-committed/);
+  await expect(folder).toHaveClass(/is-drop-committed/);
   await page.getByRole('button', { name: 'Accept', exact: true }).click();
   await expect(folder).toHaveCount(0);
 

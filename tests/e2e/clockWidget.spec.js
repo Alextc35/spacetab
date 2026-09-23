@@ -195,12 +195,12 @@ test('asks before permanently deleting a clock dropped on the recycle bin', asyn
     'Permanently delete this clock? This cannot be undone.'
   );
   await expect(clock).toBeHidden();
-  await expect(clock).toHaveClass(/is-recycle-drop-committed/);
+  await expect(clock).toHaveClass(/is-drop-committed/);
   await page.locator('#alert-modal-cancel').click();
   await expect(clock).toBeVisible();
-  await expect(clock).not.toHaveClass(/is-recycle-drop-committed/);
+  await expect(clock).not.toHaveClass(/is-drop-committed/);
   await expect.poll(() => clock.evaluate(element => (
-    element.classList.contains('is-recycle-drop-restoring')
+    element.classList.contains('is-drop-restoring')
   ))).toBe(false);
 
   await dropClockOnRecycleBin();

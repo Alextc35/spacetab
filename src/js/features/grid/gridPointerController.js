@@ -199,10 +199,10 @@ export function addGridItemPointerControls(container, div, item, {
     itemDragging = false;
     dragging = false;
     cancelGesture = null;
-    if (commit && recycleBinTarget) {
+    if (commit && (recycleBinTarget || folderTarget)) {
       // Hide the card before removing its landing transform. Otherwise the
       // browser can paint one frame back at its original cell before render.
-      div.classList.add('is-recycle-drop-committed');
+      div.classList.add('is-drop-committed');
     }
     div.classList.remove('is-dragging', 'is-invalid');
     div.style.zIndex = '';
@@ -241,15 +241,15 @@ export function addGridItemPointerControls(container, div, item, {
         if (moveBookmarksToRecycleBin([item.id]) > 0) {
           flashSuccess('flash.recycleBin.moved');
         } else {
-          restoreCancelledRecycleBinDrop(div);
+          restoreCancelledGridDrop(div);
         }
       } else if (kind === 'folder') {
         void confirmFolderRecycle(item).then(deleted => {
-          if (!deleted) restoreCancelledRecycleBinDrop(div);
+          if (!deleted) restoreCancelledGridDrop(div);
         });
       } else if (kind === 'widget') {
         void confirmWidgetPermanentRemoval(item).then(deleted => {
-          if (!deleted) restoreCancelledRecycleBinDrop(div);
+          if (!deleted) restoreCancelledGridDrop(div);
         });
       }
       return;
@@ -265,8 +265,9 @@ export function addGridItemPointerControls(container, div, item, {
       dragSession = null;
       if (addBookmarkToFolder(item.id, targetId)) {
         flashSuccess('flash.folder.bookmarkAdded');
-      } else if (targetIsFull) {
-        flashError('flash.folder.folderFull');
+      } else {
+        restoreCancelledGridDrop(div);
+        if (targetIsFull) flashError('flash.folder.folderFull');
       }
       return;
     }
@@ -815,14 +816,14 @@ function clearDropLandingGeometry(element) {
   element.style.removeProperty('--drop-landing-scale');
 }
 
-function restoreCancelledRecycleBinDrop(element) {
+function restoreCancelledGridDrop(element) {
   if (!element.isConnected) return;
-  element.classList.add('is-recycle-drop-restoring');
-  element.classList.remove('is-recycle-drop-committed');
+  element.classList.add('is-drop-restoring');
+  element.classList.remove('is-drop-committed');
   void element.offsetWidth;
-  element.classList.add('is-recycle-drop-revealed');
+  element.classList.add('is-drop-revealed');
   setTimeout(() => {
-    element.classList.remove('is-recycle-drop-restoring', 'is-recycle-drop-revealed');
+    element.classList.remove('is-drop-restoring', 'is-drop-revealed');
   }, SMART_MOVE_DURATION);
 }
 
