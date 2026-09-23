@@ -34,33 +34,35 @@ export {
  * - Generates a runtime `id`
  * - Extends DEFAULT_BOOKMARK
  *
+ * Currently, this is an empty array, but can be populated with default bookmarks if desired.
+ * 
  * @type {Bookmark[]}
  */
 export const DEFAULT_BOOKMARKS = [
-  {
-    id: crypto.randomUUID(),
-    ...DEFAULT_BOOKMARK,
-    name: 'DEVELOPED BY',
-    url: 'https://www.alextc.es',
-    urlLocked: true,
-    noBackground: false,
-    backgroundColor: '#161b22',
-    gy: 1,
-  },
-  {
-    id: crypto.randomUUID(),
-    ...DEFAULT_BOOKMARK,
-    name: 'banana',
-    backgroundImageUrl: 'https://cdn.osxdaily.com/wp-content/uploads/2013/07/dancing-banana.gif',
-    backgroundImageUrlLocked: true,
-    backgroundFavicon: false,
-    noBackground: false,
-    backgroundColor: '#eeff00',
-    showText: false,
-    showFavicon: false,
-    gx: 1,
-    gy: 1
-  }
+  // {
+  //   id: crypto.randomUUID(),
+  //   ...DEFAULT_BOOKMARK,
+  //   name: 'DEVELOPED BY',
+  //   url: 'https://www.alextc.es',
+  //   urlLocked: true,
+  //   noBackground: false,
+  //   backgroundColor: '#161b22',
+  //   gy: 1,
+  // },
+  // {
+  //   id: crypto.randomUUID(),
+  //   ...DEFAULT_BOOKMARK,
+  //   name: 'banana',
+  //   backgroundImageUrl: 'https://cdn.osxdaily.com/wp-content/uploads/2013/07/dancing-banana.gif',
+  //   backgroundImageUrlLocked: true,
+  //   backgroundFavicon: false,
+  //   noBackground: false,
+  //   backgroundColor: '#eeff00',
+  //   showText: false,
+  //   showFavicon: false,
+  //   gx: 1,
+  //   gy: 1
+  // }
 ];
 
 /**
