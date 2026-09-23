@@ -154,6 +154,7 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   let localStorageUsageError = false;
   let usageRequestId = 0;
   let isDeleting = false;
+  let observedStorageMode = getStorageMode();
   let isTooltipPinned = false;
   let isHelpHovered = false;
   let suppressTooltip = false;
@@ -501,6 +502,13 @@ export function initSyncSection({ onRequestSaveStateUpdate }) {
   }
 
   subscribe(state => {
+    const currentStorageMode = getStorageMode();
+    if (currentStorageMode !== observedStorageMode) {
+      observedStorageMode = currentStorageMode;
+      reconcileDraftStorageMode(currentStorageMode);
+      syncUI();
+    }
+
     const persistence = state.ui.persistence;
     if (!persistence) return;
     const statusKey = `settingsModal.sync.status.${persistence.status}`;

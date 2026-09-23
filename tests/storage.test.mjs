@@ -476,6 +476,7 @@ test('rejects synchronized payloads above Chrome quota', async () => {
 
 test('reports and deletes only NewDeskTab synchronized data', async () => {
   chrome.storage.sync.data.unrelatedExtensionValue = 'keep';
+  const localBeforeDeletion = structuredClone(chrome.storage.local.data.bookmarks);
 
   const beforeDelete = await storage.getSyncMetadata();
   assert.equal(beforeDelete.hasData, true);
@@ -487,6 +488,11 @@ test('reports and deletes only NewDeskTab synchronized data', async () => {
   assert.equal(deleted, true);
   assert.deepEqual(afterDelete, { hasData: false, updatedAt: null });
   assert.equal(chrome.storage.sync.data.unrelatedExtensionValue, 'keep');
+
+  const recovered = await storage.get(null);
+  assert.equal(storage.getMode(), STORAGE_MODES.LOCAL);
+  assert.deepEqual(recovered.bookmarks, localBeforeDeletion);
+  assert.equal(chrome.storage.local.data.newdesktabStorageMode, STORAGE_MODES.LOCAL);
 });
 
 test('follows storage-mode changes made by another open tab', async () => {

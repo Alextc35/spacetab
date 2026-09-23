@@ -9,7 +9,7 @@ import { changeLanguage, t } from '../../platform/i18n/i18n.js';
 import { DEFAULT_SETTINGS } from '../../core/defaults.js';
 import {
   changeStorageMode,
-  clearAllData,
+  clearAllLocalData,
   getState,
   getStorageMode
 } from '../../core/store.js';
@@ -122,7 +122,7 @@ export function initSettingsModal() {
     },
     onDeleteAllData: async () => {
       try {
-        await clearAllData();
+        await clearAllLocalData();
         await changeLanguage(DEFAULT_SETTINGS);
         resetState();
         closeModal('settings');

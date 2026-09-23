@@ -719,6 +719,26 @@ async function fallBackToLocalData(error) {
   return localData;
 }
 
+/**
+ * Treats a missing payload as a remote Sync deletion. This covers devices
+ * which were closed when another device deleted the cloud data: on their next
+ * read they restore their device-only trash into the last local snapshot and
+ * leave Sync without recreating the deleted payload.
+ *
+ * @returns {Promise<PersistedData>}
+ */
+async function fallBackToLocalDataAfterSyncDeletion() {
+  let localData = normalizePersistedData(await readLocalData());
+  localData = normalizePersistedData(await restoreDeviceTrash(localData));
+  await writeLocalData(localData);
+  await clearDeviceTrash();
+  await callStorage(chrome.storage.local, 'set', {
+    [STORAGE_MODE_KEY]: STORAGE_MODES.LOCAL
+  });
+  activeMode = STORAGE_MODES.LOCAL;
+  return localData;
+}
+
 async function clearSyncCompatibility() {
   syncCompatibility = null;
   await callStorage(chrome.storage.local, 'remove', SYNC_COMPATIBILITY_KEY);
@@ -788,7 +808,9 @@ export const storage = {
 
     try {
       persistedData = await readData(requestedMode);
-      data = normalizePersistedData(persistedData);
+      data = requestedMode === STORAGE_MODES.SYNC && persistedData === null
+        ? await fallBackToLocalDataAfterSyncDeletion()
+        : normalizePersistedData(persistedData);
     } catch (error) {
       if (requestedMode !== STORAGE_MODES.SYNC || !isNewerSyncDataError(error)) {
         throw error;
@@ -993,16 +1015,14 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== activeMode) return;
 
   const changedKeys = Object.keys(changes);
-  const hasLegacySyncWrite = LEGACY_SYNC_KEYS.some(key => (
-    changes[key]?.newValue !== undefined
-  ));
+  const hasLegacySyncChange = LEGACY_SYNC_KEYS.some(key => changes[key] !== undefined);
   const isApplicationChange = activeMode === STORAGE_MODES.LOCAL
     ? changedKeys.some(key => (
         key === 'schemaVersion' || key === 'bookmarks' || key === 'settings'
         || key === 'folders' || key === 'widgets' || key === 'recycleBin' || key === 'trash'
       ))
     : changes[SYNC_META_KEY] !== undefined
-      || hasLegacySyncWrite
+      || hasLegacySyncChange
       || changedKeys.some(key => key.startsWith(SYNC_CHUNK_PREFIX));
 
   if (!isApplicationChange) return;

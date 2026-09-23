@@ -83,6 +83,7 @@ globalThis.chrome = {
 };
 
 const {
+  getStorageMode,
   getState,
   hydrateStore,
   setState,
@@ -95,8 +96,10 @@ test('announces only data updates received from another device', async () => {
   await hydrateStore();
 
   let remoteUpdates = 0;
-  const unsubscribe = subscribeToRemoteSyncUpdates(() => {
+  const events = [];
+  const unsubscribe = subscribeToRemoteSyncUpdates(event => {
     remoteUpdates += 1;
+    events.push(event.type);
   });
 
   const current = getState().data;
@@ -141,5 +144,22 @@ test('announces only data updates received from another device', async () => {
 
   assert.equal(getState().data.bookmarks[0].name, 'Changed remotely');
   assert.equal(remoteUpdates, 1);
+  assert.deepEqual(events, ['updated']);
+  unsubscribe();
+});
+
+test('keeps the visible data and switches to Local after remote Sync deletion', async () => {
+  const events = [];
+  const unsubscribe = subscribeToRemoteSyncUpdates(event => events.push(event.type));
+  const visibleBeforeDeletion = getState().data;
+
+  chrome.storage.sync.remove(Object.keys(chrome.storage.sync.data), () => {});
+  await waitForStorageRefresh();
+
+  assert.equal(getStorageMode(), 'local');
+  assert.deepEqual(getState().data, visibleBeforeDeletion);
+  assert.deepEqual(chrome.storage.local.data.bookmarks, visibleBeforeDeletion.bookmarks);
+  assert.equal(chrome.storage.local.data.newdesktabStorageMode, 'local');
+  assert.deepEqual(events, ['deleted']);
   unsubscribe();
 });

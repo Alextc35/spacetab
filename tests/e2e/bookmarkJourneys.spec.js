@@ -2510,6 +2510,9 @@ test('localizes sync status and confirms synchronized data deletion', async ({ p
   await expect(page.getByRole('heading', {
     name: /Delete all synchronized NewDeskTab data/
   })).toBeVisible();
+  await expect(page.locator('#alert-modal-title')).toContainText(
+    'every other device using this cloud data will switch to Local mode'
+  );
   await page.getByRole('button', { name: 'Cancel' }).click();
   await expect(deleteSyncData).toBeEnabled();
 

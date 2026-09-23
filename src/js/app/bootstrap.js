@@ -74,7 +74,11 @@ export async function bootstrapApplication({ trace, startedAt }) {
 
   const appController = createAppController({ container: elements.container });
   subscribe(appController.handleStateChange);
-  subscribeToRemoteSyncUpdates(() => {
+  subscribeToRemoteSyncUpdates(event => {
+    if (event.type === 'deleted') {
+      flashInfo('flash.sync.deletedFromOtherDevice', 6000);
+      return;
+    }
     ensureRecycleBinPosition();
     flashInfo('flash.sync.updatedFromOtherDevice', 4000);
   });

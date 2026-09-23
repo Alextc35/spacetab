@@ -427,6 +427,19 @@ collection; all stored/imported migrations remain together under
 `platform/storage`. Visual components continue to call feature actions rather
 than the storage facade directly.
 
+The destructive General-settings reset is explicitly device-local. In Local
+mode it replaces persisted app data with an empty default state; in Sync mode
+it first switches the device to Local using that empty state. It then clears
+device trash, image selections and every owned local-image blob. It never
+writes to or deletes the synchronized payload; remote deletion remains the
+separate action in the Sync section.
+
+Remote Sync deletion is a distributed mode transition. Open devices detect the
+empty synchronized area, persist the last synchronized state they were showing
+as their local copy and switch to Local. Devices which were closed make the
+same mode transition on their next read and use their last local snapshot.
+None of them recreates the deleted cloud payload automatically.
+
 ## Bundled-widget API
 
 `WidgetInstance` is the common persisted envelope: grid identity and geometry,

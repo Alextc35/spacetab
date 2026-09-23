@@ -44,7 +44,7 @@ const redoStack = [];
  */
 const listeners = [];
 
-/** @type {Array<() => void>} */
+/** @type {Array<(event: {type: 'updated'|'deleted'}) => void>} */
 const remoteSyncUpdateListeners = [];
 
 /**
@@ -296,23 +296,29 @@ export async function deleteSyncedData() {
 }
 
 /**
- * Removes all user data from both persistence areas and restores defaults.
- * Starter bookmarks are deliberately excluded so the cleared grid stays empty.
+ * Removes every piece of user data owned by this device and restores defaults.
+ * When Sync is active, the device switches to Local before the reset so the
+ * remote payload is never overwritten or deleted. Starter bookmarks are
+ * deliberately excluded so the cleared grid stays empty.
  *
  * @returns {Promise<void>}
  */
-export async function clearAllData() {
+export async function clearAllLocalData() {
   const data = structuredClone(DEFAULT_STATE.data);
   data.bookmarks = [];
   data.folders = [];
   data.widgets = [];
 
-  await setState({ data }, { recordHistory: false });
-  if (state.ui.persistence.status === 'error') {
-    throw new Error(state.ui.persistence.error || 'Could not clear persisted data.');
+  await persistenceQueue.catch(() => undefined);
+  if (storage.getMode() === STORAGE_MODES.SYNC) {
+    await changeStorageMode(STORAGE_MODES.LOCAL, data);
+  } else {
+    await setState({ data }, { recordHistory: false });
+    if (state.ui.persistence.status === 'error') {
+      throw new Error(state.ui.persistence.error || 'Could not clear persisted data.');
+    }
   }
 
-  await deleteSyncedData();
   await Promise.all([
     clearLocalImages(),
     clearDeviceImageSelections(),
@@ -337,13 +343,15 @@ export async function changeStorageMode(mode, nextData = state.data) {
     throw new TypeError(`Unsupported storage mode: ${mode}`);
   }
 
-  const trace = debug.start('Switch storage', { from: storage.getMode(), to: mode });
+  const previousMode = storage.getMode();
+  const trace = debug.start('Switch storage', { from: previousMode, to: mode });
   try {
     await persistenceQueue.catch(() => undefined);
     trace.mark('Queue wait');
     const result = await storage.changeMode(mode, nextData);
     trace.mark('Storage switch');
-    replacePersistedData(result.data);
+    const dataChanged = replacePersistedData(result.data);
+    if (!dataChanged && storage.getMode() !== previousMode) notify(state, state);
     trace.end({ source: result.source, activeMode: storage.getMode() });
     return result.source;
   } catch (error) {
@@ -373,7 +381,7 @@ export function subscribe(listener) {
  * Subscribes to data updates received from another synchronized device.
  * Unlike the regular store subscription, this is not invoked immediately.
  *
- * @param {() => void} listener
+ * @param {(event: {type: 'updated'|'deleted'}) => void} listener
  * @returns {() => void} Function to unsubscribe.
  */
 export function subscribeToRemoteSyncUpdates(listener) {
@@ -475,6 +483,22 @@ function subscribeToStorageChanges() {
         // local commit is queued. Read again only after that queue has drained.
         const queue = persistenceQueue;
         await queue.catch(() => undefined);
+
+        const isRemoteSyncChange = refreshChange?.areaName === STORAGE_MODES.SYNC
+          && refreshChange.origin === 'other-device';
+        if (isRemoteSyncChange && storage.getMode() === STORAGE_MODES.SYNC) {
+          const syncMetadata = await storage.getSyncMetadata();
+          if (!syncMetadata.hasData) {
+            // Preserve the last synchronized state visible on this device.
+            // Closed devices perform the equivalent fallback in storage.get().
+            await changeStorageMode(STORAGE_MODES.LOCAL, state.data);
+            for (const listener of remoteSyncUpdateListeners) {
+              listener({ type: 'deleted' });
+            }
+            return;
+          }
+        }
+
         const persisted = await storage.get(null);
         // Another edit may have started while the asynchronous read ran. Its
         // storage event will refresh again after it finishes.
@@ -487,7 +511,9 @@ function subscribeToStorageChanges() {
           && refreshChange?.areaName === STORAGE_MODES.SYNC
           && refreshChange.origin === 'other-device'
         ) {
-          for (const listener of remoteSyncUpdateListeners) listener();
+          for (const listener of remoteSyncUpdateListeners) {
+            listener({ type: 'updated' });
+          }
         }
       } catch (err) {
         console.error('[STORE] Storage refresh failed:', err);

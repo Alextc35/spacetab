@@ -482,6 +482,21 @@ respetar las cuotas de `chrome.storage.sync`.
 La selección Local/Sync es específica del dispositivo. Los datos funcionales y
 los atajos sí forman parte del payload sincronizable.
 
+### Borrado local y borrado remoto
+
+“Borrar todos los datos locales” elimina del dispositivo los favoritos,
+carpetas, widgets, ajustes, papelera, selecciones de imagen y todos los archivos
+de imagen propiedad de NewDeskTab. Si Sync está activo, primero cambia el
+dispositivo a Local con un estado vacío. El payload de la nube no se escribe ni
+se elimina. Su borrado es una acción distinta y explícita dentro de la sección
+Sync.
+
+Al borrar el payload remoto, todos los dispositivos que lo estuvieran usando
+abandonan Sync. Los que estén abiertos guardan localmente el último estado que
+estaban mostrando; los que estén cerrados detectan la ausencia al iniciarse y
+recuperan su última copia local. Ningún dispositivo vuelve a crear
+automáticamente los datos eliminados de la nube.
+
 ### Compatibilidad futura
 
 Si una instalación antigua encuentra datos escritos con un esquema posterior,

@@ -67,8 +67,8 @@
       "saved": "Configuración guardada",
       "copied": "Valor copiado al portapapeles",
       "resetBg": "Tema restablecido",
-      "deletedAllData": "Todos los datos de NewDeskTab eliminados",
-      "deleteAllDataError": "No se pudieron borrar todos los datos de NewDeskTab"
+      "deletedAllData": "Todos los datos locales de NewDeskTab eliminados",
+      "deleteAllDataError": "No se pudieron borrar todos los datos locales de NewDeskTab"
     },
     "localImage": {
       "invalid": "Elige una imagen PNG, JPEG, WebP, GIF o AVIF.",
@@ -81,6 +81,7 @@
       "localEnabled": "Modo local activado",
       "remoteLoaded": "Datos sincronizados cargados",
       "updatedFromOtherDevice": "Cambios sincronizados recibidos de otro dispositivo",
+      "deletedFromOtherDevice": "Los datos de la nube se borraron desde otro dispositivo. Este dispositivo está ahora en modo Local.",
       "error": "No se pudo cambiar el modo de almacenamiento",
       "versionBlocked": "Sincronización pausada: los datos en la nube requieren una versión más reciente de NewDeskTab. Se muestran los datos locales de este dispositivo.",
       "quotaError": "Los datos superan el espacio disponible para sincronización",
@@ -135,7 +136,7 @@
     "settings": {
       "cancel": "¿Descartar los cambios en la configuración?",
       "reset": "¿Restablecer todos los ajustes? Los favoritos no se borrarán.",
-      "deleteAllData": "¿Borrar todos los datos de NewDeskTab? Se eliminarán permanentemente los favoritos, las carpetas, toda la configuración y los datos sincronizados. Esta acción no se puede deshacer.",
+      "deleteAllData": "¿Borrar todos los datos locales de NewDeskTab de este dispositivo? Se eliminarán permanentemente los favoritos, las carpetas, los widgets, los ajustes, la papelera y las imágenes locales. Los datos de la nube no se modificarán. Si Sync está activo, este dispositivo pasará primero a Local. Esta acción no se puede deshacer.",
       "theme": {
         "reset": "¿Restablecer la configuración del tema?"
       },
@@ -144,7 +145,7 @@
         "cancel": "¿Descartar los cambios en el aspecto del favorito por defecto?"
       },
       "sync": {
-        "delete": "¿Borrar todos los datos sincronizados de NewDeskTab? Si la sincronización está activa, este dispositivo pasará primero al modo local. Esta acción no se puede deshacer."
+        "delete": "¿Borrar todos los datos sincronizados de NewDeskTab? Este dispositivo y todos los demás que usen estos datos de la nube pasarán a modo Local cuando detecten el borrado. Esta acción no se puede deshacer."
       }
     },
     "backup": {
@@ -389,7 +390,7 @@
       "export": "Exportar copia de seguridad",
       "import": "Restaurar copia de seguridad",
       "resetSettings": "Restablecer ajustes",
-      "deleteAllData": "Borrar todos los datos",
+      "deleteAllData": "Borrar todos los datos locales",
       "recycleBin": {
         "title": "Papelera de reciclaje",
         "show": "Mostrar la papelera en la grilla Principal",

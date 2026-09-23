@@ -67,8 +67,8 @@
       "saved": "Settings saved",
       "copied": "Value copied to clipboard",
       "resetBg": "Theme reset",
-      "deletedAllData": "All NewDeskTab data deleted",
-      "deleteAllDataError": "Could not delete all NewDeskTab data"
+      "deletedAllData": "All local NewDeskTab data deleted",
+      "deleteAllDataError": "Could not delete all local NewDeskTab data"
     },
     "localImage": {
       "invalid": "Choose a PNG, JPEG, WebP, GIF, or AVIF image.",
@@ -81,6 +81,7 @@
       "localEnabled": "Local mode enabled",
       "remoteLoaded": "Synced data loaded",
       "updatedFromOtherDevice": "Synced changes received from another device",
+      "deletedFromOtherDevice": "Cloud data was deleted from another device. This device is now using Local mode.",
       "error": "Could not change storage mode",
       "versionBlocked": "Sync was paused because the cloud data requires a newer NewDeskTab version. This device's local data is being shown.",
       "quotaError": "The data exceeds the available sync storage",
@@ -135,7 +136,7 @@
     "settings": {
       "cancel": "Discard settings changes?",
       "reset": "Reset all settings? Bookmarks will not be deleted.",
-      "deleteAllData": "Delete all NewDeskTab data? Bookmarks, folders, settings, and synchronized data will be permanently deleted. This action cannot be undone.",
+      "deleteAllData": "Delete all local NewDeskTab data from this device? Bookmarks, folders, widgets, settings, recycle-bin items, and local images will be permanently deleted. Cloud data will not be changed. If Sync is active, this device will switch to Local first. This action cannot be undone.",
       "theme": {
         "reset": "Reset theme settings?"
       },
@@ -144,7 +145,7 @@
         "cancel": "Discard changes to the default bookmark appearance?"
       },
       "sync": {
-        "delete": "Delete all synchronized NewDeskTab data? If Sync is active, this device will switch to local storage first. This cannot be undone."
+        "delete": "Delete all synchronized NewDeskTab data? This device and every other device using this cloud data will switch to Local mode when they detect the deletion. This cannot be undone."
       }
     },
     "backup": {
@@ -389,7 +390,7 @@
       "export": "Export backup",
       "import": "Restore backup",
       "resetSettings": "Reset settings",
-      "deleteAllData": "Delete all data",
+      "deleteAllData": "Delete all local data",
       "recycleBin": {
         "title": "Recycle bin",
         "show": "Show the recycle bin on the Main grid",

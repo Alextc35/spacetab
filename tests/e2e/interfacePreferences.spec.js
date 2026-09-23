@@ -165,7 +165,7 @@ test('language preview can be cancelled, saved, and reset to the device default'
   }
 });
 
-test('deletes every NewDeskTab data area from General and closes settings', async ({ page }) => {
+test('deletes every local data area without changing synchronized data', async ({ page }) => {
   await start(page);
   await page.evaluate(async () => {
     const { DEFAULT_BOOKMARK, DEFAULT_FOLDER_STYLE } = await import('/src/js/core/defaults.js');
@@ -198,6 +198,19 @@ test('deletes every NewDeskTab data area from General and closes settings', asyn
           h: 2,
           groupId: null
         }],
+        widgets: [{
+          id: 'delete-widget',
+          type: 'clock',
+          version: 1,
+          gx: 3,
+          gy: 0,
+          w: 2,
+          h: 1,
+          groupId: null,
+          config: { hourCycle: '24', showSeconds: true },
+          createdAt: 1,
+          updatedAt: 1
+        }],
         settings
       }
     });
@@ -209,19 +222,35 @@ test('deletes every NewDeskTab data area from General and closes settings', asyn
       },
       newdesktabLocalImageSelections: {
         theme: 'newdesktab-local-image:4c5b9a2e-3f0e-4c7e-889c-72117afc09e9'
-      }
+      },
+      newdesktabLocalTrash: [{
+        id: 'delete-trash-entry',
+        type: 'bookmark',
+        deletedAt: Date.now(),
+        bookmark: {
+          ...DEFAULT_BOOKMARK,
+          id: 'deleted-bookmark',
+          name: 'Deleted bookmark'
+        }
+      }]
     }, resolve));
   });
 
   await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(1);
   await expect(page.locator('.bookmark-folder')).toHaveCount(1);
+  await expect(page.locator('[data-widget-id="delete-widget"]')).toHaveCount(1);
+  const syncedBeforeDelete = await page.evaluate(() => (
+    JSON.parse(sessionStorage.getItem('newdesktab-test-sync') || '{}')
+  ));
   await openSettings(page);
-  const erase = page.getByRole('button', { name: 'Delete all data' });
+  const erase = page.getByRole('button', { name: 'Delete all local data' });
   await expect(erase).toHaveClass(/btn-danger/);
 
   await erase.click();
   await expect(page.locator('#alert-modal')).toBeVisible();
-  await expect(page.locator('#alert-modal-title')).toContainText('Delete all NewDeskTab data?');
+  await expect(page.locator('#alert-modal-title')).toContainText(
+    'Delete all local NewDeskTab data from this device?'
+  );
   await page.locator('#alert-modal-cancel').click();
   await expect(page.locator('#settings-modal')).toBeVisible();
   await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(1);
@@ -231,22 +260,20 @@ test('deletes every NewDeskTab data area from General and closes settings', asyn
   await expect(page.locator('#settings-modal')).toBeHidden();
   await expect(page.locator('.bookmark[data-bookmark-id]')).toHaveCount(0);
   await expect(page.locator('.bookmark-folder')).toHaveCount(0);
+  await expect(page.locator('[data-widget-id]')).toHaveCount(0);
 
   await expect.poll(() => page.evaluate(async () => {
     const { DEFAULT_SETTINGS } = await import('/src/js/core/defaults.js');
     const local = JSON.parse(sessionStorage.getItem('newdesktab-test-local') || '{}');
     const sync = JSON.parse(sessionStorage.getItem('newdesktab-test-sync') || '{}');
-    const syncKeys = Object.keys(sync).filter(key => (
-      key === 'newdesktabSyncMeta'
-      || key.startsWith('newdesktabSyncChunk:')
-      || ['schemaVersion', 'bookmarks', 'folders', 'settings'].includes(key)
-    ));
     return {
       mode: local.newdesktabStorageMode,
       bookmarks: local.bookmarks,
       folders: local.folders,
+      widgets: local.widgets,
+      trash: local.newdesktabLocalTrash,
       settingsAreDefault: JSON.stringify(local.settings) === JSON.stringify(DEFAULT_SETTINGS),
-      syncKeys,
+      sync,
       localImageKeys: Object.keys(local).filter(key => key.startsWith('newdesktabLocalImage:')),
       hasImageSelections: Object.hasOwn(local, 'newdesktabLocalImageSelections')
     };
@@ -254,8 +281,10 @@ test('deletes every NewDeskTab data area from General and closes settings', asyn
     mode: 'local',
     bookmarks: [],
     folders: [],
+    widgets: [],
+    trash: undefined,
     settingsAreDefault: true,
-    syncKeys: [],
+    sync: syncedBeforeDelete,
     localImageKeys: [],
     hasImageSelections: false
   });
