@@ -24,6 +24,34 @@ describe('clock view', () => {
     expect(element.textContent).toBe('05:07');
     expect(element.dateTime).toBe(instant.toISOString());
     expect(element.getAttribute('aria-label')).toBe('05:07');
+    expect(element.querySelector('.clock-widget-time-main').textContent).toBe('05:07');
+    expect(element.querySelector('.clock-widget-time-detail').textContent).toBe('');
+    expect(element.classList.contains('has-seconds')).toBe(false);
+  });
+
+  test('keeps seconds in their own reusable fragment for compact layouts', () => {
+    const element = createClockTimeElement({ hourCycle: '24', showSeconds: true });
+    const main = element.querySelector('.clock-widget-time-main');
+    const detail = element.querySelector('.clock-widget-time-detail');
+    const instant = new Date(2026, 0, 2, 5, 7, 9);
+
+    updateClockTimeElement(element, { hourCycle: '24', showSeconds: true }, instant, 'en-GB');
+
+    expect(element.classList.contains('has-seconds')).toBe(true);
+    expect(main.textContent).toBe('05:07');
+    expect(detail.textContent).toBe(':09');
+    expect(element.textContent).toBe('05:07:09');
+    expect(element.querySelector('.clock-widget-time-seconds').textContent).toBe('09');
+
+    updateClockTimeElement(
+      element,
+      { hourCycle: '24', showSeconds: true },
+      new Date(2026, 0, 2, 5, 7, 10),
+      'en-GB'
+    );
+    expect(element.querySelector('.clock-widget-time-main')).toBe(main);
+    expect(element.querySelector('.clock-widget-time-detail')).toBe(detail);
+    expect(detail.textContent).toBe(':10');
   });
 
   test('updates connected clocks and stops scheduling after detachment', () => {

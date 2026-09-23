@@ -46,6 +46,31 @@ test('creates, configures, resizes, persists and removes the bundled clock', asy
   await page.locator('#clock-widget-save').click();
   await expect(clock.locator('.clock-widget-time')).toHaveText(/^\d{2}:\d{2}:\d{2}\s?[AP]M$/i);
 
+  await clock.locator('.resizer.right').click({ modifiers: ['Shift'] });
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return getState().data.widgets[0]?.w;
+  })).toBe(1);
+  await expect(clock).toHaveClass(/is-single-cell/);
+  await expect(clock.locator('.clock-widget-time-main')).toHaveText(/^\d{2}:\d{2}$/);
+  await expect(clock.locator('.clock-widget-time-seconds')).toHaveText(/^\d{2}$/);
+  const compactClockStyles = await clock.evaluate(element => {
+    const time = element.querySelector('.clock-widget-time');
+    const main = element.querySelector('.clock-widget-time-main');
+    const detail = element.querySelector('.clock-widget-time-detail');
+    const separator = element.querySelector('.clock-widget-time-separator');
+    return {
+      display: getComputedStyle(time).display,
+      mainFontSize: Number.parseFloat(getComputedStyle(main).fontSize),
+      detailFontSize: Number.parseFloat(getComputedStyle(detail).fontSize),
+      separatorDisplay: getComputedStyle(separator).display
+    };
+  });
+  expect(compactClockStyles.display).toBe('grid');
+  expect(compactClockStyles.detailFontSize).toBeLessThan(compactClockStyles.mainFontSize);
+  expect(compactClockStyles.separatorDisplay).toBe('none');
+
+  await clock.locator('.resizer.right').click();
   await clock.locator('.resizer.right').click();
   await expect.poll(() => page.evaluate(async () => {
     const { getState } = await import('/src/js/core/store.js');

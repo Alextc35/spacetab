@@ -38,6 +38,7 @@ function createClockGridElement(container, widget, config, isEditing) {
   element.classList.toggle('is-selected', isGridItemSelected('widget', widget.id));
   element.classList.toggle('is-keyboard-active', isGridKeyboardActive(widget.id));
   element.classList.toggle('is-editing', isEditing);
+  element.classList.toggle('is-single-cell', widget.w === 1 && widget.h === 1);
   applyGridItemPosition(container, element, widget);
 
   const face = document.createElement('button');

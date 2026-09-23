@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   DEFAULT_CLOCK_CONFIG,
   formatClockTime,
+  formatClockTimeParts,
   getClockRefreshDelay,
   normalizeClockConfig
 } from '../src/js/widgets/builtin/clock/clockModel.js';
@@ -31,6 +32,20 @@ test('formats local time using the selected hour cycle and precision', () => {
   assert.match(
     formatClockTime(instant, { hourCycle: '12', showSeconds: true }, 'en-US'),
     /^05:07:09\s?AM$/i
+  );
+
+  const parts = formatClockTimeParts(
+    instant,
+    { hourCycle: '12', showSeconds: true },
+    'en-US'
+  );
+  assert.equal(parts.main, '05:07');
+  assert.equal(parts.separator, ':');
+  assert.equal(parts.seconds, '09');
+  assert.match(parts.suffix, /^\s?AM$/i);
+  assert.equal(
+    `${parts.main}${parts.separator}${parts.seconds}${parts.suffix}`,
+    parts.text
   );
 });
 

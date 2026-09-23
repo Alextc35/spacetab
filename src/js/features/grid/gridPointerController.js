@@ -77,6 +77,12 @@ export function addGridItemPointerControls(container, div, item, {
   let startScrollX = 0, startScrollY = 0;
 
   div.addEventListener('pointerdown', e => {
+    if (e.button === 1) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
     if (resizing || dragging) return;
 
     if (e.target.closest('.item-actions, .resizer')) return;
@@ -103,6 +109,13 @@ export function addGridItemPointerControls(container, div, item, {
 
     div.setPointerCapture(e.pointerId);
     dragHoldTimer = setTimeout(startDragFeedback, DRAG_HOLD_DELAY);
+  });
+
+  div.addEventListener('auxclick', event => {
+    if (event.button !== 1) return;
+    event.preventDefault();
+    event.stopPropagation();
+    openGridItemEditor(div);
   });
 
   div.addEventListener('pointermove', (e) => {
@@ -321,6 +334,17 @@ export function addGridItemPointerControls(container, div, item, {
       e.preventDefault();
       handleResize(container, e, div, item, direction, resizer, resizeIndicator);
     });
+  });
+}
+
+function openGridItemEditor(element) {
+  const state = getState();
+  const entry = gridItemRegistry.resolveElement(element, state);
+  entry?.definition.edit?.({
+    ...entry,
+    item: entry.item,
+    state,
+    element
   });
 }
 

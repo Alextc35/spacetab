@@ -4,9 +4,8 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/tests/browser-harness.html');
   await page.evaluate(() => sessionStorage.clear());
   await page.reload();
-  await expect(page.getByRole('link', { name: /DEVELOPED BY/ })).toBeVisible();
-  // The static developer link can render before the asynchronous application
-  // bootstrap has installed grid keyboard navigation.
+  // Grid keyboard navigation is installed after the asynchronous application
+  // bootstrap, including on installations without starter bookmarks.
   await expect(page.locator('#bookmark-container')).toHaveAttribute('tabindex', '-1');
 });
 
@@ -2761,13 +2760,42 @@ test('runs every bulk action on a mixed bookmark and folder selection', async ({
   })).toBe(2);
 });
 
-test('does not use middle click as an editing shortcut', async ({ page }) => {
+test('opens every grid item editor with middle click without opening tabs', async ({ page }) => {
+  await createBookmark(page, 'Middle click bookmark', 'middle-click.test');
+  await revealSideDock(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-folder').click();
+  await page.getByPlaceholder('Tools, inspiration…').fill('Middle click folder');
+  await page.getByRole('button', { name: 'Add', exact: true }).click();
+  await waitForSaved(page);
+
+  await revealSideDock(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-clock').click();
+  await page.locator('#clock-widget-save').click();
+
   await enableEditMode(page);
-  const bookmark = page.locator('#bookmark-container > .bookmark[data-bookmark-id]').first();
+  const bookmark = page.locator('.bookmark[data-bookmark-id]', { hasText: 'Middle click bookmark' });
+  const folder = page.locator('.bookmark-folder', { hasText: 'Middle click folder' });
+  const recycleBin = page.locator('.recycle-bin[data-recycle-bin-id]');
+  const clock = page.locator('.clock-widget[data-widget-type="clock"]');
 
-  await bookmark.dispatchEvent('pointerdown', { button: 1, bubbles: true });
+  await bookmark.click({ button: 'middle' });
+  await expect(page.locator('#edit-bookmark-modal')).toBeVisible();
+  await page.locator('#edit-bookmark-modal-cancel').click();
 
-  await expect(page.locator('#edit-bookmark-modal')).toBeHidden();
+  await folder.click({ button: 'middle' });
+  await expect(page.locator('#edit-folder-modal')).toBeVisible();
+  await page.locator('#edit-folder-modal-cancel').click();
+
+  await recycleBin.click({ button: 'middle' });
+  await expect(page.locator('#edit-recycle-bin-modal')).toBeVisible();
+  await page.locator('#edit-recycle-bin-modal-cancel').click();
+
+  await clock.click({ button: 'middle' });
+  await expect(page.locator('#clock-widget-modal')).toBeVisible();
+  await page.locator('#clock-widget-cancel').click();
+
   await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
   await expect.poll(() => page.context().pages().length).toBe(1);
 });

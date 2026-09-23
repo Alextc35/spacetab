@@ -173,16 +173,13 @@ test('the recycle bin reserves space only when visible on Main', async () => {
   assert.equal(getGridItemsInGroup(getState().data, null).length, 0);
 });
 
-test('new installations start with the recycle bin first and starter bookmarks below it', async () => {
+test('new installations start with the recycle bin and no starter bookmarks', async () => {
   const { DEFAULT_BOOKMARKS } = await import('../src/js/core/defaults.js');
   assert.deepEqual(
     { gx: DEFAULT_RECYCLE_BIN.gx, gy: DEFAULT_RECYCLE_BIN.gy },
     { gx: 0, gy: 0 }
   );
-  assert.deepEqual(
-    DEFAULT_BOOKMARKS.map(({ gx, gy }) => ({ gx, gy })),
-    [{ gx: 0, gy: 1 }, { gx: 1, gy: 1 }]
-  );
+  assert.deepEqual(DEFAULT_BOOKMARKS, []);
 });
 
 test('showing the recycle bin again finds the first available grid slot', async () => {

@@ -20,13 +20,40 @@ export function normalizeClockConfig(value = {}) {
 
 /** Formats one instant without reading application or browser state. */
 export function formatClockTime(date, config = {}, locale = undefined) {
+  return formatClockTimeParts(date, config, locale).text;
+}
+
+/**
+ * Formats one instant and exposes the visible units separately so compact
+ * clock surfaces can move seconds onto their own line without parsing a
+ * locale-dependent string.
+ */
+export function formatClockTimeParts(date, config = {}, locale = undefined) {
   const normalized = normalizeClockConfig(config);
-  return new Intl.DateTimeFormat(locale, {
+  const parts = new Intl.DateTimeFormat(locale, {
     hour: '2-digit',
     minute: '2-digit',
     ...(normalized.showSeconds ? { second: '2-digit' } : {}),
     hourCycle: normalized.hourCycle === '12' ? 'h12' : 'h23'
-  }).format(date);
+  }).formatToParts(date);
+  const text = parts.map(part => part.value).join('');
+  const secondIndex = parts.findIndex(part => part.type === 'second');
+  if (secondIndex < 0) {
+    return { text, main: text, separator: '', seconds: '', suffix: '' };
+  }
+
+  const mainParts = parts.slice(0, secondIndex);
+  const separatorPart = mainParts.at(-1)?.type === 'literal'
+    ? mainParts.pop()
+    : null;
+
+  return {
+    text,
+    main: mainParts.map(part => part.value).join(''),
+    separator: separatorPart?.value ?? '',
+    seconds: parts[secondIndex].value,
+    suffix: parts.slice(secondIndex + 1).map(part => part.value).join('')
+  };
 }
 
 /** Milliseconds until the next visible clock unit changes. */
