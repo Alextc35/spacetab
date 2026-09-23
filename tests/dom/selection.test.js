@@ -24,23 +24,29 @@ test('selection toggles, publishes snapshots and prunes deleted grid items', () 
   unsubscribe();
 });
 
-test('keeps bookmark and folder identities distinct in a mixed selection', () => {
+test('keeps bookmark, folder and widget identities distinct in a mixed selection', () => {
   toggleGridItemSelection('bookmark', 'shared-id');
   toggleGridItemSelection('folder', 'shared-id');
   toggleGridItemSelection('folder', 'other-folder');
+  toggleGridItemSelection('widget', 'shared-id');
+  toggleGridItemSelection('widget', 'clock');
 
   expect(getSelectedGridItems()).toEqual([
     { kind: 'bookmark', id: 'shared-id' },
     { kind: 'folder', id: 'shared-id' },
-    { kind: 'folder', id: 'other-folder' }
+    { kind: 'folder', id: 'other-folder' },
+    { kind: 'widget', id: 'shared-id' },
+    { kind: 'widget', id: 'clock' }
   ]);
 
   pruneGridItemSelection({
     bookmarkIds: ['shared-id'],
-    folderIds: ['other-folder']
+    folderIds: ['other-folder'],
+    widgetIds: ['clock']
   });
   expect(getSelectedGridItems()).toEqual([
     { kind: 'bookmark', id: 'shared-id' },
-    { kind: 'folder', id: 'other-folder' }
+    { kind: 'folder', id: 'other-folder' },
+    { kind: 'widget', id: 'clock' }
   ]);
 });

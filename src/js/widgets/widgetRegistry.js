@@ -90,7 +90,8 @@ function createGridItemAdapter(widget) {
     order: widget.order,
     selector: `[data-widget-type="${widget.type}"][data-widget-id]`,
     getElementId: element => element.dataset.widgetId,
-    selectable: widget.selectable ?? false,
+    selectionKind: 'widget',
+    selectable: widget.selectable ?? true,
     clearKeyboardOnOpen: widget.clearKeyboardOnOpen ?? false,
     select(state) {
       const activeWorkspaceId = state.data.settings?.activeBookmarkGroupId ?? null;

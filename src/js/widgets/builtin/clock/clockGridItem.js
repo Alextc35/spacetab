@@ -3,6 +3,7 @@ import { createItemActionButton } from '../../../ui/bookmark/actions.js';
 import { addGridItemPointerControls } from '../../../features/grid/gridPointerController.js';
 import { applyGridItemPosition } from '../../../features/grid/gridItemLayout.js';
 import { isGridKeyboardActive } from '../../../features/grid/gridKeyboardController.js';
+import { isGridItemSelected } from '../../../features/grid/gridSelection.js';
 import { deleteWidgetById } from '../../widgetActions.js';
 import { CLOCK_WIDGET_TYPE, normalizeClockConfig } from './clockModel.js';
 import { createClockTimeElement, startClockTicker } from './clockView.js';
@@ -11,7 +12,6 @@ import { openClockEditor } from './clockSettings.js';
 export const clockWidget = Object.freeze({
   type: CLOCK_WIDGET_TYPE,
   order: { grid: 40, list: 40 },
-  selectable: false,
   render({ view, container, widget, config, state }) {
     return view === 'list'
       ? createClockListItem(widget, config)
@@ -35,6 +35,7 @@ function createClockGridElement(container, widget, config, isEditing) {
   const normalized = normalizeClockConfig(config);
   const element = document.createElement('article');
   element.className = 'grid-widget clock-widget';
+  element.classList.toggle('is-selected', isGridItemSelected('widget', widget.id));
   element.classList.toggle('is-keyboard-active', isGridKeyboardActive(widget.id));
   element.classList.toggle('is-editing', isEditing);
   applyGridItemPosition(container, element, widget);
@@ -111,8 +112,5 @@ export function enableClockEditing(container, element, widget) {
   actions.append(editButton);
   element.append(actions);
 
-  addGridItemPointerControls(container, element, widget, {
-    kind: 'widget',
-    selectable: false
-  });
+  addGridItemPointerControls(container, element, widget, { kind: 'widget' });
 }

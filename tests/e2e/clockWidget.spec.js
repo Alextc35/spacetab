@@ -81,6 +81,130 @@ test('creates, configures, resizes, persists and removes the bundled clock', asy
   await expect(clock).toBeVisible();
 });
 
+test('selects, moves and permanently deletes a clock through bulk actions', async ({ page }) => {
+  await revealSideDock(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-clock').click();
+  await page.locator('#clock-widget-save').click();
+  const clock = page.locator('.clock-widget[data-widget-type="clock"]');
+  await expect(clock).toBeVisible();
+
+  const workspaceDock = page.getByRole('navigation', { name: 'Workspace controls' });
+  await workspaceDock.hover();
+  await page.getByRole('button', { name: 'Create workspace' }).click();
+  await page.getByPlaceholder('Work, leisure…').fill('Work');
+  await page.getByRole('button', { name: 'Accept' }).click();
+  await waitForSaved(page);
+
+  const workspaceSelect = page.getByRole('combobox', { name: 'Workspace' });
+  const workId = await workspaceSelect.inputValue();
+  await workspaceSelect.selectOption('');
+  await expect(clock).toBeVisible();
+
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '✎' }).click();
+  await clock.click();
+  const bulkActions = page.getByRole('toolbar', { name: 'Selected item actions' });
+  await expect(clock).toHaveClass(/is-selected/);
+  await expect(bulkActions).toContainText('1 selected');
+  await expect(bulkActions.getByRole('button', { name: 'Apply default style' })).toBeDisabled();
+  await expect(bulkActions.getByRole('button', { name: 'Duplicate selection' })).toBeDisabled();
+
+  await page.locator('#bulk-workspace-select').selectOption(workId);
+  await expect(clock).toHaveCount(0);
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    return getState().data.widgets[0]?.groupId;
+  })).toBe(workId);
+
+  await workspaceSelect.selectOption(workId);
+  await expect(clock).toBeVisible();
+  await clock.click();
+  await bulkActions.getByRole('button', { name: 'Delete', exact: true }).click();
+  await expect(page.locator('#alert-modal-title')).toHaveText(
+    'Permanently delete this clock? This cannot be undone.'
+  );
+  await page.locator('#alert-modal-accept').click();
+  await expect(clock).toHaveCount(0);
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    const { widgets, trash } = getState().data;
+    return `${widgets.length}:${trash.length}`;
+  })).toBe('0:0');
+});
+
+test('asks before permanently deleting a clock dropped on the recycle bin', async ({ page }) => {
+  await revealSideDock(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-clock').click();
+  await page.locator('#clock-widget-save').click();
+
+  const clock = page.locator('.clock-widget[data-widget-type="clock"]');
+  const recycleBin = page.locator('.recycle-bin[data-recycle-bin-id]');
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '✎' }).click();
+
+  const clockBox = await clock.boundingBox();
+  const recycleBinBox = await recycleBin.boundingBox();
+  expect(clockBox).not.toBeNull();
+  expect(recycleBinBox).not.toBeNull();
+  await page.mouse.move(
+    clockBox.x + clockBox.width / 2,
+    clockBox.y + clockBox.height / 2
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    recycleBinBox.x + recycleBinBox.width / 2,
+    recycleBinBox.y + recycleBinBox.height / 2,
+    { steps: 10 }
+  );
+  await expect(recycleBin).toHaveClass(/is-drop-target/);
+  await expect(clock).toHaveClass(/is-drop-landing/);
+  await page.mouse.up();
+
+  await expect(page.locator('#alert-modal-title')).toHaveText(
+    'Permanently delete this clock? This cannot be undone.'
+  );
+  await expect(clock).toBeVisible();
+  await page.locator('#alert-modal-accept').click();
+  await expect(clock).toHaveCount(0);
+  await expect.poll(() => page.evaluate(async () => {
+    const { getState } = await import('/src/js/core/store.js');
+    const { widgets, trash } = getState().data;
+    return `${widgets.length}:${trash.length}`;
+  })).toBe('0:0');
+});
+
+test('treats keyboard deletion of a widget as permanent', async ({ page }) => {
+  await revealSideDock(page);
+  await page.locator('#add-toggle').click();
+  await page.locator('#add-clock').click();
+  await page.locator('#clock-widget-save').click();
+  await page.evaluate(async () => {
+    const { getState, setState } = await import('/src/js/core/store.js');
+    await setState({
+      data: {
+        bookmarks: [],
+        folders: [],
+        settings: { ...getState().data.settings, showRecycleBin: false }
+      }
+    });
+  });
+
+  const clock = page.locator('.clock-widget[data-widget-type="clock"]');
+  await revealSideDock(page);
+  await page.getByRole('button', { name: '✎' }).click();
+  await page.locator('#bookmark-container').focus();
+  await page.keyboard.press('Tab');
+  await expect(clock).toHaveClass(/is-keyboard-active/);
+  await page.keyboard.press('Delete');
+  await expect(page.locator('#alert-modal-title')).toHaveText(
+    'Permanently delete this clock? This cannot be undone.'
+  );
+  await page.locator('#alert-modal-accept').click();
+  await expect(clock).toHaveCount(0);
+});
+
 test('renders the clock as an accessible row in compact view', async ({ page }) => {
   await revealSideDock(page);
   await page.locator('#add-toggle').click();

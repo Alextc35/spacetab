@@ -117,6 +117,10 @@
       "confirmPermanentDelete": "Excluir «{{name}}» permanentemente? Esta ação não pode ser desfeita.",
       "cancel": "Descartar as alterações da edição?"
     },
+    "widget": {
+      "confirmPermanentDelete": "Excluir este widget permanentemente? Esta ação não pode ser desfeita.",
+      "confirmDeleteSelected": "Excluir {{count}} itens selecionados? Os widgets selecionados ({{widgetCount}}) serão excluídos permanentemente e não poderão ser restaurados."
+    },
     "folder": {
       "createCancel": "Descartar a nova pasta?",
       "cancel": "Descartar as alterações da pasta?"

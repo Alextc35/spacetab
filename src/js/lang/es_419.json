@@ -117,6 +117,10 @@
       "confirmPermanentDelete": "¿Eliminar «{{name}}» definitivamente? Esta acción no se puede deshacer.",
       "cancel": "¿Descartar los cambios de la edición?"
     },
+    "widget": {
+      "confirmPermanentDelete": "¿Eliminar este widget definitivamente? Esta acción no se puede deshacer.",
+      "confirmDeleteSelected": "¿Eliminar {{count}} elementos seleccionados? Los widgets seleccionados ({{widgetCount}}) se eliminarán definitivamente y no podrán recuperarse."
+    },
     "folder": {
       "createCancel": "¿Descartar la nueva carpeta?",
       "cancel": "¿Descartar los cambios de la carpeta?"

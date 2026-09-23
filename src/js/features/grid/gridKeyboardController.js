@@ -4,6 +4,7 @@ import {
   getGridItemNavigationAnchor
 } from '../../shared/grid/gridKeyboardRoute.js';
 import { gridItemRegistry } from '../../shared/grid/gridItemRegistry.js';
+import { t } from '../../platform/i18n/i18n.js';
 import { flashInfo, flashSuccess } from '../../shared/ui/flash.js';
 import { hasOpenModal } from '../../shared/ui/modalManager.js';
 import { isListView } from '../../ui/viewportMode.js';
@@ -13,6 +14,7 @@ import {
   getSelectedGridItems,
   toggleGridItemSelection
 } from './gridSelection.js';
+import { permanentlyDeleteGridItem } from './gridItemActions.js';
 
 const ARROW_DIRECTIONS = new Set([
   'ArrowLeft',
@@ -47,8 +49,9 @@ let rejectionTimer = null;
  *
  * Tab toggles the mode, arrow keys move to the closest item in a direction,
  * and Enter opens the focused item. In edit mode, S toggles the bulk
- * selection of bookmarks and folders, while Backspace/Delete sends the
- * focused bookmark or folder to the recycle bin after confirmation.
+ * selection of bookmarks, folders and widgets. Backspace/Delete sends
+ * recoverable items to the recycle bin and permanently removes widgets after
+ * confirmation because widget trash entries are not supported yet.
  *
  * @param {HTMLElement|null} container
  */
@@ -157,11 +160,16 @@ function handleGridKeyboardNavigation(event) {
     event.stopPropagation();
     cancelPendingNavigation();
     if (event.repeat || !item) return;
-    if (!item.definition.remove || !item.definition.getRemovalConfirmation) {
+    if (
+      item.selectionKind !== 'widget'
+      && (!item.definition.remove || !item.definition.getRemovalConfirmation)
+    ) {
       showGridKeyboardRejection();
       return;
     }
-    void confirmFocusedGridItemDeletion(item, { permanent: event.shiftKey });
+    void confirmFocusedGridItemDeletion(item, {
+      permanent: event.shiftKey || item.selectionKind === 'widget'
+    });
     return;
   }
 
@@ -199,17 +207,19 @@ function handleGridKeyboardNavigation(event) {
       showGridKeyboardRejection();
       return;
     }
-    toggleGridItemSelection(item.kind, item.id);
+    toggleGridItemSelection(item.selectionKind, item.id);
   }
 }
 
 async function confirmFocusedGridItemDeletion(item, { permanent = false } = {}) {
   const itemsBeforeDeletion = getVisibleGridItems();
   const deletedItemIndex = itemsBeforeDeletion.findIndex(entry => entry.id === item.id);
-  const confirmation = item.definition.getRemovalConfirmation({
+  const context = {
     ...createItemActionContext(item),
     permanent
-  });
+  };
+  const confirmation = item.definition.getRemovalConfirmation?.(context)
+    ?? t('alert.widget.confirmPermanentDelete');
   const confirmed = await showAlert(
     confirmation,
     { type: 'confirm', requiresWideViewport: true }
@@ -219,16 +229,12 @@ async function confirmFocusedGridItemDeletion(item, { permanent = false } = {}) 
     return;
   }
 
-  const deleted = await item.definition.remove({
-    ...createItemActionContext(item),
-    permanent
-  });
+  const deleted = item.definition.remove
+    ? await item.definition.remove(context)
+    : permanentlyDeleteGridItem('widget', item.id).deleted;
   if (!deleted) return;
   keepGridKeyboardNavigationAfterDeletion(deletedItemIndex);
-  const successMessage = item.definition.getRemovalSuccessMessage?.({
-    ...createItemActionContext(item),
-    permanent
-  }) ?? (permanent
+  const successMessage = item.definition.getRemovalSuccessMessage?.(context) ?? (permanent
     ? 'flash.recycleBin.deletedPermanently'
     : 'flash.recycleBin.moved');
   flashSuccess(successMessage);
@@ -334,6 +340,7 @@ function getVisibleGridItems() {
     .map(entry => ({
       ...entry.item,
       kind: entry.definition.type,
+      selectionKind: entry.definition.selectionKind ?? entry.definition.type,
       definition: entry.definition,
       registryEntry: entry
     }))
@@ -401,7 +408,7 @@ function canOpenFocusedItemEditor(item) {
   const selectedItems = getSelectedGridItems();
   if (selectedItems.length > 1) return false;
   return selectedItems.length === 0 || (
-    selectedItems[0].id === item.id && selectedItems[0].kind === item.kind
+    selectedItems[0].id === item.id && selectedItems[0].kind === item.selectionKind
   );
 }
 

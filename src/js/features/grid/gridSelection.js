@@ -10,7 +10,7 @@ export function isGridItemSelected(kind, itemId) {
 }
 
 export function toggleGridItemSelection(kind, itemId) {
-  if (!['bookmark', 'folder'].includes(kind) || !itemId) return false;
+  if (!['bookmark', 'folder', 'widget'].includes(kind) || !itemId) return false;
 
   const key = selectionKey(kind, itemId);
   if (selectedItems.has(key)) selectedItems.delete(key);
@@ -25,10 +25,15 @@ export function clearGridItemSelection() {
   notify();
 }
 
-export function pruneGridItemSelection({ bookmarkIds = [], folderIds = [] } = {}) {
+export function pruneGridItemSelection({
+  bookmarkIds = [],
+  folderIds = [],
+  widgetIds = []
+} = {}) {
   const allowedByKind = {
     bookmark: new Set(bookmarkIds),
-    folder: new Set(folderIds)
+    folder: new Set(folderIds),
+    widget: new Set(widgetIds)
   };
   let changed = false;
 

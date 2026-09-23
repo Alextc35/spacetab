@@ -2,7 +2,7 @@ import '../../types/types.js'; // typedefs
 import {
   addBookmarkToFolder
 } from '../folders/folderActions.js';
-import { updateGridItemsByIds } from './gridItemActions.js';
+import { permanentlyDeleteGridItem, updateGridItemsByIds } from './gridItemActions.js';
 import { getGridItemsInGroup } from './gridSelectors.js';
 import { GRID_COLS, GRID_ROWS, PADDING } from '../../shared/grid/gridGeometry.js';
 import { FOLDER_GRID_CAPACITY } from '../../domain/folders/folderGrid.js';
@@ -46,7 +46,7 @@ export function cancelGridGesture() {
  * Handles:
  * - Reversible smart dragging with automatic bookmark displacement.
  * - Continuous or one-click resizing from all four sides and corners.
- * - Optional short-click selection for bookmarks and folders.
+ * - Optional short-click selection for bookmarks, folders and widgets.
  * - State persistence via store updates.
  *
  * @param {HTMLElement} container - Grid container element.
@@ -54,12 +54,12 @@ export function cancelGridGesture() {
  * @param {GridItem} item - Grid item data object.
  * @param {Object} [options]
  * @param {'bookmark'|'folder'|'recycle-bin'|'widget'} [options.kind='bookmark']
- * @param {boolean} [options.selectable] Defaults to false for widgets.
+ * @param {boolean} [options.selectable] Defaults to true except for the recycle bin.
  * @returns {void}
  */
 export function addGridItemPointerControls(container, div, item, {
   kind = 'bookmark',
-  selectable = kind !== 'widget'
+  selectable = kind !== 'recycle-bin'
 } = {}) {
   let startX = 0, startY = 0;
   let startLeft = 0, startTop = 0;
@@ -222,8 +222,10 @@ export function addGridItemPointerControls(container, div, item, {
       if (kind === 'bookmark') {
         moveBookmarksToRecycleBin([item.id]);
         flashSuccess('flash.recycleBin.moved');
-      } else {
+      } else if (kind === 'folder') {
         void confirmFolderRecycle(item);
+      } else if (kind === 'widget') {
+        void confirmWidgetPermanentRemoval(item);
       }
       return;
     }
@@ -362,7 +364,7 @@ function createSmartDragSession(container, item, kind) {
       .filter(element => element.matches('.bookmark-folder[data-folder-id]'))
       .map(element => ({ element, rect: element.getBoundingClientRect() }))
     : [];
-  const recycleBinTargets = ['bookmark', 'folder'].includes(kind)
+  const recycleBinTargets = ['bookmark', 'folder', 'widget'].includes(kind)
     ? Array.from(elements.values())
       .filter(element => element.matches('.recycle-bin[data-recycle-bin-id]'))
       .map(element => ({ element, rect: element.getBoundingClientRect() }))
@@ -788,6 +790,27 @@ async function confirmFolderRecycle(folder) {
   if (!confirmed) return;
   moveFolderToRecycleBin(folder.id);
   flashSuccess('flash.recycleBin.moved');
+}
+
+async function confirmWidgetPermanentRemoval(widget) {
+  const state = getState();
+  const definition = gridItemRegistry.get(widget.type);
+  const context = { item: widget, state, permanent: true };
+  const confirmation = definition?.getRemovalConfirmation?.(context)
+    ?? t('alert.widget.confirmPermanentDelete');
+  const confirmed = await showAlert(confirmation, {
+    type: 'confirm',
+    requiresWideViewport: true
+  });
+  if (!confirmed) return;
+
+  const deleted = definition?.remove
+    ? await definition.remove(context)
+    : permanentlyDeleteGridItem('widget', widget.id).deleted;
+  if (!deleted) return;
+  const successMessage = definition?.getRemovalSuccessMessage?.(context)
+    ?? 'flash.recycleBin.deletedPermanently';
+  flashSuccess(successMessage);
 }
 
 /**

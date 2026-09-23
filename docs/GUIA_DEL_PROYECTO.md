@@ -261,13 +261,19 @@ Todos los widgets comparten este sobre conceptual:
 ```
 
 `config` es opaco para el núcleo: cada tipo de widget es responsable de
-interpretarlo y migrarlo cuando corresponda.
+interpretarlo y migrarlo cuando corresponda. Los adapters de widgets son
+seleccionables por defecto: la capa genérica permite moverlos entre workspaces
+sin conocer su configuración.
 
 ### Papelera
 
 La papelera tiene su propia posición y apariencia. `trash` contiene copias de
 bookmarks o conjuntos carpeta-contenido, acompañadas por la fecha de borrado.
 Las entradas caducan después de 28 días.
+
+Mientras `trash` no tenga un formato versionado para widgets, arrastrar uno a
+la papelera o eliminarlo desde una selección solicita confirmación y lo borra
+definitivamente. No se crea una entrada que después no pueda restaurarse.
 
 ### Settings y workspaces
 

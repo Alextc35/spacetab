@@ -119,6 +119,7 @@ export function duplicateGridItems(selectedItems, {
   const occupied = [
     ...data.bookmarks.filter(bookmark => !bookmark.folderId),
     ...data.folders,
+    ...(data.widgets ?? []),
     ...(data.settings.showRecycleBin ? [data.recycleBin] : [])
   ];
   const duplicateBookmarks = [];
@@ -170,9 +171,9 @@ export function duplicateGridItems(selectedItems, {
   return { duplicates, skipped };
 }
 
-/** Moves selected bookmarks and complete folders to another workspace atomically. */
+/** Moves selected bookmarks, complete folders and widgets to another workspace atomically. */
 export function moveGridItemsToWorkspace(selectedItems, workspaceId, { columns, rows } = {}) {
-  const { bookmarkIds, folderIds } = selectedSets(selectedItems);
+  const { bookmarkIds, folderIds, widgetIds } = selectedSets(selectedItems);
   const { data } = getState();
   const normalizedGroupId = resolveWorkspaceId(
     getWorkspaces(data),
@@ -194,7 +195,13 @@ export function moveGridItemsToWorkspace(selectedItems, workspaceId, { columns, 
         folderIds.has(folder.id)
         && (folder.groupId ?? null) !== normalizedGroupId
       ))
-      .map(item => ({ kind: 'folder', item }))
+      .map(item => ({ kind: 'folder', item })),
+    ...(data.widgets ?? [])
+      .filter(widget => (
+        widgetIds.has(widget.id)
+        && (widget.groupId ?? null) !== normalizedGroupId
+      ))
+      .map(item => ({ kind: 'widget', item }))
   ].sort(compareGridSources);
   if (!sources.length) return { moved: 0, skipped: 0 };
 
@@ -224,7 +231,7 @@ export function moveGridItemsToWorkspace(selectedItems, workspaceId, { columns, 
       ...(source.kind === 'bookmark' ? { folderId: null } : {}),
       updatedAt: now
     };
-    replacements.set(source.item.id, replacement);
+    replacements.set(`${source.kind}:${source.item.id}`, replacement);
     if (source.kind === 'folder') movedFolderIds.add(source.item.id);
     occupied.push(replacement);
     moved += 1;
@@ -232,18 +239,23 @@ export function moveGridItemsToWorkspace(selectedItems, workspaceId, { columns, 
 
   if (moved) {
     const bookmarks = data.bookmarks.map(bookmark => {
-      const replacement = replacements.get(bookmark.id);
+      const replacement = replacements.get(`bookmark:${bookmark.id}`);
       if (replacement) return replacement;
       if (!movedFolderIds.has(bookmark.folderId)) return bookmark;
       return { ...bookmark, groupId: normalizedGroupId, updatedAt: now };
     });
-    const folders = data.folders.map(folder => replacements.get(folder.id) ?? folder);
-    setState({ data: { bookmarks, folders } });
+    const folders = data.folders.map(folder => (
+      replacements.get(`folder:${folder.id}`) ?? folder
+    ));
+    const widgets = (data.widgets ?? []).map(widget => (
+      replacements.get(`widget:${widget.id}`) ?? widget
+    ));
+    setState({ data: { bookmarks, folders, widgets } });
   }
   return { moved, skipped };
 }
 
-/** Permanently deletes one live bookmark or complete folder without creating undo history. */
+/** Permanently deletes one live bookmark, complete folder or widget without undo history. */
 export function permanentlyDeleteGridItem(kind, itemId) {
   const { data } = getState();
   if (kind === 'bookmark') {
@@ -254,6 +266,16 @@ export function permanentlyDeleteGridItem(kind, itemId) {
     setState({ data: { bookmarks } }, { recordHistory: false });
     clearBookmarkHistory();
     return { deleted: true, bookmarkCount: 1 };
+  }
+
+  if (kind === 'widget') {
+    const widgets = (data.widgets ?? []).filter(widget => widget.id !== itemId);
+    if (widgets.length === (data.widgets ?? []).length) {
+      return { deleted: false, bookmarkCount: 0 };
+    }
+    setState({ data: { widgets } }, { recordHistory: false });
+    clearBookmarkHistory();
+    return { deleted: true, bookmarkCount: 0 };
   }
 
   if (kind !== 'folder' || !data.folders.some(folder => folder.id === itemId)) {
@@ -274,11 +296,13 @@ export function permanentlyDeleteGridItem(kind, itemId) {
 function selectedSets(selectedItems) {
   const bookmarkIds = new Set();
   const folderIds = new Set();
+  const widgetIds = new Set();
   for (const selected of selectedItems ?? []) {
     if (selected?.kind === 'bookmark') bookmarkIds.add(selected.id);
     if (selected?.kind === 'folder') folderIds.add(selected.id);
+    if (selected?.kind === 'widget') widgetIds.add(selected.id);
   }
-  return { bookmarkIds, folderIds };
+  return { bookmarkIds, folderIds, widgetIds };
 }
 
 function compareGridSources(a, b) {

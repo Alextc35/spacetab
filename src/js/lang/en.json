@@ -117,6 +117,10 @@
       "confirmPermanentDelete": "Permanently delete “{{name}}”? This cannot be undone.",
       "cancel": "Discard changes?"
     },
+    "widget": {
+      "confirmPermanentDelete": "Permanently delete this widget? This cannot be undone.",
+      "confirmDeleteSelected": "Delete {{count}} selected items? Selected widgets ({{widgetCount}}) will be permanently deleted and cannot be restored."
+    },
     "folder": {
       "createCancel": "Discard new folder?",
       "cancel": "Discard folder changes?"

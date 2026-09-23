@@ -65,7 +65,6 @@ test('registerWidget adapts persisted instances to the GridItem protocol', () =>
   let removalContext = null;
   widgets.register({
     type: 'clock',
-    selectable: true,
     render({ widget, config, view }) {
       return { dataset: {}, widget, config, view };
     },
@@ -101,6 +100,7 @@ test('registerWidget adapts persisted instances to the GridItem protocol', () =>
   assert.equal(element.dataset.widgetType, 'clock');
   assert.deepEqual(element.config, { timezone: 'UTC' });
   assert.equal(entry.definition.selectable, true);
+  assert.equal(entry.definition.selectionKind, 'widget');
 
   entry.definition.enableEditing('grid', element, clock, entry);
   assert.equal(editingContext.widget, clock);

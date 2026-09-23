@@ -83,6 +83,23 @@ function folder(id, values = {}) {
   };
 }
 
+function widget(id, values = {}) {
+  return {
+    id,
+    type: 'clock',
+    version: 1,
+    gx: 2,
+    gy: 0,
+    w: 1,
+    h: 1,
+    groupId: null,
+    config: {},
+    createdAt: 1,
+    updatedAt: 1,
+    ...values
+  };
+}
+
 async function seed() {
   await setState({
     data: {
@@ -95,6 +112,7 @@ async function seed() {
         showFolder: false,
         showPreviews: false
       })],
+      widgets: [],
       trash: [],
       settings: {
         ...getState().data.settings,
@@ -185,7 +203,27 @@ test('moves a mixed selection with folder contents and deletes it atomically', a
   assert.deepEqual(getState().data.trash, []);
 });
 
-test('permanently deletes live bookmarks and complete folders without undo history', async () => {
+test('moves selected widgets between workspaces without losing their configuration', async () => {
+  await seed();
+  await setState({
+    data: { widgets: [widget('clock', { config: { showSeconds: true } })] }
+  });
+  clearBookmarkHistory();
+
+  assert.deepEqual(
+    moveGridItemsToWorkspace(
+      [{ kind: 'widget', id: 'clock' }],
+      'work',
+      { columns: 3, rows: 1 }
+    ),
+    { moved: 1, skipped: 0 }
+  );
+  const moved = getState().data.widgets[0];
+  assert.equal(moved.groupId, 'work');
+  assert.deepEqual(moved.config, { showSeconds: true });
+});
+
+test('permanently deletes live bookmarks, complete folders and widgets without undo history', async () => {
   await seed();
   assert.deepEqual(permanentlyDeleteGridItem('bookmark', 'top'), {
     deleted: true,
@@ -203,5 +241,15 @@ test('permanently deletes live bookmarks and complete folders without undo histo
   assert.deepEqual(getState().data.folders, []);
   assert.equal(getState().data.bookmarks.some(item => item.id === 'child'), false);
   assert.deepEqual(getState().data.trash, []);
+  assert.equal(await undoBookmarks(), false);
+
+  await seed();
+  await setState({ data: { widgets: [widget('clock')] } });
+  clearBookmarkHistory();
+  assert.deepEqual(permanentlyDeleteGridItem('widget', 'clock'), {
+    deleted: true,
+    bookmarkCount: 0
+  });
+  assert.deepEqual(getState().data.widgets, []);
   assert.equal(await undoBookmarks(), false);
 });

@@ -438,10 +438,18 @@ the normal render subscription without adding widget branches to the store.
 
 `widgets/widgetRegistry.js` adapts a widget to `GridItem`: it selects instances
 of the registered type in the active workspace and owns the common DOM identity
-attributes. A definition supplies a stable `type`, `render()` and any optional
-editing or interaction capabilities it needs. Registration is synchronous
-local-module composition and is compatible with Manifest V3 CSP; no code is
-downloaded or evaluated.
+attributes. Widget adapters are selectable by default and share the `widget`
+selection kind, so the generic bulk layer can move every widget between
+workspaces without interpreting its configuration. A definition supplies a
+stable `type`, `render()` and any optional editing or interaction capabilities
+it needs. Registration is synchronous local-module composition and is
+compatible with Manifest V3 CSP; no code is downloaded or evaluated.
+
+The current recycle-bin schema stores bookmarks and complete folders only.
+Dropping a widget on the bin, deleting it from a bulk selection or using the
+grid deletion shortcut therefore asks for confirmation and removes it
+permanently without creating a misleading trash entry. This policy can change
+when a versioned widget trash-entry contract exists.
 
 The first bundled implementation uses this shape:
 
@@ -461,9 +469,9 @@ is transient DOM state aligned to the next second or minute and never produces
 store writes. Only its versioned configuration and grid rectangle are persisted.
 The widget owns config normalization, grid/list rendering and its settings
 surface without adding clock branches to the generic renderer, store or storage
-facade. It participates in local/sync persistence, backups, undo/redo, keyboard
-navigation and collision handling through the existing contracts. Remote
-executable plugins remain out of scope.
+facade. It participates in local/sync persistence, backups, selection,
+cross-workspace movement, keyboard navigation and collision handling through
+the existing contracts. Remote executable plugins remain out of scope.
 
 ## Incremental roadmap
 
