@@ -2219,10 +2219,12 @@ test('cycles workspaces with Alt plus arrow keys and animates the grid', async (
   const workId = await workspace.inputValue();
   await page.keyboard.press('Alt+ArrowUp');
   await expect(workspace).toHaveValue('');
+  await expect(page.locator('.flash-message').last()).toHaveText('Workspace: Main');
   await expect(page.locator('#bookmark-container')).not.toHaveClass(/is-switching-workspace/);
 
   await page.keyboard.press('Alt+ArrowDown');
   await expect(workspace).toHaveValue(workId);
+  await expect(page.locator('.flash-message').last()).toHaveText('Workspace: Work');
   await expect(page.locator('#bookmark-container')).not.toHaveClass(/is-switching-workspace/);
 });
 

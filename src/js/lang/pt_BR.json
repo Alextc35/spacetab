@@ -43,7 +43,8 @@
     },
     "workspace": {
       "created": "Espaço de trabalho criado",
-      "deleted": "Espaço de trabalho excluído"
+      "deleted": "Espaço de trabalho excluído",
+      "switched": "Espaço de trabalho: {{name}}"
     },
     "history": {
       "undone": "Alteração desfeita",

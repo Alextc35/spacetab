@@ -43,7 +43,8 @@
     },
     "workspace": {
       "created": "Workspace created",
-      "deleted": "Workspace deleted"
+      "deleted": "Workspace deleted",
+      "switched": "Workspace: {{name}}"
     },
     "history": {
       "undone": "Change undone",

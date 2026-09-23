@@ -15,7 +15,7 @@ import { getState, subscribe } from '../../core/store.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { clearGridItemSelection } from '../grid/gridSelection.js';
 import { showAlert, showPrompt } from '../../shared/ui/alertModal.js';
-import { flashSuccess } from '../../shared/ui/flash.js';
+import { flashInfo, flashSuccess } from '../../shared/ui/flash.js';
 import { hasOpenModal } from '../../shared/ui/modalManager.js';
 
 const WORKSPACE_EXIT_DURATION = 120;
@@ -131,6 +131,12 @@ async function switchWorkspace(container, targetId, direction) {
     exitAnimation?.cancel();
     exitAnimation = null;
     if (!changed) return false;
+
+    const { data } = getState();
+    const activeWorkspaceId = getActiveWorkspaceId(data);
+    const activeWorkspaceName = getWorkspaceById(data, activeWorkspaceId)?.name
+      ?? t('workspace.main');
+    flashInfo(t('flash.workspace.switched', { name: activeWorkspaceName }));
 
     if (!reducedMotion && typeof container?.animate === 'function') {
       const enterAnimation = container.animate([
