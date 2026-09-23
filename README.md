@@ -215,7 +215,9 @@ src/js/widgets/widgetActions.js    generic widget lifecycle commands
 
 The bookmark panel does not import the store, calculate grid placement or
 perform persistence. Controllers decide what saving means. See
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the complete boundary guide.
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the complete boundary guide or
+the Spanish [project guide](docs/GUIA_DEL_PROYECTO.md) for a detailed walkthrough
+of the runtime, modules and extension points.
 
 ## Local and synchronized storage
 
