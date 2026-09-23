@@ -14,6 +14,7 @@ import { gridItemRegistry } from '../../shared/grid/gridItemRegistry.js';
 import { t } from '../../platform/i18n/i18n.js';
 import { showAlert } from '../../shared/ui/alertModal.js';
 import { flashSuccess } from '../../shared/ui/flash.js';
+import { makeToolbarDraggable } from '../../shared/ui/draggableToolbar.js';
 import { getMaxVisibleCols, getMaxVisibleRows } from './gridLayout.js';
 import {
   clearGridItemSelection,
@@ -28,7 +29,12 @@ export function initGridBulkActions() {
   const groupSelect = document.getElementById('bulk-workspace-select');
   const applyPresetButton = document.getElementById('bulk-apply-preset');
   const duplicateButton = document.getElementById('bulk-duplicate');
+  const { resetPosition } = makeToolbarDraggable(
+    toolbar,
+    document.getElementById('bookmark-viewport')
+  );
   let currentState = null;
+  let selectionIsVisible = false;
 
   document.getElementById('bulk-clear').addEventListener('click', clearGridItemSelection);
   applyPresetButton.addEventListener('click', () => {
@@ -101,6 +107,10 @@ export function initGridBulkActions() {
   });
 
   subscribeToGridItemSelection(items => {
+    const hasSelection = items.length > 0;
+    if (hasSelection !== selectionIsVisible) resetPosition();
+    selectionIsVisible = hasSelection;
+
     const selected = new Set(items.map(item => `${item.kind}:${item.id}`));
     document.querySelectorAll('.bookmark[data-bookmark-id]').forEach(element => {
       const isSelected = selected.has(`bookmark:${element.dataset.bookmarkId}`);
@@ -117,7 +127,7 @@ export function initGridBulkActions() {
     const includesWidget = items.some(item => item.kind === 'widget');
     applyPresetButton.disabled = includesWidget;
     duplicateButton.disabled = includesWidget;
-    toolbar.classList.toggle('is-hidden', items.length === 0);
+    toolbar.classList.toggle('is-hidden', !hasSelection);
     count.textContent = t('bulk.selected', { count: items.length });
   });
 }

@@ -220,7 +220,14 @@
   border-radius: 12px;
   background: var(--ui-glass);
   box-shadow: 0 12px 36px var(--ui-control-shadow);
+  cursor: grab;
+  touch-action: none;
   transform: translateX(-50%);
+}
+
+.bulk-actions.is-dragging {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .bulk-actions select {
@@ -230,6 +237,12 @@
   border-radius: 8px;
   background: var(--ui-input);
   color: var(--ui-text);
+  cursor: pointer;
+  touch-action: auto;
+}
+
+.bulk-actions .btn {
+  touch-action: auto;
 }
 
 #bulk-selection-count {

@@ -2640,6 +2640,53 @@ test('duplicates from the bulk toolbar and clears selection when edit mode close
   await expect(page.locator('.bookmark.is-selected')).toHaveCount(0);
 });
 
+test('drags the bulk toolbar within the grid and restores its default position', async ({ page }) => {
+  await createBookmark(page, 'Toolbar drag target', 'https://toolbar-drag.test');
+  await enableEditMode(page);
+  const bookmark = page.locator('.bookmark[data-bookmark-id]').first();
+  const toolbar = page.getByRole('toolbar', { name: 'Selected item actions' });
+  const count = page.locator('#bulk-selection-count');
+  const grid = page.locator('#bookmark-viewport');
+
+  await bookmark.click();
+  await expect(toolbar).toBeVisible();
+  const defaultBox = await visibleBox(toolbar);
+  const gridBox = await visibleBox(grid);
+
+  let countBox = await visibleBox(count);
+  await page.mouse.move(countBox.x + countBox.width / 2, countBox.y + countBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(gridBox.x - 100, gridBox.y - 100, { steps: 5 });
+  await page.mouse.up();
+
+  let draggedBox = await visibleBox(toolbar);
+  expect(draggedBox.x).toBeGreaterThanOrEqual(gridBox.x);
+  expect(draggedBox.y).toBeGreaterThanOrEqual(gridBox.y);
+  expect(draggedBox.y).toBeLessThan(defaultBox.y);
+  await expect(toolbar).not.toHaveClass(/is-dragging/);
+
+  countBox = await visibleBox(count);
+  await page.mouse.move(countBox.x + countBox.width / 2, countBox.y + countBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(gridBox.x + gridBox.width + 100, gridBox.y + gridBox.height + 100, {
+    steps: 5
+  });
+  await page.mouse.up();
+
+  draggedBox = await visibleBox(toolbar);
+  expect(draggedBox.x + draggedBox.width).toBeLessThanOrEqual(gridBox.x + gridBox.width + 1);
+  expect(draggedBox.y + draggedBox.height).toBeLessThanOrEqual(gridBox.y + gridBox.height + 1);
+
+  await toolbar.getByRole('button', { name: 'Clear selection' }).click();
+  await expect(toolbar).toBeHidden();
+  await bookmark.click();
+  await expect(toolbar).toBeVisible();
+
+  const restoredBox = await visibleBox(toolbar);
+  expect(restoredBox.x).toBeCloseTo(defaultBox.x, 0);
+  expect(restoredBox.y).toBeCloseTo(defaultBox.y, 0);
+});
+
 test('runs every bulk action on a mixed bookmark and folder selection', async ({ page }) => {
   await page.evaluate(async () => {
     const { DEFAULT_BOOKMARK, DEFAULT_FOLDER_STYLE } = await import('/src/js/core/defaults.js');
