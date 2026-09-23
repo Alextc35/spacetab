@@ -21,6 +21,11 @@
       "updated": "Bookmark updated",
       "deleted": "Bookmark deleted"
     },
+    "clock": {
+      "added": "Clock added",
+      "updated": "Clock updated",
+      "deleted": "Clock deleted"
+    },
     "folder": {
       "created": "Folder created",
       "renamed": "Folder renamed",
@@ -147,6 +152,25 @@
     "url": "URL:",
     "advancedOptions": "⚙ Advanced options",
     "compactView": "▴ Compact view"
+  },
+  "clock": {
+    "name": "Clock",
+    "add": "Clock",
+    "createTitle": "Add clock",
+    "editTitle": "Clock settings",
+    "description": "Show your local time on this workspace.",
+    "hourCycle": "Time format",
+    "hour24": "24 hours",
+    "hour12": "12 hours",
+    "showSeconds": "Show seconds",
+    "delete": "Delete",
+    "edit": "Edit clock",
+    "actions": "Clock actions",
+    "openSettings": "Open clock settings",
+    "confirmDelete": "Delete this clock? You can undo this action.",
+    "confirmPermanentDelete": "Permanently delete this clock? This cannot be undone.",
+    "cancel": "Discard clock changes?",
+    "noSpace": "There is not enough grid space for this clock."
   },
   "buttons": {
     "save": "Save",

@@ -26,6 +26,7 @@ items on a desktop without relying on a NewDeskTab account or backend.
 * Named appearance presets
 * Independent bookmark workspaces with smooth `Alt/⌥ + ↑/↓` navigation
 * Resizable folders with a clean link view and an editable 3 × 6 workspace
+* Bundled resizable clock widget with 12/24-hour and seconds controls
 * Global search palette (`/`)
 * Multi-select, bulk styling, moving, duplication and deletion
 * Bookmark duplication plus atomic undo/redo for bookmark and folder changes
@@ -210,6 +211,7 @@ src/js/shared/ui/                 reusable modal, tabs, notices, image and visua
 src/js/widgets/widgetModel.js      generic persisted widget envelope
 src/js/widgets/widgetRegistry.js   bundled-widget to GridItem adapter
 src/js/widgets/widgetActions.js    generic widget lifecycle commands
+src/js/widgets/builtin/clock/      first bundled visible widget
 
 ```
 

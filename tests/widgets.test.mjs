@@ -62,6 +62,7 @@ test('registerWidget adapts persisted instances to the GridItem protocol', () =>
   const widgets = createWidgetRegistry(gridRegistry);
   let editingContext = null;
   let openContext = null;
+  let removalContext = null;
   widgets.register({
     type: 'clock',
     selectable: true,
@@ -70,6 +71,10 @@ test('registerWidget adapts persisted instances to the GridItem protocol', () =>
     },
     open(context) {
       openContext = context;
+    },
+    getRemovalSuccessMessage(context) {
+      removalContext = context;
+      return 'flash.clock.deleted';
     },
     enableEditing(container, element, widget, context) {
       editingContext = { container, element, widget, context };
@@ -103,6 +108,11 @@ test('registerWidget adapts persisted instances to the GridItem protocol', () =>
   entry.definition.open({ ...entry, state, element });
   assert.equal(openContext.widget, clock);
   assert.equal(openContext.config.timezone, 'UTC');
+  assert.equal(
+    entry.definition.getRemovalSuccessMessage({ ...entry, state, element }),
+    'flash.clock.deleted'
+  );
+  assert.equal(removalContext.widget, clock);
   assert.equal(gridRegistry.resolveElement({
     dataset: element.dataset,
     matches: selector => selector === '[data-widget-type="clock"][data-widget-id]'

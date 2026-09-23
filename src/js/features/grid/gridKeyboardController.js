@@ -225,9 +225,13 @@ async function confirmFocusedGridItemDeletion(item, { permanent = false } = {}) 
   });
   if (!deleted) return;
   keepGridKeyboardNavigationAfterDeletion(deletedItemIndex);
-  flashSuccess(permanent
+  const successMessage = item.definition.getRemovalSuccessMessage?.({
+    ...createItemActionContext(item),
+    permanent
+  }) ?? (permanent
     ? 'flash.recycleBin.deletedPermanently'
     : 'flash.recycleBin.moved');
+  flashSuccess(successMessage);
 }
 
 function keepGridKeyboardNavigationAfterDeletion(deletedItemIndex) {

@@ -21,6 +21,11 @@
       "updated": "Favorito atualizado",
       "deleted": "Favorito excluído"
     },
+    "clock": {
+      "added": "Relógio adicionado",
+      "updated": "Relógio atualizado",
+      "deleted": "Relógio excluído"
+    },
     "folder": {
       "created": "Pasta criada",
       "renamed": "Pasta renomeada",
@@ -147,6 +152,25 @@
     "url": "URL:",
     "advancedOptions": "⚙ Opções avançadas",
     "compactView": "▴ Visualização compacta"
+  },
+  "clock": {
+    "name": "Relógio",
+    "add": "Relógio",
+    "createTitle": "Adicionar relógio",
+    "editTitle": "Configurações do relógio",
+    "description": "Mostre sua hora local neste espaço de trabalho.",
+    "hourCycle": "Formato de hora",
+    "hour24": "24 horas",
+    "hour12": "12 horas",
+    "showSeconds": "Mostrar segundos",
+    "delete": "Excluir",
+    "edit": "Editar relógio",
+    "actions": "Ações do relógio",
+    "openSettings": "Abrir configurações do relógio",
+    "confirmDelete": "Excluir este relógio? Você pode desfazer esta ação.",
+    "confirmPermanentDelete": "Excluir este relógio permanentemente? Esta ação não pode ser desfeita.",
+    "cancel": "Descartar as alterações do relógio?",
+    "noSpace": "Não há espaço suficiente na grade para este relógio."
   },
   "buttons": {
     "save": "Salvar",

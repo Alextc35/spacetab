@@ -83,7 +83,13 @@ function validateDefinition(definition) {
   if (typeof definition.selector !== 'string' || !definition.selector.trim()) {
     throw new TypeError('Grid item definition requires a DOM selector.');
   }
-  for (const key of ['open', 'edit', 'remove', 'getRemovalConfirmation']) {
+  for (const key of [
+    'open',
+    'edit',
+    'remove',
+    'getRemovalConfirmation',
+    'getRemovalSuccessMessage'
+  ]) {
     if (definition[key] !== undefined && typeof definition[key] !== 'function') {
       throw new TypeError(`Grid item ${key} must be a function.`);
     }

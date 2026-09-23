@@ -1,4 +1,4 @@
-import { getState, setState } from '../core/store.js';
+import { clearBookmarkHistory, getState, setState } from '../core/store.js';
 import { findFirstFreeSlot } from '../shared/grid/gridPlacement.js';
 import { getGridItemsInGroup } from '../features/grid/gridSelectors.js';
 import { getActiveWorkspaceId } from '../features/workspaces/workspaceSelectors.js';
@@ -69,11 +69,12 @@ export function updateWidgetById(widgetId, patch) {
   return updated;
 }
 
-/** Removes one widget permanently; recycle-bin policy remains feature-owned. */
-export function deleteWidgetById(widgetId) {
+/** Removes one widget; callers choose whether the operation remains undoable. */
+export function deleteWidgetById(widgetId, { recordHistory = true } = {}) {
   const { data } = getState();
   const widgets = data.widgets.filter(widget => widget.id !== widgetId);
   if (widgets.length === data.widgets.length) return false;
-  setState({ data: { widgets } });
+  setState({ data: { widgets } }, { recordHistory });
+  if (!recordHistory) clearBookmarkHistory();
   return true;
 }

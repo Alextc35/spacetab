@@ -44,8 +44,8 @@ feature phase, not to make the tree look finished.
 
 ## Current migration status
 
-Phases 1 through 15 establish the first application, domain, feature, platform
-and widget seams:
+Phases 1 through 16 establish the first application, domain, feature, platform
+and widget seams, including the first visible bundled widget:
 
 ```text
 src/js/
@@ -161,6 +161,13 @@ src/js/
 │       ├── svgIcons.js
 │       └── tabs.js
 └── widgets/
+    ├── builtin/
+    │   └── clock/
+    │       ├── clockGridItem.js
+    │       ├── clockModel.js
+    │       ├── clockSettings.js
+    │       ├── clockView.js
+    │       └── index.js
     ├── widgetActions.js
     ├── widgetModel.js
     └── widgetRegistry.js
@@ -436,24 +443,27 @@ editing or interaction capabilities it needs. Registration is synchronous
 local-module composition and is compatible with Manifest V3 CSP; no code is
 downloaded or evaluated.
 
-For a clock, the intended shape is:
+The first bundled implementation uses this shape:
 
 ```text
 widgets/builtin/clock/
 ├── clockModel.js
 ├── clockGridItem.js
 ├── clockSettings.js
-└── clock.css
+├── clockView.js
+└── index.js
 ```
 
-Its bundled entry point calls `registerWidget(clockWidget)`. Creation, config
-updates and permanent removal use `widgetActions`; a widget may opt into the
-shared drag/resize controller with `kind: 'widget'`. The generic grid renderer,
-store, storage facade, modal manager and HTML shell do not change. The widget
-still owns its config normalization, UI entry point, settings surface and any
-explicit recycle-bin policy. No example clock is bundled yet: the phase adds
-only infrastructure exercised by contract tests. Remote executable plugins
-remain out of scope.
+Application composition registers `clockWidget` through the widget registry.
+Creation, configuration updates and removal use `widgetActions`; the clock opts
+into the shared drag/resize controller with `kind: 'widget'`. Its visible time
+is transient DOM state aligned to the next second or minute and never produces
+store writes. Only its versioned configuration and grid rectangle are persisted.
+The widget owns config normalization, grid/list rendering and its settings
+surface without adding clock branches to the generic renderer, store or storage
+facade. It participates in local/sync persistence, backups, undo/redo, keyboard
+navigation and collision handling through the existing contracts. Remote
+executable plugins remain out of scope.
 
 ## Incremental roadmap
 
@@ -487,6 +497,9 @@ remain out of scope.
     the generic modal index and keep feature composition explicit.
 15. ✅ Encapsulate mixed-item grid interaction under `features/grid` and move
     deterministic resize and smart-layout policies into `shared/grid`.
+16. ✅ Ship the first visible bundled widget: a local-time clock with 12/24-hour
+    and seconds controls, compact-list rendering, drag/resize, persistence,
+    keyboard actions and undoable removal.
 
 Each phase must finish with lint, unit and DOM tests, relevant E2E journeys and
 the unpacked-extension smoke/package checks.

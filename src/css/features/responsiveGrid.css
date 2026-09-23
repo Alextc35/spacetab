@@ -1,5 +1,5 @@
 /* Keep card content and edit controls within their actual cell dimensions. */
-#bookmark-container:not(.is-list-view) > :is(.bookmark, .recycle-bin) {
+#bookmark-container:not(.is-list-view) > :is(.bookmark, .recycle-bin, .grid-widget) {
   container: bookmark-card / size;
 }
 
@@ -11,7 +11,7 @@
   flex: 0 0 auto;
 }
 
-#bookmark-container:not(.is-list-view) > :is(.bookmark, .recycle-bin) .resizer {
+#bookmark-container:not(.is-list-view) > :is(.bookmark, .recycle-bin, .grid-widget) .resizer {
   &.top, &.bottom {
     width: min(22px, calc(100% - 24px));
   }

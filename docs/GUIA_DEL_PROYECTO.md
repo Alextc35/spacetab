@@ -192,6 +192,7 @@ No es un sistema de plugins remotos.
 - `widgetModel.js`: formato persistido y normalización.
 - `widgetRegistry.js`: validación y adaptación al protocolo del grid.
 - `widgetActions.js`: alta, actualización y eliminación de instancias.
+- `builtin/clock/`: primer widget visible, con modelo, vista y configuración.
 
 ### `core/` y `ui/`: zonas de transición
 
@@ -650,13 +651,13 @@ Evitar los siguientes patrones:
 ## 17. Estado actual y siguiente evolución
 
 La separación de dominio, features, plataforma, UI compartida y grid ya está
-establecida. Las principales zonas pendientes son:
+establecida, y el reloj valida el contrato de widgets de extremo a extremo. Las
+principales zonas pendientes son:
 
-1. Implementar el primer widget visible sobre el contrato existente.
-2. Continuar reduciendo los módulos residuales de `ui/`.
-3. Dividir responsabilidades restantes de `core/` cuando exista una frontera
+1. Continuar reduciendo los módulos residuales de `ui/`.
+2. Dividir responsabilidades restantes de `core/` cuando exista una frontera
    probada para cada una.
-4. Mejorar la recuperación de conflictos entre dispositivos.
+3. Mejorar la recuperación de conflictos entre dispositivos.
 
 Para las reglas arquitectónicas exhaustivas y el historial de la migración,
 consultar también [`ARCHITECTURE.md`](ARCHITECTURE.md).

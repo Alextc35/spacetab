@@ -19,6 +19,7 @@
 @import './features/responsiveGrid.css';
 @import './features/bookmarkList.css';
 @import './features/recycleBin.css';
+@import './features/clockWidget.css';
 
 @import './states/disabled.css';
 @import './states/hidden.css';

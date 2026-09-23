@@ -1,4 +1,4 @@
-:is(.bookmark, .recycle-bin) {
+:is(.bookmark, .recycle-bin, .grid-widget) {
   position: absolute;
   left: var(--x);
   top: var(--y);
@@ -453,10 +453,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bookmark.is-smart-moving,
-  .bookmark.is-editing.is-dragging,
-  .bookmark .resizer,
-  .bookmark .resize-indicator,
+  :is(.bookmark, .grid-widget).is-smart-moving,
+  :is(.bookmark, .grid-widget).is-editing.is-dragging,
+  :is(.bookmark, .grid-widget) .resizer,
+  :is(.bookmark, .grid-widget) .resize-indicator,
   .item-action-button {
     transition: none;
   }

@@ -57,7 +57,14 @@ function validateDefinition(definition) {
   if (typeof definition.render !== 'function') {
     throw new TypeError('Widget definition requires render().');
   }
-  for (const key of ['enableEditing', 'open', 'edit', 'remove', 'getRemovalConfirmation']) {
+  for (const key of [
+    'enableEditing',
+    'open',
+    'edit',
+    'remove',
+    'getRemovalConfirmation',
+    'getRemovalSuccessMessage'
+  ]) {
     if (definition[key] !== undefined && typeof definition[key] !== 'function') {
       throw new TypeError(`Widget ${key} must be a function.`);
     }
@@ -117,7 +124,13 @@ function createGridItemAdapter(widget) {
     );
   }
 
-  for (const key of ['open', 'edit', 'remove', 'getRemovalConfirmation']) {
+  for (const key of [
+    'open',
+    'edit',
+    'remove',
+    'getRemovalConfirmation',
+    'getRemovalSuccessMessage'
+  ]) {
     if (!widget[key]) continue;
     adapter[key] = context => widget[key]({
       ...context,

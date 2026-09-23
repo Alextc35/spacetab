@@ -21,6 +21,11 @@
       "updated": "Favorito actualizado",
       "deleted": "Favorito eliminado"
     },
+    "clock": {
+      "added": "Reloj añadido",
+      "updated": "Reloj actualizado",
+      "deleted": "Reloj eliminado"
+    },
     "folder": {
       "created": "Carpeta creada",
       "renamed": "Carpeta renombrada",
@@ -147,6 +152,25 @@
     "url": "URL:",
     "advancedOptions": "⚙ Opciones avanzadas",
     "compactView": "▴ Vista compacta"
+  },
+  "clock": {
+    "name": "Reloj",
+    "add": "Reloj",
+    "createTitle": "Añadir reloj",
+    "editTitle": "Configuración del reloj",
+    "description": "Muestra tu hora local en este espacio de trabajo.",
+    "hourCycle": "Formato de hora",
+    "hour24": "24 horas",
+    "hour12": "12 horas",
+    "showSeconds": "Mostrar segundos",
+    "delete": "Eliminar",
+    "edit": "Editar reloj",
+    "actions": "Acciones del reloj",
+    "openSettings": "Abrir configuración del reloj",
+    "confirmDelete": "¿Eliminar este reloj? Puedes deshacer esta acción.",
+    "confirmPermanentDelete": "¿Eliminar este reloj definitivamente? Esta acción no se puede deshacer.",
+    "cancel": "¿Descartar los cambios del reloj?",
+    "noSpace": "No hay espacio suficiente en la cuadrícula para este reloj."
   },
   "buttons": {
     "save": "Guardar",

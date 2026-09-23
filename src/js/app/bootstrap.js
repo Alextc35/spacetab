@@ -32,6 +32,7 @@ import { flashInfo } from '../shared/ui/flash.js';
 import { initFloatingMenu } from '../ui/floatingMenu.js';
 import { initKeyboardShortcuts } from '../ui/keyboardShortcuts.js';
 import { initUIController } from '../ui/uiController.js';
+import { initClockSettings } from '../widgets/builtin/clock/index.js';
 import { createAppController } from './appController.js';
 import { registerGridItemTypes } from './registerGridItemTypes.js';
 
@@ -121,4 +122,5 @@ function initModals() {
   initRecycleBinEditorModal();
   initSettingsModal();
   initBookmarkModal();
+  initClockSettings();
 }
