@@ -169,28 +169,42 @@ test('asks before permanently deleting a clock dropped on the recycle bin', asyn
   await revealSideDock(page);
   await page.getByRole('button', { name: '✎' }).click();
 
-  const clockBox = await clock.boundingBox();
-  const recycleBinBox = await recycleBin.boundingBox();
-  expect(clockBox).not.toBeNull();
-  expect(recycleBinBox).not.toBeNull();
-  await page.mouse.move(
-    clockBox.x + clockBox.width / 2,
-    clockBox.y + clockBox.height / 2
-  );
-  await page.mouse.down();
-  await page.mouse.move(
-    recycleBinBox.x + recycleBinBox.width / 2,
-    recycleBinBox.y + recycleBinBox.height / 2,
-    { steps: 10 }
-  );
-  await expect(recycleBin).toHaveClass(/is-drop-target/);
-  await expect(clock).toHaveClass(/is-drop-landing/);
-  await page.mouse.up();
+  const dropClockOnRecycleBin = async () => {
+    const clockBox = await clock.boundingBox();
+    const recycleBinBox = await recycleBin.boundingBox();
+    expect(clockBox).not.toBeNull();
+    expect(recycleBinBox).not.toBeNull();
+    await page.mouse.move(
+      clockBox.x + clockBox.width / 2,
+      clockBox.y + clockBox.height / 2
+    );
+    await page.mouse.down();
+    await page.mouse.move(
+      recycleBinBox.x + recycleBinBox.width / 2,
+      recycleBinBox.y + recycleBinBox.height / 2,
+      { steps: 10 }
+    );
+    await expect(recycleBin).toHaveClass(/is-drop-target/);
+    await expect(clock).toHaveClass(/is-drop-landing/);
+    await page.mouse.up();
+  };
+
+  await dropClockOnRecycleBin();
 
   await expect(page.locator('#alert-modal-title')).toHaveText(
     'Permanently delete this clock? This cannot be undone.'
   );
+  await expect(clock).toBeHidden();
+  await expect(clock).toHaveClass(/is-recycle-drop-committed/);
+  await page.locator('#alert-modal-cancel').click();
   await expect(clock).toBeVisible();
+  await expect(clock).not.toHaveClass(/is-recycle-drop-committed/);
+  await expect.poll(() => clock.evaluate(element => (
+    element.classList.contains('is-recycle-drop-restoring')
+  ))).toBe(false);
+
+  await dropClockOnRecycleBin();
+  await expect(clock).toBeHidden();
   await page.locator('#alert-modal-accept').click();
   await expect(clock).toHaveCount(0);
   await expect.poll(() => page.evaluate(async () => {

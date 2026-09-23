@@ -126,6 +126,24 @@
     filter: drop-shadow(0 0 6px rgba(96, 165, 250, .7));
   }
 
+  &.is-recycle-drop-committed {
+    visibility: hidden;
+    opacity: 0 !important;
+    pointer-events: none;
+  }
+
+  &.is-recycle-drop-restoring {
+    visibility: visible;
+    opacity: 0 !important;
+    pointer-events: none;
+    transition: none !important;
+
+    &.is-recycle-drop-revealed {
+      opacity: 1 !important;
+      transition: opacity .18s ease !important;
+    }
+  }
+
   & .resizer {
     position: absolute;
     z-index: 4;
@@ -455,6 +473,7 @@
 @media (prefers-reduced-motion: reduce) {
   :is(.bookmark, .grid-widget).is-smart-moving,
   :is(.bookmark, .grid-widget).is-editing.is-dragging,
+  :is(.bookmark, .grid-widget).is-recycle-drop-restoring.is-recycle-drop-revealed,
   :is(.bookmark, .grid-widget) .resizer,
   :is(.bookmark, .grid-widget) .resize-indicator,
   .item-action-button {

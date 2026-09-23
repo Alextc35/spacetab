@@ -59,6 +59,29 @@ async function toggleEditMode(page) {
   await page.locator('#edit-toggle-mode').click();
 }
 
+async function createDropBookmark(page) {
+  await page.evaluate(async () => {
+    const { DEFAULT_BOOKMARK } = await import('/src/js/core/defaults.js');
+    const { getState, setState } = await import('/src/js/core/store.js');
+    const data = getState().data;
+    const now = Date.now();
+    await setState({
+      data: {
+        bookmarks: [...data.bookmarks, {
+          ...DEFAULT_BOOKMARK,
+          id: 'drop-bookmark',
+          name: 'Drop bookmark',
+          url: 'https://drop-bookmark.test',
+          gx: 1,
+          gy: 0,
+          createdAt: now,
+          updatedAt: now
+        }]
+      }
+    });
+  });
+}
+
 async function hoverCenterTo(page, source, target) {
   const from = await source.boundingBox();
   const to = await target.boundingBox();
@@ -156,8 +179,9 @@ test('moves, resizes, hides and shows the recycle bin', async ({ page }) => {
 });
 
 test('drops a bookmark into the bin and restores the selected item', async ({ page }) => {
+  await createDropBookmark(page);
   await toggleEditMode(page);
-  const bookmark = page.locator('.bookmark[data-bookmark-id]').first();
+  const bookmark = page.locator('.bookmark[data-bookmark-id="drop-bookmark"]');
   const bookmarkId = await bookmark.getAttribute('data-bookmark-id');
   const bin = page.locator('.recycle-bin');
   await hoverCenterTo(page, bookmark, bin);
@@ -176,7 +200,7 @@ test('drops a bookmark into the bin and restores the selected item', async ({ pa
   const modal = page.locator('#recycle-bin-modal');
   await expect(modal).toBeVisible();
   await expect(modal.locator('.recycle-bin-item')).toHaveCount(1);
-  await expect(modal).toContainText('DEVELOPED BY');
+  await expect(modal).toContainText('Drop bookmark');
   await modal.locator('.recycle-bin-item input').check();
   await modal.getByRole('button', { name: 'Restore selected' }).click();
   await expect(modal.locator('.recycle-bin-item')).toHaveCount(0);
@@ -213,6 +237,8 @@ test('asks before dropping a folder with contents and supports permanent deletio
   await page.mouse.up();
   await expect(page.locator('#alert-modal')).toBeVisible();
   await expect(page.locator('#alert-modal-title')).toContainText('Archive');
+  await expect(folder).toBeHidden();
+  await expect(folder).toHaveClass(/is-recycle-drop-committed/);
   await page.getByRole('button', { name: 'Accept', exact: true }).click();
   await expect(folder).toHaveCount(0);
 
