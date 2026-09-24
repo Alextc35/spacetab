@@ -9,15 +9,14 @@ import '../../types/types.js'; // typedefs
  * @param {Bookmark} bookmark - Bookmark object
  * @param {Object} [options]
  * @param {string|null} [options.placeholderUrl] - Local image used instead of resolving a site.
- * @return {HTMLImageElement} <img> element with favicon or initials
+ * @return {HTMLSpanElement} Theme-aware favicon container.
  */
 export function createFavicon(bookmark, { placeholderUrl = null } = {}) {
-  const img = document.createElement('img');
-  img.className = 'bookmark-favicon';
+  const favicon = createFaviconContainer(bookmark.name);
 
   if (placeholderUrl) {
-    img.src = placeholderUrl;
-    return img;
+    favicon.append(createFaviconImage(placeholderUrl));
+    return favicon;
   }
 
   let isInternal = false;
@@ -26,20 +25,62 @@ export function createFavicon(bookmark, { placeholderUrl = null } = {}) {
     isInternal = urlObj.hostname.endsWith('.internal') || urlObj.hostname.endsWith('.local');
     if (!isInternal) {
       const faviconOrigin = getFaviconOrigin(urlObj);
+      const img = createFaviconImage();
       img.onerror = () => {
         img.onerror = null;
-        img.src = generateInitialsFallback(bookmark.name);
+        showInitialsFallback(favicon, bookmark.name);
       };
       img.src =
         `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(faviconOrigin)}&size=64`;
+      favicon.append(img);
     }
   } catch {
-    img.src = generateInitialsFallback(bookmark.name);
+    showInitialsFallback(favicon, bookmark.name);
   }
 
-  if (isInternal) img.src = generateInitialsFallback(bookmark.name);
+  if (isInternal) showInitialsFallback(favicon, bookmark.name);
 
-  return img;
+  return favicon;
+}
+
+function createFaviconContainer(name) {
+  const favicon = document.createElement('span');
+  favicon.className = 'bookmark-favicon';
+
+  // Keep the same small `alt` contract callers used when this returned an img.
+  Object.defineProperty(favicon, 'alt', {
+    configurable: true,
+    get: () => favicon.getAttribute('aria-label') || '',
+    set: value => {
+      setAlternativeText(favicon, value);
+    }
+  });
+  favicon.alt = name || '';
+  return favicon;
+}
+
+function createFaviconImage(src = '') {
+  const image = document.createElement('img');
+  image.className = 'bookmark-favicon-image';
+  image.alt = '';
+  image.draggable = false;
+  if (src) image.src = src;
+  return image;
+}
+
+function setAlternativeText(favicon, value) {
+  const label = String(value || '');
+  favicon.classList.toggle('has-alternative-text', Boolean(label));
+  if (label) {
+    favicon.setAttribute('role', 'img');
+    favicon.setAttribute('aria-label', label);
+    favicon.removeAttribute('aria-hidden');
+    return;
+  }
+
+  favicon.removeAttribute('role');
+  favicon.removeAttribute('aria-label');
+  favicon.setAttribute('aria-hidden', 'true');
 }
 
 /**
@@ -59,25 +100,24 @@ function getFaviconOrigin(url) {
 }
 
 /**
- * Generates an inline SVG containing the bookmark initials.
+ * Replaces a failed favicon with theme-aware bookmark initials.
  *
  * Used as a fallback when the favicon cannot be retrieved.
  *
+ * @param {HTMLSpanElement} favicon - Favicon container.
  * @param {string} name - Bookmark display name.
- * @returns {string} Data URL representing the generated image.
+ * @returns {void}
  */
-function generateInitialsFallback(name) {
+function showInitialsFallback(favicon, name) {
   const initials = Array.from((name || '').trim())
     .filter(character => /[\p{L}\p{N}]/u.test(character))
     .slice(0, 2)
     .join('')
     .toLocaleUpperCase() || '?';
-  const svg = [
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">',
-    '<rect width="64" height="64" rx="14" fill="#17263b"/>',
-    `<text x="32" y="34" fill="#f8fafc" font-family="system-ui,sans-serif" `,
-    `font-size="26" font-weight="700" text-anchor="middle" dominant-baseline="middle">${initials}</text>`,
-    '</svg>'
-  ].join('');
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  const text = document.createElement('span');
+  text.className = 'bookmark-favicon-initials';
+  text.setAttribute('aria-hidden', 'true');
+  text.textContent = initials;
+  favicon.classList.add('bookmark-favicon-fallback');
+  favicon.replaceChildren(text);
 }

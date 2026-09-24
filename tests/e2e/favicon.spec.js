@@ -28,7 +28,7 @@ test('loads the parent favicon when the app host returns a valid generic image w
     return addBookmark({ name: 'Web3Forms', url: 'https://app.web3forms.com/dashboard' }).id;
   });
   const card = page.locator(`#bookmark-container [data-bookmark-id="${id}"]`);
-  const favicon = card.locator('.bookmark-favicon').first();
+  const favicon = card.locator('.bookmark-favicon-image').first();
 
   await expect(favicon).toBeVisible();
   await expect.poll(() => favicon.evaluate(image => ({
@@ -37,4 +37,33 @@ test('loads the parent favicon when the app host returns a valid generic image w
   }))).toEqual({ origin: 'https://web3forms.com', loaded: true });
   expect(requestedOrigins).toContain('https://web3forms.com');
   await expect(card.locator('a.bookmark-link')).toHaveAttribute('href', 'https://app.web3forms.com/dashboard');
+});
+
+test('offline initials fallback follows the interface theme', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1'
+    ? route.continue()
+    : route.abort());
+  await page.goto('/tests/browser-harness.html');
+
+  const id = await page.evaluate(async () => {
+    const { addBookmark } = await import('/src/js/features/bookmarks/bookmarkActions.js');
+    return addBookmark({ name: 'Theme fallback', url: 'https://theme.internal' }).id;
+  });
+  const fallback = page.locator(
+    `#bookmark-container [data-bookmark-id="${id}"] .bookmark-favicon-fallback`
+  );
+
+  await expect(fallback).toHaveText('TH');
+  await expect(fallback).toHaveCSS('background-color', 'rgb(238, 240, 252)');
+  await expect(fallback).toHaveCSS('color', 'rgb(36, 36, 40)');
+
+  await page.evaluate(async () => {
+    const { getState, setState } = await import('/src/js/core/store.js');
+    const settings = getState().data.settings;
+    await setState({ data: { settings: { ...settings, interfaceTheme: 'dark' } } });
+  });
+
+  await expect(fallback).toHaveCSS('background-color', 'rgb(24, 36, 56)');
+  await expect(fallback).toHaveCSS('color', 'rgb(255, 255, 255)');
 });

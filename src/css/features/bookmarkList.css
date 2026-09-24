@@ -194,6 +194,11 @@
   object-fit: contain;
 }
 
+.bookmark-list-icon > .bookmark-favicon {
+  width: 100%;
+  height: 100%;
+}
+
 .bookmark-list-icon .bookmark-list-cover {
   object-fit: cover;
 }

@@ -58,7 +58,7 @@ describe('BookmarkEditorPanel', () => {
     expect(presetPanel.getValue()).not.toHaveProperty('name');
     expect(presetPanel.getValue().backgroundColor).toBe('#abcdef');
     expect(presetPanel.root.querySelector('.bookmark-title').textContent).toBe('Default bookmark');
-    expect(presetPanel.root.querySelector('.bookmark-favicon').getAttribute('src'))
+    expect(presetPanel.root.querySelector('.bookmark-favicon-image').getAttribute('src'))
       .toBe('/assets/icons/icon-128.png');
 
     createPanel.destroy();
@@ -118,11 +118,12 @@ describe('BookmarkEditorPanel', () => {
     expect(document.getElementById('bookmark-modal-form-host').children).toHaveLength(0);
   });
 
-  test('uses an inline initials fallback for bookmarks without a resolvable URL', () => {
+  test('uses a theme-aware initials fallback for bookmarks without a resolvable URL', () => {
     const favicon = createFavicon({ name: 'Example bookmark', url: '' });
 
-    expect(favicon.getAttribute('src')).toMatch(/^data:image\/svg\+xml,/);
-    expect(favicon.getAttribute('src')).not.toContain('flaticon.com');
+    expect(favicon.classList.contains('bookmark-favicon-fallback')).toBe(true);
+    expect(favicon.querySelector('.bookmark-favicon-initials').textContent).toBe('EX');
+    expect(favicon.querySelector('img')).toBeNull();
   });
 
   test('ignores a leading www only when resolving the favicon', () => {
@@ -131,11 +132,11 @@ describe('BookmarkEditorPanel', () => {
       url: 'https://www.iberlogistics.com/services'
     };
     const favicon = createFavicon(bookmark);
-    const faviconRequest = new URL(favicon.getAttribute('src'));
+    const faviconRequest = new URL(favicon.querySelector('img').getAttribute('src'));
     const subdomainRequest = new URL(createFavicon({
       name: 'App',
       url: 'https://app.example.com/dashboard'
-    }).getAttribute('src'));
+    }).querySelector('img').getAttribute('src'));
 
     expect(faviconRequest.searchParams.get('url')).toBe('https://iberlogistics.com');
     expect(subdomainRequest.searchParams.get('url')).toBe('https://example.com');
@@ -149,26 +150,28 @@ describe('BookmarkEditorPanel', () => {
     const bookmark = { name: 'Web3Forms', url };
     const favicon = createFavicon(bookmark);
 
-    expect(new URL(favicon.src).searchParams.get('url')).toBe(faviconOrigin);
+    expect(new URL(favicon.querySelector('img').src).searchParams.get('url')).toBe(faviconOrigin);
     expect(bookmark.url).toBe(url);
 
-    favicon.dispatchEvent(new Event('error'));
+    const image = favicon.querySelector('img');
+    image.dispatchEvent(new Event('error'));
 
-    expect(favicon.src).toMatch(/^data:image\/svg\+xml,/);
-    expect(favicon.onerror).toBeNull();
-    const initialsSrc = favicon.src;
-    favicon.dispatchEvent(new Event('error'));
-    expect(favicon.src).toBe(initialsSrc);
+    expect(favicon.classList.contains('bookmark-favicon-fallback')).toBe(true);
+    expect(favicon.querySelector('.bookmark-favicon-initials').textContent).toBe('WE');
+    expect(image.onerror).toBeNull();
+    image.dispatchEvent(new Event('error'));
+    expect(favicon.querySelector('.bookmark-favicon-initials').textContent).toBe('WE');
   });
 
   test.each(['example.com', 'myapp.example.com', 'portal.app.example.com'])(
     'uses initials after a failed favicon without stripping %s', hostname => {
       const favicon = createFavicon({ name: 'Example', url: `https://${hostname}/dashboard` });
 
-      favicon.dispatchEvent(new Event('error'));
+      const image = favicon.querySelector('img');
+      image.dispatchEvent(new Event('error'));
 
-      expect(favicon.src).toMatch(/^data:image\/svg\+xml,/);
-      expect(favicon.onerror).toBeNull();
+      expect(favicon.classList.contains('bookmark-favicon-fallback')).toBe(true);
+      expect(image.onerror).toBeNull();
     }
   );
 
@@ -176,8 +179,8 @@ describe('BookmarkEditorPanel', () => {
     'uses initials without requesting a remote favicon for %s', hostname => {
       const favicon = createFavicon({ name: 'Example', url: `https://${hostname}` });
 
-      expect(favicon.src).toMatch(/^data:image\/svg\+xml,/);
-      expect(favicon.onerror).toBeNull();
+      expect(favicon.classList.contains('bookmark-favicon-fallback')).toBe(true);
+      expect(favicon.querySelector('img')).toBeNull();
     }
   );
 });

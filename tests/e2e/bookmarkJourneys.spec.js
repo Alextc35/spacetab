@@ -2349,7 +2349,7 @@ test('configures the default bookmark through the shared preset editor', async (
   await expect(editor.getByRole('tab', { name: 'General' })).toHaveCount(0);
   await expect(editor.getByRole('tab', { name: 'Style' })).toHaveAttribute('aria-selected', 'true');
   await expect(editor.locator('.bookmark-title')).toHaveText('Default bookmark');
-  await expect(editor.locator('.bookmark-favicon'))
+  await expect(editor.locator('.bookmark-favicon-image'))
     .toHaveAttribute('src', /assets\/icons\/icon-128\.png$/);
 
   await editor.getByRole('checkbox', { name: 'No background' }).uncheck();

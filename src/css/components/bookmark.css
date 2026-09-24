@@ -356,9 +356,33 @@
 }
 
 .bookmark-favicon {
+  display: grid;
   width: 60%;
   height: 60%;
+  place-items: center;
+  container-type: inline-size;
+  overflow: hidden;
   object-fit: contain;
+}
+
+.bookmark-favicon-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.bookmark-favicon-fallback {
+  border-radius: 22%;
+  background-color: var(--ui-selected);
+  color: var(--ui-text);
+}
+
+.bookmark-favicon-initials {
+  font-family: system-ui, sans-serif;
+  font-size: 40cqi;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .bookmark-info {

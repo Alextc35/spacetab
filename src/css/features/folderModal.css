@@ -273,6 +273,11 @@
   object-fit: contain;
 }
 
+.folder-previews .bookmark-favicon.bookmark-favicon-fallback {
+  background: var(--ui-selected);
+  color: var(--ui-text);
+}
+
 .folder-previews:not(:empty) {
   width: auto;
   max-width: 100%;
